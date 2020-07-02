@@ -3,10 +3,15 @@ Utilities and applications for the FlatGov project
 
 ## Data
 
-### Install congress repository and dependencies
+### Bulk downloads
+The core metadata that will be used for this project can be downloaded in bulk from ProPublica<sup>TM</sup> here: https://www.propublica.org/datastore/dataset/congressional-data-bulk-legislation-bills
 
-The core data that will be used for this project can be scraped with the Python project here: `https://github.com/unitedstates/congress`. Install the `congress` Python virtual environment, install the requirements (`pip install requirements.txt`). The scrapers were built with Python 2.7 and have not been upgraded; updates may be needed for a production environment, but the `@unitedstates/congress` scraper is sufficient to gather the baseline data to test the utilities in this repository.
+Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily.
 
+### Scraping
+#### Install congress repository and dependencies
+
+The text of bills can be scraped with the Python project here: `https://github.com/unitedstates/congress`. Install the `congress` Python virtual environment, install the requirements (`pip install requirements.txt`). The scrapers were built with Python 2.7 and have not been upgraded; updates may be needed for a production environment, but the `@unitedstates/congress` scraper is sufficient to gather the baseline data to test the utilities in this repository.
 
 On MacOS (Catalina), installing the `congress` requirements involved a few adjustments:
 

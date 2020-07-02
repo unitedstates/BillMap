@@ -16,7 +16,7 @@ The text of bills can be scraped with the Python project here: `https://github.c
 On MacOS (Catalina), installing the `congress` requirements involved a few adjustments:
 
 1. Install OpenSSL 1.02 with Homebrew. The latest OpenSSL (>1.1) causes problems with certain requirements; unfortunately, version 1.0.0 also failed. A script was set up by a Github user to install version 1.0.2.
-`brew uninstall openssl --ignore-dependencies; brew uninstall openssl --ignore-dependencies; brew uninstall libressl --ignore-dependencies; https://raw.githubusercontent.com/Homebrew/homebrew-core/8b9d6d688f483a0f33fcfc93d433de501b9c3513/Formula/openssl.rb;`
+`brew uninstall openssl --ignore-dependencies; brew uninstall openssl --ignore-dependencies; brew uninstall libressl --ignore-dependencies; brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8b9d6d688f483a0f33fcfc93d433de501b9c3513/Formula/openssl.rb;`
 
 2. Link the OpenSSL libraries
 ```
@@ -41,4 +41,8 @@ From the `congress` repository directory, `pip install -r requirements.txt`
 ./run govinfo --bulkdata=BILLSTATUS
 ./run bills
 ```
+
+When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:
+
+`find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
 

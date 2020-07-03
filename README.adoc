@@ -11,7 +11,7 @@ The core metadata that will be used for this project can be downloaded in bulk f
 Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily.
 
 ### Scraping
-#### Install congress repository and dependencies
+#### Install `unitedstates/congress` repository and dependencies
 
 The text of bills can be scraped with the Python project here: `https://github.com/unitedstates/congress`. Install the `congress` Python virtual environment, install the requirements (`pip install requirements.txt`). The scrapers were built with Python 2.7 and have not been upgraded; updates may be needed for a production environment, but the `@unitedstates/congress` scraper is sufficient to gather the baseline data to test the utilities in this repository.
 
@@ -36,7 +36,6 @@ pip install cryptography
 4. Install requirements
 From the `congress` repository directory, `pip install -r requirements.txt`
 
-
 ### Run the scraper
 
 ```bash
@@ -47,4 +46,20 @@ From the `congress` repository directory, `pip install -r requirements.txt`
 When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:
 
 `find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
+
+## Finding Related Bills
+
+### Similarity calculation
+
+For any bill (e.g. 116hr100ih), we want to find related bills for previous congresses. Related bills are listed for the same congress in Congress.gov, e.g. https://www.congress.gov/bill/116th-congress/house-bill/2/related-bills?q={"search":["hr2"]}&r=1&s=3.  There are many ways of calculating similarity. We will use an overall similarity measure, with a value between 0 and 1. The similarity is calculated as a linear combination of matching functions of the form:
+
+`Similarity(bill1,bill2) = normalize(w2*f1(bill1, bill2) + w2*f2(bill1, bill2) + ...)`
+
+Each similarity function has the following properties:
+
+name:: a unique name for the feature being measured
+function:: a function that takes in metadata or text from the two bills and returns a value between 0 and 1
+minthreshold:: the minimum value of the function that will be counted; if the function value is less than minthreshold, it is set to 0
+maxthreshold:: 
+a threshold that sets the whole function to 'true'. If the function is greater than this value, the two bills are considered to be a match. For example, if the titles are identical, the two bills will be considered a match, regardless of the value of the other functions.
 

@@ -52,6 +52,28 @@ When running initially, I got an error because the bulk directories had not been
 
 `find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
 
+## Metadata
+
+Once the files are stored in the `congress/data` directory, a metadata file can be created with the following information: *Congress*, *Name*, *Path to XML or Text*, *Path to Metadata*, *Sponsors*. As an initial form, the metadata file will be:
+
+billdata.json
+```javascript
+[ 
+  116: {
+       116hr1ih: {
+          name: '116hr1ih',
+          sponsors: ['name1', 'name2'...],
+          path_xml: '...',
+          path_text: '...',
+          path_metadata: '...
+           }
+           ...
+     },
+  115: {
+     }
+]
+```
+
 ## Finding Related Bills
 
 ### Similarity calculation

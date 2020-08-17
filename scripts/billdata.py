@@ -20,7 +20,7 @@ logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
-def logName(fname: str):
+def logName(dirName: str, fileName: str):
   """
   Prints the name provided (path to a file to be processed) to the log.
 
@@ -28,7 +28,7 @@ def logName(fname: str):
       fname (str): path of file to be processed 
   """
 
-  logger.info('Processing: \t%s' % fname)
+  logger.info('Processing: \t%s' % fileName)
 
 def getTopBillLevel(dirName: str):
   """
@@ -45,13 +45,13 @@ def getTopBillLevel(dirName: str):
 def isDataJson(fileName: str) -> bool:
   return fileName == 'data.json'
 
-def walkBillDirs(rootDir = '../congress', processFile = logName, dirMatch = getTopBillLevel, fileMatch = isDataJson):
+def walkBillDirs(rootDir = '../congress/data', processFile = logName, dirMatch = getTopBillLevel, fileMatch = isDataJson):
     for dirName, subdirList, fileList in os.walk(rootDir):
       if dirMatch(dirName):
         logger.info('Entering directory: %s' % dirName)
         filteredFileList = [fitem for fitem in fileList if fileMatch(fitem)]
         for fname in filteredFileList:
-            processFile(fname)
+            processFile(dirName=dirName, fileName=fname)
 
 def deep_get(dictionary: Dict, *keys):
   """
@@ -114,6 +114,14 @@ def getBillTitles(fileDict: Dict, include_partial = True, billType = 'all') -> l
   if (billType != 'all') and BILL_TYPES.get(billType):
     titles = [title for title in titles if BILL_TYPES.get(billType) == title.get('as')]
   return titles
+
+def testWalkDirs():
+  filePathList = []
+  def addToFilePathList(dirName: str, fileName: str):
+    filePathList.append(os.path.join(dirName, fileName))
+    print('fpl: ' + str(filePathList))
+  walkBillDirs(processFile=addToFilePathList)
+  return filePathList
 
 def main(args, loglevel):
   logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)

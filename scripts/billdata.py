@@ -123,6 +123,23 @@ def testWalkDirs():
   walkBillDirs(processFile=addToFilePathList)
   return filePathList
 
+def updateBillsMeta(billsMeta= {}, congress= ''):
+  def addToBillsMeta(dirName: str, fileName: str):
+    billDict = loadJSON(os.path.join(dirName, fileName))
+    billCongressTypeNumber = getBillCongressTypeNumber(billDict)
+    if not billsMeta.get(billCongressTypeNumber):
+      billsMeta[billCongressTypeNumber] = {}
+    titles = getBillTitles(billDict)
+    billsMeta[billCongressTypeNumber]['titles'] = [title.get('title') for title in titles]
+    billsMeta[billCongressTypeNumber]['titles_whole_bill'] = [title.get('title') for title in titles if not title.get('is_for_portion')]
+    billsMeta[billCongressTypeNumber]['cosponsors'] = getCosponsors(fileDict=billDict, includeFields=['name', 'bioguide_id'])
+    print(str(billsMeta))
+
+  walkBillDirs(processFile=addToBillsMeta)
+  return billsMeta
+
+
+
 def main(args, loglevel):
   logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)
   

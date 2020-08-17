@@ -3,6 +3,7 @@
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
 import sys, os, argparse, logging
+import re
 from typing import Dict
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
@@ -12,10 +13,18 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 def logName(fname: str):
     logger.info('Processing: \t%s' % fname)
 
-def walkBillDirs(rootDir = '.', processFile = logName):
+def getTopBillLevel(dirName: str):
+  return re.match(r'[a-z]+[0-9]+', dirName.split('/')[-1])
+
+def getDataJson(fileName: str):
+  return fileName == 'data.json'
+
+def walkBillDirs(rootDir = '../congress', processFile = logName, dirMatch = getTopBillLevel, fileMatch = getDataJson):
     for dirName, subdirList, fileList in os.walk(rootDir):
+      if dirMatch(dirName):
         logger.info('Entering directory: %s' % dirName)
-        for fname in fileList:
+        filteredFileList = [fitem for fitem in fileList if fileMatch(fitem)]
+        for fname in filteredFileList:
             processFile(fname)
 
 def getBillTitles(congress = '116') -> Dict:
@@ -28,20 +37,25 @@ def main(args, loglevel):
   
   logging.info("You passed an argument.")
   logging.debug("Your Argument: %s" % args.argument)
+  
+  # TODO pass function to `processFile` to get bill titles
+  walkBillDirs()
  
 if __name__ == '__main__':
   parser = argparse.ArgumentParser( 
-                                    description = "Does a thing to some stuff.",
+                                    description = "Generates billdata.json metadata file",
                                     epilog = "As an alternative to the commandline, params can be placed in a file, one per line, and specified on the commandline like '%(prog)s @params.conf'.",
                                     fromfile_prefix_chars = '@' )
-  # TODO Specify your real parameters here.
   parser.add_argument(
-                      "argument",
-                      help = "pass ARG to the program",
-                      metavar = "ARG")
+                      "-a",
+                      "--argument",
+                      action='store',
+                      dest='argument',
+                      help="sample argument")
   parser.add_argument(
                       "-v",
                       "--verbose",
+                      dest='verbose',
                       help="increase output verbosity",
                       action="store_true")
   args = parser.parse_args()

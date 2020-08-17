@@ -29,7 +29,7 @@ export LDFLAGS=-L/usr/local/opt/openssl/lib
 export CPPFLAGS=-I/usr/local/opt/openssl/include
 ```
 
-3. Install `` and `` directly
+3. Install `pytz`, `pep517` and `cryptography` directly
 
 ```bash
 pip install pytz
@@ -59,18 +59,49 @@ Once the files are stored in the `congress/data` directory, a metadata file can 
 billdata.json
 ```javascript
 [ 
-  116: {
-       116hr1ih: {
+  116hr1ih: {
           name: '116hr1ih',
           sponsors: ['name1', 'name2'...],
+          titles: [],
+          full_titles: [],
           path_xml: '...',
           path_text: '...',
-          path_metadata: '...
+          path_metadata: '...,
            }
            ...
-     },
-  115: {
+  115hjres31: {
      }
+]
+```
+
+Where 'titles' includes all titles and 'full_titles' includes those where `"is_for_portion": false` (see below). 
+
+### Cosponsors
+This information is available 
+
+### Bill Titles
+This information is available for each bill (and version) in the `data.json` file. For example, in `/congress/data/116/bills/hr/hr3/data.json`. The title information is in the form:
+
+```javascript
+"titles": [
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "INVEST in America Act", 
+      "type": "short"
+    }, 
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "INVEST in America Act", 
+      "type": "short"
+    }, 
+    {
+      "as": "introduced", 
+      "is_for_portion": false, 
+      "title": "Investing in a New Vision for the Environment and Surface Transportation in America Act", 
+      "type": "short"
+    } ...
 ]
 ```
 

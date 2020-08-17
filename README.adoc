@@ -113,6 +113,8 @@ For any bill (e.g. 116hr100ih), we want to find related bills for previous congr
 
 `Similarity(bill~1~,bill~2~) = normalize(w~1~*f~1~(bill~1~, bill~2~) + w~2~*f~2~(bill1, bill2) + ...)`
 
+NOTE: a bill text similarity engine is here https://github.com/govtrack/govtrack.us-web/blob/master/analysis/text_incorporation.py
+
 Each similarity function has the following properties:
 
 name:: a unique name for the feature being measured

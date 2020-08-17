@@ -63,7 +63,7 @@ billdata.json
           name: '116hr1ih',
           sponsors: ['name1', 'name2'...],
           titles: [],
-          full_titles: [],
+          titles_whole_bill: [],
           path_xml: '...',
           path_text: '...',
           path_metadata: '...,

@@ -2,24 +2,45 @@
 #
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
-import sys, os, argparse, logging
-import re
+import sys, os, argparse, logging, re, json
 from typing import Dict
+from functools import reduce
+
+BILL_TYPES = {
+  'ih': 'introduced',
+  'rh': 'reported to house'
+}
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
 def logName(fname: str):
-    logger.info('Processing: \t%s' % fname)
+  """
+  Prints the name provided (path to a file to be processed) to the log.
+
+  Args:
+      fname (str): path of file to be processed 
+  """
+
+  logger.info('Processing: \t%s' % fname)
 
 def getTopBillLevel(dirName: str):
-  return re.match(r'[a-z]+[0-9]+', dirName.split('/')[-1])
+  """
+  Get path for the top level of a bill, e.g. ../congress/data/116/bills/hr/hr1
 
-def getDataJson(fileName: str):
+  Args:
+      dirName (str): path to match 
+
+  Returns:
+      [bool]: True if path is a top level (which will contain data.json); False otherwise  
+  """
+  return (re.match(r'[a-z]+[0-9]+', dirName.split('/')[-1]) is not None)
+
+def isDataJson(fileName: str) -> bool:
   return fileName == 'data.json'
 
-def walkBillDirs(rootDir = '../congress', processFile = logName, dirMatch = getTopBillLevel, fileMatch = getDataJson):
+def walkBillDirs(rootDir = '../congress', processFile = logName, dirMatch = getTopBillLevel, fileMatch = isDataJson):
     for dirName, subdirList, fileList in os.walk(rootDir):
       if dirMatch(dirName):
         logger.info('Entering directory: %s' % dirName)
@@ -27,10 +48,66 @@ def walkBillDirs(rootDir = '../congress', processFile = logName, dirMatch = getT
         for fname in filteredFileList:
             processFile(fname)
 
-def getBillTitles(congress = '116') -> Dict:
-    """
-    Creates a dict with key = billnumber, value = [titles]
-    """
+def deep_get(dictionary: Dict, *keys):
+  """
+  A Dict utility to get a field; returns None if the field does not exist
+
+  Args:
+      dictionary (Dict): an arbitrary dictionary 
+
+  Returns:
+      any: value of the specified key, or None if the field does not exist
+  """
+
+  return reduce(
+    lambda d, key: d.get(key, None) if isinstance(d, dict) else None, keys, 
+    dictionary)
+
+def loadJSON(filePath: str):
+  with open(filePath, 'rb') as f:
+    fileDict = json.load(f)
+  return fileDict
+
+def getBillCongressTypeNumber(fileDict: Dict):
+  bill_id_parts = fileDict.get('bill_id').split('-')
+  return bill_id_parts[1] + bill_id_parts[0]
+
+def getCosponsors(fileDict: Dict, includeFields:  list) -> list:
+  """
+  Gets Cosponsors from data.json Dict. `includeFields` is a list of keys to keep. The most useful are probably 'name' and 'bioguide_id'.
+
+  Args:
+      fileDict (Dict): the Dict created from data.json 
+      includeFields (list): the fields in the cosponsor object to keep. If no 'includeFields' list is provided, all fields are preserved. 
+
+  Returns:
+      list: a list of cosponsors, with selected fields determined by includeFields 
+  """
+  cosponsors = fileDict.get('cosponsors')
+
+  if includeFields:
+    cosponsors = list(map(lambda cosponsor: { field: cosponsor.get(field) for field in includeFields }, cosponsors))
+
+  return cosponsors 
+
+def getBillTitles(fileDict: Dict, include_partial = True, billType: str) -> list:
+  """
+  Get a list of bill titles. If include_partial = True (default), gets all titles. Otherwise, gets only titles that correspond to the whole bill. 
+
+  Args:
+      fileDict (Dict): the Dict created from data.json 
+      include_partial (bool, optional): [description]. Defaults to True.
+
+  Returns:
+      list: a list of titles for the bill; either all titles or only whole-bill titles 
+  """
+  titles = fileDict.get('titles')
+  if not include_partial:
+    titles = [title for title in titles if not title.get('is_for_portion')]
+  
+  if billType and BILL_TYPES.get(billType):
+    titles = [title for title in titles if BILL_TYPES.get(billType) == title.get('as')]
+  return titles
 
 def main(args, loglevel):
   logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)

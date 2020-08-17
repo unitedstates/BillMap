@@ -3,6 +3,7 @@
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
 import sys, os, argparse, logging, re, json
+import datetime
 from typing import Dict
 from functools import reduce
 
@@ -10,6 +11,10 @@ BILL_TYPES = {
   'ih': 'introduced',
   'rh': 'reported to house'
 }
+
+CURRENT_CONGRESSIONAL_YEAR = datetime.date.today().year if datetime.date.today() > datetime.date(datetime.date.today().year, 1, 3) else (datetime.date.today().year - 1)
+CURRENT_CONGRESS, cs_temp = divmod(round(((datetime.date(CURRENT_CONGRESSIONAL_YEAR, 1, 3) - datetime.date(1788, 1, 3)).days) / 365) + 1, 2)
+CURRENT_SESSION = cs_temp + 1
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
@@ -72,7 +77,7 @@ def getBillCongressTypeNumber(fileDict: Dict):
   bill_id_parts = fileDict.get('bill_id').split('-')
   return bill_id_parts[1] + bill_id_parts[0]
 
-def getCosponsors(fileDict: Dict, includeFields:  list) -> list:
+def getCosponsors(fileDict: Dict, includeFields = []) -> list:
   """
   Gets Cosponsors from data.json Dict. `includeFields` is a list of keys to keep. The most useful are probably 'name' and 'bioguide_id'.
 
@@ -90,13 +95,14 @@ def getCosponsors(fileDict: Dict, includeFields:  list) -> list:
 
   return cosponsors 
 
-def getBillTitles(fileDict: Dict, include_partial = True, billType: str) -> list:
+def getBillTitles(fileDict: Dict, include_partial = True, billType = 'all') -> list:
   """
   Get a list of bill titles. If include_partial = True (default), gets all titles. Otherwise, gets only titles that correspond to the whole bill. 
 
   Args:
       fileDict (Dict): the Dict created from data.json 
-      include_partial (bool, optional): [description]. Defaults to True.
+      include_partial (bool, optional): Include titles for part of the bill. Defaults to True.
+      billType (str, optional): Filter by billType (e.g. 'ih', 'rh', etc.) Defaults to 'all', which does not filter.
 
   Returns:
       list: a list of titles for the bill; either all titles or only whole-bill titles 
@@ -105,7 +111,7 @@ def getBillTitles(fileDict: Dict, include_partial = True, billType: str) -> list
   if not include_partial:
     titles = [title for title in titles if not title.get('is_for_portion')]
   
-  if billType and BILL_TYPES.get(billType):
+  if (billType != 'all') and BILL_TYPES.get(billType):
     titles = [title for title in titles if BILL_TYPES.get(billType) == title.get('as')]
   return titles
 

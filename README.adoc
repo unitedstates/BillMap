@@ -54,7 +54,7 @@ When running initially, I got an error because the bulk directories had not been
 
 ## Metadata
 
-Once the files are stored in the `congress/data` directory, a metadata file can be created with the following information: *Congress*, *Name*, *Path to XML or Text*, *Path to Metadata*, *Sponsors*. As an initial form, the metadata file will be:
+Once the files are stored in the `congress/data` directory, a metadata file can be created with the following information: *Congress*, *Name*, *Path to XML or Text*, *Sponsors*. As an initial form, the metadata file will be:
 
 billdata.json
 ```javascript
@@ -66,7 +66,6 @@ billdata.json
           titles_whole_bill: [],
           path_xml: '...',
           path_text: '...',
-          path_metadata: '...,
            }
            ...
   115hjres31: {
@@ -77,10 +76,12 @@ billdata.json
 Where 'titles' includes all titles and 'full_titles' includes those where `"is_for_portion": false` (see below). 
 
 ### Cosponsors
-This information is available 
+This information is available for each bill in the `data.json` file. Two key fields in `sponsors` are `name` and `bioguide_id`
 
 ### Bill Titles
-This information is available for each bill (and version) in the `data.json` file. For example, in `/congress/data/116/bills/hr/hr3/data.json`. The title information is in the form:
+This information is available for each bill (and version) in the `data.json` file. For example, in `/congress/data/116/bills/hr/hr3/data.json`. After collecting titles for each bill, a reverse index can be created, with the title as key and an array of billnumbers as value. This will identify the bills across congresses that share identical titles.
+
+The title information in `data.json` is of the form:
 
 ```javascript
 "titles": [
@@ -106,6 +107,30 @@ This information is available for each bill (and version) in the `data.json` fil
 ```
 
 ## Finding Related Bills
+
+### Similarity measures: simple
+
+A few 'simple' measures can be taken of similarity. Bills which share:
+
+* Identical titles
+* Very similar titles (e.g. all but the year)
+* Identical sponsor lists
+* Significant overlap in sponsors
+
+This can be represented in a summary JSON of the form:
+`relatedBills.json`
+
+```javascript
+116s130: [
+  116hr201: {
+    cosponsors: [bioguide_id1, bioguide_id2],
+    titles: ['Shared Title 1', 'Shared Title 2', etc.]
+    similar_title: ['Similar (nonidentical) Title 1', 'Similar (nonidentical) Title 2', etc.]
+  },
+
+]
+          
+```
 
 ### Similarity calculation
 

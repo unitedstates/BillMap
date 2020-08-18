@@ -149,11 +149,11 @@ def loadBillsMeta(billMetaPath = PATH_TO_BILLS_META, zip = True):
   
   return billsMeta
 
-def saveBillsMeta(billsMeta: Dict, zip = True):
-  with open(PATH_TO_BILLS_META, 'w') as f:
+def saveBillsMeta(billsMeta: Dict, metaPath = PATH_TO_BILLS_META, zip = True):
+  with open(metaPath, 'w') as f:
     json.dump(billsMeta, f)
     if zip:
-      with gzip.open(PATH_TO_BILLS_META + '.gz', 'wt', encoding="utf-8") as zipfile:
+      with gzip.open(metaPath + '.gz', 'wt', encoding="utf-8") as zipfile:
         json.dump(billsMeta, zipfile)
 
 def updateBillsMeta(billsMeta= {}, congress= ''):
@@ -175,8 +175,6 @@ def updateBillsMeta(billsMeta= {}, congress= ''):
   walkBillDirs(processFile=addToBillsMeta)
   saveBillsMeta(billsMeta)
   return billsMeta
-
-
 
 def main(args, loglevel):
   logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)

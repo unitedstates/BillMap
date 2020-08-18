@@ -2,7 +2,7 @@
 #
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
-import sys, os, argparse, logging, re, json
+import sys, os, argparse, logging, re, json, gzip
 import datetime
 from typing import Dict
 from functools import reduce
@@ -132,9 +132,29 @@ def testWalkDirs():
   walkBillDirs(processFile=addToFilePathList)
   return filePathList
 
-def saveBillsMeta(billsMeta: Dict):
+def loadBillsMeta(billMetaPath = PATH_TO_BILLS_META, zip = True):
+  billsMeta = {}
+  if zip:
+    try:
+      with gzip.open(billMetaPath + '.gz', 'rt', encoding='utf-8') as zipfile:
+        billsMeta = json.load(zipfile)
+    except:
+      raise Exception('No file at' + billMetaPath + '.gz')
+  else:
+    try:
+      with open(billMetaPath, 'r') as f:
+        billsMeta = json.load(f)
+    except:
+      raise Exception('No file at' + billMetaPath + '.gz')
+  
+  return billsMeta
+
+def saveBillsMeta(billsMeta: Dict, zip = True):
   with open(PATH_TO_BILLS_META, 'w') as f:
     json.dump(billsMeta, f)
+    if zip:
+      with gzip.open(PATH_TO_BILLS_META + '.gz', 'wt', encoding="utf-8") as zipfile:
+        json.dump(billsMeta, zipfile)
 
 def updateBillsMeta(billsMeta= {}, congress= ''):
   def addToBillsMeta(dirName: str, fileName: str):
@@ -164,6 +184,8 @@ def main(args, loglevel):
   logging.info("You passed an argument.")
   logging.debug("Your Argument: %s" % args.argument)
   
+  # TODO consider loading billsMeta before updating
+  # TODO consider updating only current congress
   updateBillsMeta()
  
 if __name__ == '__main__':

@@ -7,6 +7,9 @@ import datetime
 from typing import Dict
 from functools import reduce
 
+PATH_TO_BILLS_META = '../billsMeta.json'
+SAVE_ON_COUNT = 1000
+
 BILL_TYPES = {
   'ih': 'introduced',
   'rh': 'reported to house'
@@ -40,7 +43,8 @@ def getTopBillLevel(dirName: str):
   Returns:
       [bool]: True if path is a top level (which will contain data.json); False otherwise  
   """
-  return (re.match(r'[a-z]+[0-9]+', dirName.split('/')[-1]) is not None)
+  dirName_parts = dirName.split('/')
+  return (re.match(r'[a-z]+[0-9]+', dirName_parts[-1]) is not None and dirName_parts[-3]=='bills')
 
 def isDataJson(fileName: str) -> bool:
   return fileName == 'data.json'
@@ -74,8 +78,13 @@ def loadJSON(filePath: str):
   return fileDict
 
 def getBillCongressTypeNumber(fileDict: Dict):
-  bill_id_parts = fileDict.get('bill_id').split('-')
-  return bill_id_parts[1] + bill_id_parts[0]
+  bill_id = fileDict.get('bill_id')
+  if bill_id:
+    bill_id_parts = bill_id.split('-')
+    return bill_id_parts[1] + bill_id_parts[0]
+  else:
+    logging.error('No bill_id: ' + str(fileDict.get('bill_type')))
+    return None
 
 def getCosponsors(fileDict: Dict, includeFields = []) -> list:
   """
@@ -123,19 +132,28 @@ def testWalkDirs():
   walkBillDirs(processFile=addToFilePathList)
   return filePathList
 
+def saveBillsMeta(billsMeta: Dict):
+  with open(PATH_TO_BILLS_META, 'w') as f:
+    json.dump(billsMeta, f)
+
 def updateBillsMeta(billsMeta= {}, congress= ''):
   def addToBillsMeta(dirName: str, fileName: str):
     billDict = loadJSON(os.path.join(dirName, fileName))
     billCongressTypeNumber = getBillCongressTypeNumber(billDict)
+    if not billCongressTypeNumber:
+      return
     if not billsMeta.get(billCongressTypeNumber):
       billsMeta[billCongressTypeNumber] = {}
     titles = getBillTitles(billDict)
     billsMeta[billCongressTypeNumber]['titles'] = [title.get('title') for title in titles]
     billsMeta[billCongressTypeNumber]['titles_whole_bill'] = [title.get('title') for title in titles if not title.get('is_for_portion')]
     billsMeta[billCongressTypeNumber]['cosponsors'] = getCosponsors(fileDict=billDict, includeFields=['name', 'bioguide_id'])
-    print(str(billsMeta))
+    billCount = len(billsMeta.keys()) 
+    if billCount % SAVE_ON_COUNT == 0:
+      saveBillsMeta(billsMeta)
 
   walkBillDirs(processFile=addToBillsMeta)
+  saveBillsMeta(billsMeta)
   return billsMeta
 
 
@@ -146,8 +164,7 @@ def main(args, loglevel):
   logging.info("You passed an argument.")
   logging.debug("Your Argument: %s" % args.argument)
   
-  # TODO pass function to `processFile` to get bill titles
-  walkBillDirs()
+  updateBillsMeta()
  
 if __name__ == '__main__':
   parser = argparse.ArgumentParser( 

@@ -40,3 +40,10 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# Sandbox Data
+billsMeta.json
+billsMeta.json.gz
+titlesIndex.json
+titlesIndex.json.gz
+/congress

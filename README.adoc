@@ -22,10 +22,30 @@ The core metadata that will be used for this project can be downloaded in bulk f
 
 Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily. The metadata is sufficient to test many of the functions in this library. Bill text comparison requires bulk download or scraping of the text.
 
+Each download creates a `.zip` file for the congress downloaded (e.g. `116.zip`). When unzipped, this creates a directory of the form:
+
+`congress -> data -> 116`
+
+To start, it is sufficient to download a few recent congresses (e.g. `116, 115, 114, 113`). Unzip, and copy the deepest directory into a single hierarchy so that you have:
+
+```bash
+FlatGovDir
+   |
+   -congress
+       |
+       -data
+          |
+          -116
+          -115
+          -114
+          -113
+```
+
+
 ### Scraping bill text and metadata
 #### Install `unitedstates/congress` repository
 
-The text of bills can be scraped with the Python project here: `https://github.com/unitedstates/congress`. First, clone this repository as a child of the `FlatGovDir` directory above:
+The text of bills can be scraped with the Python project here: `https://github.com/unitedstates/congress`. First, clone this repository as a child of the `FlatGovDir` directory above, and a sibling of `congress`. In this way, running the scraper will fill out the text data within the `congress` directory.
 
 ```
 $ cd /path/to/FlatGovDir

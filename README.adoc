@@ -169,6 +169,7 @@ This can be represented in a summary JSON of the form:
     cosponsors: [bioguide_id1, bioguide_id2],
     titles: ['Shared Title 1', 'Shared Title 2', etc.]
     similar_title: ['Similar (nonidentical) Title 1', 'Similar (nonidentical) Title 2', etc.]
+  }...
   ],
 
 ]

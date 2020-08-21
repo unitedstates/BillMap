@@ -164,6 +164,15 @@ This can be represented in a summary JSON of the form:
 `relatedBills.json`
 
 ```javascript
+  116s130: {
+    same_titles: ['116hr201', ...]
+  }
+]
+```
+
+OR
+
+```javascript
 116s130: [
   { billCongressTypeNumber: '116hr201' 
     cosponsors: [bioguide_id1, bioguide_id2],
@@ -175,6 +184,7 @@ This can be represented in a summary JSON of the form:
 ]
           
 ```
+
 
 ### Similarity calculation
 

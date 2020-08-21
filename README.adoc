@@ -5,16 +5,59 @@ Utilities and applications for the FlatGov project
 
 ## Data
 
-### Bulk downloads
+### Where to store data
 
-The core metadata that will be used for this project can be downloaded in bulk from ProPublica<sup>TM</sup> here: https://www.propublica.org/datastore/dataset/congressional-data-bulk-legislation-bills
+This repository contains scripts in the `/scripts` directory that process bill data. The default location for the data is in a directory that is a parent of this repository. To set that up, create a directory, `FlatgovDir`. *Within* that directory, clone this repository:
 
-Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily.
+```bash
+$ mkdir FlatgovDir
+$ cd FlatgovDir
+$ git clone https://github.com/aih/FlatGov.git
+(requires Github credentials)
+```
 
-### Scraping
-#### Install `unitedstates/congress` repository and dependencies
+### Bulk downloads: bill metadata
 
-The text of bills can be scraped with the Python project here: `https://github.com/unitedstates/congress`. Install the `congress` Python virtual environment, install the requirements (`pip install requirements.txt`). The scrapers were built with Python 2.7 and have not been upgraded; updates may be needed for a production environment, but the `@unitedstates/congress` scraper is sufficient to gather the baseline data to test the utilities in this repository.
+The core metadata that will be used for this project can be downloaded in bulk from ProPublica^TM^ here: https://www.propublica.org/datastore/dataset/congressional-data-bulk-legislation-bills
+
+Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily. The metadata is sufficient to test many of the functions in this library. Bill text comparison requires bulk download or scraping of the text.
+
+Each download creates a `.zip` file for the congress downloaded (e.g. `116.zip`). When unzipped, this creates a directory of the form:
+
+`congress -> data -> 116`
+
+To start, it is sufficient to download a few recent congresses (e.g. `116, 115, 114, 113`). Unzip, and copy the deepest directory into a single hierarchy so that you have:
+
+```bash
+FlatGovDir
+   |
+   -congress
+       |
+       -data
+          |
+          -116
+          -115
+          -114
+          -113
+```
+
+
+### Scraping bill text and metadata
+#### Install `unitedstates/congress` repository
+
+The text of bills can be scraped with the Python project here: `https://github.com/unitedstates/congress`. First, clone this repository as a child of the `FlatGovDir` directory above, and a sibling of `congress`. In this way, running the scraper will fill out the text data within the `congress` directory.
+
+```
+$ cd /path/to/FlatGovDir
+$ git clone https://github.com/unitedstates/congress.git
+(no credentials needed-- it is an open repo)
+```
+
+#### Install scraper dependencies
+
+Install the `congress` Python virtual environment, install the requirements (`pip install requirements.txt`). The scrapers were built with Python 2.7 and have not been upgraded; updates may be needed for a production environment, but the `@unitedstates/congress` scraper is sufficient to gather the baseline data to test the utilities in this repository.
+
+NOTE: Scraping the initial data can be *very* time-consuming (most of a day, depending on your internet download speeds). To get started, it is worth finding a source for bulk downloads of the text, if possible.
 
 On MacOS (Catalina), installing the `congress` requirements involved a few adjustments:
 

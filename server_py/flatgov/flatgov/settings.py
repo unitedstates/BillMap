@@ -83,6 +83,11 @@ DATABASES = {
     }
 }
 
+CONGRESS_DATA_PATH = os.path.join(BASE_DIR, 'congress', 'data')
+BILLS_JSON_PATH = os.path.join(BASE_DIR, 'json_data') 
+BILLS_META_JSON_PATH = os.path.join(BILLS_JSON_PATH, 'billsMeta.json') 
+TITLES_INDEX_JSON_PATH = os.path.join(BILLS_JSON_PATH, 'titlesIndex.json') 
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

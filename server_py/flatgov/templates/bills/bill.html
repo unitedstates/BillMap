@@ -120,9 +120,30 @@
           </div>
           <h5>Bill Stage</h5>
           <p>Passed House (Senate next) on Jul 17, 2019</p>
+          {% if bill.related_bills_numbers %}
+          <h5>Related Bills</h5>
+          <p>
+            {% for billnumber in bill.related_bills_numbers %}
+              <a href="">{{billnumber}}</a>{{forloop.last|yesno:",&#44;"|safe }}
+            {% endfor %}
+          </p>
+          {% endif %}
+          {% if bill.same_titles %}
           <h5>Related Bills (same title)</h5>
-          <p>{{bill.same_titles}}</p>
-          <!--a href="">H.R. 4631</a-->
+          <p>
+            {% for billnumber in bill.same_titles %}
+              <a href="">{{billnumber}}</a>{{forloop.last|yesno:",&#44;"|safe }}
+            {% endfor %}
+          </p>
+          {% endif %} 
+          {% if bill.related_bills_same_titles %}
+          <h5>Related Bills (same title as other related bills)</h5>
+          <p>
+            {% for billnumber in bill.related_bills_same_titles %}
+              <a href="">{{billnumber}}</a>{{forloop.last|yesno:",&#44;"|safe }}
+            {% endfor %}
+          </p>
+          {% endif %}
           <h5>Committee(s) of Jurisdiction</h5>
           <p>Information provided by the clerk of the house (senate.gov)</p>
           <h5>Committee Documents</h5>

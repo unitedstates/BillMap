@@ -32,6 +32,38 @@ import re
 
 BILL_REGEX = r'([1-9][0-9]{2})([a-z]+)(\d+)'
 
+# Utilities. These should go in a utils.py module
+def billIdToBillNumber(bill_id: str) -> str:
+    """
+    Converts a bill_id of the form `hr299-116` into `116hr299`
+
+    Args:
+        bill_id (str): hyphenated bill_id from bill status JSON
+
+    Returns:
+        str: billCongressTypeNumber (e.g. 116hr299) 
+    """
+    # TODO test if it has the right form, otherwise throw an exception
+    return ''.join(reversed(bill_id.split('-')))
+
+def cleanSponsorName(lastfirst: str) -> str:
+    """
+    Takes a name of the form "Last, First" and returns "First Last"
+
+    Args:
+        lastfirst (str): a string of the form "Last, First" 
+
+    Returns:
+        str: a string of the form "First Last" 
+    """
+    return ' '.join(reversed(lastfirst.split(', ')))
+
+def makeTypeAbbrev(bill_type) -> str:
+    return ''.join([letter+'.' for letter in bill_type])
+
+def makeSponsorBracket(sponsor: dict, party='X') -> str:
+    # TODO: in the future, make party required 
+    return '[' + party + '-' +  sponsor.get('state') + sponsor.get('district') + ']'
 
 def index(request):
     return HttpResponse("Hello, world. You're at the bills index.")
@@ -49,6 +81,9 @@ def bill_view(request, bill):
         BILLMETA_PATH = os.path.join(CONGRESS_DATA_PATH, congress, 'bills', bill_type.lower(), bill_type.lower() + bill_number, 'data.json')
         with open(BILLMETA_PATH, 'rb') as f:
             bill_meta = json.load(f)
+        
+        with open(BILLS_META_JSON_PATH, 'rb') as f:
+            billsMeta = json.load(f)
 
         with open(TITLES_INDEX_JSON_PATH, 'rb') as f:
             titlesIndex = json.load(f)
@@ -59,20 +94,25 @@ def bill_view(request, bill):
             context['bill']['meta']['summary_short'] = bill_summary[0:200] + '...'
         else:
             context['bill']['meta']['summary_short'] = bill_summary
+        related_bills_numbers = sorted([billIdToBillNumber(item.get('bill_id')) for item in bill_meta.get('related_bills')])
+        context['bill']['related_bills_numbers'] = related_bills_numbers
+        related_bills_all_titles = [deep_get(billsMeta, billnumber, 'titles') for billnumber in related_bills_numbers]
+        related_bills_all_titles = sorted(list(set([item for sublist in related_bills_all_titles for item in sublist])), key=None)
+        related_bills_same_titles = [titlesIndex.get(title) for title in related_bills_all_titles] 
+        related_bills_same_titles = sorted(list(set([item for sublist in related_bills_same_titles for item in sublist if item != bill])), key=None)
+        context['bill']['related_bills_same_titles'] = related_bills_same_titles
+
+
         all_titles = list(set([item.get('title') for item in bill_meta.get('titles')]))
         same_titles = [titlesIndex.get(title) for title in all_titles] 
-        same_titles = list(set([item for sublist in same_titles for item in sublist if item != bill]))
-        same_titles.sort()
-        context['bill']['same_titles'] = ', '.join(same_titles)
-        context['bill']['type_abbrev'] = ''.join([letter+'.' for letter in bill_type])
-        sponsor_name = deep_get(bill_meta, 'sponsor', 'name').split(', ')
-        sponsor_name.reverse()
-        context['bill']['sponsor_fullname'] = deep_get(bill_meta, 'sponsor', 'title') + '. ' + ''.join(sponsor_name) + ' ['  'X-' + deep_get(bill_meta, 'sponsor', 'state') + deep_get(bill_meta, 'sponsor', 'district') + ']'
+        same_titles = sorted(list(set([item for sublist in same_titles for item in sublist if item != bill])), key=None)
+        context['bill']['same_titles'] = same_titles
+        context['bill']['same_titles_text'] = ', '.join(same_titles)
+        context['bill']['type_abbrev'] = makeTypeAbbrev(bill_type)
+        sponsor_name = cleanSponsorName(deep_get(bill_meta, 'sponsor', 'name'))
+        context['bill']['sponsor_fullname'] = deep_get(bill_meta, 'sponsor', 'title') + '. ' + sponsor_name + ' '  + makeSponsorBracket(bill_meta.get('sponsor')) 
     else:
         return render(request, 'bills/bill.html', context)
 
-    #with open(BILLS_META_JSON_PATH, 'rb') as f:
-    #    billsMeta = json.load(f)
-    #bill_meta = billsMeta.get(bill)
 
     return render(request, 'bills/bill.html', context)

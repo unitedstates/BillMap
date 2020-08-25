@@ -41,12 +41,10 @@ def getSameTitles():
     sameTitlesIndex = {}
     for key, value in titlesIndex.items():
         for bill in value:
-            if sameTitlesIndex.get(bill):
-                sameTitlesIndex[bill].get('same_titles').append(bill)
-            else:
-                sameTitlesIndex[bill] = {}
-                sameTitlesIndex[bill]['same_titles'] = [bill]
-    print(sameTitlesIndex)
+            sameTitlesIndex[bill] = {}
+            sameTitlesIndex[bill]['same_titles'] = value
+    for key, value in sameTitlesIndex.items():
+        print(value)
 
 
 # def makeAndSaveSameTitleIndex():

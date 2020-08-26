@@ -19,17 +19,6 @@ logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
 
 
-def getRelatedBills():
-    billsMeta = loadBillsMeta()
-    titlesIndex = loadTitlesIndex()
-    billsRelatedIndex = {key: [] for key in billsMeta.keys()}
-    getSameTitles(titlesIndex, billsRelatedIndex)
-    return billsRelatedIndex
-    # for key, value in billsRelatedIndex.items():
-    #     if len(value) > 1:
-    #         print(key, value)
-
-
 def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
     titlesIndex = {}
     if zip:
@@ -46,6 +35,17 @@ def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
             raise Exception('No file at' + titleIndexPath + '.gz')
 
     return titlesIndex
+
+
+def getRelatedBills():
+    billsMeta = loadBillsMeta()
+    titlesIndex = loadTitlesIndex()
+    billsRelatedIndex = {key: [] for key in billsMeta.keys()}
+    getSameTitles(titlesIndex, billsRelatedIndex)
+    return billsRelatedIndex
+    # for key, value in billsRelatedIndex.items():
+    #     if len(value) > 1:
+    #         print(key, value)
 
 
 def getSameTitles(titlesIndex, billsRelatedIndex):

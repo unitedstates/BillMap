@@ -39,22 +39,27 @@ def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
 def getSameTitles():
     titlesIndex = loadTitlesIndex()
     sameTitlesIndex = {}
-    for key, value in titlesIndex.items():
-        for bill in value:
-            sameTitlesIndex[bill] = {}
-            sameTitlesIndex[bill]['same_titles'] = value
+    for title, bills in titlesIndex.items():
+        for bill in bills:
+            if not sameTitlesIndex.get(bill):
+                sameTitlesIndex[bill] = {}
+                sameTitlesIndex[bill]['same_titles'] = [bill]
+            else:
+                if bill not in sameTitlesIndex[bill]['same_titles']:
+                    sameTitlesIndex[bill]['same_titles'].append(bill)
+    
+    #helper for seeing output, will return sameTitlesIndex once kinks worked out
     for key, value in sameTitlesIndex.items():
-        print(value)
+        print(key, value)
 
+    #method for saving index to new files
+    # def makeAndSaveSameTitleIndex():
+    #     sameTitlesIndex = getSameTitles()
+    #     saveBillsMeta(billsMeta=sameTitlesIndex,
+    #                   metaPath=PATH_TO_SAME_TITLES_INDEX)
 
-# def makeAndSaveSameTitleIndex():
-#     sameTitlesIndex = getSameTitles()
-#     saveBillsMeta(billsMeta=sameTitlesIndex,
-#                   metaPath=PATH_TO_SAME_TITLES_INDEX)
-
-
-# def main():
-#     makeAndSaveSameTitleIndex()
+    # def main():
+    #     makeAndSaveSameTitleIndex()
 
 
 getSameTitles()

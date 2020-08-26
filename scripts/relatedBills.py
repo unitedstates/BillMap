@@ -49,23 +49,20 @@ def getSameTitles():
             else:
                 current_same_titles = sameTitlesIndex[bill].get('same_titles')
                 if current_same_titles:
-                    # Make a set from current_same_titles and bills, make a list out of that
-                    # and assign the result sameTitlesIndex[bill]['same_titles'] 
-                    combined_bills = ??? 
+                    combined_bills = list(set(current_same_titles + bills))
                     sameTitlesIndex[bill]['same_titles'] = combined_bills
-    
-    #helper for seeing output, will return sameTitlesIndex once kinks worked out
-    #for key, value in sameTitlesIndex.items():
-    #    print(key, value)
 
-    #method for saving index to new files
-    # def makeAndSaveSameTitleIndex():
-    #     sameTitlesIndex = getSameTitles()
-    #     saveBillsMeta(billsMeta=sameTitlesIndex,
-    #                   metaPath=PATH_TO_SAME_TITLES_INDEX)
-
-    # def main():
-    #     makeAndSaveSameTitleIndex()
+    return sameTitlesIndex
 
 
-getSameTitles()
+def makeAndSaveSameTitleIndex():
+    sameTitlesIndex = getSameTitles()
+    saveBillsMeta(billsMeta=sameTitlesIndex,
+                  metaPath=PATH_TO_SAME_TITLES_INDEX)
+
+
+def main():
+    makeAndSaveSameTitleIndex()
+
+
+main()

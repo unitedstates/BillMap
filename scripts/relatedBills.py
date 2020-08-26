@@ -1,3 +1,4 @@
+from logging import currentframe
 import sys
 import os
 import argparse
@@ -42,15 +43,20 @@ def getSameTitles():
     for title, bills in titlesIndex.items():
         for bill in bills:
             if not sameTitlesIndex.get(bill):
-                sameTitlesIndex[bill] = {}
-                sameTitlesIndex[bill]['same_titles'] = [bill]
+                sameTitlesIndex[bill] = {
+                    'same_titles': bills
+                }
             else:
-                if bill not in sameTitlesIndex[bill]['same_titles']:
-                    sameTitlesIndex[bill]['same_titles'].append(bill)
+                current_same_titles = sameTitlesIndex[bill].get('same_titles')
+                if current_same_titles:
+                    # Make a set from current_same_titles and bills, make a list out of that
+                    # and assign the result sameTitlesIndex[bill]['same_titles'] 
+                    combined_bills = ??? 
+                    sameTitlesIndex[bill]['same_titles'] = combined_bills
     
     #helper for seeing output, will return sameTitlesIndex once kinks worked out
-    for key, value in sameTitlesIndex.items():
-        print(key, value)
+    #for key, value in sameTitlesIndex.items():
+    #    print(key, value)
 
     #method for saving index to new files
     # def makeAndSaveSameTitleIndex():

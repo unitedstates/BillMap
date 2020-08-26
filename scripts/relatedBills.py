@@ -9,7 +9,7 @@ import gzip
 import datetime
 from typing import Dict
 from functools import reduce
-from billdata import saveBillsMeta
+from billdata import saveBillsMeta, loadJSON, loadBillsMeta
 
 PATH_TO_TITLES_INDEX = '../titlesIndex.json'
 PATH_TO_SAME_TITLES_INDEX = '../sameTitles.json'
@@ -17,6 +17,17 @@ PATH_TO_SAME_TITLES_INDEX = '../sameTitles.json'
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
+
+
+def getRelatedBills():
+    billsMeta = loadBillsMeta()
+    titlesIndex = loadTitlesIndex()
+    billsRelatedIndex = {key: [] for key in billsMeta.keys()}
+    getSameTitles(titlesIndex, billsRelatedIndex)
+    return billsRelatedIndex
+    # for key, value in billsRelatedIndex.items():
+    #     if len(value) > 1:
+    #         print(key, value)
 
 
 def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
@@ -37,32 +48,26 @@ def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
     return titlesIndex
 
 
-def getSameTitles():
-    titlesIndex = loadTitlesIndex()
-    sameTitlesIndex = {}
+def getSameTitles(titlesIndex, billsRelatedIndex):
     for title, bills in titlesIndex.items():
-        for bill in bills:
-            if not sameTitlesIndex.get(bill):
-                sameTitlesIndex[bill] = {
-                    'same_titles': bills
-                }
+        for billNum in bills:
+            similarList = billsRelatedIndex.get(billNum)
+            if len(similarList) == 0:
+                for bill in bills:
+                    similarList.append({
+                        'billCongressTypeNumber': bill,
+                        'titles': [title]
+                    })
             else:
-                current_same_titles = sameTitlesIndex[bill].get('same_titles')
-                if current_same_titles:
-                    combined_bills = list(set(current_same_titles + bills))
-                    sameTitlesIndex[bill]['same_titles'] = combined_bills
-
-    return sameTitlesIndex
+                for item in similarList:
+                    item.get('titles').append(title)
 
 
-def makeAndSaveSameTitleIndex():
-    sameTitlesIndex = getSameTitles()
-    saveBillsMeta(billsMeta=sameTitlesIndex,
-                  metaPath=PATH_TO_SAME_TITLES_INDEX)
-
-
-def main():
-    makeAndSaveSameTitleIndex()
-
-
-main()
+# def makeAndSaveSameTitleIndex():
+#     sameTitlesIndex = getSameTitles()
+#     saveBillsMeta(billsMeta=sameTitlesIndex,
+#                   metaPath=PATH_TO_SAME_TITLES_INDEX)
+# def main():
+#     makeAndSaveSameTitleIndex()
+# main()
+getRelatedBills()

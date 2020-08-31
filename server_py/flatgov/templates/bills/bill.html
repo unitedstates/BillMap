@@ -38,6 +38,12 @@
       .table {
         font-size: small;
       }
+      .table thead>tr>th {
+        border: none!important;
+      }
+      .table tbody>tr>td {
+        border-color: #9d2146!important;
+      }
       .sponsors-buttons {
         margin-top: 100px;
       }
@@ -53,10 +59,26 @@
         border-radius: 10px;
         box-shadow: 3px 4px 4px #d4d4d4;
       }
-      .dark-gray-body {
+      .light-gray-tabs {
+        background-color: #f7f7f7;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        box-shadow: 3px 4px 4px #d4d4d4;
+      }
+      .light-gray-nav-link .active{
+        color: #495057;
         background-color: #d4d4d4;
-        border-radius: 10px;
-        box-shadow: 3px 4px 4px #888888;
+        border-color: noner;
+      }
+      .nav-link.active{
+        background-color: #f7f7f7!important;
+        border-color: #f7f7f7!important;
+      }
+      .nav-tabs {
+        border-bottom: #f7f7f7!important;
+      }
+      .dark-gray-body {
+        background-color: 1px solid #d4d4d4!important;
       }
       .cbo-score {
       } 
@@ -160,7 +182,7 @@
           <p>Information provided by the clerk of the house (senate.gov)</p>
           <h5>Committee Documents</h5>
           <p>NA</p>
-          <button type="button" class="btn btn-danger">View Timeline</button>
+          <button type="button" class="btn btn-primary">View Timeline</button>
         </div>
         <div class="committee-jurisdiction light-gray-body p-4 mb-2">
           <h4>Committee(s) of Jurisdiction</h4>
@@ -205,7 +227,7 @@
             </tbody>
           </table>
           <div class="d-flex sponsors-buttons">
-            <button type="button" class="btn btn-danger mr-4">
+            <button type="button" class="btn btn-primary mr-4">
               View Full list of sponsors
             </button>
           </div>
@@ -250,7 +272,7 @@
             >
           </li>
         </ul>
-        <div class="tab-content" id="myTabContent">
+        <div class="tab-content light-gray-tabs p-4" id="myTabContent">
           <div
             class="tab-pane fade show active"
             id="current"
@@ -351,7 +373,7 @@
           </div>
         </div>
       </div>
-      <div class="tab">
+      <div class="tab mt-4">
         <h4>Sponsors</h4>
         <span class="small"
           >Identify the Sponsor and Cosponsors of this bill and which related
@@ -409,7 +431,7 @@
             </div>
           </div>
         </ul>
-        <div class="tab-content light-gray-body" id="myTabContent">
+        <div class="tab-content light-gray-tabs p-4" id="myTabContent">
           <div
             class="tab-pane fade show active"
             id="house"
@@ -478,7 +500,7 @@
           </div>
         </div>
       </div>
-      <div class="understanding-context pb-2">
+      <div class="understanding-context mt-4 pb-2">
         <h4>Understand the Context</h4>
         <span class="small"
           >Identify the Sponsor and Cosponsors of this bill and which related</span

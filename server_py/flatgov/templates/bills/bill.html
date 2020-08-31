@@ -28,26 +28,53 @@
       }
       .bill {
         width: 549px;
-        background-color: rgb(247, 237, 237);
         border-radius: 10px;
         margin-right: 1%;
       }
-      .sponsors {
+      .committee-jurisdiction {
         width: 549px;
-        background-color: rgb(247, 237, 237);
         border-radius: 10px;
-      }
-      .left-bill-summary {
-        width: 65%;
-        margin-right: 10%;
-      }
-      .right-bill-summary {
       }
       .table {
         font-size: small;
       }
       .sponsors-buttons {
         margin-top: 100px;
+      }
+      .horizontal-form-divider {
+        border-bottom: 1px solid lightgray;
+        margin-bottom: 20px;
+      }
+      .spacer {
+        width: 45%;
+      }
+      .light-gray-body {
+        background-color: #f7f7f7;
+        border-radius: 10px;
+        box-shadow: 3px 4px 4px #d4d4d4;
+      }
+      .dark-gray-body {
+        background-color: #d4d4d4;
+        border-radius: 10px;
+        box-shadow: 3px 4px 4px #888888;
+      }
+      .cbo-score {
+      } 
+      .left-understanding-context-body {
+        width: 50%;
+        margin-right: 3%;
+      }
+      .right-understanding-context-body {
+        
+      }
+      @media only screen and (min-width: 768px) {
+        /* For desktop: */
+        .horizontal-form-divider {
+          border-right: 1px solid lightgray;
+          border-bottom: none;
+          margin-bottom: 0;
+          padding-right: 75px;
+        }
       }
     </style>
   </head>
@@ -94,30 +121,15 @@
         <h1>
           {{ bill.type_abbrev }} {{ bill.meta.number }}: {{ bill.meta.short_title }}
         </h1>
-        <span class="small">{{ bill.meta.congress }}th Congress (2019-2020)</span>
+        <span class="small">116th Congress (2019-2020)</span>
         <hr />
       </div>
       <div class="d-flex flex-wrap">
-        <div class="bill p-4 mb-2">
+        <div class="bill light-gray-body p-4 mb-2">
           <h4 class="pb-2">Bill at a Glance</h4>
           <h5>Bill Summary</h5>
-          <div class="d-flex">
-            <div class="left-bill-summary">
-              <p>
-               {{bill.meta.summary_short}} 
-              </p>
-            </div>
-            <div class="right-bill-summary">
-              <button type="button" class="btn btn-primary">
-                <div class="btn-text pt-3">
-                  <i class="fa fa-file fa-3x"></i>
-                  <p>
-                    Read the Bill
-                  </p>
-                </div>
-              </button>
-            </div>
-          </div>
+          <p>{{bill.meta.summary_short}}</p>
+          <button type="button" class="btn btn-primary mb-2">Read Bill</button>
           <h5>Bill Stage</h5>
           <p>Passed House (Senate next) on Jul 17, 2019</p>
           {% if bill.related_bills_numbers %}
@@ -150,13 +162,12 @@
           <p>NA</p>
           <button type="button" class="btn btn-danger">View Timeline</button>
         </div>
-        <div class="sponsors p-4 mb-2">
-          <h4>Sponsors</h4>
-          <div class="d-flex mb-2">
-            <img src="https://via.placeholder.com/100" alt="" class="mr-4" />
-            <p class="large">{{bill.sponsor_fullname}}</p>
-          </div>
-          <h4>Most Relevant Sponsors</h4>
+        <div class="committee-jurisdiction light-gray-body p-4 mb-2">
+          <h4>Committee(s) of Jurisdiction</h4>
+          <a href="#">House Administration</a>
+          <br>
+          <a href="#">House Oversight</a>
+          <h4 class="mt-2">Most Relevant Sponsors</h4>
           <table class="table mt-3">
             <thead>
               <tr>
@@ -195,9 +206,339 @@
           </table>
           <div class="d-flex sponsors-buttons">
             <button type="button" class="btn btn-danger mr-4">
-              Full list of sponsors
+              View Full list of sponsors
             </button>
-            <button type="button" class="btn btn-danger">View Committee</button>
+          </div>
+        </div>
+      </div>
+      <div class="d-flex my-4">
+        <button type="button" class="mr-auto btn btn-primary">Track</button>
+        <button type="button" class="btn btn-primary mr-2">Facebook</button>
+        <button type="button" class="btn btn-primary">Twitter</button>
+      </div>
+      <div class="similar-bills">
+        <h4>Analyze Related Bills</h4>
+        <span class="small">
+          Discover related bills to H.R. 736: Access to Congressionally
+          Mandated Reports Act. A related bill may be a companion measure, an
+          identical bill, a procedurally-related measure, or one with text
+          similarities.</span
+        >
+        <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a
+              class="nav-link active"
+              id="current-tab"
+              data-toggle="tab"
+              href="#current"
+              role="tab"
+              aria-controls="current"
+              aria-selected="true"
+              >116 Congress</a
+            >
+          </li>
+          <li class="nav-item" role="presentation">
+            <a
+              class="nav-link"
+              id="all-tab"
+              data-toggle="tab"
+              href="#all"
+              role="tab"
+              aria-controls="all"
+              aria-selected="false"
+              >115 Congresses</a
+            >
+          </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+          <div
+            class="tab-pane fade show active"
+            id="current"
+            role="tabpanel"
+            aria-labelledby="current-tab"
+          >
+            <div class="d-flex justify-content-between flex-wrap pt-3">
+              <div class="house horizontal-form-divider">
+                <h5 class="pt-2">House of Representatives</h5>
+                <table class="table mt-3">
+                  <thead>
+                    <tr>
+                      <th scope="col">Co-Sponsor</th>
+                      <th scope="col">Committee Jurisdiction</th>
+                      <th scope="col">Party</th>
+                      <th scope="col">Rank</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Raúl Grijalva</td>
+                      <td>No</td>
+                      <td>D</td>
+                      <td>No</td>
+                    </tr>
+                    <tr>
+                      <td>Rodney Davis</td>
+                      <td>House Administration</td>
+                      <td>R</td>
+                      <td>Ranking Member</td>
+                    </tr>
+                    <tr>
+                      <td>Jim Cooper</td>
+                      <td>House Oversight</td>
+                      <td>D</td>
+                      <td>No</td>
+                    </tr>
+                    <tr>
+                      <td>Virginia Foxx</td>
+                      <td>House Oversight</td>
+                      <td>R</td>
+                      <td>No</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="senate">
+                <h5 class="pt-2">Senate</h5>
+                <table class="table mt-3">
+                  <thead>
+                    <tr>
+                      <th scope="col">Co-Sponsor</th>
+                      <th scope="col">Committee Jurisdiction</th>
+                      <th scope="col">Party</th>
+                      <th scope="col">Rank</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Raúl Grijalva</td>
+                      <td>No</td>
+                      <td>D</td>
+                      <td>No</td>
+                    </tr>
+                    <tr>
+                      <td>Rodney Davis</td>
+                      <td>House Administration</td>
+                      <td>R</td>
+                      <td>Ranking Member</td>
+                    </tr>
+                    <tr>
+                      <td>Jim Cooper</td>
+                      <td>House Oversight</td>
+                      <td>D</td>
+                      <td>No</td>
+                    </tr>
+                    <tr>
+                      <td>Virginia Foxx</td>
+                      <td>House Oversight</td>
+                      <td>R</td>
+                      <td>No</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="all"
+            role="tabpanel"
+            aria-labelledby="all-tab"
+          >
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+        </div>
+      </div>
+      <div class="tab">
+        <h4>Sponsors</h4>
+        <span class="small"
+          >Identify the Sponsor and Cosponsors of this bill and which related
+          bills they cosponsored. This information also indicates which
+          committee each cosponsor is apart of and their rank in that
+          committee.</span
+        >
+        <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a
+              class="nav-link active"
+              id="house-tab"
+              data-toggle="tab"
+              href="#house"
+              role="tab"
+              aria-controls="house"
+              aria-selected="true"
+              >This Bill (H.R. 736)</a
+            >
+          </li>
+          <li class="nav-item" role="presentation">
+            <a
+              class="nav-link"
+              id="senate-tab"
+              data-toggle="tab"
+              href="#senate"
+              role="tab"
+              aria-controls="senate"
+              aria-selected="false"
+              >This Congress</a
+            >
+          </li>
+          <li class="nav-item" role="presentation">
+            <a
+              class="nav-link"
+              id="all-congress-tab"
+              data-toggle="tab"
+              href="#all-congress"
+              role="tab"
+              aria-controls="all-congress"
+              aria-selected="false"
+              >All Congress</a
+            >
+          </li>
+          <div class="spacer"></div>
+          <span class="pt-2 mr-2">Sort By:</span>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Sponsors
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </div>
+        </ul>
+        <div class="tab-content light-gray-body" id="myTabContent">
+          <div
+            class="tab-pane fade show active"
+            id="house"
+            role="tabpanel"
+            aria-labelledby="house-tab"
+          >
+            <h6 class="pt-3">View all current sponsors of H.R. 736 on the 116th Congress</h6>
+            <table class="table mt-3">
+              <thead>
+                <tr>
+                  <th scope="col">Co-Sponsor</th>
+                  <th scope="col">Committee Jurisdiction</th>
+                  <th scope="col">Party</th>
+                  <th scope="col">Rank</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Raúl Grijalva</td>
+                  <td>No</td>
+                  <td>D</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>Rodney Davis</td>
+                  <td>House Administration</td>
+                  <td>R</td>
+                  <td>Ranking Member</td>
+                </tr>
+                <tr>
+                  <td>Jim Cooper</td>
+                  <td>House Oversight</td>
+                  <td>D</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>Virginia Foxx</td>
+                  <td>House Oversight</td>
+                  <td>R</td>
+                  <td>No</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div
+            class="tab-pane fade"
+            id="senate"
+            role="tabpanel"
+            aria-labelledby="senate-tab"
+          >
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+          <div
+            class="tab-pane fade"
+            id="all-congress"
+            role="tabpanel"
+            aria-labelledby="all-congress-tab"
+          >
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+        </div>
+      </div>
+      <div class="understanding-context pb-2">
+        <h4>Understand the Context</h4>
+        <span class="small"
+          >Identify the Sponsor and Cosponsors of this bill and which related</span
+        >
+        <div class="d-flex flex-wrap understanding-context-body light-gray-body mt-3 p-4">
+          <div class="left-understanding-context-body">
+            <div class="cbo-score dark-gray-body p-3">
+              <h6>CBO Score</h6>
+              <table class="table mt-3">
+                <thead>
+                  <tr>
+                    <th scope="col">Co-Sponsor</th>
+                    <th scope="col">Committee Jurisdiction</th>
+                    <th scope="col">Party</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Raúl Grijalva</td>
+                    <td>No</td>
+                    <td>D</td>
+                  </tr>
+                  <tr>
+                    <td>Rodney Davis</td>
+                    <td>House Administration</td>
+                    <td>R</td>
+                  </tr>
+                  <tr>
+                    <td>Jim Cooper</td>
+                    <td>House Oversight</td>
+                    <td>D</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="floor-proceedings mt-3">
+              <h6>Video/Floor Proceedings</h6>
+              <img src="https://via.placeholder.com/180" alt="" class="mr-4" />
+              <img src="https://via.placeholder.com/180" alt="" class="mr-4" />
+              <p>
+                <a href="#">see more</a>
+              </p>
+            </div>
+          </div>
+          <div class="right-understanding-context-body">
+            <p>
+              <a href="#">Statement of Administration Policy</a>
+            </p>
+            <p class="pt-4">
+              <a href="#">Statement of Administration Policy</a>
+            </p>
+            <p class="pt-4">
+              <a href="#">Statement of Administration Policy</a>
+            </p>
+            <p class="pt-4">
+              <a href="#">Statement of Administration Policy</a>
+            </p>
+            <p class="pt-4">
+              <a href="#">Statement of Administration Policy</a>
+            </p>
           </div>
         </div>
       </div>

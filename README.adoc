@@ -1,7 +1,8 @@
 :toc:
 
-# FlatGov
-Utilities and applications for the FlatGov project
+# FlatGov: A https://demandprogress.org[Demand Progress] project 
+Utilities and applications for the FlatGov project by Demand Progress
+
 
 This repository contains:
 

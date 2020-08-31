@@ -1,6 +1,6 @@
 :toc:
 
-# FlatGov: A https://demandprogress.org[Demand Progress] project 
+# FlatGov: A https://demandprogress.org[Demand Progress] Project 
 Utilities and applications for the FlatGov project by Demand Progress
 
 

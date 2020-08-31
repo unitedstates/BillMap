@@ -3,6 +3,55 @@
 # FlatGov
 Utilities and applications for the FlatGov project
 
+This repository contains:
+
+* A web application showing information for a given bill (Django/Python)
+* Utilities to scrape and process bill data (Python)
+
+Both components are described belo
+
+## Web Application
+
+The FlatGov web application is built using the Django/Python web application framework. The application is contained in the `server_py` directory of this repository. It makes use of data that is processed using the scrapers and scripts described in the <<Data>> and <<Metadata>> sections below.
+
+### Quickstart
+
+#### Install Python dependencies
+
+Create a new Python virtual environment (preferably using `pyenv virtualenv`). Then load the `requirements.txt` into the virtual environment:
+
+```bash
+$ cd server_py
+$ pip install -r requirements.txt
+```
+
+#### Add data to `data_json`
+Copy the `json_data` directory, containing sample data, into the `server_py/flatgov` directory. Your directory will then look like:
+
+```bash
+server_py
+       |
+       -flatgov
+          |
+         json_data
+          |
+          -billsMeta.json
+          -titlesIndex.json
+          -...
+```
+
+Alternately, you can generate the `billsMeta.json` and `titlesIndex.json` files using the scrapers and scripts described in 
+<<Data>> and <<Metadata>>.
+
+#### Run the Django application
+
+Run the application from `server_py/flatgov` (within the Python virtual environment you created above):
+
+```bash
+$ cd server_py/flatgov
+$ python manage.py
+```
+
 ## Data
 
 ### Where to store data
@@ -97,7 +146,28 @@ When running initially, I got an error because the bulk directories had not been
 
 ## Metadata
 
-Once the files are stored in the `congress/data` directory, a metadata file can be created with the following information: *Congress*, *Name*, *Path to XML or Text*, *Sponsors*. As an initial form, the metadata file will be:
+### Quickstart
+
+Once the files are stored in the `congress/data` directory, you can use the Python scripts in the `scripts` directory to generate various metadata files can be generated that combine and index data from the individual `data.json` files found in `congress/data`. A separate `scripts/README.adoc` file will describe the usage of those scripts in detail. In general, the scripts can be run from the command line as follows:
+
+```bash
+$ cd scripts
+$ ls | grep "[^_].py$"
+billdata.py
+process_bill_meta.py
+relatedBills.py
+
+$ python billdata.py #runs the billdata script
+...
+$ python process_bill_meta.py # combines data from the results of the above script, to get titles
+...
+$ python relatedBills.py # processes the data above to generate a related bills json
+
+```
+
+### Background
+
+a metadata file can be created with the following information: *Congress*, *Name*, *Path to XML or Text*, *Sponsors*. As an initial form, the metadata file will be:
 
 billdata.json
 ```javascript

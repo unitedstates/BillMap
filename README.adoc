@@ -9,7 +9,7 @@ This repository contains:
 * A web application showing information for a given bill (Django/Python)
 * Utilities to scrape and process bill data (Python)
 
-Both components are described belo
+Both components are described below.
 
 ## Web Application
 
@@ -19,11 +19,17 @@ The FlatGov web application is built using the Django/Python web application fra
 
 #### Install Python dependencies
 
-Create a new Python virtual environment (preferably using `pyenv virtualenv`).
-Activate the environment. 
+Create a new Python virtual environment. You can use `venv`, `virtualenv` or preferably https://github.com/pyenv/pyenv-virtualenv[`pyenv virtualenv`], which requires installing https://github.com/pyenv/pyenv[pyenv] first).
+
+Create the environment (with pyenv virtualenv):
 ```bash
-$ source virtualenv/bin/active
-$ deactivate (command to deacvtivate environment)
+$ pyenv install 3.7
+$ pyenv virtualenv 3.7 flatgov
+```
+
+Activate the environment
+```bash
+$ pyenv activate flatgov
 ```
 
 Then load the `requirements.txt` into the virtual environment:
@@ -32,6 +38,13 @@ Then load the `requirements.txt` into the virtual environment:
 $ cd server_py
 $ pip install -r requirements.txt
 ```
+
+```bash
+$ cd scripts
+$ pip install -r requirements.txt
+```
+
+The requirements for `scripts` and `server_py` are separate. But for simplicity, it's probably best to load them both in a single virtual environment.
 
 #### Create .env file 
 
@@ -61,8 +74,11 @@ Run the application from `server_py/flatgov` (within the Python virtual environm
 
 ```bash
 $ cd server_py/flatgov
-$ python manage.py
+$ python manage.py runserver
 ```
+
+This will serve the application on localhost:8000. Currently, there is no home page; only pages for individual bills, at, e.g.:
+http://localhost:8000/bills/116hr1500enr
 
 ## Data
 

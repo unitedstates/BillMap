@@ -49,3 +49,6 @@ billsMeta.json.gz
 titlesIndex.json
 titlesIndex.json.gz
 /congress
+
+# Mac artifacts
+.DS_Store

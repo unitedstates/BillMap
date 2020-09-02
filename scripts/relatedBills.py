@@ -12,7 +12,7 @@ from functools import reduce
 from billdata import saveBillsMeta, loadJSON, loadBillsMeta
 
 PATH_TO_TITLES_INDEX = '../titlesIndex.json'
-PATH_TO_SAME_TITLES_INDEX = '../sameTitles.json'
+PATH_TO_RELATEDBILLS = '../relatedBills.json'
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
@@ -36,38 +36,68 @@ def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
 
     return titlesIndex
 
+def getSimilarTitles(titlesIndex: dict, same=True):
+    billsRelatedByTitle = {}
+    for title, bills in titlesIndex.items():
+        for bill_outer in bills:
+            similarTitles = billsRelatedByTitle.get(bill_outer)
+            
+            # Initialize the key-value for the bill
+            if not similarTitles:
+                billsRelatedByTitle[bill_outer] = []
+
+            for bill_inner in bills:
+                # Find a matching item, if any, in the list billsRelatedByTitle[bill_outer]
+                # See https://stackoverflow.com/a/1701404/628748
+                bill_index = next((i for i,v in enumerate(billsRelatedByTitle[bill_outer]) if (bill_inner == v.get('billCongressTypeNumber'))), None)
+                if not bill_index:
+                    billsRelatedByTitle[bill_outer].append({
+                        'billCongressTypeNumber': bill_inner,
+                        'titles': [title]
+                    })
+                else:
+                    billsRelatedByTitle[bill_outer][bill_index]['titles'].append(title)
+
+    return billsRelatedByTitle 
 
 def getRelatedBills():
     billsMeta = loadBillsMeta()
     titlesIndex = loadTitlesIndex()
-    billsRelatedIndex = {key: [] for key in billsMeta.keys()}
-    getSameTitles(titlesIndex, billsRelatedIndex)
+    billsRelatedIndex = getSimilarTitles(titlesIndex)
     return billsRelatedIndex
-    # for key, value in billsRelatedIndex.items():
-    #     if len(value) > 1:
-    #         print(key, value)
 
+def makeAndSaveRelatedBills():
+    relatedBills = getRelatedBills()
+    saveBillsMeta(billsMeta=relatedBills,
+                   metaPath=PATH_TO_RELATEDBILLS)
 
-def getSameTitles(titlesIndex, billsRelatedIndex):
-    for title, bills in titlesIndex.items():
-        for billNum in bills:
-            similarList = billsRelatedIndex.get(billNum)
-            if len(similarList) == 0:
-                for bill in bills:
-                    similarList.append({
-                        'billCongressTypeNumber': bill,
-                        'titles': [title]
-                    })
-            else:
-                for item in similarList:
-                    item.get('titles').append(title)
+def main(args, loglevel):
+    makeAndSaveRelatedBills()
 
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(
+        description="Generates relatedbills.json metadata file",
+        epilog="As an alternative to the commandline, params can be placed in a file, one per line, and specified on the commandline like '%(prog)s @params.conf'.",
+        fromfile_prefix_chars='@')
+    parser.add_argument(
+        "-a",
+        "--argument",
+        action='store',
+        dest='argument',
+        help="sample argument")
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        dest='verbose',
+        help="increase output verbosity",
+        action="store_true")
+    args = parser.parse_args()
 
-# def makeAndSaveSameTitleIndex():
-#     sameTitlesIndex = getSameTitles()
-#     saveBillsMeta(billsMeta=sameTitlesIndex,
-#                   metaPath=PATH_TO_SAME_TITLES_INDEX)
-# def main():
-#     makeAndSaveSameTitleIndex()
-# main()
-getRelatedBills()
+    # Setup logging
+    if args.verbose:
+        loglevel = logging.DEBUG
+    else:
+        loglevel = logging.INFO
+
+    main(args, loglevel)
+

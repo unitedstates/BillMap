@@ -3,21 +3,11 @@
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
 import sys, os, argparse, logging, re, json, gzip
-import datetime
 from typing import Dict
 from functools import reduce
+import re
 
-PATH_TO_BILLS_META = '../billsMeta.json'
-SAVE_ON_COUNT = 1000
-
-BILL_TYPES = {
-  'ih': 'introduced',
-  'rh': 'reported to house'
-}
-
-CURRENT_CONGRESSIONAL_YEAR = datetime.date.today().year if datetime.date.today() > datetime.date(datetime.date.today().year, 1, 3) else (datetime.date.today().year - 1)
-CURRENT_CONGRESS, cs_temp = divmod(round(((datetime.date(CURRENT_CONGRESSIONAL_YEAR, 1, 3) - datetime.date(1788, 1, 3)).days) / 365) + 1, 2)
-CURRENT_SESSION = cs_temp + 1
+from . import constants
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
@@ -57,6 +47,21 @@ def walkBillDirs(rootDir = '../congress/data', processFile = logName, dirMatch =
         for fname in filteredFileList:
             processFile(dirName=dirName, fileName=fname)
 
+# Utilities. These should go in a utils.py module
+def billIdToBillNumber(bill_id: str) -> str:
+    """
+    Converts a bill_id of the form `hr299-116` into `116hr299`
+
+    Args:
+        bill_id (str): hyphenated bill_id from bill status JSON
+
+    Returns:
+        str: billCongressTypeNumber (e.g. 116hr299) 
+    """
+    if not re.match(constants.BILL_ID_REGEX, bill_id):
+      raise Exception('bill_id does not have the expected form (e.g. "hjres200-116"')
+    return ''.join(reversed(bill_id.split('-')))
+
 def deep_get(dictionary: Dict, *keys):
   """
   A Dict utility to get a field; returns None if the field does not exist
@@ -80,11 +85,9 @@ def loadJSON(filePath: str):
 def getBillCongressTypeNumber(fileDict: Dict):
   bill_id = fileDict.get('bill_id')
   if bill_id:
-    bill_id_parts = bill_id.split('-')
-    return bill_id_parts[1] + bill_id_parts[0]
+    billCongressTypeNumber = billIdToBillNumber(bill_id)
   else:
-    logging.error('No bill_id: ' + str(fileDict.get('bill_type')))
-    return None
+    raise Exception('No bill_id: ' + str(fileDict.get('bill_type')))
 
 def getCosponsors(fileDict: Dict, includeFields = []) -> list:
   """
@@ -120,8 +123,8 @@ def getBillTitles(fileDict: Dict, include_partial = True, billType = 'all') -> l
   if not include_partial:
     titles = [title for title in titles if not title.get('is_for_portion')]
   
-  if (billType != 'all') and BILL_TYPES.get(billType):
-    titles = [title for title in titles if BILL_TYPES.get(billType) == title.get('as')]
+  if (billType != 'all') and constants.BILL_TYPES.get(billType):
+    titles = [title for title in titles if constants.BILL_TYPES.get(billType) == title.get('as')]
   return titles
 
 def testWalkDirs():
@@ -132,7 +135,7 @@ def testWalkDirs():
   walkBillDirs(processFile=addToFilePathList)
   return filePathList
 
-def loadBillsMeta(billMetaPath = PATH_TO_BILLS_META, zip = True):
+def loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META, zip = True):
   billsMeta = {}
   if zip:
     try:
@@ -149,7 +152,7 @@ def loadBillsMeta(billMetaPath = PATH_TO_BILLS_META, zip = True):
   
   return billsMeta
 
-def saveBillsMeta(billsMeta: Dict, metaPath = PATH_TO_BILLS_META, zip = True):
+def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip = True):
   with open(metaPath, 'w') as f:
     json.dump(billsMeta, f)
     if zip:
@@ -159,8 +162,10 @@ def saveBillsMeta(billsMeta: Dict, metaPath = PATH_TO_BILLS_META, zip = True):
 def updateBillsMeta(billsMeta= {}, congress= ''):
   def addToBillsMeta(dirName: str, fileName: str):
     billDict = loadJSON(os.path.join(dirName, fileName))
-    billCongressTypeNumber = getBillCongressTypeNumber(billDict)
-    if not billCongressTypeNumber:
+    try:
+      billCongressTypeNumber = getBillCongressTypeNumber(billDict)
+    except Exception as err:
+      logging.error(err)
       return
     if not billsMeta.get(billCongressTypeNumber):
       billsMeta[billCongressTypeNumber] = {}
@@ -168,8 +173,17 @@ def updateBillsMeta(billsMeta= {}, congress= ''):
     billsMeta[billCongressTypeNumber]['titles'] = [title.get('title') for title in titles]
     billsMeta[billCongressTypeNumber]['titles_whole_bill'] = [title.get('title') for title in titles if not title.get('is_for_portion')]
     billsMeta[billCongressTypeNumber]['cosponsors'] = getCosponsors(fileDict=billDict, includeFields=['name', 'bioguide_id'])
+
+    # TODO convert bill_id to billnumber
+    billsMeta[billCongressTypeNumber]['related_bills'] = billDict.get('related_bills')
+    for item in billsMeta[billCongressTypeNumber]['related_bills']:
+      bill_id = item.get('bill_id') 
+      if bill_id:
+        item['billCongressTypeNumber'] = billIdToBillNumber(bill_id)
+      else:
+        item['billCongressTypeNumber'] = None
     billCount = len(billsMeta.keys()) 
-    if billCount % SAVE_ON_COUNT == 0:
+    if billCount % constants.SAVE_ON_COUNT == 0:
       saveBillsMeta(billsMeta)
 
   walkBillDirs(processFile=addToBillsMeta)

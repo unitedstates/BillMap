@@ -36,7 +36,7 @@ def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
 
     return titlesIndex
 
-def getSimilarTitles(titlesIndex: dict, same=True):
+def getSameTitles(titlesIndex: dict):
     billsRelatedByTitle = {}
     for title, bills in titlesIndex.items():
         for bill_outer in bills:
@@ -63,7 +63,7 @@ def getSimilarTitles(titlesIndex: dict, same=True):
 def getRelatedBills():
     billsMeta = loadBillsMeta()
     titlesIndex = loadTitlesIndex()
-    billsRelatedIndex = getSimilarTitles(titlesIndex)
+    billsRelatedIndex = getSameTitles(titlesIndex)
     return billsRelatedIndex
 
 def makeAndSaveRelatedBills():

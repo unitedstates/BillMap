@@ -7,7 +7,10 @@ from typing import Dict
 from functools import reduce
 import re
 
-from . import constants
+try:
+  from . import constants
+except:
+  import constants
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)

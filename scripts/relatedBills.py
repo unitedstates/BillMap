@@ -9,10 +9,12 @@ import gzip
 import datetime
 from typing import Dict
 from functools import reduce
-from billdata import saveBillsMeta, loadJSON, loadBillsMeta
+from billdata import deep_get, saveBillsMeta, loadBillsMeta
 
 PATH_TO_TITLES_INDEX = '../titlesIndex.json'
 PATH_TO_RELATEDBILLS = '../relatedBills.json'
+
+OF_YEAR_REGEX = re.compile(r'\sof\s[0-9]+$')
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
@@ -36,38 +38,63 @@ def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
 
     return titlesIndex
 
-def getSimilarTitles(titlesIndex: dict, same=True):
-    billsRelatedByTitle = {}
+# NOTE: This is very slow. Takes ~20 minutes
+def addSimilarTitles(titlesIndex: dict, billsRelated = {}):
+    allTitles = list(titlesIndex.keys())
+    billsMeta = loadBillsMeta()
+    allBills = list(billsMeta.keys())
+    for bill_outer in allBills:
+        if not billsRelated.get(bill_outer):
+            billsRelated[bill_outer] = {'related': {}} 
+        
+        if not deep_get(billsRelated, bill_outer, 'related'):
+            billsRelated[bill_outer]['related'] ={}
+
+        titles = billsMeta[bill_outer].get('titles')
+        for title in titles:
+            noYearTitle = OF_YEAR_REGEX.sub('', title) 
+            similarTitles = filter(lambda titleItem: title != titleItem and titleItem.startswith(noYearTitle), allTitles)
+            for similarTitle in similarTitles:
+                similarTitleBills = titlesIndex.get(similarTitle)
+                for bill_inner in similarTitleBills:
+                    # Find a matching item, if any, in the list billsRelated[bill_outer]
+                    if not deep_get(billsRelated, bill_outer, 'related', bill_inner):
+                        billsRelated[bill_outer]['related'][bill_inner] = {
+                            'titles_year': [similarTitle]
+                        }
+                    elif not deep_get(billsRelated, bill_outer, 'related', bill_inner, 'titles_year'):
+                        billsRelated[bill_outer]['related'][bill_inner]['titles_year'] = [similarTitle]
+                    else:
+                        if similarTitle not in billsRelated[bill_outer]['related'][bill_inner]['titles_year']:
+                            billsRelated[bill_outer]['related'][bill_inner]['titles_year'].append(similarTitle)
+                    if deep_get(billsRelated, bill_outer, 'related', bill_inner, 'titles_year'):
+                        print(billsRelated[bill_outer]['related'][bill_inner])
+    return billsRelated 
+
+
+def addSameTitles(titlesIndex: dict, billsRelated = {}):
     for title, bills in titlesIndex.items():
         for bill_outer in bills:
-            similarTitles = billsRelatedByTitle.get(bill_outer)
-            
+
             # Initialize the key-value for the bill
-            if not similarTitles:
-                billsRelatedByTitle[bill_outer] = []
+            if not billsRelated.get(bill_outer):
+                billsRelated[bill_outer] = {'related': {}}
+            
+            if not deep_get(billsRelated, bill_outer, 'related'):
+                billsRelated[bill_outer]['related'] = {}
 
             for bill_inner in bills:
-                # Find a matching item, if any, in the list billsRelatedByTitle[bill_outer]
-                # See https://stackoverflow.com/a/1701404/628748
-                bill_index = next((i for i,v in enumerate(billsRelatedByTitle[bill_outer]) if (bill_inner == v.get('billCongressTypeNumber'))), None)
-                if not bill_index:
-                    billsRelatedByTitle[bill_outer].append({
-                        'billCongressTypeNumber': bill_inner,
-                        'titles': [title]
-                    })
+                # Find a matching item, if any, in the list billsRelated[bill_outer]
+                if not deep_get(billsRelated, bill_outer, 'related', bill_inner):
+                    billsRelated[bill_outer]['related'][bill_inner] = {'titles': [title]}
                 else:
-                    billsRelatedByTitle[bill_outer][bill_index]['titles'].append(title)
+                    billsRelated[bill_outer]['related'][bill_inner]['titles'].append(title)
 
-    return billsRelatedByTitle 
+    return billsRelated 
 
-def getRelatedBills():
-    billsMeta = loadBillsMeta()
-    titlesIndex = loadTitlesIndex()
-    billsRelatedIndex = getSimilarTitles(titlesIndex)
-    return billsRelatedIndex
-
-def makeAndSaveRelatedBills():
-    relatedBills = getRelatedBills()
+def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex()):
+    sameTitleBills = addSameTitles(titlesIndex)
+    relatedBills = addSimilarTitles(titlesIndex=titlesIndex, billsRelated=sameTitleBills)
     saveBillsMeta(billsMeta=relatedBills,
                    metaPath=PATH_TO_RELATEDBILLS)
 

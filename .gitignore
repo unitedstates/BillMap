@@ -44,6 +44,8 @@ env.bak/
 venv.bak/
 
 # Sandbox Data
+relatedBills.json
+relatedBills.json.gz
 billsMeta.json
 billsMeta.json.gz
 titlesIndex.json

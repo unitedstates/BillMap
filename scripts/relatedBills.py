@@ -168,8 +168,8 @@ def addSponsors(billsRelated = {}):
 
     return billsRelated 
 
-def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), relatedBills = loadJSON(PATH_TO_RELATEDBILLS)):
-    if not relatedBills:
+def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), relatedBills = loadJSON(PATH_TO_RELATEDBILLS), remake = False):
+    if remake or not relatedBills:
         sameTitleBills = addSameTitles(titlesIndex)
         relatedBills = addSimilarTitles(titlesIndex=titlesIndex, billsRelated=sameTitleBills)
         relatedBills = addGPORelatedBills(billsRelated=relatedBills)

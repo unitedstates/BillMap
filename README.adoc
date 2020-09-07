@@ -62,7 +62,8 @@ server_py
           |
           -billsMeta.json
           -titlesIndex.json
-          -...
+          -relatedBills.json
+          ...
 ```
 
 Alternately, you can generate the `billsMeta.json` and `titlesIndex.json` files using the scrapers and scripts described in 

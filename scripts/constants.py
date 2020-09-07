@@ -1,7 +1,13 @@
+import re
 import datetime
 
 PATH_TO_BILLS_META = '../billsMeta.json'
+PATH_TO_CONGRESSDATA_DIR = '../../congress/data'
 SAVE_ON_COUNT = 1000
+
+BILL_ID_REGEX = r'[a-z]+[1-9][0-9]*-[1-9][0-9]+'
+BILL_NUMBER_REGEX = r'([1-9][0-9]*)([a-z]+)([0-9]+)([a-z]+)?$'
+BILL_NUMBER_REGEX_COMPILED = re.compile(BILL_NUMBER_REGEX)
 
 BILL_TYPES = {
   'ih': 'introduced',

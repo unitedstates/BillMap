@@ -26,6 +26,7 @@ def deep_get(dictionary: Dict, *keys):
 
 CONGRESS_DATA_PATH = getattr(settings, "CONGRESS_DATA_PATH", None) 
 BILLS_META_JSON_PATH = getattr(settings, "BILLS_META_JSON_PATH", None) 
+RELATED_BILLS_JSON_PATH = getattr(settings, "RELATED_BILLS_JSON_PATH", None) 
 TITLES_INDEX_JSON_PATH = getattr(settings, "TITLES_INDEX_JSON_PATH", None) 
 
 import re
@@ -68,6 +69,11 @@ def makeSponsorBracket(sponsor: dict, party='X') -> str:
 def index(request):
     return HttpResponse("Hello, world. You're at the bills index.")
 
+def makeName(commaName):
+    if not commaName:
+        return ''
+    return ' '.join(reversed(commaName.split(',')))
+
 def bill_view(request, bill):
     context = {'billCongressTypeNumber': bill, 'bill': {}}
 
@@ -87,6 +93,10 @@ def bill_view(request, bill):
 
         with open(TITLES_INDEX_JSON_PATH, 'rb') as f:
             titlesIndex = json.load(f)
+
+        with open(RELATED_BILLS_JSON_PATH, 'rb') as f:
+            relatedBillsAll = json.load(f)
+            relatedBills = deep_get(relatedBillsAll, bill, 'related')
     
         context['bill']['meta'] = bill_meta
         bill_summary = deep_get(bill_meta, 'summary', 'text')
@@ -94,20 +104,34 @@ def bill_view(request, bill):
             context['bill']['meta']['summary_short'] = bill_summary[0:200] + '...'
         else:
             context['bill']['meta']['summary_short'] = bill_summary
-        related_bills_numbers = sorted([billIdToBillNumber(item.get('bill_id')) for item in bill_meta.get('related_bills')])
-        context['bill']['related_bills_numbers'] = related_bills_numbers
-        related_bills_all_titles = [deep_get(billsMeta, billnumber, 'titles') for billnumber in related_bills_numbers]
-        related_bills_all_titles = sorted(list(set([item for sublist in related_bills_all_titles for item in sublist])), key=None)
-        related_bills_same_titles = [titlesIndex.get(title) for title in related_bills_all_titles] 
-        related_bills_same_titles = sorted(list(set([item for sublist in related_bills_same_titles for item in sublist if item != bill])), key=None)
-        context['bill']['related_bills_same_titles'] = related_bills_same_titles
+        bctns = relatedBills.keys()
+        context['bill']['related_bill_numbers'] = ', '.join(bctns)
 
+        relatedTable = []
+        for bctn in bctns:
+            relatedTableItem = relatedBills.get(bctn)
+            relatedTableItem['billCongressTypeNumber'] = str(bctn)
+            titles = deep_get(relatedBills, bctn, 'titles')
+            if titles:
+                relatedTableItem['titles_list'] = ", ".join(titles)
+            else:
+                relatedTableItem['titles_list'] = ""
 
-        all_titles = list(set([item.get('title') for item in bill_meta.get('titles')]))
-        same_titles = [titlesIndex.get(title) for title in all_titles] 
-        same_titles = sorted(list(set([item for sublist in same_titles for item in sublist if item != bill])), key=None)
-        context['bill']['same_titles'] = same_titles
-        context['bill']['same_titles_text'] = ', '.join(same_titles)
+            titles_year = deep_get(relatedBills, bctn, 'titles_year')
+            if titles_year:
+                relatedTableItem['titles_year_list'] = ", ".join(titles_year)
+            else:
+                relatedTableItem['titles_year_list'] = ""
+            relatedTableItem['sponsor_name'] = makeName(deep_get(relatedBills, bctn, 'sponsor', 'name'))
+            cosponsors = deep_get(relatedBills, bctn, 'cosponsors')
+            if cosponsors:
+                relatedTableItem['cosponsor_names'] = ", ".join(list(map(lambda item: makeName(item.get('name')), cosponsors)))
+            else:
+                relatedTableItem['cosponsor_names'] = ''
+            relatedTable.append(relatedTableItem)
+            
+        context['bill']['related_table'] =  json.dumps(relatedTable)
+
         context['bill']['type_abbrev'] = makeTypeAbbrev(bill_type)
         sponsor_name = cleanSponsorName(deep_get(bill_meta, 'sponsor', 'name'))
         context['bill']['sponsor_fullname'] = deep_get(bill_meta, 'sponsor', 'title') + '. ' + sponsor_name + ' '  + makeSponsorBracket(bill_meta.get('sponsor')) 

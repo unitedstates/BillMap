@@ -91,6 +91,7 @@ DATABASES = {
 
 CONGRESS_DATA_PATH = os.path.join(BASE_DIR, 'congress', 'data')
 BILLS_JSON_PATH = os.path.join(BASE_DIR, 'json_data') 
+RELATED_BILLS_JSON_PATH = os.path.join(BILLS_JSON_PATH, 'relatedBills.json') 
 BILLS_META_JSON_PATH = os.path.join(BILLS_JSON_PATH, 'billsMeta.json') 
 TITLES_INDEX_JSON_PATH = os.path.join(BILLS_JSON_PATH, 'titlesIndex.json') 
 

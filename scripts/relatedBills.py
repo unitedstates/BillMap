@@ -9,7 +9,7 @@ import gzip
 import datetime
 from typing import Dict
 from functools import reduce
-from billdata import deep_get, saveBillsMeta, loadBillsMeta
+from billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, saveBillsMeta, loadBillsMeta
 
 PATH_TO_TITLES_INDEX = '../titlesIndex.json'
 PATH_TO_RELATEDBILLS = '../relatedBills.json'
@@ -92,9 +92,46 @@ def addSameTitles(titlesIndex: dict, billsRelated = {}):
 
     return billsRelated 
 
-def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex()):
-    sameTitleBills = addSameTitles(titlesIndex)
-    relatedBills = addSimilarTitles(titlesIndex=titlesIndex, billsRelated=sameTitleBills)
+def addGPORelatedBills(billsRelated = {}):
+    billsMeta = loadBillsMeta()
+    allBills = list(billsMeta.keys())
+    if len(billsRelated) == 0:
+        try:
+            billsRelated = loadJSON(PATH_TO_RELATEDBILLS)
+        except Exception:
+            pass
+    for bill_outer in allBills:
+
+        # Initialize the key-value for the bill
+        if not billsRelated.get(bill_outer):
+            billsRelated[bill_outer] = {'related': {}}
+        
+        if not deep_get(billsRelated, bill_outer, 'related'):
+            billsRelated[bill_outer]['related'] = {}
+        
+        billData = loadDataJSON(bill_outer)
+        if not billData or not deep_get(billData, 'related_bills'):
+            continue
+
+        relatedBillItems = deep_get(billData, 'related_bills')
+
+        for billItem in relatedBillItems:
+            billNumber = billIdToBillNumber(billItem.get('bill_id'))
+            newDict = {'reason': billItem.get('reason'), 'identified_by': billItem.get('identified_by')}
+            print(newDict)
+            # Find a matching item, if any, in the list billsRelated[bill_outer]
+            if not deep_get(billsRelated, bill_outer, 'related', billNumber):
+                billsRelated[bill_outer]['related'][billNumber] =  newDict
+            else:
+                billsRelated[bill_outer]['related'][billNumber].update(newDict)
+
+    return billsRelated 
+
+def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), relatedBills = loadJSON(PATH_TO_RELATEDBILLS)):
+    if not relatedBills:
+        sameTitleBills = addSameTitles(titlesIndex)
+        relatedBills = addSimilarTitles(titlesIndex=titlesIndex, billsRelated=sameTitleBills)
+    relatedBills = addGPORelatedBills(billsRelated=relatedBills)
     saveBillsMeta(billsMeta=relatedBills,
                    metaPath=PATH_TO_RELATEDBILLS)
 

@@ -5,7 +5,6 @@
 import sys, os, argparse, logging, re, json, gzip
 from typing import Dict
 from functools import reduce
-import re
 
 try:
   from . import constants
@@ -42,7 +41,7 @@ def getTopBillLevel(dirName: str):
 def isDataJson(fileName: str) -> bool:
   return fileName == 'data.json'
 
-def walkBillDirs(rootDir = '../congress/data', processFile = logName, dirMatch = getTopBillLevel, fileMatch = isDataJson):
+def walkBillDirs(rootDir = constants.PATH_TO_CONGRESSDATA_DIR, processFile = logName, dirMatch = getTopBillLevel, fileMatch = isDataJson):
     for dirName, subdirList, fileList in os.walk(rootDir):
       if dirMatch(dirName):
         logger.info('Entering directory: %s' % dirName)
@@ -137,6 +136,23 @@ def testWalkDirs():
     print('fpl: ' + str(filePathList))
   walkBillDirs(processFile=addToFilePathList)
   return filePathList
+
+def loadDataJSON(billNumber: str, congressDataDir = constants.PATH_TO_CONGRESSDATA_DIR):
+  billNumberMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billNumber)
+  [congress, billType, numberOfBill, billVersion, billTypeNumber] = ["" for x in range(5)]
+  if billNumberMatch and billNumberMatch.groups():
+    [congress, billType, numberOfBill, billVersion] = billNumberMatch.groups()
+    billTypeNumber = billType + numberOfBill
+  else:
+    logger.warning('Bill number is not of the correct form (e.g. 116hr200): ' + billNumber)
+    return
+
+  dataJSONPath = os.path.join(congressDataDir, congress, 'bills', billType, billTypeNumber, 'data.json') 
+  if os.path.isfile(dataJSONPath):
+    return loadJSON(dataJSONPath)
+  else:
+    logger.warning('No data.json found for: ' + billNumber + ' at ' + dataJSONPath) 
+    return
 
 def loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META, zip = True):
   billsMeta = {}

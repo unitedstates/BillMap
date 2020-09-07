@@ -116,14 +116,55 @@ def addGPORelatedBills(billsRelated = {}):
         relatedBillItems = deep_get(billData, 'related_bills')
 
         for billItem in relatedBillItems:
-            billNumber = billIdToBillNumber(billItem.get('bill_id'))
+            bill_inner = billIdToBillNumber(billItem.get('bill_id'))
             newDict = {'reason': billItem.get('reason'), 'identified_by': billItem.get('identified_by')}
             print(newDict)
             # Find a matching item, if any, in the list billsRelated[bill_outer]
-            if not deep_get(billsRelated, bill_outer, 'related', billNumber):
-                billsRelated[bill_outer]['related'][billNumber] =  newDict
+            if not deep_get(billsRelated, bill_outer, 'related', bill_inner):
+                billsRelated[bill_outer]['related'][bill_inner] =  newDict
             else:
-                billsRelated[bill_outer]['related'][billNumber].update(newDict)
+                billsRelated[bill_outer]['related'][bill_inner].update(newDict)
+
+    return billsRelated 
+
+def addSponsors(billsRelated = {}):
+    billsMeta = loadBillsMeta()
+    allBills = list(billsMeta.keys())
+    if len(billsRelated) == 0:
+        try:
+            billsRelated = loadJSON(PATH_TO_RELATEDBILLS)
+        except Exception:
+            pass
+    for bill_outer in allBills:
+
+        related = deep_get(billsRelated, bill_outer, 'related')
+
+        # Initialize the key-value for the bill
+        if not related:
+            continue
+        
+        billOuterData = loadDataJSON(bill_outer)
+        if not billOuterData or not deep_get(billOuterData, 'sponsor'):
+            continue
+
+        sponsorItem = deep_get(billOuterData, 'sponsor')
+        cosponsorItems = deep_get(billOuterData, 'cosponsors')
+
+        for bill_inner, relatedItemValue in related.items():
+            billInnerData = loadDataJSON(bill_inner)
+            if not billInnerData:
+                continue
+
+            relatedSponsorItem = deep_get(billInnerData, 'sponsor')
+            if sponsorItem.get('bioguide_id') == relatedSponsorItem.get('bioguide_id') and sponsorItem.get('name') == relatedSponsorItem.get('name'):
+                billsRelated[bill_outer]['related'][bill_inner]['sponsor'] = relatedSponsorItem 
+
+            relatedCosponsorItems = deep_get(billInnerData, 'cosponsors')
+            if cosponsorItems and relatedCosponsorItems:
+                # Get cosponsorItems where name and bioguide match
+                commonCosponsors = list(filter(lambda item: any(matchItem.get('bioguide_id') == item.get('bioguide_id') and matchItem.get('name') == item.get('name') for matchItem in cosponsorItems), relatedCosponsorItems))
+                if commonCosponsors:
+                    billsRelated[bill_outer]['related'][bill_inner]['cosponsors'] = commonCosponsors 
 
     return billsRelated 
 
@@ -131,7 +172,8 @@ def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), relatedBills = load
     if not relatedBills:
         sameTitleBills = addSameTitles(titlesIndex)
         relatedBills = addSimilarTitles(titlesIndex=titlesIndex, billsRelated=sameTitleBills)
-    relatedBills = addGPORelatedBills(billsRelated=relatedBills)
+        relatedBills = addGPORelatedBills(billsRelated=relatedBills)
+    addSponsors(relatedBills)
     saveBillsMeta(billsMeta=relatedBills,
                    metaPath=PATH_TO_RELATEDBILLS)
 

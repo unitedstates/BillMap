@@ -110,7 +110,10 @@ def bill_view(request, bill):
         relatedTable = []
         for bctn in bctns:
             relatedTableItem = relatedBills.get(bctn)
-            relatedTableItem['billCongressTypeNumber'] = str(bctn)
+            relatedTableItem['billCongressTypeNumber'] = bctn
+            # TODO handle the same bill number (maybe put it at the top?)
+            if bill == bctn:
+                relatedTableItem['reason'] = 'identical'
             titles = deep_get(relatedBills, bctn, 'titles')
             if titles:
                 relatedTableItem['titles_list'] = ", ".join(titles)

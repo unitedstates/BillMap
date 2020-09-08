@@ -9,6 +9,7 @@ from functools import reduce
 import json
 from typing import Dict
 
+
 def deep_get(dictionary: Dict, *keys):
   """
   A Dict utility to get a field; returns None if the field does not exist
@@ -28,6 +29,8 @@ CONGRESS_DATA_PATH = getattr(settings, "CONGRESS_DATA_PATH", None)
 BILLS_META_JSON_PATH = getattr(settings, "BILLS_META_JSON_PATH", None) 
 RELATED_BILLS_JSON_PATH = getattr(settings, "RELATED_BILLS_JSON_PATH", None) 
 TITLES_INDEX_JSON_PATH = getattr(settings, "TITLES_INDEX_JSON_PATH", None) 
+with open(RELATED_BILLS_JSON_PATH, 'rb') as f:
+    relatedBillsAll = json.load(f)
 
 import re
 
@@ -88,15 +91,7 @@ def bill_view(request, bill):
         with open(BILLMETA_PATH, 'rb') as f:
             bill_meta = json.load(f)
         
-        with open(BILLS_META_JSON_PATH, 'rb') as f:
-            billsMeta = json.load(f)
-
-        with open(TITLES_INDEX_JSON_PATH, 'rb') as f:
-            titlesIndex = json.load(f)
-
-        with open(RELATED_BILLS_JSON_PATH, 'rb') as f:
-            relatedBillsAll = json.load(f)
-            relatedBills = deep_get(relatedBillsAll, bill, 'related')
+        relatedBills = deep_get(relatedBillsAll, bill, 'related')
     
         context['bill']['meta'] = bill_meta
         bill_summary = deep_get(bill_meta, 'summary', 'text')

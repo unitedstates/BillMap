@@ -25,6 +25,15 @@
         text-align: center;
         grid-area: footer;
       }
+      
+      .btn-primary {
+        background-color: #1d4e70!important;
+        border-color: #1d4e70!important;
+      }
+
+      .btn-shadow {
+        box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
+      }
 
       .bill {
         width: 549px;
@@ -59,7 +68,7 @@
       }
 
       .spacer {
-        width: 45%;
+        width: 43%;
       }
 
       .light-gray-body {
@@ -103,6 +112,56 @@
 
       .right-understanding-context-body {}
 
+      .timeline-detail {
+      }
+
+      /* Circle */
+      .circle{
+        background: #9d2146;
+        width: 2.5em;
+        height: 6em;
+        line-height: 6em;
+        border-radius: 100%;
+        text-align: center;
+      }
+
+      .circle.single {
+        background: #d4d4d4!important;
+        height: 2.5em!important;
+      }
+
+      .circle.muted {
+        background: #d4d4d4!important;
+      }
+
+      /* Vertical Line */
+      .dotted-line {
+        border-right: 1px dotted #9d2146;
+        height: 100%;
+        width: 1px;
+        transform: scale(1, 1.6);
+        transform-origin: 50% -4%;
+        width: 0;
+        padding-right: 47%;
+      }
+
+      .dotted-line.muted {
+        border-right: 1px dotted #d4d4d4!important;
+      }
+
+      .down-arrow {
+        color: #9d2146;
+        padding-left: 14.5px;
+      }
+
+      .down-arrow.muted{
+        color: #d4d4d4!important;
+      }
+
+      .timeline-spacer {
+        padding: 0 58px 0 0px;
+      }
+
       @media only screen and (min-width: 768px) {
 
         /* For desktop: */
@@ -111,6 +170,10 @@
           border-bottom: none;
           margin-bottom: 0;
           padding-right: 75px;
+        }
+
+        .timeline-spacer {
+          padding: 0 90px 0 20px;
         }
       }
     </style>
@@ -157,10 +220,9 @@
       </div>
       <div class="d-flex flex-wrap">
         <div class="bill light-gray-body p-4 mb-2">
-          <h4 class="pb-2">Bill at a Glance</h4>
-          <h5>Bill Summary</h5>
+          <h4 class="pb-2">Bill Summary</h4>
           <p>{{bill.meta.summary_short}}</p>
-          <button type="button" class="btn btn-primary mb-2">Read Bill</button>
+          <button type="button" class="btn btn-primary btn-shadow mb-2">Read Bill</button>
           <h5>Bill Stage</h5>
           <p>Passed House (Senate next) on Jul 17, 2019</p>
           {% if bill.related_table %}
@@ -171,7 +233,7 @@
           <p>Information provided by the clerk of the house (senate.gov)</p>
           <h5>Committee Documents</h5>
           <p>NA</p>
-          <button type="button" class="btn btn-primary">View Timeline</button>
+          <button type="button" class="btn btn-primary btn-shadow">View Timeline</button>
         </div>
         <div class="committee-jurisdiction light-gray-body p-4 mb-2">
           <h4>Committee(s) of Jurisdiction</h4>
@@ -216,18 +278,13 @@
             </tbody>
           </table>
           <div class="d-flex sponsors-buttons">
-            <button type="button" class="btn btn-primary mr-4">
+            <button type="button" class="btn btn-primary btn-shadow mr-4">
               View Full list of sponsors
             </button>
           </div>
         </div>
       </div>
-      <div class="d-flex my-4">
-        <button type="button" class="mr-auto btn btn-primary">Track</button>
-        <button type="button" class="btn btn-primary mr-2">Facebook</button>
-        <button type="button" class="btn btn-primary">Twitter</button>
-      </div>
-      <div class="similar-bills">
+      <div class="similar-bills mt-4">
         <h4>Analyze Related Bills</h4>
         <span class="small">
           Discover related bills to {{ bill.type_abbrev }} {{ bill.meta.number }}: Access to Congressionally
@@ -251,156 +308,336 @@
             </div>
           </div>
         </div>
-        <div class="tab mt-4">
-          <h4>Sponsors</h4>
-          <span class="small">Identify the Sponsor and Cosponsors of this bill and which related
-            bills they cosponsored. This information also indicates which
-            committee each cosponsor is apart of and their rank in that
-            committee.</span>
-          <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-              <a class="nav-link active" id="house-tab" data-toggle="tab" href="#house" role="tab" aria-controls="house"
-                aria-selected="true">This Bill ({{ bill.type_abbrev }} {{ bill.meta.number }})</a>
-            </li>
-            <li class="nav-item" role="presentation">
-              <a class="nav-link" id="senate-tab" data-toggle="tab" href="#senate" role="tab" aria-controls="senate"
-                aria-selected="false">This Congress</a>
-            </li>
-            <li class="nav-item" role="presentation">
-              <a class="nav-link" id="all-congress-tab" data-toggle="tab" href="#all-congress" role="tab"
-                aria-controls="all-congress" aria-selected="false">All Congress</a>
-            </li>
-            <div class="spacer"></div>
-            <span class="pt-2 mr-2">Sort By:</span>
-            <div class="dropdown">
-              <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Sponsors
-              </button>
-              <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <a class="dropdown-item" href="#">Something else here</a>
-              </div>
-            </div>
-          </ul>
-          <div class="tab-content light-gray-tabs p-4" id="myTabContent">
-            <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
-              <h6 class="pt-3">View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress</h6>
-              <table class="table mt-3">
-                <thead>
-                  <tr>
-                    <th scope="col">Co-Sponsor</th>
-                    <th scope="col">Committee Jurisdiction</th>
-                    <th scope="col">Party</th>
-                    <th scope="col">Rank</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Raúl Grijalva</td>
-                    <td>No</td>
-                    <td>D</td>
-                    <td>No</td>
-                  </tr>
-                  <tr>
-                    <td>Rodney Davis</td>
-                    <td>House Administration</td>
-                    <td>R</td>
-                    <td>Ranking Member</td>
-                  </tr>
-                  <tr>
-                    <td>Jim Cooper</td>
-                    <td>House Oversight</td>
-                    <td>D</td>
-                    <td>No</td>
-                  </tr>
-                  <tr>
-                    <td>Virginia Foxx</td>
-                    <td>House Oversight</td>
-                    <td>R</td>
-                    <td>No</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div class="tab-pane fade" id="senate" role="tabpanel" aria-labelledby="senate-tab">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
-              magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
-              fuga dicta asperiores, consectetur error nam hic quasi vitae
-              temporibus eaque?
-            </div>
-            <div class="tab-pane fade" id="all-congress" role="tabpanel" aria-labelledby="all-congress-tab">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
-              magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
-              fuga dicta asperiores, consectetur error nam hic quasi vitae
-              temporibus eaque?
+      </div>
+      <div class="sponsors tab mt-4">
+        <h4>Sponsors</h4>
+        <span class="small">Identify the Sponsor and Cosponsors of this bill and which related
+          bills they cosponsored. This information also indicates which
+          committee each cosponsor is apart of and their rank in that
+          committee.</span>
+        <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="house-tab" data-toggle="tab" href="#house" role="tab" aria-controls="house"
+              aria-selected="true">This Bill ({{ bill.type_abbrev }} {{ bill.meta.number }})</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="senate-tab" data-toggle="tab" href="#senate" role="tab" aria-controls="senate"
+              aria-selected="false">This Congress</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="all-congress-tab" data-toggle="tab" href="#all-congress" role="tab"
+              aria-controls="all-congress" aria-selected="false">All Congress</a>
+          </li>
+          <div class="spacer"></div>
+          <span class="pt-2 mr-2">Sort By:</span>
+          <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+              data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              Sponsors
+            </button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </div>
+        </ul>
+        <div class="tab-content light-gray-tabs p-4" id="myTabContent">
+          <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
+            <h6 class="pt-3">View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress</h6>
+            <table class="table mt-3">
+              <thead>
+                <tr>
+                  <th scope="col">Co-Sponsor</th>
+                  <th scope="col">Committee Jurisdiction</th>
+                  <th scope="col">Party</th>
+                  <th scope="col">Rank</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Raúl Grijalva</td>
+                  <td>No</td>
+                  <td>D</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>Rodney Davis</td>
+                  <td>House Administration</td>
+                  <td>R</td>
+                  <td>Ranking Member</td>
+                </tr>
+                <tr>
+                  <td>Jim Cooper</td>
+                  <td>House Oversight</td>
+                  <td>D</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>Virginia Foxx</td>
+                  <td>House Oversight</td>
+                  <td>R</td>
+                  <td>No</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tab-pane fade" id="senate" role="tabpanel" aria-labelledby="senate-tab">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+          <div class="tab-pane fade" id="all-congress" role="tabpanel" aria-labelledby="all-congress-tab">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
         </div>
-        <div class="understanding-context mt-4 pb-2">
-          <h4>Understand the Context</h4>
-          <span class="small">Identify the Sponsor and Cosponsors of this bill and which related</span>
-          <div class="d-flex flex-wrap understanding-context-body light-gray-body mt-3 p-4">
-            <div class="left-understanding-context-body">
-              <div class="cbo-score dark-gray-body p-3">
-                <h6>CBO Score</h6>
-                <table class="table mt-3">
-                  <thead>
-                    <tr>
-                      <th scope="col">Co-Sponsor</th>
-                      <th scope="col">Committee Jurisdiction</th>
-                      <th scope="col">Party</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Raúl Grijalva</td>
-                      <td>No</td>
-                      <td>D</td>
-                    </tr>
-                    <tr>
-                      <td>Rodney Davis</td>
-                      <td>House Administration</td>
-                      <td>R</td>
-                    </tr>
-                    <tr>
-                      <td>Jim Cooper</td>
-                      <td>House Oversight</td>
-                      <td>D</td>
-                    </tr>
-                  </tbody>
-                </table>
+      </div>
+      <div class="understanding-context mt-4 pb-2">
+        <h4>Understand the Context</h4>
+        <span class="small">Identify the Sponsor and Cosponsors of this bill and which related</span>
+        <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+          <li class="nav-item" role="presentation">
+            <a class="nav-link active" id="crs-report-tab" data-toggle="tab" href="#crs-report" role="tab" aria-controls="house"
+              aria-selected="true">CRS Report</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="statement-admin-tab" data-toggle="tab" href="#statement-admin" role="tab" aria-controls="statement-admin"
+              aria-selected="false">Statement of Administration</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="press-statements-tab" data-toggle="tab" href="#press-statements" role="tab"
+              aria-controls="press-statements" aria-selected="false">Press Statements</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="cbo-score-tab" data-toggle="tab" href="#cbo-score" role="tab"
+              aria-controls="cbo-score" aria-selected="false">CBO Score</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="relevant-committee-tab" data-toggle="tab" href="#relevant-committee" role="tab"
+              aria-controls="relevant-committee" aria-selected="false">Relevant Committee Documents</a>
+          </li>
+          <li class="nav-item" role="presentation">
+            <a class="nav-link" id="floor-proceedings-tab" data-toggle="tab" href="#floor-proceedings" role="tab"
+              aria-controls="floor-proceedings" aria-selected="false">Floor Proceedings</a>
+          </li>
+          <div class="dropdown">
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              <a class="dropdown-item" href="#">Action</a>
+              <a class="dropdown-item" href="#">Another action</a>
+              <a class="dropdown-item" href="#">Something else here</a>
+            </div>
+          </div>
+        </ul>
+        <div class="tab-content light-gray-tabs p-4" id="myTabContent">
+          <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
+            <h6 class="pt-3">View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress</h6>
+            <table class="table mt-3">
+              <thead>
+                <tr>
+                  <th scope="col">Co-Sponsor</th>
+                  <th scope="col">Committee Jurisdiction</th>
+                  <th scope="col">Party</th>
+                  <th scope="col">Rank</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Raúl Grijalva</td>
+                  <td>No</td>
+                  <td>D</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>Rodney Davis</td>
+                  <td>House Administration</td>
+                  <td>R</td>
+                  <td>Ranking Member</td>
+                </tr>
+                <tr>
+                  <td>Jim Cooper</td>
+                  <td>House Oversight</td>
+                  <td>D</td>
+                  <td>No</td>
+                </tr>
+                <tr>
+                  <td>Virginia Foxx</td>
+                  <td>House Oversight</td>
+                  <td>R</td>
+                  <td>No</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+          <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+          <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+          <div class="tab-pane fade" id="relevant-committee" role="tabpanel" aria-labelledby="relevant-committee-tab">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+          <div class="tab-pane fade" id="floor-proceedings" role="tabpanel" aria-labelledby="floor-proceedings-tab">
+            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
+            magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
+            fuga dicta asperiores, consectetur error nam hic quasi vitae
+            temporibus eaque?
+          </div>
+        </div>
+      </div>
+      <div class="timeline my-4 pb-2">
+        <h4>Timeline</h4>
+        <span class="small">Here goes the body copy explaining what this is about</span>
+        <div class="light-gray-body mt-2 p-4">
+          <div class="d-flex flex-column">
+            <div class="timeline-detail d-flex flex-row">
+              <span class="pr-3">
+                JUN 22, 2011
+              </span>
+              <div class="d-flex flex-column">
+                <div class="circle"></div>
+                <div class="dotted-line"></div>
+                <br>
+                <div class="down-arrow">
+                  <i class="fa fa-caret-down" aria-hidden="true"></i>
+                </div>
               </div>
-              <div class="floor-proceedings mt-3">
-                <h6>Video/Floor Proceedings</h6>
-                <img src="https://via.placeholder.com/180" alt="" class="mr-4" />
-                <img src="https://via.placeholder.com/180" alt="" class="mr-4" />
-                <p>
-                  <a href="#">see more</a>
-                </p>
+              <div class="d-flex flex-column pl-3">
+                <h6>
+                  EARLIER VERSION 
+                </h6>
+                <span>
+                  Ordered Reported 
+                </span>
+                <span>
+                  This activity took place on a related bill, H.R. 4631 (115th).
+                </span>
               </div>
             </div>
-            <div class="right-understanding-context-body">
-              <p>
-                <a href="#">Statement of Administration Policy</a>
-              </p>
-              <p class="pt-4">
-                <a href="#">Statement of Administration Policy</a>
-              </p>
-              <p class="pt-4">
-                <a href="#">Statement of Administration Policy</a>
-              </p>
-              <p class="pt-4">
-                <a href="#">Statement of Administration Policy</a>
-              </p>
-              <p class="pt-4">
-                <a href="#">Statement of Administration Policy</a>
-              </p>
+            <div class="timeline-detail d-flex flex-row">
+              <span class="pr-3">
+                JUN 22, 2011
+              </span>
+              <div class="d-flex flex-column">
+                <div class="circle"></div>
+                <div class="dotted-line"></div>
+                <br>
+                <div class="down-arrow">
+                  <i class="fa fa-caret-down" aria-hidden="true"></i>
+                </div>
+              </div>
+              <div class="d-flex flex-column pl-3">
+                <h6>
+                  EARLIER VERSION 
+                </h6>
+                <span>
+                  Ordered Reported 
+                </span>
+                <span>
+                  This activity took place on a related bill, H.R. 4631 (115th).
+                </span>
+              </div>
+            </div>
+            <div class="timeline-detail d-flex flex-row">
+              <span class="pr-3">
+                JUN 22, 2011
+              </span>
+              <div class="d-flex flex-column">
+                <div class="circle"></div>
+                <div class="dotted-line"></div>
+                <br>
+                <div class="down-arrow">
+                  <i class="fa fa-caret-down" aria-hidden="true"></i>
+                </div>
+              </div>
+              <div class="d-flex flex-column pl-3">
+                <h6>
+                  EARLIER VERSION 
+                </h6>
+                <span>
+                  Ordered Reported 
+                </span>
+                <span>
+                  This activity took place on a related bill, H.R. 4631 (115th).
+                </span>
+              </div>
+            </div>
+            <div class="timeline-detail d-flex flex-row">
+              <span class="pr-3">
+                JUN 22, 2011
+              </span>
+              <div class="d-flex flex-column">
+                <div class="circle"></div>
+                <div class="dotted-line"></div>
+                <br>
+                <div class="down-arrow">
+                  <i class="fa fa-caret-down" aria-hidden="true"></i>
+                </div>
+              </div>
+              <div class="d-flex flex-column pl-3">
+                <h6>
+                  EARLIER VERSION 
+                </h6>
+                <span>
+                  Ordered Reported 
+                </span>
+                <span>
+                  This activity took place on a related bill, H.R. 4631 (115th).
+                </span>
+              </div>
+            </div>
+            <div class="timeline-detail d-flex flex-row">
+              <span class="timeline-spacer">
+              </span>
+              <div class="d-flex flex-column">
+                <div class="circle muted"></div>
+                <div class="dotted-line muted"></div>
+                <br>
+                <div class="down-arrow muted">
+                  <i class="fa fa-caret-down" aria-hidden="true"></i>
+                </div>
+              </div>
+              <div class="d-flex flex-column pl-3">
+                <h6 class="pt-2">
+                  Passed Senate
+                </h6>
+              </div>
+            </div>
+            <div class="timeline-detail d-flex flex-row">
+              <span class="timeline-spacer">
+              </span>
+              <div class="d-flex flex-column">
+                <div class="circle single"></div>
+              </div>
+              <div class="d-flex flex-column pl-3">
+                <h6 class="pt-2">
+                  Passed By President
+                </h6>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
 
       <!-- Optional JavaScript -->
       <!-- jQuery first, then Popper.js, then Bootstrap JS -->

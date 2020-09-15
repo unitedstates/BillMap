@@ -27,7 +27,7 @@ def logName(dirName: str, fileName: str):
 
 def getTopBillLevel(dirName: str):
   """
-  Get path for the top level of a bill, e.g. ../congress/data/116/bills/hr/hr1
+  Get path for the top level of a bill, e.g. ../../congress/data/116/bills/hr/hr1
 
   Args:
       dirName (str): path to match 
@@ -87,7 +87,7 @@ def loadJSON(filePath: str):
 def getBillCongressTypeNumber(fileDict: Dict):
   bill_id = fileDict.get('bill_id')
   if bill_id:
-    billCongressTypeNumber = billIdToBillNumber(bill_id)
+    return billIdToBillNumber(bill_id)
   else:
     raise Exception('No bill_id: ' + str(fileDict.get('bill_type')))
 
@@ -178,13 +178,17 @@ def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip 
       with gzip.open(metaPath + '.gz', 'wt', encoding="utf-8") as zipfile:
         json.dump(billsMeta, zipfile)
 
-def updateBillsMeta(billsMeta= {}, congress= ''):
+def updateBillsMeta(billsMeta= {}):
   def addToBillsMeta(dirName: str, fileName: str):
     billDict = loadJSON(os.path.join(dirName, fileName))
     try:
       billCongressTypeNumber = getBillCongressTypeNumber(billDict)
+      logger.debug('billCongressTypeNumber: ' + billCongressTypeNumber)
+      if not billCongressTypeNumber:
+        logger.warning('!!!!! NO BILL NUMBER !!!!!!')
+        return 
     except Exception as err:
-      logging.error(err)
+      logger.error(err)
       return
     if not billsMeta.get(billCongressTypeNumber):
       billsMeta[billCongressTypeNumber] = {}
@@ -206,6 +210,7 @@ def updateBillsMeta(billsMeta= {}, congress= ''):
       saveBillsMeta(billsMeta)
 
   walkBillDirs(processFile=addToBillsMeta)
+  #walkBillDirs(processFile=logName)
   saveBillsMeta(billsMeta)
   return billsMeta
 

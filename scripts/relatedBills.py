@@ -175,7 +175,7 @@ def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), relatedBills = load
         saveBillsMeta(billsMeta=relatedBills,
                    metaPath=PATH_TO_RELATEDBILLS)
         logger.info('Adding similar titles')
-        relatedBills = addSimilarTitles(titlesIndex=titlesIndex, billsRelated=sameTitleBills)
+        relatedBills = addSimilarTitles(titlesIndex=titlesIndex, billsRelated=relatedBills)
         saveBillsMeta(billsMeta=relatedBills,
                    metaPath=PATH_TO_RELATEDBILLS)
         logger.info('Adding related bills from GPO data')

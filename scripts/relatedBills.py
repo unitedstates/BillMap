@@ -38,7 +38,7 @@ def loadTitlesIndex(titleIndexPath=PATH_TO_TITLES_INDEX, zip=True):
 
     return titlesIndex
 
-# NOTE: This is very slow. Takes ~20 minutes
+# NOTE: This is very slow. Takes ~120 minutes for 111 - 116th Congress
 def addSimilarTitles(titlesIndex: dict, billsRelated = {}):
     allTitles = list(titlesIndex.keys())
     billsMeta = loadBillsMeta()

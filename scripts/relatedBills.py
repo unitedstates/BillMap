@@ -171,7 +171,7 @@ def addSponsors(billsRelated = {}):
 def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), relatedBills = loadJSON(PATH_TO_RELATEDBILLS), remake = False):
     if remake or not relatedBills:
         logger.info('Adding same titles')
-        sameTitleBills = addSameTitles(titlesIndex)
+        relatedBills = addSameTitles(titlesIndex)
         saveBillsMeta(billsMeta=relatedBills,
                    metaPath=PATH_TO_RELATEDBILLS)
         logger.info('Adding similar titles')

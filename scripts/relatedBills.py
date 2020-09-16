@@ -68,7 +68,7 @@ def addSimilarTitles(titlesIndex: dict, billsRelated = {}):
                         if similarTitle not in billsRelated[bill_outer]['related'][bill_inner]['titles_year']:
                             billsRelated[bill_outer]['related'][bill_inner]['titles_year'].append(similarTitle)
                     if deep_get(billsRelated, bill_outer, 'related', bill_inner, 'titles_year'):
-                        print(billsRelated[bill_outer]['related'][bill_inner])
+                        logger.debug(billsRelated[bill_outer]['related'][bill_inner])
     return billsRelated 
 
 
@@ -118,7 +118,7 @@ def addGPORelatedBills(billsRelated = {}):
         for billItem in relatedBillItems:
             bill_inner = billIdToBillNumber(billItem.get('bill_id'))
             newDict = {'reason': billItem.get('reason'), 'identified_by': billItem.get('identified_by')}
-            print(newDict)
+            logger.debug(newDict)
             # Find a matching item, if any, in the list billsRelated[bill_outer]
             if not deep_get(billsRelated, bill_outer, 'related', bill_inner):
                 billsRelated[bill_outer]['related'][bill_inner] =  newDict
@@ -156,7 +156,7 @@ def addSponsors(billsRelated = {}):
                 continue
 
             relatedSponsorItem = deep_get(billInnerData, 'sponsor')
-            if sponsorItem.get('bioguide_id') == relatedSponsorItem.get('bioguide_id') and sponsorItem.get('name') == relatedSponsorItem.get('name'):
+            if sponsorItem and relatedSponsorItem and sponsorItem.get('bioguide_id') == relatedSponsorItem.get('bioguide_id') and sponsorItem.get('name') == relatedSponsorItem.get('name'):
                 billsRelated[bill_outer]['related'][bill_inner]['sponsor'] = relatedSponsorItem 
 
             relatedCosponsorItems = deep_get(billInnerData, 'cosponsors')
@@ -170,10 +170,20 @@ def addSponsors(billsRelated = {}):
 
 def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), relatedBills = loadJSON(PATH_TO_RELATEDBILLS), remake = False):
     if remake or not relatedBills:
+        logger.info('Adding same titles')
         sameTitleBills = addSameTitles(titlesIndex)
+        saveBillsMeta(billsMeta=relatedBills,
+                   metaPath=PATH_TO_RELATEDBILLS)
+        logger.info('Adding similar titles')
         relatedBills = addSimilarTitles(titlesIndex=titlesIndex, billsRelated=sameTitleBills)
+        saveBillsMeta(billsMeta=relatedBills,
+                   metaPath=PATH_TO_RELATEDBILLS)
+        logger.info('Adding related bills from GPO data')
         relatedBills = addGPORelatedBills(billsRelated=relatedBills)
-    addSponsors(relatedBills)
+        saveBillsMeta(billsMeta=relatedBills,
+                   metaPath=PATH_TO_RELATEDBILLS)
+    logger.info('Adding sponsor info')
+    relatedBills = addSponsors(relatedBills)
     saveBillsMeta(billsMeta=relatedBills,
                    metaPath=PATH_TO_RELATEDBILLS)
 

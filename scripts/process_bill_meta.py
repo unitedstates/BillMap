@@ -2,16 +2,19 @@
 #!/usr/bin/env python3
 
 import sys
+import re
 import logging
 import argparse
 from billdata import loadBillsMeta, saveBillsMeta
+try:
+  from . import constants
+except:
+  import constants
 
 logging.basicConfig(filename='process_bill_meta.log',
                     filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
-PATH_TO_TITLES_INDEX = '../titlesIndex.json'
-
 
 def makeTitleIndex():
     billsMeta = loadBillsMeta()
@@ -25,10 +28,27 @@ def makeTitleIndex():
                 titlesIndex[title] = [key]
     return titlesIndex
 
+def makeNoYearTitleIndex():
+    billsMeta = loadBillsMeta()
+    noYearTitlesIndex = {}
+    for key, value in billsMeta.items():
+        titles = list(set(value.get('titles')))
+        for title in titles:
+            # truncate year from title
+            noYearTitle = re.sub(r'of\s[0-9]{4}$', '', title)
+            if noYearTitle != title:
+                if noYearTitlesIndex.get(noYearTitle):
+                    noYearTitlesIndex[noYearTitle].append(key)
+                else:
+                    noYearTitlesIndex[noYearTitle] = [key]
+    return noYearTitlesIndex
+
 
 def makeAndSaveTitlesIndex():
     titlesIndex = makeTitleIndex()
-    saveBillsMeta(billsMeta=titlesIndex, metaPath=PATH_TO_TITLES_INDEX)
+    saveBillsMeta(billsMeta=titlesIndex, metaPath=constants.PATH_TO_TITLES_INDEX)
+    noYearTitlesIndex = makeNoYearTitleIndex()
+    saveBillsMeta(billsMeta=noYearTitlesIndex, metaPath=constants.PATH_TO_NOYEAR_TITLES_INDEX)
 
 
 def main(args, loglevel):
@@ -38,7 +58,6 @@ def main(args, loglevel):
     logging.debug("Your Argument: %s" % args.argument)
 
     makeAndSaveTitlesIndex()
-    # makeAndSaveSimilarityMeta
 
 
 if __name__ == '__main__':

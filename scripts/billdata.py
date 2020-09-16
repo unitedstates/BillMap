@@ -8,8 +8,10 @@ from functools import reduce
 
 try:
   from . import constants
+  from . import utils
 except:
   import constants
+  import utils
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
@@ -206,6 +208,8 @@ def updateBillsMeta(billsMeta= {}):
       else:
         item['billCongressTypeNumber'] = None
     billCount = len(billsMeta.keys()) 
+    
+    utils.dumpRelatedBillJSON(billCongressTypeNumber, billsMeta[billCongressTypeNumber])
     if billCount % constants.SAVE_ON_COUNT == 0:
       saveBillsMeta(billsMeta)
 

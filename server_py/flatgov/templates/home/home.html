@@ -35,17 +35,6 @@
         box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
       }
 
-      .bill {
-        width: 549px;
-        border-radius: 10px;
-        margin-right: 1%;
-      }
-
-      .committee-jurisdiction {
-        width: 549px;
-        border-radius: 10px;
-      }
-
       .table {
         font-size: small;
       }
@@ -56,19 +45,6 @@
 
       .table tbody>tr>td {
         border-color: #9d2146 !important;
-      }
-
-      .sponsors-buttons {
-        margin-top: 100px;
-      }
-
-      .horizontal-form-divider {
-        border-bottom: 1px solid lightgray;
-        margin-bottom: 20px;
-      }
-
-      .spacer {
-        width: 43%;
       }
 
       .light-gray-body {
@@ -103,94 +79,21 @@
         background-color: 1px solid #d4d4d4 !important;
       }
 
-      .cbo-score {}
-
-      .left-understanding-context-body {
-        width: 50%;
-        margin-right: 3%;
-      }
-
-      .right-understanding-context-body {}
-
-      .timeline-detail {
-      }
-
-      /* Circle */
-      .circle{
-        background: #9d2146;
-        width: 2.5em;
-        height: 6em;
-        line-height: 6em;
-        border-radius: 100%;
-        text-align: center;
-      }
-
-      .circle.single {
-        background: #d4d4d4!important;
-        height: 2.5em!important;
-      }
-
-      .circle.muted {
-        background: #d4d4d4!important;
-      }
-
-      /* Vertical Line */
-      .dotted-line {
-        border-right: 1px dotted #9d2146;
-        height: 100%;
-        width: 1px;
-        transform: scale(1, 1.6);
-        transform-origin: 50% -4%;
-        width: 0;
-        padding-right: 47%;
-      }
-
-      .dotted-line.muted {
-        border-right: 1px dotted #d4d4d4!important;
-      }
-
-      .down-arrow {
-        color: #9d2146;
-        padding-left: 14.5px;
-      }
-
-      .down-arrow.muted{
-        color: #d4d4d4!important;
-      }
-
-      .timeline-spacer {
-        padding: 0 60px 0 0px;
-      }
-
-      .timeline-date {
-          min-width: 60px;
+      .title, .search {
+        padding: 30px 100px 30px 100px;
       }
       
-
 
       @media only screen and (min-width: 768px) {
 
         /* For desktop: */
-        .horizontal-form-divider {
-          border-right: 1px solid lightgray;
-          border-bottom: none;
-          margin-bottom: 0;
-          padding-right: 75px;
-        }
 
-        .timeline-date {
-          min-width: 120px;
-        }
-
-        .timeline-spacer {
-          padding-right: 120px;
-        }
       }
     </style>
   </head>
   <header>
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-      <a class="navbar-brand" href="#">FlatGov Logo</a>
+      <a class="navbar-brand" href="/home">FlatGov Logo</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
         aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -199,7 +102,7 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item">
-            <a class="nav-link active" href="#">Home</a>
+            <a class="nav-link active" href="/home">Home</a>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="#">Bills</a>
@@ -219,7 +122,27 @@
 
   <body>
     <div class="container">
-      <h1>Home</h1>
+      <div class="light-gray-body my-5">
+        <div class="title">
+          <h1 class="pb-2">BillCheck</h1>
+          <p class="lead">A resource for advocates and researchers to gain knowledge regarding current and passed bills.</p>
+          <p class="lead">Navigate through bills' ecosystem by looking at their sponsors, reports, related bills, </p>
+        </div>
+      </div>
+      <div class="search mb-4">
+        <h2>Search</h2>
+        <p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings.</p>
+        <div class="light-gray-body">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Search for bill">
+            <div class="input-group-append">
+              <button class="btn btn-outline-secondary" type="button">
+                <i class="fa fa-search" aria-hidden="true"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
       <!-- Optional JavaScript -->

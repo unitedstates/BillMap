@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+
+    <!-- tabulator JS and CSS -->
+    <link href="https://unpkg.com/tabulator-tables@4.8.0/dist/css/tabulator.min.css" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.8.0/dist/js/tabulator.min.js"></script>
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <!-- font awesome -->
+    <script src="https://use.fontawesome.com/4b14720de5.js"></script>
+    <title>gov track demo template</title>
+    <style>
+      footer {
+        color: white;
+        background: rgb(120, 26, 54);
+        padding: 100px;
+        text-align: center;
+        grid-area: footer;
+      }
+      
+      .btn-primary {
+        background-color: #1d4e70!important;
+        border-color: #1d4e70!important;
+      }
+
+      .btn-shadow {
+        box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
+      }
+
+      .bill {
+        width: 549px;
+        border-radius: 10px;
+        margin-right: 1%;
+      }
+
+      .committee-jurisdiction {
+        width: 549px;
+        border-radius: 10px;
+      }
+
+      .table {
+        font-size: small;
+      }
+
+      .table thead>tr>th {
+        border: none !important;
+      }
+
+      .table tbody>tr>td {
+        border-color: #9d2146 !important;
+      }
+
+      .sponsors-buttons {
+        margin-top: 100px;
+      }
+
+      .horizontal-form-divider {
+        border-bottom: 1px solid lightgray;
+        margin-bottom: 20px;
+      }
+
+      .spacer {
+        width: 43%;
+      }
+
+      .light-gray-body {
+        background-color: #f7f7f7;
+        border-radius: 10px;
+        box-shadow: 3px 4px 4px #d4d4d4;
+      }
+
+      .light-gray-tabs {
+        background-color: #f7f7f7;
+        border-bottom-left-radius: 10px;
+        border-bottom-right-radius: 10px;
+        box-shadow: 3px 4px 4px #d4d4d4;
+      }
+
+      .light-gray-nav-link .active {
+        color: #495057;
+        background-color: #d4d4d4;
+        border-color: noner;
+      }
+
+      .nav-link.active {
+        background-color: #f7f7f7 !important;
+        border-color: #f7f7f7 !important;
+      }
+
+      .nav-tabs {
+        border-bottom: #f7f7f7 !important;
+      }
+
+      .dark-gray-body {
+        background-color: 1px solid #d4d4d4 !important;
+      }
+
+      .cbo-score {}
+
+      .left-understanding-context-body {
+        width: 50%;
+        margin-right: 3%;
+      }
+
+      .right-understanding-context-body {}
+
+      .timeline-detail {
+      }
+
+      /* Circle */
+      .circle{
+        background: #9d2146;
+        width: 2.5em;
+        height: 6em;
+        line-height: 6em;
+        border-radius: 100%;
+        text-align: center;
+      }
+
+      .circle.single {
+        background: #d4d4d4!important;
+        height: 2.5em!important;
+      }
+
+      .circle.muted {
+        background: #d4d4d4!important;
+      }
+
+      /* Vertical Line */
+      .dotted-line {
+        border-right: 1px dotted #9d2146;
+        height: 100%;
+        width: 1px;
+        transform: scale(1, 1.6);
+        transform-origin: 50% -4%;
+        width: 0;
+        padding-right: 47%;
+      }
+
+      .dotted-line.muted {
+        border-right: 1px dotted #d4d4d4!important;
+      }
+
+      .down-arrow {
+        color: #9d2146;
+        padding-left: 14.5px;
+      }
+
+      .down-arrow.muted{
+        color: #d4d4d4!important;
+      }
+
+      .timeline-spacer {
+        padding: 0 60px 0 0px;
+      }
+
+      .timeline-date {
+          min-width: 60px;
+      }
+      
+
+
+      @media only screen and (min-width: 768px) {
+
+        /* For desktop: */
+        .horizontal-form-divider {
+          border-right: 1px solid lightgray;
+          border-bottom: none;
+          margin-bottom: 0;
+          padding-right: 75px;
+        }
+
+        .timeline-date {
+          min-width: 120px;
+        }
+
+        .timeline-spacer {
+          padding-right: 120px;
+        }
+      }
+    </style>
+  </head>
+  <header>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <a class="navbar-brand" href="#">FlatGov Logo</a>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link active" href="#">Home</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Bills</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">About us</a>
+          </li>
+        </ul>
+        <form class="form-inline my-2 my-lg-0">
+          <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+            Login
+          </button>
+        </form>
+      </div>
+    </nav>
+  </header>
+
+  <body>
+    <div class="container">
+      <h1>Home</h1>
+    </div>
+
+      <!-- Optional JavaScript -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
+      </script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+        integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous">
+      </script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+        integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous">
+      </script>
+  </body>
+  <footer>
+    Footer
+  </footer>
+  <script type="text/javascript">
+    var related_bills = JSON.parse(`{{ bill.related_table|safe|escapejs }}`);
+    //create Tabulator on DOM element with id "example-table"
+    var table = new Tabulator("#related-bills-table", {
+      height: 205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+      data: related_bills, //assign data to table
+      layout: "fitColumns", //fit columns to width of table (optional)
+      columns: [ //Define Table Columns
+        {
+          title: "Bill",
+          field: "billCongressTypeNumber",
+          width: 150
+        },
+        {
+          title: "Reason",
+          field: "reason",
+          width: 100
+        },
+        {
+          title: "Titles (shared)",
+          field: "titles_list"
+        },
+        {
+          title: "Titles (similar)",
+          field: "titles_year_list"
+        },
+        {
+          title: "Sponsor (shared)",
+          field: "sponsor_name",
+          width: 150
+        },
+        {
+          title: "Shared cosponsors",
+          field: "cosponsor_names"
+        },
+        {
+          title: "Id By",
+          field: "identified_by",
+          width: 100
+        }
+      ]
+    });
+  </script>
+
+</html>

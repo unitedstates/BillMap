@@ -1,4 +1,3 @@
-from constants import BILL_NUMBER_REGEX_COMPILED
 from json import dump
 import sys
 import os
@@ -8,15 +7,13 @@ import re
 import json
 import gzip
 try:
+    from .constants import BILL_NUMBER_REGEX_COMPILED, PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
     from .utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
+    from .billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
 except:
+    from constants import BILL_NUMBER_REGEX_COMPILED, PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
     from utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
-from billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
-try:
-  from . import constants
-except:
-  import constants
-
+    from billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
 
 OF_YEAR_REGEX = re.compile(r'\sof\s[0-9]+$')
 
@@ -131,12 +128,12 @@ def addSponsors():
         dumpRelatedBillJSON(bill_outer, relatedBill)
 
 def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake = False):
-    if not os.path.isdir(constants.PATH_TO_RELATEDBILLS_DIR):
-        os.mkdir(constants.PATH_TO_RELATEDBILLS_DIR)
+    if not os.path.isdir(PATH_TO_RELATEDBILLS_DIR):
+        os.mkdir(PATH_TO_RELATEDBILLS_DIR)
     logger.info('Adding same titles')
     addSameTitles(titlesIndex=titlesIndex)
     logger.info('Adding similar titles')
-    addSimilarTitles(noYearTitlesIndex=loadTitlesIndex(titleIndexPath=constants.PATH_TO_NOYEAR_TITLES_INDEX))
+    addSimilarTitles(noYearTitlesIndex=loadTitlesIndex(titleIndexPath=PATH_TO_NOYEAR_TITLES_INDEX))
     logger.info('Adding related bills from GPO data')
     addGPORelatedBills()
     logger.info('Adding sponsor info')

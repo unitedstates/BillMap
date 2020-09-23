@@ -29,8 +29,6 @@ CONGRESS_DATA_PATH = getattr(settings, "CONGRESS_DATA_PATH", None)
 BILLS_META_JSON_PATH = getattr(settings, "BILLS_META_JSON_PATH", None) 
 RELATED_BILLS_JSON_PATH = getattr(settings, "RELATED_BILLS_JSON_PATH", None) 
 TITLES_INDEX_JSON_PATH = getattr(settings, "TITLES_INDEX_JSON_PATH", None) 
-with open(RELATED_BILLS_JSON_PATH, 'rb') as f:
-    relatedBillsAll = json.load(f)
 
 import re
 
@@ -91,7 +89,11 @@ def bill_view(request, bill):
         with open(BILLMETA_PATH, 'rb') as f:
             bill_meta = json.load(f)
         
-        relatedBills = deep_get(relatedBillsAll, bill, 'related')
+        RELATED_BILLDATA_PATH = os.path.join(CONGRESS_DATA_PATH, 'relatedbills', bill.lower() + '.json')
+        with open(RELATED_BILLDATA_PATH, 'rb') as f:
+            relatedBillData = json.load(f)
+
+        relatedBills = deep_get(relatedBillData, 'related')
     
         context['bill']['meta'] = bill_meta
         bill_summary = deep_get(bill_meta, 'summary', 'text')

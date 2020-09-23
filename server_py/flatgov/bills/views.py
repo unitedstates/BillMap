@@ -135,6 +135,40 @@ def bill_view(request, bill):
         context['bill']['type_abbrev'] = makeTypeAbbrev(bill_type)
         sponsor_name = cleanSponsorName(deep_get(bill_meta, 'sponsor', 'name'))
         context['bill']['sponsor_fullname'] = deep_get(bill_meta, 'sponsor', 'title') + '. ' + sponsor_name + ' '  + makeSponsorBracket(bill_meta.get('sponsor')) 
+
+        cosponsorsDict = { cleanSponsorName(item.get('name')): item for item in relatedBillData.get('cosponsors', [])}
+        # TODO test that the person with the same name is actually the same sponsor
+
+        for bctn in bctns:
+            relatedBillItem = relatedBills.get(bctn)
+            sponsor = relatedBillItem.get('sponsor')
+            # Add sponsor with *
+            if sponsor:
+                sponsorName = '*' + cleanSponsorName(sponsor.get('name'))
+                if not cosponsorsDict.get(sponsorName):
+                    cosponsorsDict[sponsorName] = sponsor
+                    cosponsorsDict[sponsorName]['bills'] = [bctn]
+                else:
+                    if deep_get(cosponsorsDict, sponsorName, 'bills'):
+                        cosponsorsDict[sponsorName]['bills'].append(bctn)
+                    else:
+                        cosponsorsDict[sponsorName]['bills'] = [bctn]
+
+            cosponsors = relatedBillItem.get('cosponsors')
+            if cosponsors:
+                for cosponsor in cosponsors:
+                    cosponsorName = cleanSponsorName(cosponsor.get('name'))
+                    if not cosponsorsDict[cosponsorName].get('bills'):
+                        cosponsorsDict[cosponsorName]['bills'] = [bctn]
+                    else:
+                        cosponsorsDict[cosponsorName]['bills'].append(bctn)
+        for cleanName in cosponsorsDict.keys():
+            cosponsorsDict[cleanName]['name_clean'] = cleanName
+            billsList = deep_get(cosponsorsDict, cleanName, 'bills')
+            if billsList:
+                # TODO: sort smaller number bills (e.g. 100 vs 1000)
+                cosponsorsDict[cleanName]['bills_str'] = ', '.join(sorted(billsList, key=None, reverse=True))
+        context['bill']['cosponsors_table']= json.dumps(sorted([item for item in cosponsorsDict.values()], key= lambda x: x.get('name_clean'), reverse=False))
     else:
         return render(request, 'bills/bill.html', context)
 

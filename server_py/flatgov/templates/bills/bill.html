@@ -321,9 +321,8 @@
       </div>
       <div class="sponsors tab mt-4">
         <h4>Sponsors</h4>
-        <span class="small">Identify the Sponsor and Cosponsors of this bill and which related
-          bills they cosponsored. This information also indicates which
-          committee each cosponsor is apart of and their rank in that
+        <span class="small">Identify the sponsor and cosponsors of this bill and which related
+          bills they cosponsored. Also shown are the committees to which each cosponsor belongs and their rank in that
           committee.</span>
         <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
           <li class="nav-item" role="presentation">
@@ -355,7 +354,9 @@
         <div class="tab-content light-gray-tabs p-4" id="myTabContent">
           <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
             <h6 class="pt-3">View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress</h6>
-            <table class="table mt-3">
+            <div id="cosponsors-table"></div>
+            <!--
+              <table class="table mt-3">
               <thead>
                 <tr>
                   <th scope="col">Co-Sponsor</th>
@@ -391,6 +392,7 @@
                 </tr>
               </tbody>
             </table>
+          -->
           </div>
           <div class="tab-pane fade" id="senate" role="tabpanel" aria-labelledby="senate-tab">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
@@ -702,6 +704,42 @@
         {
           title: "Id By",
           field: "identified_by",
+          width: 100
+        }
+      ]
+    });
+
+    var sponsors_table = JSON.parse(`{{ bill.cosponsors_table|safe|escapejs }}`);
+    console.log(sponsors_table);
+    //create Tabulator on DOM element with id "example-table"
+    var table = new Tabulator("#cosponsors-table", {
+      height: 205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
+      data: sponsors_table, //assign data to table
+      layout: "fitColumns", //fit columns to width of table (optional)
+      columns: [ //Define Table Columns
+        {
+          title: "Co-Sponsor",
+          field: "name_clean",
+          width: 150
+        },
+        {
+          title: "Bill",
+          field: "bills_str",
+          'min-width': 350
+        },
+        {
+          title: "Committee Jurisdiction",
+          field: "committee",
+          width: 200
+        },
+        {
+          title: "Party",
+          field: "party",
+          width: 100
+        },
+        {
+          title: "Rank",
+          field: "rank",
           width: 100
         }
       ]

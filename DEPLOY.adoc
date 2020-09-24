@@ -1,0 +1,122 @@
+### Deployment
+
+These instructions walk through installation of dependencies on a standard Ubuntu server. Installation for other Linux flavors will be similar.
+
+#### Basic server set-up and log-in:
+
+* Ensure that http, https and ssh ports are available.
+* Store your private key (e.g. `mykey.pem`) and ensure it is readable (`chmod 400 mykey.pem`)
+* Log in to the server from a terminal with ssh (e.g. `ssh -F /dev/null -i ./mykey.pem ubuntu@ec....compute-1.amazonaws.com`
+
+#### Update server packages 
+
+`sudo apt-get update`
+
+#### Create flatgov directory
+
+```bash
+$ sudo mkdir /opt/flatgov
+$ sudo chown ubuntu:ubuntu /opt/flatgov
+```
+
+#### Install Python, pyenv and python dependencies
+
+See https://www.liquidweb.com/kb/how-to-install-pyenv-on-ubuntu-18-04/
+
+* Install pyenv dependencies
+```
+$ sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe"
+$ sudo apt-get update
+$ sudo apt-get install -y make build-essential libssl-dev zlib1g-dev \
+ libbz2-dev libreadline-dev libsqlite3-dev wget curl llvm libncurses5-dev\
+ libncursesw5-dev xz-utils tk-dev libffi-dev liblzma-dev python-openssl\ libpcre3 libpcre3-dev
+ $ sudo apt-get upgrade git
+```
+
+* Install pyenv:
+
+`$ git clone https://github.com/pyenv/pyenv.git ~/.pyenv`
+
+Then:
+
+```bash
+echo 'export PYENV_ROOT="$HOME/.pyenv"' >> ~/.bashrc
+echo 'export PATH="$PYENV_ROOT/bin:$PATH"' >> ~/.bashrc
+echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n eval "$(pyenv init -)"\nfi' >> ~/.bashrc
+```
+
+and `source ~/.bashrc`
+
+* Verify pyenv installation
+
+`pyenv install --list`
+
+* Install pyenv virtualenv
+
+See https://github.com/pyenv/pyenv-virtualenv
+
+```bash
+$ git clone https://github.com/pyenv/pyenv-virtualenv.git $(pyenv root)/plugins/pyenv-virtualenv
+```
+* Auto-activate virtualenvs
+
+`echo 'eval "$(pyenv virtualenv-init -)"' >> ~/.bash_profile`
+
+* Restart shell to install pyenv virtualenv
+
+`$ exec "$SHELL"`
+
+* Install Python 3.8.3
+
+`$ pyenv install 3.8.3`
+
+* Create the `flatgov` virtualenv 
+
+`pyenv virtualenv 3.8.3 flatgov`
+
+* Upgrade pip
+
+`pip install --upgrade pip`
+
+#### Clone Flatgov repository
+
+```bash
+$ cd /opt/flatgov
+$ git clone https://github.com/aih/FlatGov.git
+```
+
+Copy environment file and **edit the value of  SECRET_Key**:
+
+```
+$ cp /opt/flatgov/FlatGov/server_py/flatgov/.env-sample /opt/flatgov/FlatGov/server_py/flatgov/.env
+```
+
+#### Install flatgov depencencies
+
+Ensure that the `flatgov` virtual environment is activated:
+`pyenv activate flatgov`
+
+From the top level of this repository:
+```bash
+$ cd /opt/flatgov/FlatGov
+$ pip install -r requirements.txt
+$ pip install -r server_py/requirements.txt
+```
+
+#### Install and Configure Nginx 
+
+* Install Nginx
+
+`$sudo apt-get install -y nginx`
+
+* Copy Nginx configuration into `/etc/nginx/sites-available/`
+
+```bash
+$ cp /opt/flatgov/FlatGov/server_py/flatgov_nginx.conf /etc/nginx/sites-available/ 
+```
+
+#### Set up Django app with uwsgi
+
+See https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html
+
+

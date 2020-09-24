@@ -112,7 +112,7 @@ $ pip install -r server_py/requirements.txt
 * Copy Nginx configuration into `/etc/nginx/sites-available/`
 
 ```bash
-$ cp /opt/flatgov/FlatGov/server_py/flatgov_nginx.conf /etc/nginx/sites-available/ 
+$ cp /opt/flatgov/FlatGov/server_py/flatgov_nginx.conf /etc/nginx/sites-available/flatgov_nginx.conf 
 ```
 
 #### Set up Django app with uwsgi

@@ -25,7 +25,26 @@ def logName(dirName: str, fileName: str):
       fname (str): path of file to be processed 
   """
 
+  logger.info('In directory: \t%s' % dirName)
   logger.info('Processing: \t%s' % fileName)
+
+def getBillFromDirname(dirName: str) -> str:
+  """
+  Dirname is of the form ../../congress/data/116/bills/s/s245
+  Want to retrieve the part that is 116/bills/s/s3583
+  And return 116s3583
+
+  Args:
+     dirName (str): path to match 
+  Returns:
+     str: name of the bill (billCongressTypeNumber) 
+  """
+  m = constants.BILL_DIR_REGEX_COMPILED.match(dirName)
+  if m and m.groups():
+    return ''.join(list(m.groups()))
+  else:
+    return None
+  
 
 def getTopBillLevel(dirName: str):
   """
@@ -217,6 +236,16 @@ def updateBillsMeta(billsMeta= {}):
   #walkBillDirs(processFile=logName)
   saveBillsMeta(billsMeta)
   return billsMeta
+
+def updateBillsList(bills=[]):
+  def addToBillsList(dirName: str, fileName: str):
+    billCongressTypeNumber = getBillFromDirname(dirName)
+    if billCongressTypeNumber:
+      bills.append(billCongressTypeNumber)
+  walkBillDirs(processFile=addToBillsList)
+  with open(constants.PATH_TO_BILLS_LIST, 'w') as f:
+    json.dump(bills, f)
+  return bills
 
 def main(args, loglevel):
   logging.basicConfig(format="%(levelname)s: %(message)s", level=loglevel)

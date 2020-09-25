@@ -158,7 +158,7 @@
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous">
       </script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-typeahead/2.11.0/jquery.typeahead.min.js" crossorigin="anonymous">
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" crossorigin="anonymous">
       </script>
   </body>
   <footer>
@@ -199,22 +199,19 @@
 
       $("#bill-search").typeahead({
         hint: true,
-        minLength: 1,
+        minLength: 3,
         highlight: true
       },
       {
         name: 'billsData',
         source: substringMatcher(billsData)
       })
-      /*
-      .on('selectevent', function (e) {
-          const data = e.params.data;
-          const billUrl = `/bills/${data.text}`; 
-          console.log(data);
+      .on('typeahead:select', function (e, selection) {
+          const billUrl = `/bills/${selection}`; 
+          console.log(selection);
           console.log(`Setting Go! button href to ${billUrl}`);
           $('#gobutton').attr("href", billUrl);
         });
-        */
        
 
     });

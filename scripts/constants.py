@@ -1,10 +1,15 @@
 import os
 import re
 import datetime
+import os
 
 PATH_TO_BILLS_META = os.path.join('..', 'billsMeta.json')
 PATH_TO_CONGRESSDATA_DIR = os.path.join('..', '..', 'congress', 'data')
 PATH_TO_BILLS_LIST = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'billList.json')
+PATH_TO_TITLES_INDEX = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'titlesIndex.json')
+PATH_TO_NOYEAR_TITLES_INDEX = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'noYearTitlesIndex.json')
+PATH_TO_RELATEDBILLS_DIR = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'relatedbills')
+#PATH_TO_RELATEDBILLS = '../relatedBills.json'
 SAVE_ON_COUNT = 1000
 
 BILL_ID_REGEX = r'[a-z]+[1-9][0-9]*-[1-9][0-9]+'

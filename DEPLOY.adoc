@@ -47,6 +47,14 @@ echo -e 'if command -v pyenv 1>/dev/null 2>&1; then\n eval "$(pyenv init -)"\nfi
 
 and `source ~/.bashrc`
 
+Load `.bashrc` from `.bash_profile` for interactive login
+
+```bash
+echo '# The following sources ~/.bashrc in the interactive login case,' >> ~/.bashrc
+echo '# because .bashrc is not sourced for interactive login shells:' >> ~/.bashrc
+echo 'case "$-" in *i*) if [ -r ~/.bashrc ]; then . ~/.bashrc; fi;; esac' >> ~/.bashrc
+```
+
 * Verify pyenv installation
 
 `pyenv install --list`

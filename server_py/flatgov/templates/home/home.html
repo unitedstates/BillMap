@@ -130,9 +130,13 @@
       <div class="search mb-4">
         <h2>Search</h2>
         <p>Search for bills from the 110th Congress forward.</p>
-          <select id="bill-search" name="bills" style="width: 600px; height: 30px">
-            <option value="116hr1">116hr1</option>
+        <div >
+          <select id="bill-search" name="bills" style="width: 600px;">
+            <!-- a blank option is required to show the placeholder -->
+            <option></option>
           </select>
+          <a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>
+        </div>
         <!--
           <p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings.</p>
         <div class="light-gray-body">
@@ -174,7 +178,7 @@
     },
     {
         id: 1,
-        text: '115sjres21'
+        text: "116hr532"
     },
     {
         id: 2,
@@ -182,20 +186,30 @@
     },
     {
         id: 3,
-        text: '113hjres33'
+        text: '116hjres31'
     },
     {
         id: 4,
         text: '116hr1220'
     }
 ];
+// See https://select2.org/searching to customize how bill names are matched
     $(document).ready(function() {
       $('#bill-search').select2(
         {
+          selectOnClose: true,
           placeholder: 'Search for a bill',
+          allowClear: true,
           data: billsData
         }
-      );
+      )
+      .on('select2:select', function (e) {
+          const data = e.params.data;
+          const billUrl = `/bills/${data.text}`; 
+          console.log(data);
+          console.log(`Setting Go! button href to ${billUrl}`);
+          $('#gobutton').attr("href", billUrl);
+        });
     });
   </script>
 

@@ -6,14 +6,13 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-
-    <!-- tabulator JS and CSS -->
-    <link href="https://unpkg.com/tabulator-tables@4.8.0/dist/css/tabulator.min.css" rel="stylesheet">
-    <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.8.0/dist/js/tabulator.min.js"></script>
+    <!-- Select2 CSS and JS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
 
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+
     <!-- font awesome -->
     <script src="https://use.fontawesome.com/4b14720de5.js"></script>
     <title>gov track demo template</title>
@@ -131,22 +130,26 @@
       <div class="search mb-4">
         <h2>Search</h2>
         <p>Search for bills from the 110th Congress forward.</p>
-        <!--p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings.</p-->
+          <select id="bill-search" name="bills" style="width: 600px; height: 30px">
+            <option value="116hr1">116hr1</option>
+          </select>
+        <!--
+          <p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings.</p>
         <div class="light-gray-body">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Search for bill">
+              <input type="text" class="form-control" placeholder="Search for bill">
             <div class="input-group-append">
               <button class="btn btn-outline-secondary" type="button">
                 <i class="fa fa-search" aria-hidden="true"></i>
               </button>
+              -->
             </div>
           </div>
         </div>
       </div>
     </div>
 
-      <!-- Optional JavaScript -->
-      <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+      <!-- jQuery first, then Popper.js, then Bootstrap JS and Select2 -->
       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
         integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
       </script>
@@ -156,51 +159,43 @@
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous">
       </script>
+     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js" crossorigin="anonymous"></script>
   </body>
   <footer>
     Footer
   </footer>
   <script type="text/javascript">
-    var related_bills = JSON.parse(`{{ bill.related_table|safe|escapejs }}`);
-    //create Tabulator on DOM element with id "example-table"
-    var table = new Tabulator("#related-bills-table", {
-      height: 205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
-      data: related_bills, //assign data to table
-      layout: "fitColumns", //fit columns to width of table (optional)
-      columns: [ //Define Table Columns
+    //TODO add bills_list as a JSON array to the context
+    // var bills = JSON.parse(`{{ bills_list|safe|escapejs }}`);
+    var billsData = [
+    {
+        id: 0,
+        text: '116hr5'
+    },
+    {
+        id: 1,
+        text: '115sjres21'
+    },
+    {
+        id: 2,
+        text: '116hr1500'
+    },
+    {
+        id: 3,
+        text: '113hjres33'
+    },
+    {
+        id: 4,
+        text: '116hr1220'
+    }
+];
+    $(document).ready(function() {
+      $('#bill-search').select2(
         {
-          title: "Bill",
-          field: "billCongressTypeNumber",
-          width: 150
-        },
-        {
-          title: "Reason",
-          field: "reason",
-          width: 100
-        },
-        {
-          title: "Titles (shared)",
-          field: "titles_list"
-        },
-        {
-          title: "Titles (similar)",
-          field: "titles_year_list"
-        },
-        {
-          title: "Sponsor (shared)",
-          field: "sponsor_name",
-          width: 150
-        },
-        {
-          title: "Shared cosponsors",
-          field: "cosponsor_names"
-        },
-        {
-          title: "Id By",
-          field: "identified_by",
-          width: 100
+          placeholder: 'Search for a bill',
+          data: billsData
         }
-      ]
+      );
     });
   </script>
 

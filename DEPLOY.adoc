@@ -172,7 +172,10 @@ $ sudo cp /opt/flatgov/FlatGov/server_py/flatgov_nginx.conf /etc/nginx/sites-ava
 See https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html
 
 
-`$ nohup uwsgi --socket flatgov.sock --module flatgov.wsgi --chmod-socket=666 &`
+```bash
+$ cd /opt/flatgov/FlatGov/server_py/flatgov
+$ nohup uwsgi --socket flatgov.sock --module flatgov.wsgi --chmod-socket=666 &`
+```
 
 * Restart Nginx
 

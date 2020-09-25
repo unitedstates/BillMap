@@ -15,14 +15,6 @@
     <script src="https://use.fontawesome.com/4b14720de5.js"></script>
     <title>gov track demo template</title>
     <style>
-      footer {
-        color: white;
-        background: rgb(120, 26, 54);
-        padding: 100px;
-        text-align: center;
-        grid-area: footer;
-      }
-      
       .btn-primary {
         background-color: #1d4e70!important;
         border-color: #1d4e70!important;
@@ -148,10 +140,10 @@
       </div>
     </div>
 
-      <!-- jQuery first, then Popper.js, then Bootstrap JS and Select2 -->
-      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
-        integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous">
-      </script>
+      <!-- jQuery first, then Popper.js, then Bootstrap JS and typeahead -->
+      <!-- Uses the full version of jQuery for ajax functions -->
+      <script src="https://code.jquery.com/jquery-3.5.1.min.js" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+       crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
         integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous">
       </script>
@@ -161,18 +153,31 @@
       <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" crossorigin="anonymous">
       </script>
   </body>
-  <footer>
-    Footer
-  </footer>
   <script type="text/javascript">
     //TODO add bills_list as a JSON array to the context
     var billsData = ['116hr5', '116hr532', '116hr1500', '116hjres31', '116hr1220'];
-    try{
-      //billsData = JSON.parse(`{{ bills_list|safe|escapejs }}`);
-      console.log(billsData);
-    } catch(err) {
+    var billsDataURL = 'billsList.json';
+    $.get(billsDataURL).then(function (results) {
+      billsData = results.bill_list;
+      $("#bill-search").typeahead({
+        hint: true,
+        minLength: 3,
+        highlight: true
+      },
+      {
+        name: 'billsData',
+        source: substringMatcher(billsData)
+      })
+      .on('typeahead:select', function (e, selection) {
+          const billUrl = `/bills/${selection}`; 
+          console.log(selection);
+          console.log(`Setting Go! button href to ${billUrl}`);
+          $('#gobutton').attr("href", billUrl);
+        });
+        })
+    .catch(function (err) {
       console.log(err);
-    }
+    });
     var substringMatcher = function(strs) {
           return function findMatches(q, cb) {
             var matches, substringRegex;
@@ -197,23 +202,7 @@
 
     $(document).ready(function() {
 
-      $("#bill-search").typeahead({
-        hint: true,
-        minLength: 3,
-        highlight: true
-      },
-      {
-        name: 'billsData',
-        source: substringMatcher(billsData)
-      })
-      .on('typeahead:select', function (e, selection) {
-          const billUrl = `/bills/${selection}`; 
-          console.log(selection);
-          console.log(`Setting Go! button href to ${billUrl}`);
-          $('#gobutton').attr("href", billUrl);
-        });
-       
-
+      
     });
   </script>
 

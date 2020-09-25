@@ -6,12 +6,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
-    <!-- Select2 CSS and JS -->
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
-
     <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
       integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous" />
+    <link rel="https://cdnjs.cloudflare.com/ajax/libs/jquery-typeahead/2.11.0/jquery.typeahead.min.css" crossorigin="anonymous" />
 
     <!-- font awesome -->
     <script src="https://use.fontawesome.com/4b14720de5.js"></script>
@@ -131,10 +129,7 @@
         <h2>Search</h2>
         <p>Search for bills from the 110th Congress forward.</p>
         <div >
-          <select id="bill-search" name="bills" style="width: 600px;">
-            <!-- a blank option is required to show the placeholder -->
-            <option></option>
-          </select>
+          <input id="bill-search" type="text" class="typeahead" placeholder="Search for bill">
           <a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>
         </div>
         <!--
@@ -163,53 +158,65 @@
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
         integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous">
       </script>
-     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js" crossorigin="anonymous"></script>
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-typeahead/2.11.0/jquery.typeahead.min.js" crossorigin="anonymous">
+      </script>
   </body>
   <footer>
     Footer
   </footer>
   <script type="text/javascript">
     //TODO add bills_list as a JSON array to the context
-    // var bills = JSON.parse(`{{ bills_list|safe|escapejs }}`);
-    var billsData = [
-    {
-        id: 0,
-        text: '116hr5'
-    },
-    {
-        id: 1,
-        text: "116hr532"
-    },
-    {
-        id: 2,
-        text: '116hr1500'
-    },
-    {
-        id: 3,
-        text: '116hjres31'
-    },
-    {
-        id: 4,
-        text: '116hr1220'
+    var billsData = ['116hr5', '116hr532', '116hr1500', '116hjres31', '116hr1220'];
+    try{
+      //billsData = JSON.parse(`{{ bills_list|safe|escapejs }}`);
+      console.log(billsData);
+    } catch(err) {
+      console.log(err);
     }
-];
-// See https://select2.org/searching to customize how bill names are matched
+    var substringMatcher = function(strs) {
+          return function findMatches(q, cb) {
+            var matches, substringRegex;
+
+            // an array that will be populated with substring matches
+            matches = [];
+
+            // regex used to determine if a string contains the substring `q`
+            substrRegex = new RegExp(q, 'i');
+
+            // iterate through the pool of strings and for any string that
+            // contains the substring `q`, add it to the `matches` array
+            $.each(strs, function(i, str) {
+            if (substrRegex.test(str)) {
+              matches.push(str);
+            }
+          });
+
+        cb(matches);
+      };
+    };
+
     $(document).ready(function() {
-      $('#bill-search').select2(
-        {
-          selectOnClose: true,
-          placeholder: 'Search for a bill',
-          allowClear: true,
-          data: billsData
-        }
-      )
-      .on('select2:select', function (e) {
+
+      $("#bill-search").typeahead({
+        hint: true,
+        minLength: 1,
+        highlight: true
+      },
+      {
+        name: 'billsData',
+        source: substringMatcher(billsData)
+      })
+      /*
+      .on('selectevent', function (e) {
           const data = e.params.data;
           const billUrl = `/bills/${data.text}`; 
           console.log(data);
           console.log(`Setting Go! button href to ${billUrl}`);
           $('#gobutton').attr("href", billUrl);
         });
+        */
+       
+
     });
   </script>
 

@@ -98,6 +98,12 @@ $ git clone https://github.com/aih/FlatGov.git
 
 The core metadata that will be used for this project can be downloaded in bulk from ProPublica^TM^ here: https://www.propublica.org/datastore/dataset/congressional-data-bulk-legislation-bills
 
+For example:
+https://s3.amazonaws.com/pp-projects-static/congress/bills/116.zip?_ga=2.93052057.587919213.1601076458-407540952.1601076458
+https://s3.amazonaws.com/pp-projects-static/congress/bills/115.zip?_ga=2.159617977.587919213.1601076458-407540952.1601076458
+...
+https://s3.amazonaws.com/pp-projects-static/congress/bills/110.zip?_ga=2.159617977.587919213.1601076458-407540952.1601076458
+
 Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily. The metadata is sufficient to test many of the functions in this library. Bill text comparison requires bulk download or scraping of the text.
 
 Each download creates a `.zip` file for the congress downloaded (e.g. `116.zip`). When unzipped, this creates a directory of the form:

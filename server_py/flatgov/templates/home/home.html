@@ -262,10 +262,10 @@ span.twitter-typeahead {
   </body>
   <script type="text/javascript">
     //TODO add bills_list as a JSON array to the context
-    var billsData = ['116hr5', '116hr532', '116hr1500', '116hjres31', '116hr1220'];
+    var billsDataSample = ['116hr5', '116hr532', '116hr1500', '116hjres31', '116hr1220'];
     var billsDataURL = 'billsList.json';
     $.get(billsDataURL).then(function (results) {
-      billsData = results.bill_list;
+      const billsData = results.bill_list ? results.bill_list.sort().reverse() : billsDataSample;
       $("#bill-search").typeahead({
         hint: true,
         minLength: 1,

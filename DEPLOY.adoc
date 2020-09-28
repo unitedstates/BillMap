@@ -169,18 +169,9 @@ $ sudo cp /opt/flatgov/FlatGov/server_py/flatgov_nginx.conf /etc/nginx/sites-ava
 
 #### Serve with a wsgi server
 
-##### Using waitress (compatible with Windows) 
-
-See https://docs.pylonsproject.org/projects/waitress/en/stable/
-and https://stackoverflow.com/a/38943785/628748
-
-The `waitress` server will already be installed in your pyenv environment from `requirements.txt`. The `server_py/server.py` file can be used to serve the app from the command line with `python server.py` (within the `flatgov` pyenv environment).
-
-
 ##### Using uwsgi
 
 See https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html
-
 
 ```bash
 $ cd /opt/flatgov/FlatGov/server_py/flatgov
@@ -193,4 +184,12 @@ $ uwsgi --ini flatgov_uwsgi.ini # the --ini option is used to specify the ini fi
 
 
 TODO: set deployment to 'production' (i.e. remove debug info)
+
+##### Using waitress (compatible with Windows) 
+
+See https://docs.pylonsproject.org/projects/waitress/en/stable/
+and https://stackoverflow.com/a/38943785/628748
+
+The `waitress` server will already be installed in your pyenv environment from `requirements.txt`. The `server_py/server.py` file can be used to serve the app from the command line with `python server.py` (within the `flatgov` pyenv environment).
+
 

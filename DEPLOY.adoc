@@ -167,8 +167,24 @@ $ sudo cp /opt/flatgov/FlatGov/server_py/flatgov_nginx.conf /etc/nginx/sites-ava
 
 `$ sudo systemctl start nginx`
 
-#### Set up Django app with uwsgi
+#### Serve with a wsgi server
 
+##### Using waitress (compatible with Windows) 
+
+See https://docs.pylonsproject.org/projects/waitress/en/stable/
+and https://stackoverflow.com/a/38943785/628748
+
+The `waitress` server will already be installed in your pyenv environment from `requirements.txt`. The `server_py/server.py` file can be used to serve the app from the command line with `python server.py` (within the `flatgov` pyenv environment).
+
+
+##### Using uwsgi
+
+NOTE: When I ran this from the command line, it tended to be unstable, with the service dying with a log like:
+
+```
+7 23:21:57 2020] GET /home/billsList.json => generated 1168162 bytes in 18 msecs (HTTP/1.1 200) 5 headers in 162 bytes (1 switches on core 0)
+Gracefully killing worker 1 (pid: 15133)..
+```
 See https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html
 
 

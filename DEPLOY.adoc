@@ -179,18 +179,12 @@ The `waitress` server will already be installed in your pyenv environment from `
 
 ##### Using uwsgi
 
-NOTE: When I ran this from the command line, it tended to be unstable, with the service dying with a log like:
-
-```
-7 23:21:57 2020] GET /home/billsList.json => generated 1168162 bytes in 18 msecs (HTTP/1.1 200) 5 headers in 162 bytes (1 switches on core 0)
-Gracefully killing worker 1 (pid: 15133)..
-```
 See https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html
 
 
 ```bash
 $ cd /opt/flatgov/FlatGov/server_py/flatgov
-$ nohup uwsgi --socket flatgov.sock --module flatgov.wsgi --chmod-socket=666 &`
+$ uwsgi --ini flatgov_uwsgi.ini # the --ini option is used to specify the ini file where uwsgi settings are defined
 ```
 
 * Restart Nginx

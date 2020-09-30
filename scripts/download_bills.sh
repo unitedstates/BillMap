@@ -47,6 +47,7 @@ then
 else
     echo "There is no previous directory at ${TARGET_CONGRESS_DIR}. Preparing that directory now..."
     mkdir -p ${TARGET_CONGRESS_DIR}/data
+    mkdir -p ${TARGET_CONGRESS_DIR}/data/relatedbills
 
     # Handle directories that open to $CONGRESS (e.g. 115/) instead of congress/
     for CONGRESS in $CONGRESS_SEQ

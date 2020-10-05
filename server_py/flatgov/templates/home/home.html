@@ -168,11 +168,10 @@
     //TODO add bills_list as a JSON array to the context
     var billsDataURL = 'billsList.json';
     $.get(billsDataURL).then(function (results) {
-      billsData = results.bill_list;
+      billsData = results.bill_list.bill_list;
       $("#bill-search .typeahead").typeahead({
         hint: true,
         minLength: 3,
-        limit: 10,
         highlight: true
       },
       {

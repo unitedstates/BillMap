@@ -71,12 +71,20 @@
       .title, .search {
         padding: 30px 100px 30px 100px;
       }
+
+
+      #bill-search .tt-menu {
+        max-height: 150px;
+        overflow-y: auto;
+      }
       
 
       @media only screen and (min-width: 768px) {
 
         /* For desktop: */
-
+        .typeahead {
+          width: 290px!important;
+        }
       }
     </style>
   </head>
@@ -113,16 +121,19 @@
     <div class="container">
       <div class="light-gray-body my-5">
         <div class="title">
+          <h1>BillCheck</h1>
           <p class="lead">A resource for advocates and researchers to gain knowledge regarding current and previous bills.</p>
           <p class="lead">Navigate through bills' ecosystem by looking at their sponsors, reports, related bills and more.</p>
         </div>
       </div>
       <div class="search mb-4">
         <h2>Search</h2>
-        <p>Search for bills from the 110th Congress forward.</p>
-        <div >
-          <input id="bill-search" type="text" class="typeahead" placeholder="Search for bill">
-          <a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>
+        <p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings</p>
+        <div id="bill-search" class="input-group">
+          <input type="text" class="form-control typeahead" placeholder="Search for bill, eg. H.R. 736">
+          <div class="input-group-append">
+            <a class="btn btn-primary pb-1" target="_blank" href="#" id="gobutton">Go</a>
+          </div>
         </div>
         <!--
           <p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings.</p>
@@ -155,13 +166,13 @@
   </body>
   <script type="text/javascript">
     //TODO add bills_list as a JSON array to the context
-    var billsData = ['116hr5', '116hr532', '116hr1500', '116hjres31', '116hr1220'];
     var billsDataURL = 'billsList.json';
     $.get(billsDataURL).then(function (results) {
       billsData = results.bill_list;
-      $("#bill-search").typeahead({
+      $("#bill-search .typeahead").typeahead({
         hint: true,
         minLength: 3,
+        limit: 10,
         highlight: true
       },
       {
@@ -173,8 +184,8 @@
           console.log(selection);
           console.log(`Setting Go! button href to ${billUrl}`);
           $('#gobutton').attr("href", billUrl);
-        });
-        })
+      });
+    })
     .catch(function (err) {
       console.log(err);
     });

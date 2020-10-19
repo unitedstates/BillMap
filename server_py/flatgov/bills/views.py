@@ -58,14 +58,25 @@ def cleanSponsorName(lastfirst: str) -> str:
     Returns:
         str: a string of the form "First Last" 
     """
-    return ' '.join(reversed(lastfirst.split(', ')))
+    if not lastfirst:
+        return ''
+    else:
+        return ' '.join(reversed(lastfirst.split(', ')))
 
 def makeTypeAbbrev(bill_type) -> str:
     return ''.join([letter+'.' for letter in bill_type])
 
 def makeSponsorBracket(sponsor: dict, party='X') -> str:
     # TODO: in the future, make party required 
-    return '[' + party + '-' +  sponsor.get('state') + sponsor.get('district') + ']'
+    state = sponsor.get('state', '')
+    if not state:
+        state = ''
+    district =  sponsor.get('district', '')
+    # Implemented this because default of '' does not seem to work
+    if not district:
+        district = ''
+
+    return '[' + party + '-' +  state + district + ']'
 
 def index(request):
     return HttpResponse("Hello, world. You're at the bills index.")
@@ -106,7 +117,7 @@ def bill_view(request, bill):
 
         relatedTable = []
         for bctn in bctns:
-            relatedTableItem = relatedBills.get(bctn)
+            relatedTableItem = relatedBills.get(bctn, '')
             relatedTableItem['billCongressTypeNumber'] = bctn
             # TODO handle the same bill number (maybe put it at the top?)
             if bill == bctn:
@@ -125,7 +136,7 @@ def bill_view(request, bill):
             relatedTableItem['sponsor_name'] = makeName(deep_get(relatedBills, bctn, 'sponsor', 'name'))
             cosponsors = deep_get(relatedBills, bctn, 'cosponsors')
             if cosponsors:
-                relatedTableItem['cosponsor_names'] = ", ".join(list(map(lambda item: makeName(item.get('name')), cosponsors)))
+                relatedTableItem['cosponsor_names'] = ", ".join(list(map(lambda item: makeName(item.get('name', '')), cosponsors)))
             else:
                 relatedTableItem['cosponsor_names'] = ''
             relatedTable.append(relatedTableItem)
@@ -134,7 +145,10 @@ def bill_view(request, bill):
 
         context['bill']['type_abbrev'] = makeTypeAbbrev(bill_type)
         sponsor_name = cleanSponsorName(deep_get(bill_meta, 'sponsor', 'name'))
-        context['bill']['sponsor_fullname'] = deep_get(bill_meta, 'sponsor', 'title') + '. ' + sponsor_name + ' '  + makeSponsorBracket(bill_meta.get('sponsor')) 
+        title = deep_get(bill_meta, 'sponsor', 'title')
+        if not title:
+            title = ''
+        context['bill']['sponsor_fullname'] = title + '. ' + sponsor_name + ' '  + makeSponsorBracket(bill_meta.get('sponsor', '')) 
 
         cosponsorsDict = { cleanSponsorName(item.get('name')): item for item in relatedBillData.get('cosponsors', [])}
         # TODO test that the person with the same name is actually the same sponsor

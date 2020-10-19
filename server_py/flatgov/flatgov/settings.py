@@ -32,7 +32,7 @@ except Exception as err:
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['localhost', 'flatgov.linkedlegislation.com']
 
 
 # Application definition

@@ -255,6 +255,7 @@ def main(args, loglevel):
   
   # TODO consider loading billsMeta before updating
   # TODO consider updating only current congress
+  updateBillsList()
   updateBillsMeta()
  
 if __name__ == '__main__':

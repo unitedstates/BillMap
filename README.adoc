@@ -3,7 +3,6 @@
 # FlatGov: A https://demandprogress.org[Demand Progress] Project 
 Utilities and applications for the FlatGov project by Demand Progress
 
-
 This repository contains:
 
 * A web application showing information for a given bill (Django/Python)
@@ -16,6 +15,17 @@ Both components are described below.
 The FlatGov web application is built using the Django/Python web application framework. The application is contained in the `server_py` directory of this repository. It makes use of data that is processed using the scrapers and scripts described in the <<Data>> and <<Metadata>> sections below.
 
 ### Quickstart
+
+#### Create directories and clone this directory
+
+* Create a parent `FlatgovDir` and *within* that directory, clone this repository:
+
+```bash
+$ mkdir FlatgovDir
+$ cd FlatgovDir
+$ git clone https://github.com/aih/FlatGov.git
+$ cd FlatGov
+```
 
 #### Install Python dependencies
 
@@ -35,12 +45,12 @@ $ pyenv activate flatgov
 Then load the `requirements.txt` into the virtual environment:
 
 ```bash
-$ cd server_py
+$ cd /path/to/FlatGov/server_py
 $ pip install -r requirements.txt
 ```
 
 ```bash
-$ cd scripts
+$ cd /path/to/FlatGov/scripts
 $ pip install -r requirements.txt
 ```
 
@@ -50,24 +60,72 @@ The requirements for `scripts` and `server_py` are separate. But for simplicity,
 
 Copy `server_py/flatgov/.env-sample` to `server_py/flatgov/.env`, and change the `SECRET_KEY` defined in that file.
 
-#### Add data to `data_json`
-Copy the `json_data` directory, containing sample data, into the `server_py/flatgov` directory. Your directory will then look like:
+#### Metadata: Copy or generate `congress` directory data
+
+##### Copy `congress/`
+
+Data for the application is stored in a `congress/` directory, which should be stored in the `FlatgovDir` directory, with a soft-link to `server_py/congress`. If you have a copy of `congress/` (e.g. through access to the FlatGov AWS S3 bucket), move it to `/path/to/FlatgovDir/congress`. Then:
+
+```
+$ cd /path/to/server_py/flatgov
+$ ln -s ../../../congress ./congress
+```
+
+Your directory will then look like:
 
 ```bash
-server_py
+FlatgovDir
+    |
+  FlatGov
+    |
+   server_py
        |
        -flatgov
           |
-         json_data
+         congress@
           |
-          -billsMeta.json
-          -titlesIndex.json
-          -relatedBills.json
-          ...
+          data
+           |
+           116
+           115
+           114
+           ...
 ```
 
-Alternately, you can generate the `billsMeta.json` and `titlesIndex.json` files using the scrapers and scripts described in 
-<<Data>> and <<Metadata>>.
+##### Generate `congress/`
+
+Alternately, use scripts to scrape the `congress` directory and generate metadata. To do this:
+
+ 1. Run `download_bills.sh`
+  ```bash
+  $ cd /path/to/scripts
+  $ ./download_bills.sh # The file must be executable, which requires running: chmod u+x ./download_bills.sh
+  # This command downloads, unzips and prepares the `congress` directory. It may take ~ 20 minutes.
+  ```
+ 2. Link `congress` directory to a directory inside the Django app 
+
+ ```bash
+  $ cd /path/to/server_py/flatgov
+  $ ln -s ../../../congress ./congress
+
+  ```
+
+ 3. Run `relatedBills.py`
+
+  ```bash
+   $ cd /path/to/scripts
+   $ pyenv activate flatgov 
+   $ python billdata.py #runs the billdata script
+   # Can take quite a while (~ 30 min to an hour)
+   # creates large billsMeta.json and billsMeta.json.gz files
+   # as well as a file for each bill in `congress/data/relatedbills
+    ...
+   $ python process_bill_meta.py # combines data from the results of the above script, to get titles
+   # Very fast (< 1 min) 
+    ...
+   $ python relatedBills.py # processes the data above to add related bills and sponsor data to each file in `congress/datsa/relatedbills` 
+   # Takes ~20 min
+  ```
 
 #### Run the Django application
 
@@ -81,28 +139,23 @@ $ python manage.py runserver
 This will serve the application on localhost:8000. Currently, there is no home page; only pages for individual bills, at, e.g.:
 http://localhost:8000/bills/116hr1500enr
 
-## Data
+## Data Background
 
-### Where to store data
-
-This repository contains scripts in the `/scripts` directory that process bill data. The default location for the data is in a directory that is a parent of this repository. To set that up, create a directory, `FlatgovDir`. *Within* that directory, clone this repository:
-
-```bash
-$ mkdir FlatgovDir
-$ cd FlatgovDir
-$ git clone https://github.com/aih/FlatGov.git
-(requires Github credentials)
-```
+This repository contains scripts in the `/scripts` directory that download and process bill data. The default location for the data is in the parent directory of this repository (`FlatgovDir`, described above).
 
 ### Bulk downloads: bill metadata
 
 The core metadata that will be used for this project can be downloaded in bulk from ProPublica^TM^ here: https://www.propublica.org/datastore/dataset/congressional-data-bulk-legislation-bills
 
+For example:
+https://s3.amazonaws.com/pp-projects-static/congress/bills/116.zip?_ga=2.93052057.587919213.1601076458-407540952.1601076458
+https://s3.amazonaws.com/pp-projects-static/congress/bills/115.zip?_ga=2.159617977.587919213.1601076458-407540952.1601076458
+...
+https://s3.amazonaws.com/pp-projects-static/congress/bills/110.zip?_ga=2.159617977.587919213.1601076458-407540952.1601076458
+
 Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily. The metadata is sufficient to test many of the functions in this library. Bill text comparison requires bulk download or scraping of the text.
 
-Each download creates a `.zip` file for the congress downloaded (e.g. `116.zip`). When unzipped, this creates a directory of the form:
-
-`congress -> data -> 116`
+A script to download and organize these files is provided in `scripts/bulk_downloads.sh`.
 
 To start, it is sufficient to download a few recent congresses (e.g. `116, 115, 114, 113`). Unzip, and copy the deepest directory into a single hierarchy so that you have:
 
@@ -118,101 +171,29 @@ FlatGovDir
           -114
           -113
 ```
+### Processing Metadata: Background
 
+For each bill a metadata file is created in `congress/data/relatedbills` with the following form, combining data from the original data.json with additional information from other bills: 
 
-### Scraping bill text and metadata
-#### Install `unitedstates/congress` repository
-
-The text of bills can be scraped with the Python project here: `https://github.com/unitedstates/congress`. First, clone this repository as a child of the `FlatGovDir` directory above, and a sibling of `congress`. In this way, running the scraper will fill out the text data within the `congress` directory.
-
-```
-$ cd /path/to/FlatGovDir
-$ git clone https://github.com/unitedstates/congress.git
-(no credentials needed-- it is an open repo)
-```
-
-#### Install scraper dependencies
-
-Install the `congress` Python virtual environment, install the requirements (`pip install requirements.txt`). The scrapers were built with Python 2.7 and have not been upgraded; updates may be needed for a production environment, but the `@unitedstates/congress` scraper is sufficient to gather the baseline data to test the utilities in this repository.
-
-NOTE: Scraping the initial data can be *very* time-consuming (most of a day, depending on your internet download speeds). To get started, it is worth finding a source for bulk downloads of the text, if possible.
-
-On MacOS (Catalina), installing the `congress` requirements involved a few adjustments:
-
-1. Install OpenSSL 1.02 with Homebrew. The latest OpenSSL (>1.1) causes problems with certain requirements; unfortunately, version 1.0.0 also failed. A script was set up by a Github user to install version 1.0.2.
-
-`brew uninstall openssl --ignore-dependencies; brew uninstall openssl --ignore-dependencies; brew uninstall libressl --ignore-dependencies; brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8b9d6d688f483a0f33fcfc93d433de501b9c3513/Formula/openssl.rb;`
-
-2. Link the OpenSSL libraries
-
-```
-export LDFLAGS=-L/usr/local/opt/openssl/lib
-export CPPFLAGS=-I/usr/local/opt/openssl/include
-```
-
-3. Install `pytz`, `pep517` and `cryptography` directly
-
-```bash
-pip install pytz
-pip install pep517
-pip install cryptography
-```
-
-4. Install requirements
-
-From the `congress` repository directory, `pip install -r requirements.txt`
-
-### Run the scraper
-
-```bash
-./run govinfo --bulkdata=BILLSTATUS
-./run bills
-```
-
-When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:
-
-`find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
-
-## Metadata
-
-### Quickstart
-
-Once the files are stored in the `congress/data` directory, you can use the Python scripts in the `scripts` directory to generate various metadata files can be generated that combine and index data from the individual `data.json` files found in `congress/data`. A separate `scripts/README.adoc` file will describe the usage of those scripts in detail. In general, the scripts can be run from the command line as follows:
-
-```bash
-$ cd scripts
-$ ls | grep "[^_].py$"
-billdata.py
-process_bill_meta.py
-relatedBills.py
-
-$ python billdata.py #runs the billdata script
-...
-$ python process_bill_meta.py # combines data from the results of the above script, to get titles
-...
-$ python relatedBills.py # processes the data above to generate a related bills json
-
-```
-
-### Background
-
-a metadata file can be created with the following information: *Congress*, *Name*, *Path to XML or Text*, *Sponsors*. As an initial form, the metadata file will be:
-
-billdata.json
+116hr1ih.json
 ```javascript
-[ 
-  116hr1ih: {
-          name: '116hr1ih',
-          sponsors: ['name1', 'name2'...],
-          titles: [],
-          titles_whole_bill: [],
-          path_xml: '...',
-          path_text: '...',
-           }
-           ...
-  115hjres31: {
-     }
-]
+{ 
+  titles: [...], 
+  titles_whole_bill: [...],
+  cosponsors: ['name1', 'name2'...],
+  related_bills: [],
+  related: [
+    {116s1356: {
+      titles: [],
+      sponsor: {},
+      cosponsors: [],
+      identifies_by: "CRS"
+    }
+    },
+
+  ]
+
+}
 ```
 
 Where 'titles' includes all titles and 'full_titles' includes those where `"is_for_portion": false` (see below). 

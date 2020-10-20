@@ -8,10 +8,7 @@
 
 
     <!-- tabulator JS and CSS -->
-    <link href="https://unpkg.com/tabulator-tables@4.8.0/dist/css/tabulator.min.css" rel="stylesheet">
-
-    <!-- Bootstrap style, if desired: current bs style has large font and row height-->
-    <!--link href = "https://unpkg.com/tabulator-tables@4.8.0/dist/css/bootstrap/tabulator_bootstrap4.min.css" rel="stylesheet"-->
+    <link href="https://unpkg.com/tabulator-tables@4.8.0/dist/css/bootstrap/tabulator_bootstrap4.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.8.0/dist/js/tabulator.min.js"></script>
 
     <!-- Bootstrap CSS -->
@@ -49,16 +46,27 @@
         border-radius: 10px;
       }
 
-      .table {
-        font-size: small;
+      /*Theme the Tabulator element*/
+      #related-bills-table, #committee-jurisdiction-table{
+          font-size: small;
+          background-color:none;
+          border-radius: 10px;
       }
 
-      .table thead>tr>th {
-        border: none !important;
+      #committee-jurisdiction-table {
+        margin-top: 25px;
       }
 
-      .table tbody>tr>td {
-        border-color: #9d2146 !important;
+      /*Theme the header*/
+      #committee-jurisdiction-table .tabulator-header,#related-bills-table .tabulator-header {
+          background-color:none;
+          border-top: none;
+          border-color: #9d2146 !important;
+      }
+      /*Color the table rows*/
+      #committee-jurisdiction-table .tabulator-tableHolder .tabulator-table .tabulator-row,#related-bills-table .tabulator-tableHolder .tabulator-table .tabulator-row{
+          background-color: none;
+          border-color: #9d2146 !important;
       }
 
       .sponsors-buttons {
@@ -254,42 +262,7 @@
           <br>
           <a href="#">House Oversight</a>
           <h4 class="mt-2">Most Relevant Sponsors</h4>
-          <table class="table mt-3">
-            <thead>
-              <tr>
-                <th scope="col">Co-Sponsor</th>
-                <th scope="col">Committee Jurisdiction</th>
-                <th scope="col">Party</th>
-                <th scope="col">Rank</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>Raúl Grijalva</td>
-                <td>No</td>
-                <td>D</td>
-                <td>No</td>
-              </tr>
-              <tr>
-                <td>Rodney Davis</td>
-                <td>House Administration</td>
-                <td>R</td>
-                <td>Ranking Member</td>
-              </tr>
-              <tr>
-                <td>Jim Cooper</td>
-                <td>House Oversight</td>
-                <td>D</td>
-                <td>No</td>
-              </tr>
-              <tr>
-                <td>Virginia Foxx</td>
-                <td>House Oversight</td>
-                <td>R</td>
-                <td>No</td>
-              </tr>
-            </tbody>
-          </table>
+          <div id="committee-jurisdiction-table"></div>
           <div class="d-flex sponsors-buttons">
             <button type="button" class="btn btn-primary btn-shadow mr-4">
               View Full list of sponsors
@@ -676,6 +649,9 @@
     console.log(titlesYearNotEmpty);
     //create Tabulator on DOM element with id "example-table"
     var table = new Tabulator("#related-bills-table", {
+      // rowFormatter:function(row){
+
+      // },
       height: 205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
       data: related_bills, //assign data to table
       layout: "fitColumns", //fit columns to width of table (optional)
@@ -715,7 +691,9 @@
         }
       ]
     });
-
+    var table = new Tabulator("#committee-jurisdiction-table", {
+      // rowFormatter:function(row){
+    });
     var sponsors_table = JSON.parse(`{{ bill.cosponsors_table|safe|escapejs }}`);
     //create Tabulator on DOM element with id "example-table"
     var table = new Tabulator("#cosponsors-table", {
@@ -733,20 +711,18 @@
           field: "bills_str"
         },
         {
-          title: "Committee Jurisdiction",
-          field: "committee",
-          width: 200
+          title: "Committees",
+          field: "committees",
+          width: 150
         },
         {
           title: "Party",
-          field: "party",
-          width: 100
+          field: "party"
         },
         {
-          title: "Rank",
-          field: "rank",
-          width: 100
-        }
+          title: "Position",
+          field: "position"
+        },
       ]
     });
   </script>

@@ -11,6 +11,7 @@ except:
     import constants
 
 bill_file = "BILLS-116hr1500rh.xml"
+bill_file2 = "BILLS-116hr299ih.xml"
 PATH_BILL = os.path.join(constants.PATH_TO_CONGRESSDATA_XML_DIR, bill_file)
 PATH_BILLSECTIONS_JSON = os.path.join('..', 'elasticsearch', 'billsections_mapping.json') 
 
@@ -67,7 +68,7 @@ body_nested = {
       "query": {
         "bool": {
           "must": [
-            { "match": { "sections.section_header": "date" }}
+            { "match": { "sections.section_header": "title" }}
           ]
         }
       },

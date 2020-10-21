@@ -1,0 +1,43 @@
+### Using Elasticsearch for Similarity and Search
+
+We plan to install Elasticsearch, index bills and use various features of Elasticsearch to calculate similarity between documents or parts of documents, and to provide for full-text search in the app. We will work with the current version of the Elasticearch stack (v7.9.2)
+
+#### Install Elasticsearch 
+
+See https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html
+
+For MacOS, for example:
+
+* Install
+
+```bash
+$ curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.2-darwin-x86_64.tar.gz
+$ tar -xvf elasticsearch-7.9.2-darwin-x86_64.tar.gz
+```
+
+* Run
+
+```bash
+$ cd elasticsearch-7.9.2/bin
+$ ./elasticsearch
+```
+
+### Install Logstash
+
+For MacOs, for example:
+
+* Install
+
+```bash
+$ curl -L -O https://artifacts.elastic.co/downloads/logstash/logstash-7.9.2.tar.gz
+$ tar -xvf logstash-7.9.2.tar.gz
+```
+
+* Set up a logstash config file
+
+See https://www.elastic.co/guide/en/logstash/current/configuration.html
+
+
+#### Indexing with Python
+
+See, e.g., https://kb.objectrocket.com/elasticsearch/use-python-to-index-files-into-elasticsearch-index-all-files-in-a-directory-part-2-852

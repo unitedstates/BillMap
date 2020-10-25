@@ -88,7 +88,7 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd'):
   for congress in congresses:
     print('Indexing congress' + congress)
     congressDir = getXMLDirByCongress(congress=congress, docType=docType) 
-    billFiles = [file in os.listdir(congressDir) if file.endswith(".xml")]
+    billFiles = [file for file in os.listdir(congressDir) if file.endswith(".xml")]
     for billFile in billFiles:
       billFilePath = os.path.join(congressDir, billFile)
       print('Indexing' + billFilePath)

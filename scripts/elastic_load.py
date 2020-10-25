@@ -83,6 +83,17 @@ def indexBill(bill_path):
     # billRoot = billTree.getroot()
     # nsmap = {k if k is not None else '':v for k,v in billRoot.nsmap.items()}
 
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 116)]
+def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd'):
+  for congress in congresses:
+    print('Indexing congress' + congress)
+    congressDir = getXMLDirByCongress(congress=congress, docType=docType) 
+    billFiles = [file in os.listdir(congressDir) if file.endswith(".xml")]
+    for billFile in billFiles:
+      billFilePath = os.path.join(congressDir, billFile)
+      print('Indexing' + billFilePath)
+      indexBill(billFilePath)
+
 def refreshIndices(index: str="billsections"):
   es.indices.refresh(index=index)
 
@@ -102,8 +113,9 @@ def getInnerResults(res):
 
 if __name__ == "__main__": 
   createIndex()
-  indexBill(PATH_BILL)
+  # indexBill(PATH_BILL)
+  indexBills()
   refreshIndices()
   res = runQuery()
   innerResults = getInnerResults(res)
-  print(innerResults)
+  print(innerResults[3])

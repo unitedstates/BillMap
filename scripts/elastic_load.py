@@ -56,7 +56,9 @@ def getMapping(map_path):
 
 BILLSECTION_MAPPING = getMapping(PATH_BILLSECTIONS_JSON)
 
-def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING):
+def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING, delete=False):
+  if delete:
+    es.indices.delete(index=index)
   es.indices.create(index=index, ignore=400, body=body)
 
 def indexBill(bill_path):
@@ -126,7 +128,7 @@ def getInnerResults(res):
    return [hit['inner_hits'] for hit in res['hits']['hits']]
 
 if __name__ == "__main__": 
-  createIndex()
+  createIndex(delete=True)
   # indexBill(PATH_BILL)
   indexBills()
   refreshIndices()

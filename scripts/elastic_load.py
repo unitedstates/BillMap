@@ -60,25 +60,36 @@ def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING):
   es.indices.create(index=index, ignore=400, body=body)
 
 def indexBill(bill_path):
+  try:
     billTree = etree.parse(bill_path)
-    sections = billTree.xpath('//section')
-    headers = billTree.xpath('//header')
-    from collections import OrderedDict
-    headers_text = [ header.text for header in headers]
+  except:
+    raise Exception('Could not parse bill')
+  sections = billTree.xpath('//section')
+  headers = billTree.xpath('//header')
+  from collections import OrderedDict
+  headers_text = [ header.text for header in headers]
 
-    # Uses an OrderedDict to deduplicate headers
-    doc = {
-        'headers': list(OrderedDict.fromkeys(headers_text)),
-        'sections': [{
-            'section_number': section.find('enum').text,
-            'section_text': etree.tostring(section, method="text", encoding="unicode"),
-            'section_xml': etree.tostring(section, method="xml", encoding="unicode"),
-            'section_header':  section.find('header').text
-        } for section in sections]
-    } 
+  # Uses an OrderedDict to deduplicate headers
+  # TODO handle missing header and enum separately
+  doc = {
+      'headers': list(OrderedDict.fromkeys(headers_text)),
+      'sections': [{
+          'section_number': section.find('enum').text,
+          'section_text': etree.tostring(section, method="text", encoding="unicode"),
+          'section_xml': etree.tostring(section, method="xml", encoding="unicode"),
+          'section_header':  section.find('header').text
+      } if section.find('header') and section.find('enum').text else
+      {
+          'section_number': '',
+          'section_text': etree.tostring(section, method="text", encoding="unicode"),
+          'section_xml': etree.tostring(section, method="xml", encoding="unicode"),
+          'section_header': '' 
+      } 
+      for section in sections ]
+  } 
 
-    res = es.index(index="billsections", body=doc)
-    print(res['result'])
+  res = es.index(index="billsections", body=doc)
+  print(res['result'])
 
     # billRoot = billTree.getroot()
     # nsmap = {k if k is not None else '':v for k,v in billRoot.nsmap.items()}
@@ -92,7 +103,10 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd'):
     for billFile in billFiles:
       billFilePath = os.path.join(congressDir, billFile)
       print('Indexing' + billFilePath)
-      indexBill(billFilePath)
+      try:
+        indexBill(billFilePath)
+      except:
+        pass
 
 def refreshIndices(index: str="billsections"):
   es.indices.refresh(index=index)

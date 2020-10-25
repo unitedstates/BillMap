@@ -5,6 +5,7 @@ import os
 
 PATH_TO_BILLS_META = os.path.join('..', 'billsMeta.json')
 PATH_TO_CONGRESSDATA_DIR = os.path.join('..', '..', 'congress', 'data')
+PATH_TO_DATA_DIR = os.path.join('/', *"/usr/local/share/xcential/public/data".split('/'))
 PATH_TO_CONGRESSDATA_XML_DIR = os.path.join('/', *"/usr/local/share/xcential/public/data/116/dtd".split('/'))
 PATH_TO_BILLS_LIST = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'billList.json')
 PATH_TO_TITLES_INDEX = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'titlesIndex.json')

@@ -15,13 +15,49 @@ bill_file2 = "BILLS-116hr299ih.xml"
 PATH_BILL = os.path.join(constants.PATH_TO_CONGRESSDATA_XML_DIR, bill_file)
 PATH_BILLSECTIONS_JSON = os.path.join('..', 'elasticsearch', 'billsections_mapping.json') 
 
+SAMPLE_QUERY = {
+  "query": {
+    "match": {
+      "headers": {
+        "query": "date"
+      }
+    }
+  }
+}
+
+SAMPLE_QUERY_NESTED = {
+  "query": {
+    "nested": {
+      "path": "sections",
+      "query": {
+        "bool": {
+          "must": [
+            { "match": { "sections.section_header": "title" }}
+          ]
+        }
+      },
+    "inner_hits": { 
+        "highlight": {
+          "fields": {
+            "sections.section_header": {}
+          }
+        }
+      }
+    }
+  }
+}
+
+def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd') -> str:
+  return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
+
 def getMapping(map_path):
     with open(map_path, 'r') as f:
         return json.load(f)
 
 BILLSECTION_MAPPING = getMapping(PATH_BILLSECTIONS_JSON)
 
-es.indices.create(index='billsections', ignore=400, body=BILLSECTION_MAPPING)
+def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING):
+  es.indices.create(index=index, ignore=400, body=body)
 
 def indexBill(bill_path):
     billTree = etree.parse(bill_path)
@@ -47,44 +83,14 @@ def indexBill(bill_path):
     # billRoot = billTree.getroot()
     # nsmap = {k if k is not None else '':v for k,v in billRoot.nsmap.items()}
 
-es.indices.refresh(index="billsections")
+def refreshIndices(index: str="billsections"):
+  es.indices.refresh(index=index)
 
 # res = es.search(index="billsections", body={"query": {"match_all": {}}})
 
-body = {
-  "query": {
-    "match": {
-      "headers": {
-        "query": "date"
-      }
-    }
-  }
-}
-
-body_nested = {
-  "query": {
-    "nested": {
-      "path": "sections",
-      "query": {
-        "bool": {
-          "must": [
-            { "match": { "sections.section_header": "title" }}
-          ]
-        }
-      },
-    "inner_hits": { 
-        "highlight": {
-          "fields": {
-            "sections.section_header": {}
-          }
-        }
-      }
-    }
-  }
-}
-
 # res = es.search(index="billsections", body={"query": {"match_all": {}}})
-res = es.search(index="billsections", body=body_nested)
+def runQuery(index: str='billsections', query: dict=SAMPLE_QUERY_NESTED) -> dict:
+  return es.search(index=index, body=SAMPLE_QUERY_NESTED)
 
 def printResults(res):
     print("Got %d Hits:" % res['hits']['total']['value'])
@@ -93,4 +99,11 @@ def printResults(res):
 
 def getInnerResults(res):
    return [hit['inner_hits'] for hit in res['hits']['hits']]
-    
+
+if __name__ == "__main__": 
+  createIndex()
+  indexBill(PATH_BILL)
+  refreshIndices()
+  res = runQuery()
+  innerResults = getInnerResults(res)
+  print(innerResults)

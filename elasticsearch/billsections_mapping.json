@@ -29,8 +29,7 @@
                         "type": "text"
                     },
                     "section_text": {
-                        "type": "text",
-                        "similarity": "classic"
+                        "type": "text"
                     },
                     "section_xml": {
                         "type": "text",

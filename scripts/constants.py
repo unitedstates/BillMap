@@ -28,3 +28,35 @@ BILL_TYPES = {
 CURRENT_CONGRESSIONAL_YEAR = datetime.date.today().year if datetime.date.today() > datetime.date(datetime.date.today().year, 1, 3) else (datetime.date.today().year - 1)
 CURRENT_CONGRESS, cs_temp = divmod(round(((datetime.date(CURRENT_CONGRESSIONAL_YEAR, 1, 3) - datetime.date(1788, 1, 3)).days) / 365) + 1, 2)
 CURRENT_SESSION = cs_temp + 1
+
+SAMPLE_QUERY = {
+  "query": {
+    "match": {
+      "headers": {
+        "query": "date"
+      }
+    }
+  }
+}
+
+SAMPLE_QUERY_NESTED = {
+  "query": {
+    "nested": {
+      "path": "sections",
+      "query": {
+        "bool": {
+          "must": [
+            { "match": { "sections.section_header": "title" }}
+          ]
+        }
+      },
+    "inner_hits": { 
+        "highlight": {
+          "fields": {
+            "sections.section_header": {}
+          }
+        }
+      }
+    }
+  }
+}

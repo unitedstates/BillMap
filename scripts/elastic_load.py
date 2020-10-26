@@ -1,7 +1,7 @@
 import os
 import json
 from lxml import etree
-from elasticsearch import Elasticsearch
+from elasticsearch import exceptions, Elasticsearch
 es = Elasticsearch()
 from collections import OrderedDict
 
@@ -15,38 +15,6 @@ bill_file2 = "BILLS-116hr299ih.xml"
 PATH_BILL = os.path.join(constants.PATH_TO_CONGRESSDATA_XML_DIR, bill_file)
 PATH_BILLSECTIONS_JSON = os.path.join('..', 'elasticsearch', 'billsections_mapping.json') 
 
-SAMPLE_QUERY = {
-  "query": {
-    "match": {
-      "headers": {
-        "query": "date"
-      }
-    }
-  }
-}
-
-SAMPLE_QUERY_NESTED = {
-  "query": {
-    "nested": {
-      "path": "sections",
-      "query": {
-        "bool": {
-          "must": [
-            { "match": { "sections.section_header": "title" }}
-          ]
-        }
-      },
-    "inner_hits": { 
-        "highlight": {
-          "fields": {
-            "sections.section_header": {}
-          }
-        }
-      }
-    }
-  }
-}
-
 def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd') -> str:
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
 
@@ -58,10 +26,14 @@ BILLSECTION_MAPPING = getMapping(PATH_BILLSECTIONS_JSON)
 
 def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING, delete=False):
   if delete:
-    es.indices.delete(index=index)
+    try:
+      es.indices.delete(index=index)
+    except exceptions.NotFoundError:
+      print('No index to delete: ' + index)
+
   es.indices.create(index=index, ignore=400, body=body)
 
-def indexBill(bill_path):
+def indexBill(bill_path: str=PATH_BILL):
   try:
     billTree = etree.parse(bill_path)
   except:
@@ -77,15 +49,15 @@ def indexBill(bill_path):
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
           'section_number': section.find('enum').text,
+          'section_header':  section.find('header').text,
           'section_text': etree.tostring(section, method="text", encoding="unicode"),
-          'section_xml': etree.tostring(section, method="xml", encoding="unicode"),
-          'section_header':  section.find('header').text
-      } if section.find('header') and section.find('enum').text else
+          'section_xml': etree.tostring(section, method="xml", encoding="unicode")
+      } if (section.find('header').text and section.find('enum').text) else
       {
           'section_number': '',
+          'section_header': '', 
           'section_text': etree.tostring(section, method="text", encoding="unicode"),
-          'section_xml': etree.tostring(section, method="xml", encoding="unicode"),
-          'section_header': '' 
+          'section_xml': etree.tostring(section, method="xml", encoding="unicode")
       } 
       for section in sections ]
   } 
@@ -116,8 +88,8 @@ def refreshIndices(index: str="billsections"):
 # res = es.search(index="billsections", body={"query": {"match_all": {}}})
 
 # res = es.search(index="billsections", body={"query": {"match_all": {}}})
-def runQuery(index: str='billsections', query: dict=SAMPLE_QUERY_NESTED) -> dict:
-  return es.search(index=index, body=SAMPLE_QUERY_NESTED)
+def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED) -> dict:
+  return es.search(index=index, body=query)
 
 def printResults(res):
     print("Got %d Hits:" % res['hits']['total']['value'])
@@ -134,4 +106,4 @@ if __name__ == "__main__":
   refreshIndices()
   res = runQuery()
   innerResults = getInnerResults(res)
-  print(innerResults[3])
+  print(innerResults)

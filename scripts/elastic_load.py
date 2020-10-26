@@ -88,7 +88,7 @@ def refreshIndices(index: str="billsections"):
 # res = es.search(index="billsections", body={"query": {"match_all": {}}})
 
 # res = es.search(index="billsections", body={"query": {"match_all": {}}})
-def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED) -> dict:
+def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT) -> dict:
   return es.search(index=index, body=query)
 
 def printResults(res):
@@ -101,7 +101,6 @@ def getInnerResults(res):
 
 if __name__ == "__main__": 
   createIndex(delete=True)
-  # indexBill(PATH_BILL)
   indexBills()
   refreshIndices()
   res = runQuery()

@@ -26,8 +26,11 @@ def getMapping(map_path):
 BILLSECTION_MAPPING = getMapping(PATH_BILLSECTIONS_JSON)
 
 def getText(item):
-  if not item:
+  if item is None:
     return ''
+  if isinstance(item, list):
+    item = item[0]
+
   try:
     return item.text 
   except:
@@ -38,7 +41,7 @@ def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING, delet
     try:
       es.indices.delete(index=index)
     except exceptions.NotFoundError:
-      print('No index to delete: ' + index)
+      print('No index to delete: {0}'.format(index))
 
   es.indices.create(index=index, ignore=400, body=body)
 
@@ -51,8 +54,11 @@ def indexBill(bill_path: str=PATH_BILL):
     billTree = etree.parse(bill_path)
   except:
     raise Exception('Could not parse bill')
-  dctitle = billTree.xpath('//dublinCore/dc:title')
-  dctitle_text = getText(dctitle) 
+  dublinCores = billTree.xpath('//dublinCore')
+  if dublinCores and dublinCores[0]:
+    dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
+  else:
+    dublinCore = ''
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
   session = billTree.xpath('//form/session')
@@ -60,7 +66,7 @@ def indexBill(bill_path: str=PATH_BILL):
   legisnum = billTree.xpath('//legis-num')
   legisnum_text = getText(legisnum)
   if congress and legisnum_text:
-    billnumber_text = congress + legisnum_text.lower().replace('. ', '')
+    billnumber_text = congress_text + legisnum_text.lower().replace('. ', '')
   else:
     billnumber_text = getBillNumberFromBillPath(bill_path)
   sections = billTree.xpath('//section')
@@ -73,7 +79,7 @@ def indexBill(bill_path: str=PATH_BILL):
   doc = {
       'congress': congress_text,
       'session': session_text,
-      'dctitle': dctitle_text,
+      'dc': dublinCore,
       'legisnum': legisnum_text,
       'billnumber': billnumber_text,
       'headers': list(OrderedDict.fromkeys(headers_text)),
@@ -82,7 +88,7 @@ def indexBill(bill_path: str=PATH_BILL):
           'section_header':  section.find('header').text,
           'section_text': etree.tostring(section, method="text", encoding="unicode"),
           'section_xml': etree.tostring(section, method="xml", encoding="unicode")
-      } if (section.find('header').text and section.find('enum').text) else
+      } if (section.find('header') and section.find('enum')) else
       {
           'section_number': '',
           'section_header': '', 
@@ -98,18 +104,19 @@ def indexBill(bill_path: str=PATH_BILL):
     # billRoot = billTree.getroot()
     # nsmap = {k if k is not None else '':v for k,v in billRoot.nsmap.items()}
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 116)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 117)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd'):
   for congress in congresses:
-    print('Indexing congress' + congress)
+    print('Indexing congress: {0}'.format(congress))
     congressDir = getXMLDirByCongress(congress=congress, docType=docType) 
     billFiles = [file for file in os.listdir(congressDir) if file.endswith(".xml")]
     for billFile in billFiles:
       billFilePath = os.path.join(congressDir, billFile)
-      print('Indexing' + billFilePath)
+      print('Indexing {0}'.format(billFilePath))
       try:
         indexBill(billFilePath)
-      except:
+      except Exception as err:
+        print('Could not index: {0}'.format(str(err)))
         pass
 
 def refreshIndices(index: str="billsections"):
@@ -124,6 +131,9 @@ def printResults(res):
     for hit in res['hits']['hits']:
         print(hit["_source"])
 
+def getResultBillnumbers(res):
+  return [hit.get('_source').get('billnumber') for hit in res['hits']['hits']]
+
 def getInnerResults(res):
    return [hit['inner_hits'] for hit in res['hits']['hits']]
 
@@ -132,5 +142,7 @@ if __name__ == "__main__":
   indexBills()
   refreshIndices()
   res = runQuery()
+  billnumbers = getResultBillnumbers(res)
+  print('Top matching bills: {0}'.format(', '.join(billnumbers)))
   innerResults = getInnerResults(res)
   print(innerResults)

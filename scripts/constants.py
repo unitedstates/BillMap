@@ -40,6 +40,26 @@ SAMPLE_QUERY = {
   }
 }
 
+SAMPLE_QUERY_W_CONGRESS = {
+  "query": {
+    "bool": {
+      "must": [
+         { "match": {
+              "headers": {
+              "query": "date"
+              }
+         }
+        }
+      ],
+      "filter": [{
+        "term": {
+          "congress": "115"
+        }
+      }]
+    }
+  }
+}
+
 SAMPLE_QUERY_NESTED = {
   "query": {
     "nested": {

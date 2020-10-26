@@ -50,7 +50,7 @@ SAMPLE_QUERY_NESTED = {
           ]
         }
       },
-    "inner_hits": { 
+      "inner_hits": { 
         "highlight": {
           "fields": {
             "sections.section_header": {}
@@ -93,6 +93,13 @@ SAMPLE_QUERY_NESTED_MLT = {
           "min_term_freq" : 2,
           "max_query_terms" : 10,
           "min_doc_freq" : 3 
+        }
+      },
+      "inner_hits": {
+          "highlight": {
+          "fields": {
+            "sections.section_text": {}
+          }
         }
       }
     }

@@ -41,6 +41,10 @@ The functions in `scripts/elastic_load.py` load a bill file into the Elasticsear
      }
 ```
 
+Once a bill is converted into the form above, it is indexed. Both as a whole document, and with the sections indexed separatetly (as 'nested' documents).
+
+NOTE: When an inner mapping field is set with a 'similarity' key   (e.g. ``"section_text": {"type": "text", "similarity": "classic"}`), it appears to break the nesting; the nested query no longer works and an Exception is thrown, indicating that 'sections' is not a nested field.
+
 ### Install Logstash
 
 NOTE: we are not using Logstash to index; the logstash-filter.conf we built in the `elasticsearch` directory does not (yet) work.

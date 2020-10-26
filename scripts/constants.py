@@ -60,3 +60,41 @@ SAMPLE_QUERY_NESTED = {
     }
   }
 }
+
+# more like this query (working)
+SAMPLE_QUERY_MLT_HEADERS  = {"query": {
+  "more_like_this": {
+    "fields": ["headers"],
+    "like": "Dependent care credit improvements",
+    "min_term_freq" : 1,
+    "max_query_terms" : 10,
+    "min_doc_freq" : 1 
+  }
+}
+}
+
+reporting_requirement = """
+Not later than 5 years after the date of enactment of this Act, the administering Secretaries, acting jointly, shall report to the appropriate committees of Congress on the progress in the reduction of food waste that can be attributed to the standardization of food date labeling and consumer education required by this Act and the amendments made by this Act
+"""
+
+quality_date_guidance = """
+The Commissioner of Food and Drugs and the Secretary of Agriculture shall establish guidance for food labelers on how to determine quality dates and safety dates for food products.
+"""
+
+# more like this query (working)
+SAMPLE_QUERY_NESTED_MLT = {
+  "query": {
+    "nested": {
+      "path": "sections",
+      "query": {
+        "more_like_this": {
+          "fields": ["sections.section_text"],
+          "like": reporting_requirement,
+          "min_term_freq" : 2,
+          "max_query_terms" : 10,
+          "min_doc_freq" : 3 
+        }
+      }
+    }
+  }
+}

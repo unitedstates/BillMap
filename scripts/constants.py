@@ -3,6 +3,7 @@ import re
 import datetime
 import os
 from copy import deepcopy
+from re import S
 
 PATH_TO_BILLS_META = os.path.join('..', 'billsMeta.json')
 PATH_TO_CONGRESSDATA_DIR = os.path.join('..', '..', 'congress', 'data')
@@ -133,3 +134,5 @@ SAMPLE_QUERY_NESTED_MLT = {
 
 SAMPLE_QUERY_NESTED_MLT_MARALAGO =  deepcopy(SAMPLE_QUERY_NESTED_MLT)
 SAMPLE_QUERY_NESTED_MLT_MARALAGO['query']['nested']['query']['more_like_this']['like'] = getSampleText()
+SAMPLE_QUERY_NESTED_MLT_116hr5150sec602 = deepcopy(SAMPLE_QUERY_NESTED_MLT)
+SAMPLE_QUERY_NESTED_MLT_116hr5150sec602['query']['nested']['query']['more_like_this']['like'] = getSampleText('../samples/116hr5150-sec602.txt')

@@ -1,5 +1,6 @@
 import os
 import json
+import re
 from lxml import etree
 from elasticsearch import exceptions, Elasticsearch
 es = Elasticsearch()
@@ -24,6 +25,14 @@ def getMapping(map_path):
 
 BILLSECTION_MAPPING = getMapping(PATH_BILLSECTIONS_JSON)
 
+def getText(item):
+  if not item:
+    return ''
+  try:
+    return item.text 
+  except:
+    return ''
+
 def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING, delete=False):
   if delete:
     try:
@@ -33,11 +42,27 @@ def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING, delet
 
   es.indices.create(index=index, ignore=400, body=body)
 
+def getBillNumberFromBillPath(bill_path: str):
+  # e.g. [path]/116/dtd/BILLS-116hr1500rh.xml
+  return re.sub(r'.*\/', '', bill_path).replace('BILLS-', '').replace('.xml', '')
+
 def indexBill(bill_path: str=PATH_BILL):
   try:
     billTree = etree.parse(bill_path)
   except:
     raise Exception('Could not parse bill')
+  dctitle = billTree.xpath('//dublinCore/dc:title')
+  dctitle_text = getText(dctitle) 
+  congress = billTree.xpath('//form/congress')
+  congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
+  session = billTree.xpath('//form/session')
+  session_text = re.sub(r'[a-zA-Z ]+$', '', getText(session))
+  legisnum = billTree.xpath('//legis-num')
+  legisnum_text = getText(legisnum)
+  if congress and legisnum_text:
+    billnumber_text = congress + legisnum_text.lower().replace('. ', '')
+  else:
+    billnumber_text = getBillNumberFromBillPath(bill_path)
   sections = billTree.xpath('//section')
   headers = billTree.xpath('//header')
   from collections import OrderedDict
@@ -46,6 +71,11 @@ def indexBill(bill_path: str=PATH_BILL):
   # Uses an OrderedDict to deduplicate headers
   # TODO handle missing header and enum separately
   doc = {
+      'congress': congress_text,
+      'session': session_text,
+      'dctitle': dctitle_text,
+      'legisnum': legisnum_text,
+      'billnumber': billnumber_text,
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
           'section_number': section.find('enum').text,
@@ -86,9 +116,7 @@ def refreshIndices(index: str="billsections"):
   es.indices.refresh(index=index)
 
 # res = es.search(index="billsections", body={"query": {"match_all": {}}})
-
-# res = es.search(index="billsections", body={"query": {"match_all": {}}})
-def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT) -> dict:
+def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO) -> dict:
   return es.search(index=index, body=query)
 
 def printResults(res):

@@ -2,6 +2,7 @@ import os
 import re
 import datetime
 import os
+from copy import deepcopy
 
 PATH_TO_BILLS_META = os.path.join('..', 'billsMeta.json')
 PATH_TO_CONGRESSDATA_DIR = os.path.join('..', '..', 'congress', 'data')
@@ -81,6 +82,10 @@ quality_date_guidance = """
 The Commissioner of Food and Drugs and the Secretary of Agriculture shall establish guidance for food labelers on how to determine quality dates and safety dates for food products.
 """
 
+def getSampleText(text_path: str = '../samples/maralago.txt'):
+  with open(text_path, 'r') as f:
+    return f.read()
+
 # more like this query (working)
 SAMPLE_QUERY_NESTED_MLT = {
   "query": {
@@ -105,3 +110,6 @@ SAMPLE_QUERY_NESTED_MLT = {
     }
   }
 }
+
+SAMPLE_QUERY_NESTED_MLT_MARALAGO =  deepcopy(SAMPLE_QUERY_NESTED_MLT)
+SAMPLE_QUERY_NESTED_MLT_MARALAGO['query']['nested']['query']['more_like_this']['like'] = getSampleText()

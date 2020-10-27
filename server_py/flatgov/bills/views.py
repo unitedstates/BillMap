@@ -86,6 +86,10 @@ def makeName(commaName):
         return ''
     return ' '.join(reversed(commaName.split(',')))
 
+def similar_bills_view(request):
+    context = {}
+    return render(request, 'bills/bill-similar.html', context)
+
 def bill_view(request, bill):
     context = {'billCongressTypeNumber': bill, 'bill': {}}
 

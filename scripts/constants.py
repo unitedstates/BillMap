@@ -136,3 +136,14 @@ SAMPLE_QUERY_NESTED_MLT_MARALAGO =  deepcopy(SAMPLE_QUERY_NESTED_MLT)
 SAMPLE_QUERY_NESTED_MLT_MARALAGO['query']['nested']['query']['more_like_this']['like'] = getSampleText()
 SAMPLE_QUERY_NESTED_MLT_116hr5150sec602 = deepcopy(SAMPLE_QUERY_NESTED_MLT)
 SAMPLE_QUERY_NESTED_MLT_116hr5150sec602['query']['nested']['query']['more_like_this']['like'] = getSampleText('../samples/116hr5150-sec602.txt')
+
+def makeMLTQuery(sampleText: str, sampleTextPath: str='../samples/116hr5150-sec602.txt'):
+  if not sampleText and sampleTextPath:
+    try:
+      sampleText = getSampleText(sampleTextPath)
+    except Exception as err:
+      raise Exception('Error getting text from path: {0}'.format(err))
+
+  newQuery = deepcopy(SAMPLE_QUERY_NESTED_MLT)
+  newQuery['query']['nested']['query']['more_like_this']['like'] = sampleText 
+  return newQuery

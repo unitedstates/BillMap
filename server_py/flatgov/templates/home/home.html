@@ -262,15 +262,8 @@ label textarea{
         <div id="bill-text-div">
           <form action="" method="POST" class="post-form">{% csrf_token %}
             {{ form.as_p }}
-            <button type="submit" class="save btn btn-default">Find similar bills</button>
-            <a class="btn btn-primary" target="_blank" href="#" id="bill-text-button" onclick="getSimilarBills(event)">Find similar bills</a>
+            <input class="btn btn-outline-primary" type="submit" value="Find similar bills">
           </form>
-          <!--label><p>Enter text from a section of the bill and click 'Find similar bills'.</p>
-            <textarea id="bill-text-textarea" name="story"
-            rows="8" cols="60" placeholder="Enter text from a bill section you want to search."></textarea>
-          </label>
-          <div>
-          </div-->
         </div>
         <!--
           <p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings.</p>

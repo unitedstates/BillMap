@@ -4,16 +4,14 @@ import os
 import argparse
 import logging
 import re
-import json
-import gzip
 try:
-    from .constants import BILL_NUMBER_REGEX_COMPILED, PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
+    from flatgovtools.constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
+    from flatgovtools.utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
+    from flatgovtools.billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
+except:
+    from .constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
     from .utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
     from .billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
-except:
-    from constants import BILL_NUMBER_REGEX_COMPILED, PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
-    from utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
-    from billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
 
 OF_YEAR_REGEX = re.compile(r'\sof\s[0-9]+$')
 
@@ -38,7 +36,7 @@ def addSimilarTitles(noYearTitlesIndex: dict, billsRelated = {}):
         for bill_outer in relatedBills:
             for bill_inner in relatedBills:
                 similarTitle = relatedTitles.get(bill_inner)
-                if len(similarTitle) == 1:
+                if similarTitle and len(similarTitle) == 1:
                     similarTitle = similarTitle[0]
                 else:
                     continue

@@ -5,11 +5,13 @@ import sys
 import re
 import logging
 import argparse
-from billdata import loadBillsMeta, saveBillsMeta
 try:
-  from . import constants
+    from flatgovtools.billdata import loadBillsMeta, saveBillsMeta
+    from flatgovtools import constants
 except:
-  import constants
+    from .billdata import loadBillsMeta, saveBillsMeta
+    from . import constants
+
 
 logging.basicConfig(filename='process_bill_meta.log',
                     filemode='w', level='INFO')

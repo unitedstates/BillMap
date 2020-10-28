@@ -4,10 +4,7 @@ import sys, os
 import logging
 import gzip
 import json
-try:
-  from . import constants
-except:
-  import constants
+from flatgovtools import constants
 
 logging.basicConfig(filename='utils.log',
                     filemode='w', level='INFO')

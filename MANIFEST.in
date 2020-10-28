@@ -1,0 +1,4 @@
+include flatgov/elasticsearch/*.json
+include flatgov/elasticsearch/*.conf
+include flatgov/samples/*.txt
+recursive-include package *

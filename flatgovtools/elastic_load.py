@@ -7,14 +7,13 @@ es = Elasticsearch()
 from collections import OrderedDict
 
 try:
-    from . import constants
+  from flatgovtools import constants
 except:
-    import constants
+  from . import constants
 
 bill_file = "BILLS-116hr1500rh.xml"
 bill_file2 = "BILLS-116hr299ih.xml"
 PATH_BILL = os.path.join(constants.PATH_TO_CONGRESSDATA_XML_DIR, bill_file)
-PATH_BILLSECTIONS_JSON = os.path.join('..', 'elasticsearch', 'billsections_mapping.json') 
 
 def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd') -> str:
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
@@ -22,8 +21,6 @@ def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd') -> str:
 def getMapping(map_path):
     with open(map_path, 'r') as f:
         return json.load(f)
-
-BILLSECTION_MAPPING = getMapping(PATH_BILLSECTIONS_JSON)
 
 def getText(item):
   if item is None:
@@ -36,7 +33,8 @@ def getText(item):
   except:
     return ''
 
-def createIndex(index: str='billsections', body: dict=BILLSECTION_MAPPING, delete=False):
+
+def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPPING, delete=False):
   if delete:
     try:
       es.indices.delete(index=index)
@@ -126,19 +124,62 @@ def refreshIndices(index: str="billsections"):
 def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO) -> dict:
   return es.search(index=index, body=query)
 
+def moreLikeThis(queryText: str, index: str='billsections'):
+  query = constants.makeMLTQuery(queryText)
+  return runQuery(index=index, query=query)
+
 def printResults(res):
     print("Got %d Hits:" % res['hits']['total']['value'])
     for hit in res['hits']['hits']:
         print(hit["_source"])
 
+def getHits(res):
+  return res.get('hits').get('hits')
+
 def getResultBillnumbers(res):
-  return [hit.get('_source').get('billnumber') for hit in res['hits']['hits']]
+  return [hit.get('_source').get('billnumber') for hit in getHits(res)]
 
 def getInnerResults(res):
-   return [hit['inner_hits'] for hit in res['hits']['hits']]
+   return [hit.get('inner_hits') for hit in getHits(res)]
+
+def getSimilarSections(res):
+  similarSections = []
+  try:
+    hits = getHits(res)
+    innerResults = getInnerResults(res)
+    print('Length of innerResults: {0}'.format(len(innerResults)))
+    for index, hit in enumerate(hits):
+      innerResultSections = getHits(innerResults[index].get('sections'))
+      billSource = hit.get('_source')
+      title = ''
+      dublinCore = ''
+      dublinCores = billSource.get('dc', [])
+      if dublinCores:
+        dublinCore = dublinCores[0]
+
+      titleMatch = re.search(r'<dc:title>(.*)?<', dublinCore)
+      if titleMatch:
+        title = titleMatch[1].strip()
+      match = {
+        "score": innerResultSections[0].get('_score', ''),
+        "billnumber": billSource.get('billnumber', ''),
+        "congress": billSource.get('_source', {}).get('congress', ''),
+        "session": billSource.get('session', ''),
+        "legisnum": billSource.get('legisnum', ''),
+        "title": title,
+        "section_num": innerResultSections[0].get('_source', {}).get('section_num', ''),
+        "section_header": innerResultSections[0].get('_source', {}).get('section_header', ''),
+        "section_xml": innerResultSections[0].get('_source', {}).get('section_xml', ''),
+        "section_text": innerResultSections[0].get('_source', {}).get('section_text', '')
+      }
+      similarSections.append(match)
+    return similarSections 
+  except Exception as err:
+    print(err)
+    return []
 
 if __name__ == "__main__": 
-  createIndex(delete=True)
+  createIndex(delete=False)
   indexBills()
   refreshIndices()
   res = runQuery()

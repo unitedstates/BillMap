@@ -8,7 +8,7 @@ from django.conf import settings
 from functools import reduce
 import json
 from typing import Dict
-
+from flatgovtools.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
 def deep_get(dictionary: Dict, *keys):
   """
@@ -86,6 +86,33 @@ def makeName(commaName):
         return ''
     return ' '.join(reversed(commaName.split(',')))
 
+def similar_bills_view(request):
+    noResults = False
+    # after the redirect (in the views.py that handles your redirect)
+    queryText = request.session.get('queryText')
+    if not queryText:
+        queryText = ''
+    res = moreLikeThis(queryText = queryText) 
+    similarBillNumbers = getResultBillnumbers(res)
+    print(similarBillNumbers)
+    similarSections = getSimilarSections(res)
+    bestMatch = {}
+    if not similarSections or len(similarSections) == 0:
+        noResults = True 
+    else:
+        bestMatch = similarSections[0]
+    
+    context = {
+        "billQuery": {
+            "queryText": queryText,
+            "bestMatch": bestMatch,
+            "similarBillNumbers": similarBillNumbers,
+            "similarSections": json.dumps(similarSections), 
+            "noResults": noResults
+        }
+    }
+    return render(request, 'bills/bill-similar.html', context)
+
 def bill_view(request, bill):
     context = {'billCongressTypeNumber': bill, 'bill': {}}
 
@@ -105,6 +132,8 @@ def bill_view(request, bill):
             relatedBillData = json.load(f)
 
         relatedBills = deep_get(relatedBillData, 'related')
+        if not relatedBills:
+            relatedBills = {} 
     
         context['bill']['meta'] = bill_meta
         bill_summary = deep_get(bill_meta, 'summary', 'text')
@@ -117,7 +146,7 @@ def bill_view(request, bill):
 
         relatedTable = []
         for bctn in bctns:
-            relatedTableItem = relatedBills.get(bctn, '')
+            relatedTableItem = relatedBills.get(bctn, {})
             relatedTableItem['billCongressTypeNumber'] = bctn
             # TODO handle the same bill number (maybe put it at the top?)
             if bill == bctn:
@@ -144,7 +173,11 @@ def bill_view(request, bill):
         context['bill']['related_table'] =  json.dumps(relatedTable)
 
         context['bill']['type_abbrev'] = makeTypeAbbrev(bill_type)
-        sponsor_name = cleanSponsorName(deep_get(bill_meta, 'sponsor', 'name'))
+        meta_sponsor_name = deep_get(bill_meta, 'sponsor', 'name')
+        if meta_sponsor_name:
+            sponsor_name = cleanSponsorName(meta_sponsor_name)
+        else:
+            sponsor_name = ''
         title = deep_get(bill_meta, 'sponsor', 'title')
         if not title:
             title = ''

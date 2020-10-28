@@ -1,9 +1,11 @@
 import os
 import json
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.conf import settings
-from django.http import HttpResponse
-from django.http import JsonResponse
+from django.http import HttpResponse, JsonResponse
+
+from .forms import QueryForm
+
 
 CONGRESS_DATA_PATH = getattr(settings, "CONGRESS_DATA_PATH", None) 
 BILL_LIST_PATH = os.path.join(CONGRESS_DATA_PATH, 'billList.json')
@@ -24,4 +26,16 @@ def getBillsList(request):
     return JsonResponse(context)
 
 def home_view(request):
-    return render(request, 'home/home.html')
+    if request.method == "POST":
+        form = QueryForm(request.POST)
+        if form.is_valid():
+            cd = form.cleaned_data
+            #now in the object cd, you have the form as a dictionary.
+            queryText = cd.get('queryText')
+        else:
+            queryText = ''
+        request.session['queryText'] = queryText 
+        return redirect('/bills/similar')
+    else:
+        form = QueryForm()
+    return render(request, 'home/home.html', {'form': form})

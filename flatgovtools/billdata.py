@@ -7,11 +7,9 @@ from typing import Dict
 from functools import reduce
 
 try:
-  from . import constants
-  from . import utils
+  from flatgovtools import constants, utils
 except:
-  import constants
-  import utils
+  from . import constants, utils
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
@@ -43,7 +41,7 @@ def getBillFromDirname(dirName: str) -> str:
   if m and m.groups():
     return ''.join(list(m.groups()))
   else:
-    return None
+    return '' 
   
 
 def getTopBillLevel(dirName: str):
@@ -165,14 +163,14 @@ def loadDataJSON(billNumber: str, congressDataDir = constants.PATH_TO_CONGRESSDA
     [congress, billType, numberOfBill, billVersion] = billNumberMatch.groups()
     billTypeNumber = billType + numberOfBill
   else:
-    logger.warning('Bill number is not of the correct form (e.g. 116hr200): ' + billNumber)
+    logger.warning('Bill number is not of the correct form (e.g. 116hr200): {0}'.format(billNumber))
     return
 
   dataJSONPath = os.path.join(congressDataDir, congress, 'bills', billType, billTypeNumber, 'data.json') 
   if os.path.isfile(dataJSONPath):
     return loadJSON(dataJSONPath)
   else:
-    logger.warning('No data.json found for: ' + billNumber + ' at ' + dataJSONPath) 
+    logger.warning('No data.json found for: {0} at {1}'.format(billNumber, dataJSONPath)) 
     return
 
 def loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META, zip = True):
@@ -182,13 +180,13 @@ def loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META, zip = True):
       with gzip.open(billMetaPath + '.gz', 'rt', encoding='utf-8') as zipfile:
         billsMeta = json.load(zipfile)
     except:
-      raise Exception('No file at' + billMetaPath + '.gz')
+      raise Exception('No file at {0}.gz'.format(billMetaPath))
   else:
     try:
       with open(billMetaPath, 'r') as f:
         billsMeta = json.load(f)
     except:
-      raise Exception('No file at' + billMetaPath + '.gz')
+      raise Exception('No file at {0}.gz'.format(billMetaPath))
   
   return billsMeta
 

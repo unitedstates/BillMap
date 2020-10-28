@@ -4,6 +4,27 @@ import datetime
 import os
 from copy import deepcopy
 from re import S
+import pkgutil
+import json
+
+PATH_SEC_602 = os.path.join('samples', '116hr5150-sec602.txt')
+PATH_MAL = os.path.join('samples', 'maralago.txt')
+PATH_BILLSECTIONS_JSON = os.path.join('elasticsearch', 'billsections_mapping.json')
+
+try:
+  SAMPLE_TEXT_602 = str(pkgutil.get_data(__name__, PATH_SEC_602))
+  SAMPLE_TEXT_MAL = str(pkgutil.get_data(__name__, PATH_MAL))
+  BILLSECTION_MAPPING = json.loads(pkgutil.get_data(__name__, PATH_BILLSECTIONS_JSON).decode("utf-8"))
+except Exception as err:
+  print(err)
+  with open(PATH_SEC_602, 'r') as f:
+    SAMPLE_TEXT_602 = f.read() 
+
+  with open(PATH_MAL, 'r') as f:
+    SAMPLE_TEXT_MAL = f.read() 
+
+  with open(PATH_BILLSECTIONS_JSON, 'r') as f:
+    BILLSECTION_MAPPING = json.load(f)
 
 PATH_TO_BILLS_META = os.path.join('..', 'billsMeta.json')
 PATH_TO_CONGRESSDATA_DIR = os.path.join('..', '..', 'congress', 'data')
@@ -103,9 +124,15 @@ quality_date_guidance = """
 The Commissioner of Food and Drugs and the Secretary of Agriculture shall establish guidance for food labelers on how to determine quality dates and safety dates for food products.
 """
 
-def getSampleText(text_path: str = '../samples/maralago.txt'):
-  with open(text_path, 'r') as f:
-    return f.read()
+def getQueryText(text_path: str=''):
+  if not text_path or text_path == '':
+    return SAMPLE_TEXT_MAL
+  else:
+    with open(text_path, 'r') as f:
+      queryText = f.read()
+    if not queryText:
+      queryText = ''
+    return queryText
 
 # more like this query (working)
 SAMPLE_QUERY_NESTED_MLT = {
@@ -133,6 +160,17 @@ SAMPLE_QUERY_NESTED_MLT = {
 }
 
 SAMPLE_QUERY_NESTED_MLT_MARALAGO =  deepcopy(SAMPLE_QUERY_NESTED_MLT)
-SAMPLE_QUERY_NESTED_MLT_MARALAGO['query']['nested']['query']['more_like_this']['like'] = getSampleText()
+SAMPLE_QUERY_NESTED_MLT_MARALAGO['query']['nested']['query']['more_like_this']['like'] = getQueryText()
 SAMPLE_QUERY_NESTED_MLT_116hr5150sec602 = deepcopy(SAMPLE_QUERY_NESTED_MLT)
-SAMPLE_QUERY_NESTED_MLT_116hr5150sec602['query']['nested']['query']['more_like_this']['like'] = getSampleText('../samples/116hr5150-sec602.txt')
+SAMPLE_QUERY_NESTED_MLT_116hr5150sec602['query']['nested']['query']['more_like_this']['like'] = SAMPLE_TEXT_602
+
+def makeMLTQuery(queryText: str, queryTextPath: str=''):
+  if queryTextPath and not queryText:
+    try:
+      queryText = getQueryText(queryTextPath)
+    except Exception as err:
+      raise Exception('Error getting text from path: {0}'.format(err))
+
+  newQuery = deepcopy(SAMPLE_QUERY_NESTED_MLT)
+  newQuery['query']['nested']['query']['more_like_this']['like'] = queryText 
+  return newQuery

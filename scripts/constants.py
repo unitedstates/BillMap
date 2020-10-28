@@ -103,7 +103,7 @@ quality_date_guidance = """
 The Commissioner of Food and Drugs and the Secretary of Agriculture shall establish guidance for food labelers on how to determine quality dates and safety dates for food products.
 """
 
-def getSampleText(text_path: str = '../samples/maralago.txt'):
+def getQueryText(text_path: str = '../samples/maralago.txt'):
   with open(text_path, 'r') as f:
     return f.read()
 
@@ -133,17 +133,17 @@ SAMPLE_QUERY_NESTED_MLT = {
 }
 
 SAMPLE_QUERY_NESTED_MLT_MARALAGO =  deepcopy(SAMPLE_QUERY_NESTED_MLT)
-SAMPLE_QUERY_NESTED_MLT_MARALAGO['query']['nested']['query']['more_like_this']['like'] = getSampleText()
+SAMPLE_QUERY_NESTED_MLT_MARALAGO['query']['nested']['query']['more_like_this']['like'] = getQueryText()
 SAMPLE_QUERY_NESTED_MLT_116hr5150sec602 = deepcopy(SAMPLE_QUERY_NESTED_MLT)
-SAMPLE_QUERY_NESTED_MLT_116hr5150sec602['query']['nested']['query']['more_like_this']['like'] = getSampleText('../samples/116hr5150-sec602.txt')
+SAMPLE_QUERY_NESTED_MLT_116hr5150sec602['query']['nested']['query']['more_like_this']['like'] = getQueryText('../samples/116hr5150-sec602.txt')
 
-def makeMLTQuery(sampleText: str, sampleTextPath: str='../samples/116hr5150-sec602.txt'):
-  if not sampleText and sampleTextPath:
+def makeMLTQuery(queryText: str, queryTextPath: str='../samples/116hr5150-sec602.txt'):
+  if queryTextPath and not queryText:
     try:
-      sampleText = getSampleText(sampleTextPath)
+      queryText = getQueryText(queryTextPath)
     except Exception as err:
       raise Exception('Error getting text from path: {0}'.format(err))
 
   newQuery = deepcopy(SAMPLE_QUERY_NESTED_MLT)
-  newQuery['query']['nested']['query']['more_like_this']['like'] = sampleText 
+  newQuery['query']['nested']['query']['more_like_this']['like'] = queryText 
   return newQuery

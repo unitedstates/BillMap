@@ -87,7 +87,17 @@ def makeName(commaName):
     return ' '.join(reversed(commaName.split(',')))
 
 def similar_bills_view(request):
-    context = {}
+    # after the redirect (in the views.py that handles your redirect)
+    queryText = request.session.get('queryText')
+    if not queryText:
+        queryText = ''
+
+    print(queryText)
+    context = {
+        "billQuery": {
+            "textSearched": queryText
+        }
+    }
     return render(request, 'bills/bill-similar.html', context)
 
 def bill_view(request, bill):

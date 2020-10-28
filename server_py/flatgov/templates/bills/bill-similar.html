@@ -41,7 +41,7 @@
         margin-right: 1%;
       }
 
-      .committee-jurisdiction {
+      .best-match {
         width: 549px;
         border-radius: 10px;
       }
@@ -237,15 +237,24 @@
       <div class="d-flex flex-wrap">
         <div class="bill light-gray-body p-4 mb-2">
           <h4 class="pb-2">Text Entered</h4>
-          <p>{{billQuery.textSearched}}</p>
+          <p>{{billQuery.queryText}}</p>
         </div>
-        <div class="top-match light-gray-body p-4 mb-2">
+        {% if billQuery.noResult %}
+        <div class="best-match light-gray-body p-4 mb-2">
+          <h4>[No Matching Bill]</h4>
+        </div>
+        {% endif %}
+
+        {% if billQuery.bestMatch and not billQuery.noResult %}
+        <div class="best-match light-gray-body p-4 mb-2">
           <h4>Best Match</h4>
-          <h5>{{searchResponse.bestMatch.billnumber}}</p>
-          <h5>{{searchResponse.bestMatch.legisnum}}</p>
-          <p>{{searchResponse.bestMatch.section_text}}</p>
+          <h6>{{billQuery.bestMatch.billnumber}}</h6>
+          <h6>Score: {{billQuery.bestMatch.score}}</h6>
+          <p>{{billQuery.bestMatch.section_xml|safe|truncatechars:2000}}</p>
         </div>
+        {% endif %}
       </div>
+      {% if not billQuery.noResult or not billQuery.bestMatch %}
       <div class="similar-bills mt-4">
         <h4>Similar Bills</h4>
         <span class="small">
@@ -262,6 +271,7 @@
           </div>
         </div>
       </div>
+     {% endif %}
 
       <!-- jQuery first, then Popper.js, then Bootstrap JS -->
       <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
@@ -278,10 +288,9 @@
     Footer
   </footer>
   <script type="text/javascript">
-    var similar_bills = JSON.parse(`{{ bill.related_table|safe|escapejs }}`);
-    var titlesYearNotEmpty = similar_bills.filter(item => item.titles_year_list) ? similar_bills.filter(item => item.titles_year_list).length > 0 : false;
-    console.log(similar_bills.filter(item => item.titles_year_list));
-    console.log(titlesYearNotEmpty);
+    var similar_bills = JSON.parse(`{{ billQuery.similarSections|safe|escapejs }}`);
+    console.log(similar_bills)
+
     //create Tabulator on DOM element with id "example-table"
     var table = new Tabulator("#similar-bills-table", {
       // rowFormatter:function(row){
@@ -293,73 +302,21 @@
       columns: [ //Define Table Columns
         {
           title: "Bill",
-          field: "billCongressTypeNumber",
+          field: "billnumber",
           width: 150
         },
         {
-          title: "Reason",
-          field: "reason",
+          title: "Score",
+          field: "score",
           width: 100
         },
         {
-          title: "Titles (shared)",
-          field: "titles_list"
-        },
-        {
-          title: "Titles (similar)",
-          field: "titles_year_list",
-          visible: titlesYearNotEmpty
-        },
-        {
-          title: "Sponsor (shared)",
-          field: "sponsor_name",
-          width: 150
-        },
-        {
-          title: "Shared cosponsors",
-          field: "cosponsor_names"
-        },
-        {
-          title: "Id By",
-          field: "identified_by",
-          width: 100
+          title: "Title",
+          field: "title"
         }
       ]
     });
-    var table = new Tabulator("#committee-jurisdiction-table", {
-      // rowFormatter:function(row){
-    });
-    var sponsors_table = JSON.parse(`{{ bill.cosponsors_table|safe|escapejs }}`);
-    //create Tabulator on DOM element with id "example-table"
-    var table = new Tabulator("#cosponsors-table", {
-      height: 205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
-      data: sponsors_table, //assign data to table
-      layout: "fitColumns", //fit columns to width of table (optional)
-      columns: [ //Define Table Columns
-        {
-          title: "Co-Sponsor",
-          field: "name_clean",
-          width: 150
-        },
-        {
-          title: "Bill",
-          field: "bills_str"
-        },
-        {
-          title: "Committees",
-          field: "committees",
-          width: 150
-        },
-        {
-          title: "Party",
-          field: "party"
-        },
-        {
-          title: "Position",
-          field: "position"
-        },
-      ]
-    });
+    
   </script>
 
 </html>

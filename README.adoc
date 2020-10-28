@@ -50,11 +50,11 @@ $ pip install -r requirements.txt
 ```
 
 ```bash
-$ cd /path/to/FlatGov/scripts
+$ cd /path/to/FlatGov/flatgovtools
 $ pip install -r requirements.txt
 ```
 
-The requirements for `scripts` and `server_py` are separate. But for simplicity, it's probably best to load them both in a single virtual environment.
+The requirements for `flatgovtools` and `server_py` are separate. But for simplicity, it's probably best to load them both in a single virtual environment.
 
 #### Create .env file 
 
@@ -98,7 +98,7 @@ Alternately, use scripts to scrape the `congress` directory and generate metadat
 
  1. Run `download_bills.sh`
   ```bash
-  $ cd /path/to/scripts
+  $ cd /path/to/flatgovtools
   $ ./download_bills.sh # The file must be executable, which requires running: chmod u+x ./download_bills.sh
   # This command downloads, unzips and prepares the `congress` directory. It may take ~ 20 minutes.
   ```
@@ -113,7 +113,7 @@ Alternately, use scripts to scrape the `congress` directory and generate metadat
  3. Run `relatedBills.py`
 
   ```bash
-   $ cd /path/to/scripts
+   $ cd /path/to/flatgovtools
    $ pyenv activate flatgov 
    $ python billdata.py #runs the billdata script
    # Can take quite a while (~ 30 min to an hour)
@@ -141,7 +141,7 @@ http://localhost:8000/bills/116hr1500enr
 
 ## Data Background
 
-This repository contains scripts in the `/scripts` directory that download and process bill data. The default location for the data is in the parent directory of this repository (`FlatgovDir`, described above).
+This repository contains scripts in the `/flatgovtools` directory that download and process bill data. The default location for the data is in the parent directory of this repository (`FlatgovDir`, described above).
 
 ### Bulk downloads: bill metadata
 
@@ -155,7 +155,7 @@ https://s3.amazonaws.com/pp-projects-static/congress/bills/110.zip?_ga=2.1596179
 
 Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily. The metadata is sufficient to test many of the functions in this library. Bill text comparison requires bulk download or scraping of the text.
 
-A script to download and organize these files is provided in `scripts/bulk_downloads.sh`.
+A script to download and organize these files is provided in `flatgovtools/bulk_downloads.sh`.
 
 To start, it is sufficient to download a few recent congresses (e.g. `116, 115, 114, 113`). Unzip, and copy the deepest directory into a single hierarchy so that you have:
 

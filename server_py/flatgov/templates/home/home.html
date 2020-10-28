@@ -196,9 +196,7 @@ span.twitter-typeahead {
 
       }
 .or-div{
-  margin-left: 50px;
   margin-top: 20px;
-  margin-bottom: 20px;
 }
 
 label {
@@ -245,41 +243,33 @@ label textarea{
     <div class="container">
       <div class="light-gray-body my-5">
         <div class="title">
-          <h1>BillCheck</h1>
+          <h1>Bill Navigator</h1>
           <p class="lead">A resource for advocates and researchers to gain knowledge regarding current and previous bills.</p>
-          <p class="lead">Navigate through bills' ecosystem by looking at their sponsors, reports, related bills and more.</p>
         </div>
       </div>
-      <div class="search mb-4">
-        <p>Search for bills from the 110th Congress forward.</p>
-        <div >
-          <input id="bill-search" type="text" class="typeahead" placeholder="Search for bill">
-          <!--<a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>-->
-        </div>
-        <div class="or-div">
-          <h2>OR</h2>
-        </div>
-        <div id="bill-text-div">
-          <form action="" method="POST" class="post-form">{% csrf_token %}
-            {{ form.as_p }}
-            <input class="btn btn-outline-primary" type="submit" value="Find similar bills">
-          </form>
-        </div>
-        <!--
-          <p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings.</p>
-        <div class="light-gray-body">
-          <div class="input-group">
-              <input type="text" class="form-control" placeholder="Search for bill">
-            <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button">
-                <i class="fa fa-search" aria-hidden="true"></i>
-              </button>
-              -->
-            </div>
+      <div class="d-flex flex-nowrap">
+        <div class="search p-4 mb-4">
+          <p>Search for bills from the 110th through the current Congress</p>
+          <div >
+            <input id="bill-search" type="text" class="typeahead" placeholder="Search for bill">
+            <!--<a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>-->
           </div>
         </div>
-      </div>
+        <div class="or-div p-1">
+          <h2>OR</h2>
+        </div>
+        <div class="search p-4 mb-4">
+          <div id="bill-text-div">
+            <form action="" method="POST" class="post-form">{% csrf_token %}
+              {{ form.as_p }}
+              <input class="btn btn-outline-primary" type="submit" value="Find similar bills">
+            </form>
+          </div>
+        </div>
+       </div>
     </div>
+    </div>
+   </div>
 
       <!-- jQuery first, then Popper.js, then Bootstrap JS and typeahead -->
       <!-- Uses the full version of jQuery for ajax functions -->

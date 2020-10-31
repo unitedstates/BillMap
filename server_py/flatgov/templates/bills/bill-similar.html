@@ -249,7 +249,7 @@
         <div class="best-match light-gray-body p-4 mb-2">
           <h4>Best Match</h4>
           <h6>{{billQuery.bestMatch.billnumber}}</h6>
-          <h6>Score: {{billQuery.bestMatch.score}}</h6>
+          <h6>Score: {{billQuery.bestMatch.score|floatformat:1}}</h6>
           <p>{{billQuery.bestMatch.section_xml|safe|truncatechars:2000}}</p>
         </div>
         {% endif %}
@@ -291,11 +291,17 @@
     var similar_bills = JSON.parse(`{{ billQuery.similarSections|safe|escapejs }}`);
     console.log(similar_bills)
 
-    const roundDownFormatter = function(cell, formatterParams, onRendered){
-      //cell - the cell component
-      //formatterParams - parameters set for the column
-      //onRendered - function to call when the formatter has been rendered
-      return Math.round(cell.getValue()); //return the contents of the cell;
+    // see https://stackoverflow.com/a/7343013/628748
+    const round = function(value, precision) {
+      const multiplier = Math.pow(10, precision || 0);
+      return Math.round(value * multiplier) / multiplier;
+    }
+
+    const roundFormatter = function(cell, formatterParams, onRendered){
+      // cell - the cell component
+      // formatterParams - parameters set for the column
+      // onRendered - function to call when the formatter has been rendered
+      return round(cell.getValue(), 1); // round to one decimal
     }
 
     //create Tabulator on DOM element with id "example-table"
@@ -315,12 +321,17 @@
         {
           title: "Score",
           field: "score",
-          formatter:rounddownFormatter,
+          formatter:roundFormatter,
           width: 100
         },
         {
           title: "Title",
           field: "title"
+        },
+        {
+          title: "Section header",
+          field: "section_header"
+
         }
       ]
     });

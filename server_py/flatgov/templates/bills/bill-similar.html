@@ -291,6 +291,13 @@
     var similar_bills = JSON.parse(`{{ billQuery.similarSections|safe|escapejs }}`);
     console.log(similar_bills)
 
+    const roundDownFormatter = function(cell, formatterParams, onRendered){
+      //cell - the cell component
+      //formatterParams - parameters set for the column
+      //onRendered - function to call when the formatter has been rendered
+      return Math.round(cell.getValue()); //return the contents of the cell;
+    }
+
     //create Tabulator on DOM element with id "example-table"
     var table = new Tabulator("#similar-bills-table", {
       // rowFormatter:function(row){
@@ -308,6 +315,7 @@
         {
           title: "Score",
           field: "score",
+          formatter:rounddownFormatter,
           width: 100
         },
         {

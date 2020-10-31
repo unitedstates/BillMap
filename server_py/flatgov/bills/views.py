@@ -1,5 +1,6 @@
 import os
 from django.shortcuts import render
+from operator import itemgetter
 
 # Create your views here.
 
@@ -94,13 +95,12 @@ def similar_bills_view(request):
         queryText = ''
     res = moreLikeThis(queryText = queryText) 
     similarBillNumbers = getResultBillnumbers(res)
-    print(similarBillNumbers)
     similarSections = getSimilarSections(res)
     bestMatch = {}
     if not similarSections or len(similarSections) == 0:
         noResults = True 
     else:
-        bestMatch = similarSections[0]
+        bestMatch = max(similarSections, key=itemgetter('score'))
     
     context = {
         "billQuery": {

@@ -147,7 +147,6 @@ def getSimilarSections(res):
   try:
     hits = getHits(res)
     innerResults = getInnerResults(res)
-    print('Length of innerResults: {0}'.format(len(innerResults)))
     for index, hit in enumerate(hits):
       innerResultSections = getHits(innerResults[index].get('sections'))
       billSource = hit.get('_source')

@@ -95,12 +95,12 @@ def similar_bills_view(request):
         queryText = ''
     res = moreLikeThis(queryText = queryText) 
     similarBillNumbers = getResultBillnumbers(res)
-    similarSections = getSimilarSections(res)
+    similarSections = sorted(getSimilarSections(res), key=itemgetter('score'), reverse=True)
     bestMatch = {}
     if not similarSections or len(similarSections) == 0:
         noResults = True 
     else:
-        bestMatch = max(similarSections, key=itemgetter('score'))
+        bestMatch = similarSections[0]
     
     context = {
         "billQuery": {

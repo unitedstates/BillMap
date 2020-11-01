@@ -121,8 +121,8 @@ def refreshIndices(index: str="billsections"):
   es.indices.refresh(index=index)
 
 # res = es.search(index="billsections", body={"query": {"match_all": {}}})
-def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO) -> dict:
-  return es.search(index=index, body=query)
+def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO, size: int=10) -> dict:
+  return es.search(index=index, body=query, size=size)
 
 def moreLikeThis(queryText: str, index: str='billsections'):
   query = constants.makeMLTQuery(queryText)

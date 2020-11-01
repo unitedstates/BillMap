@@ -202,12 +202,15 @@ $ nvm alias default  v14.15.0
 * Load data to Elasticsearch
 
 ```bash
+nohup \
 elasticdump \
   --input="${file_name}.json" \
-  --output=http://localhost:9200/billsections
-  --limit=5
-  --fileSize=10mb 
+  --output=http://localhost:9200/billsections \
+  --limit=1 \ 
+  --fileSize=100kb &
 ```
+
+nohup elasticdump --input="elasticdump.billsections.json" --output=http://localhost:9200/billsections --fileSize=100kb --limit=10
 
 The `limit` and `fileSize` options slow loading into the index, but prevent Elasticsearch from crashing due to memory limits.
 

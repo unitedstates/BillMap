@@ -659,7 +659,9 @@
         {
           title: "Bill",
           field: "billCongressTypeNumber",
-          width: 150
+          width: 150,
+          formatter: "link",
+          formatterParams: {labelField: "billCongressTypeNumber", urlPrefix: "/bills/", urlField: "billCongressTypeNumber"},
         },
         {
           title: "Reason",

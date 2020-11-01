@@ -200,7 +200,16 @@ $ nvm alias default  v14.15.0
 `gzip -d elasticdump.billsections.json.gz`
 
 * Load data to Elasticsearch
- 
+
+```bash
+elasticdump \
+  --input="${file_name}.json" \
+  --output=http://localhost:9200/billsections
+  --limit=5
+  --fileSize=10mb 
+```
+
+The `limit` and `fileSize` options slow loading into the index, but prevent Elasticsearch from crashing due to memory limits.
 
 #### Install and Configure Nginx 
 

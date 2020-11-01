@@ -159,6 +159,10 @@ def getSimilarSections(res):
       titleMatch = re.search(r'<dc:title>(.*)?<', dublinCore)
       if titleMatch:
         title = titleMatch[1].strip()
+      num = innerResultSections[0].get('_source', {}).get('section_number', '')
+      if num:
+        num = num + " "
+      header = innerResultSections[0].get('_source', {}).get('section_header', '')
       match = {
         "score": innerResultSections[0].get('_score', ''),
         "billnumber": billSource.get('billnumber', ''),
@@ -166,8 +170,9 @@ def getSimilarSections(res):
         "session": billSource.get('session', ''),
         "legisnum": billSource.get('legisnum', ''),
         "title": title,
-        "section_num": innerResultSections[0].get('_source', {}).get('section_num', ''),
-        "section_header": innerResultSections[0].get('_source', {}).get('section_header', ''),
+        "section_num": num,
+        "section_header": header,
+        "section_num_header": num + header, 
         "section_xml": innerResultSections[0].get('_source', {}).get('section_xml', ''),
         "section_text": innerResultSections[0].get('_source', {}).get('section_text', '')
       }

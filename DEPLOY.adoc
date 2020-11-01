@@ -214,6 +214,8 @@ nohup elasticdump --input="elasticdump.billsections.json" --output=http://localh
 
 The `limit` and `fileSize` options slow loading into the index, but prevent Elasticsearch from crashing due to memory limits.
 
+NOTE: To avoid crashes with Elasticsearch, it may be helpful to add swap memory. See https://linuxize.com/post/how-to-add-swap-space-on-ubuntu-18-04/
+
 #### Install and Configure Nginx 
 
 * Install Nginx

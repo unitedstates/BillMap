@@ -133,7 +133,7 @@ NOTE: The uncompressing may also take some time.
 
 `$ ln -s /opt/flatgov/congress /opt/flatgov/FlatGov/flatgov/server_py/congress`
 
-#### Install flatgov depencencies
+#### Install flatgov dependencies
 
 Ensure that the `flatgov` virtual environment is activated:
 `pyenv activate flatgov`
@@ -144,6 +144,63 @@ $ cd /opt/flatgov/FlatGov
 $ pip install -r requirements.txt
 $ pip install -r server_py/requirements.txt
 ```
+
+#### Install Elasticsearch (for similarity data)
+
+See https://www.elastic.co/guide/en/elasticsearch/reference/current/deb.html
+
+* Download and install public signing key
+
+`wget -qO - https://artifacts.elastic.co/GPG-KEY-elasticsearch | sudo apt-key add -`
+
+* Install Apt https transport
+
+`sudo apt-get install apt-transport-https`
+
+* Save repository definition
+
+`echo "deb https://artifacts.elastic.co/packages/7.x/apt stable main" | sudo tee /etc/apt/sources.list.d/elastic-7.x.list`
+
+* Install elasticsearch debian package
+
+`sudo apt-get update && sudo apt-get install elasticsearch`
+
+* Configure systemd to start Elasticsearch
+
+```bash
+sudo /bin/systemctl daemon-reload
+sudo /bin/systemctl enable elasticsearch.service
+```
+
+* Start Elasticsearch
+
+`sudo systemctl start elasticsearch.service`
+
+
+#### Install Elasticdump to restore and backup data (requires NodeJS and NPM)
+
+* Install nvm and LTS version of NodeJS (apt version is quite old)
+```bash
+$ curl -sL https://raw.githubusercontent.com/creationix/nvm/v0.35.3/install.sh -o install_nvm.sh
+$ bash install_nvm.sh
+$ nvm install v14.15.0
+$ nvm use  v14.15.0
+$ nvm alias default  v14.15.0
+
+```
+
+* Install elasticdump globally
+
+`npm install elasticdump -g`
+
+##### Restore index data
+
+* Unzip data
+
+`gzip -d elasticdump.billsections.json.gz`
+
+* Load data to Elasticsearch
+ 
 
 #### Install and Configure Nginx 
 

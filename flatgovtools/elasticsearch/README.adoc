@@ -45,6 +45,42 @@ Once a bill is converted into the form above, it is indexed. Both as a whole doc
 
 NOTE: When an inner mapping field is set with a 'similarity' key   (e.g. ``"section_text": {"type": "text", "similarity": "classic"}`), it appears to break the nesting; the nested query no longer works and an Exception is thrown, indicating that 'sections' is not a nested field.
 
+### Backup and restore with elasticdump
+
+* Install `elasticdump` command-line application with npm
+
+`npm install -g elasticdump`
+
+* Store `billsections` index to a .gz file
+
+`elasticdump --input=http://localhost:9200/billsections --output=$   | gzip > ./elasticdump.billsections.json.gz`
+
+* Import data from `.json`
+
+** Unzip the `.json.gz`
+
+`gzip -d elasticdump.billsections.json.gz` 
+
+** Restore data to Elasticsearch
+
+```
+# Import data from .json into ES
+elasticdump \
+  --input "${file_name}.json" \
+  --output=http://localhost:9200/billsections
+```
+
+Or import from S3
+
+```
+# Import data from S3 into ES (using s3urls) 
+elasticdump \
+  --s3AccessKeyId "${access_key_id}" \
+  --s3SecretAccessKey "${access_key_secret}" \
+  --input "s3://${bucket_name}/${file_name}.json" \
+  --output=http://localhost:9200/billsections
+ ```
+
 ### Install Logstash
 
 NOTE: we are not using Logstash to index; the logstash-filter.conf we built in the `elasticsearch` directory does not (yet) work.

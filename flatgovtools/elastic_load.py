@@ -82,11 +82,11 @@ def indexBill(bill_path: str=PATH_BILL):
       'billnumber': billnumber_text,
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
-          'section_number': section.find('enum').text,
-          'section_header':  section.find('header').text,
+          'section_number': section.xpath('enum')[0].text,
+          'section_header':  section.xpath('header')[0].text,
           'section_text': etree.tostring(section, method="text", encoding="unicode"),
           'section_xml': etree.tostring(section, method="xml", encoding="unicode")
-      } if (section.find('header') and section.find('enum')) else
+      } if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0) else
       {
           'section_number': '',
           'section_header': '', 
@@ -147,7 +147,6 @@ def getSimilarSections(res):
   try:
     hits = getHits(res)
     innerResults = getInnerResults(res)
-    print('Length of innerResults: {0}'.format(len(innerResults)))
     for index, hit in enumerate(hits):
       innerResultSections = getHits(innerResults[index].get('sections'))
       billSource = hit.get('_source')
@@ -179,7 +178,7 @@ def getSimilarSections(res):
     return []
 
 if __name__ == "__main__": 
-  createIndex(delete=False)
+  createIndex(delete=True)
   indexBills()
   refreshIndices()
   res = runQuery()

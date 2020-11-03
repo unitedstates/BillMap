@@ -79,7 +79,7 @@ elasticdump \
   --s3SecretAccessKey "${access_key_secret}" \
   --input "s3://${bucket_name}/${file_name}.json" \
   --output=http://localhost:9200/billsections
- ```
+```
 
 ### Install Logstash
 

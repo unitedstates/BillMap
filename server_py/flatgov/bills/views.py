@@ -9,7 +9,7 @@ from django.conf import settings
 from functools import reduce
 import json
 from typing import Dict
-from flatgovtools.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
+from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
 def deep_get(dictionary: Dict, *keys):
   """

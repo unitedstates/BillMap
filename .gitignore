@@ -47,6 +47,8 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+Pipfile
+Pipfile.lock
 
 # Sandbox Data
 relatedBills.json
@@ -56,6 +58,7 @@ billsMeta.json.gz
 titlesIndex.json
 titlesIndex.json.gz
 /congress
+tmp/
 
 # Mac artifacts
 .DS_Store

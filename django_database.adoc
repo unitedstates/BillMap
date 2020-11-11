@@ -1,0 +1,70 @@
+# Setting up the FlatGov db for Django
+
+We are storing the data for this application in a SQL (Postgres) database to make use of the Django ORM.
+
+## Added Bill, Sponsor model to bills app.
+
+At the moment, we have 2 models - Bill & Sponsor. We will need to add more models and fields in the future.
+
+
+## Update environment variables
+
+1. Add 2 env vars.
+In `~/.bash_profile` or `~/.bashrc`
+`DJANGO_SETTINGS_MODULE=flatgov.dev`
+`SECRET_KEY=setAKeyInPrductioSECRET_KEY=setAKeyInPrductionn`
+
+Or, temporarily, from the command line:
+```bash
+$export DJANGO_SETTINGS_MODULE=flatgov.dev
+$export SECRET_KEY=setAKeyInPrductioSECRET_KEY=setAKeyInPrductionn
+```
+
+## Download tmp files
+1. Download tmp files in fetch_bill app. `~Flatgov/server_py/flatgov/fetch_bill$ ./download_bills.sh`
+2. You can find `congress` directory in here - `~FlatGov/server_py/flatgov/congress`
+
+## Install Postgres and set up flatgov database
+
+See https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04
+
+### Install PostgreSQL
+
+On a Mac, this can be done with `brew install postgresql`, on Linux  `sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib`
+
+### Set up the FlatGov database
+
+* Start `psql` command line. 
+
+On a Mac, with the `postgres` user, enter the psql command line this way:
+
+`psql -h localhost -d postgres`
+
+* Create the `flatgov` db and `vmm` user
+
+```bash
+postgres=# CREATE DATABASE flatgov;
+CREATE DATABASE
+postgres=# CREATE USER vmm WITH PASSWORD 'vmm';
+CREATE ROLE
+postgres=# ALTER ROLE vmm SET client_encoding TO 'utf8';
+ALTER ROLE
+postgres=# ALTER ROLE vmm SET default_transaction_isolation TO 'read committed';
+ALTER ROLE
+postgres=# ALTER ROLE vmm SET timezone TO 'UTC';
+ALTER ROLE
+postgres=# GRANT ALL PRIVILEGES ON DATABASE flatgov TO vmm;
+GRANT
+postgres=# \q
+flatgov{flatgov}$ 
+```
+
+Restart `postgresql` (may not be necessary):
+`brew services restart postgresql`
+
+## Create billsMeta.json file via Django command.
+
+1. Given that we are using django orm for database, we can store bill, sponsor data via django command.
+2. `~FlatGov/server_py/flatgov/common` directory contains all the django commands.
+3. Run `billdata.py` - `$python manage.py bill_data`
+4. While running `billdata.py` file, it creates bill, sponsor objects and add proper relations.

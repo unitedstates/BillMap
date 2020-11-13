@@ -99,6 +99,8 @@ Running migrations:
 Given that we are using django orm for database, we can store bill, sponsor data via django command.
 
 `$python manage.py bill_data`
+`$python manage.py process_bill_meta`
+`$python manage.py related_bills`
 
 NOTE: `~FlatGov/server_py/flatgov/common` directory contains all the django commands.
 

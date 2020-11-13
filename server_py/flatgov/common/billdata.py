@@ -124,10 +124,10 @@ def getCosponsors(fileDict: Dict, includeFields = []) -> list:
   if includeFields:
     cosponsors = list(map(lambda cosponsor: { field: cosponsor.get(field) for field in includeFields }, cosponsors))
 
-  for sponsor in cosponsors:
-    if not sponsor.get('bioguide_id'):
-      continue
-    Sponsor.objects.create(**sponsor)
+  # for sponsor in cosponsors:
+  #   if not sponsor.get('bioguide_id'):
+  #     continue
+  #   Sponsor.objects.create(**sponsor)
   return cosponsors
 
 def getBillTitles(fileDict: Dict, include_partial = True, billType = 'all') -> list:
@@ -234,23 +234,19 @@ def updateBillsMeta(billsMeta= {}):
       saveBillsMeta(billsMeta)
 
     # Create Bill object
-    bill_data = {
-      'title': [title.get('title') for title in titles][0],
-      'titles_whole_bill': [title.get('title') for title in titles if not title.get('is_for_portion')][0],
-      'bill_congress_type_number': billCongressTypeNumber,
-      'related_bills': [related_bill['billCongressTypeNumber'] \
-        for related_bill in billDict.get('related_bills') \
-          if related_bill.get('billCongressTypeNumber')]
-    }
+    # bill_data = {
+    #   'title': [title.get('title') for title in titles],
+    #   'titles_whole_bill': [title.get('title') for title in titles if not title.get('is_for_portion')],
+    #   'bill_congress_type_number': billCongressTypeNumber,
+    # }
+    # bill, created = Bill.objects.get_or_create(
+    #   bill_congress_type_number=billCongressTypeNumber,
+    #   defaults=bill_data
+    # )
 
-    bill, created = Bill.objects.get_or_create(
-      bill_congress_type_number=billCongressTypeNumber,
-      defaults=bill_data
-    )
-
-    sponsor_ids = [sponsor['bioguide_id'] for sponsor in cosponsors if sponsor.get('bioguide_id')]
-    qs_sponsor = Sponsor.objects.filter(bioguide_id__in=sponsor_ids)
-    bill.cosponsors.add(*qs_sponsor)
+    # sponsor_ids = [sponsor['bioguide_id'] for sponsor in cosponsors if sponsor.get('bioguide_id')]
+    # qs_sponsor = Sponsor.objects.filter(bioguide_id__in=sponsor_ids)
+    # bill.cosponsors.add(*qs_sponsor)
 
   walkBillDirs(processFile=addToBillsMeta)
   #walkBillDirs(processFile=logName)

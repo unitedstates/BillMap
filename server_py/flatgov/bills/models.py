@@ -1,13 +1,13 @@
 from django.db import models
 
 class Bill(models.Model):
-    title = models.CharField(max_length=500)
     bill_congress_type_number = models.CharField(max_length=100, unique=True)
-    titles_whole_bill = models.CharField(max_length=500)
+    title = models.JSONField(default=list)
+    titles_whole_bill = models.JSONField(default=list)
 
     cosponsors = models.ManyToManyField(
         'bills.Sponsor', blank=True, related_name='cosponsors')
-    related_bills = models.JSONField(default=list)
+    related_bills = models.ManyToManyField('self', blank=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

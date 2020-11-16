@@ -9,6 +9,9 @@ from common.constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_IND
 from common.utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
 from common.billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
 
+from bills.handler import BillDataHandler
+from bills.models import Bill, Cosponsor
+
 OF_YEAR_REGEX = re.compile(r'\sof\s[0-9]+$')
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
@@ -119,7 +122,22 @@ def addSponsors():
                 commonCosponsors = list(filter(lambda item: any(matchItem.get('bioguide_id') == item.get('bioguide_id') and matchItem.get('name') == item.get('name') for matchItem in cosponsorItems), relatedCosponsorItems))
                 if commonCosponsors:
                     relatedBill['related'][bill_inner]['cosponsors'] = commonCosponsors 
+        bill_outer = bill_outer
+        relatedBill = relatedBill
         dumpRelatedBillJSON(bill_outer, relatedBill)
+
+        bill_handler_obj = BillDataHandler(
+            data=relatedBill, congress_type_num=bill_outer)
+        bill_obj, created = Bill.objects.get_or_create(
+            bill_congress_type_number=bill_outer,
+            defaults=bill_handler_obj.bill
+        )
+        for item in bill_handler_obj.cosponsors:
+            cosponsor_obj, created = Cosponsor.objects.get_or_create(
+                name=item.get('name'),
+                bioguide_id=item.get('bioguide_id'),
+            )
+            bill_obj.cosponsors.add(cosponsor_obj)
 
 
 def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake = False):

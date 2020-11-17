@@ -112,3 +112,17 @@ Given that we are using django orm for database, we can store bill, sponsor data
 NOTE: `~FlatGov/server_py/flatgov/common` directory contains all the django commands.
 
 The `billdata.py` filecreates bill, sponsor objects and adds proper relations.
+
+
+## Review Models with Django Admin
+
+To review the data models, create a Django superuser and view the Django Admin panel.
+
+* Create a Django Superadmin
+
+```bash
+
+$python manage.py createsuperuser
+```
+
+Locally, I've used `cool1dude` as the pw

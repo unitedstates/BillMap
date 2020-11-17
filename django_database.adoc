@@ -71,7 +71,7 @@ flatgov{flatgov}$ python manage.py migrate
 Operations to perform:
   Apply all migrations: admin, auth, bills, contenttypes, sessions
 Running migrations:
-  Applying contenttypes.0001_initial... OK
+Applying contenttypes.0001_initial... OK
   Applying auth.0001_initial... OK
   Applying admin.0001_initial... OK
   Applying admin.0002_logentry_remove_auto_add... OK
@@ -89,6 +89,13 @@ Running migrations:
   Applying auth.0011_update_proxy_permissions... OK
   Applying auth.0012_alter_user_first_name_max_length... OK
   Applying bills.0001_initial... OK
+  Applying bills.0002_auto_20201113_1449... OK
+  Applying bills.0003_auto_20201113_1604... OK
+  Applying bills.0004_auto_20201116_1336... OK
+  Applying bills.0005_auto_20201116_1341... OK
+  Applying bills.0006_auto_20201116_1421... OK
+  Applying bills.0007_auto_20201116_1432... OK
+  Applying bills.0008_bill_cosponsors_dict... OK
   Applying sessions.0001_initial... OK
 ```
 

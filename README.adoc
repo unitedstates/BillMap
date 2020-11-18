@@ -50,7 +50,7 @@ $ pip install -r requirements.txt
 ```
 
 ```bash
-$ cd /path/to/FlatGov/flatgovtools
+$ cd /path/to/FlatGov/
 $ pip install -r requirements.txt
 ```
 

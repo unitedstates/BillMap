@@ -1,3 +1,4 @@
+import json
 from json import dump
 import sys
 import os
@@ -106,7 +107,13 @@ def addSponsors():
 
         sponsorItem = deep_get(billData, 'sponsor')
         cosponsorItems = deep_get(billData, 'cosponsors')
-        summary = billData.get('summary', {}).get('text')
+
+        try:
+            summary = billData.get('summary', {}).get('text')
+        except Exception as e:
+            logger.info(e)
+            logger.info(json.dumps(billData))
+            summary = None
         bill_type = billData.get('bill_type')
         congress = billData.get('congress')
         number = billData.get('number')

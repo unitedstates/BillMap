@@ -132,12 +132,14 @@ def addSponsors():
             bill_congress_type_number=bill_outer,
             defaults=bill_handler_obj.bill
         )
+        logger.info(f'{bill_obj.bill_congress_type_number} - bill has created or selected.')
         for item in bill_handler_obj.cosponsors:
             cosponsor_obj, created = Cosponsor.objects.get_or_create(
                 name=item.get('name'),
                 bioguide_id=item.get('bioguide_id'),
             )
             bill_obj.cosponsors.add(cosponsor_obj)
+        logger.info(f'Cosponsors are added to bill - {bill_obj.bill_congress_type_number}.')
 
 
 def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake = False):

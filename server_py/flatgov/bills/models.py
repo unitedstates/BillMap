@@ -1,10 +1,14 @@
 from django.db import models
 
 class Bill(models.Model):
-    bill_congress_type_number = models.CharField(max_length=100, unique=True)
+    bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
+    type = models.CharField(max_length=40, null=True, blank=True)
+    congress = models.IntegerField(null=True, blank=True)
+    number = models.PositiveIntegerField(null=True, blank=True)
     titles = models.JSONField(default=list)
+    summary = models.TextField(null=True, blank=True)
     titles_whole_bill = models.JSONField(default=list)
-
+    short_title = models.TextField(null=True, blank=True)
     # sponsor = models.ForeignKey(
     #     'bills.Sponsor', on_delete=models.CASCADE, blank=True, null=True)
     sponsor = models.JSONField(default=dict)
@@ -18,6 +22,12 @@ class Bill(models.Model):
 
     def __str__(self):
         return self.bill_congress_type_number
+
+    def get_type_abbrev(self) -> str:
+        return ''.join([letter.upper() + '.' for letter in self.type])
+
+    def get_related_bill_numbers(self):
+        return [bill.get('billCongressTypeNumber') for bill in self.related_bills]
 
 
 class Cosponsor(models.Model):

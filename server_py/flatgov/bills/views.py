@@ -6,10 +6,15 @@ from operator import itemgetter
 
 from django.http import HttpResponse
 from django.conf import settings
+from django.shortcuts import get_object_or_404
+from django.views.generic import DetailView
+
 from functools import reduce
 import json
 from typing import Dict
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
+
+from bills.models import Bill
 
 def deep_get(dictionary: Dict, *keys):
   """
@@ -219,5 +224,15 @@ def bill_view(request, bill):
     else:
         return render(request, 'bills/bill.html', context)
 
-
+    context = context
     return render(request, 'bills/bill.html', context)
+
+
+class BillDetailView(DetailView):
+    model = Bill
+    template_name = 'bills/bill_.html'
+    slug_field = 'bill_congress_type_number'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        return context

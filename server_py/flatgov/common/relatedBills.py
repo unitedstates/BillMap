@@ -106,11 +106,21 @@ def addSponsors():
 
         sponsorItem = deep_get(billData, 'sponsor')
         cosponsorItems = deep_get(billData, 'cosponsors')
+        summary = billData.get('summary', {}).get('text')
+        bill_type = billData.get('bill_type')
+        congress = billData.get('congress')
+        number = billData.get('number')
+        short_title = billData.get('short_title')
 
         for bill_inner, relatedItemValue in relatedBill.get('related').items():
             billInnerData = loadDataJSON(bill_inner)
             if not billInnerData:
                 continue
+            relatedBill['summary'] = summary
+            relatedBill['type'] = bill_type
+            relatedBill['congress'] = congress
+            relatedBill['number'] = number
+            relatedBill['short_title'] = short_title
 
             relatedSponsorItem = deep_get(billInnerData, 'sponsor')
             if sponsorItem and relatedSponsorItem and sponsorItem.get('bioguide_id') == relatedSponsorItem.get('bioguide_id') and sponsorItem.get('name') == relatedSponsorItem.get('name'):
@@ -122,24 +132,30 @@ def addSponsors():
                 commonCosponsors = list(filter(lambda item: any(matchItem.get('bioguide_id') == item.get('bioguide_id') and matchItem.get('name') == item.get('name') for matchItem in cosponsorItems), relatedCosponsorItems))
                 if commonCosponsors:
                     relatedBill['related'][bill_inner]['cosponsors'] = commonCosponsors 
-        bill_outer = bill_outer
-        relatedBill = relatedBill
         dumpRelatedBillJSON(bill_outer, relatedBill)
 
-        bill_handler_obj = BillDataHandler(
-            data=relatedBill, congress_type_num=bill_outer)
-        bill_obj, created = Bill.objects.get_or_create(
-            bill_congress_type_number=bill_outer,
-            defaults=bill_handler_obj.bill
-        )
-        logger.info(f'{bill_obj.bill_congress_type_number} - bill has created or selected.')
-        for item in bill_handler_obj.cosponsors:
-            cosponsor_obj, created = Cosponsor.objects.get_or_create(
-                name=item.get('name'),
-                bioguide_id=item.get('bioguide_id'),
+        try:
+            bill_handler_obj = BillDataHandler(
+                data=relatedBill, congress_type_num=bill_outer)
+            bill_obj, created = Bill.objects.get_or_create(
+                bill_congress_type_number=bill_outer,
+                defaults=bill_handler_obj.bill
             )
-            bill_obj.cosponsors.add(cosponsor_obj)
-        logger.info(f'Cosponsors are added to bill - {bill_obj.bill_congress_type_number}.')
+            if not created:
+                Bill.objects.filter(bill_congress_type_number=bill_outer).update(**bill_handler_obj.bill)
+                logger.info(f'{bill_obj.bill_congress_type_number} - bill has updated.')
+            else:
+                logger.info(f'{bill_obj.bill_congress_type_number} - bill has created.')
+
+            for item in bill_handler_obj.cosponsors:
+                cosponsor_obj, created = Cosponsor.objects.get_or_create(
+                    name=item.get('name'),
+                    bioguide_id=item.get('bioguide_id'),
+                )
+                bill_obj.cosponsors.add(cosponsor_obj)
+            logger.info(f'Cosponsors are added to bill - {bill_obj.bill_congress_type_number}.')
+        except Exception as e:
+            logger.info(f'Bill - {bill_outer} : {e}.')
 
 
 def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake = False):

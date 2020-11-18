@@ -28,6 +28,11 @@ class BillDataHandler(object):
         bill_data = {
             'titles': self.data.get('titles'),
             'titles_whole_bill': self.data.get('titles_whole_bill'),
+            'summary': self.data.get('summary'),
+            'number': self.data.get('number'),
+            'short_title': self.data.get('short_title'),
+            'type': self.data.get('type'),
+            'congress': self.data.get('congress'),
             'related_bills': self.data.get('related_bills'),
             'sponsor': sponsor,
             'cosponsors_dict': cosponsors_dict,

@@ -30,6 +30,22 @@ class Bill(models.Model):
     def get_related_bill_numbers(self):
         return self.related_dict.keys()
 
+    def get_cosponsor_bill(self, name):
+        result = list()
+        related_dict = self.related_dict
+        for congress, value in related_dict.items():
+            if not value.get('cosponsors'):
+                continue
+            if congress == self.bill_congress_type_number:
+                continue
+            congress_list = [item.get('name') \
+                for item in value.get('cosponsors') if item.get('name')]
+            if name in congress_list:
+                result.append(congress)
+            else:
+                continue
+        return result
+
 
 class Cosponsor(models.Model):
     name = models.CharField(max_length=100)

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from bills.models import Bill
+from bills.models import Bill, Cosponsor
 
 
 class RelatedBillSerializer(serializers.ModelSerializer):
@@ -40,6 +40,32 @@ class RelatedBillSerializer(serializers.ModelSerializer):
                 for i in item.get('cosponsors')]
             return ", ".join(names)
         return ""
+
+    def make_name_clean(self, name):
+        sec = [i.strip() for i in name.split(',')]
+        return sec[1] + ' ' + sec[0]
+
+
+class CosponsorSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    bills = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Cosponsor
+        fields = ['name', 'bills']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bill = self.context.get('bill')
+
+    def get_name(self, obj):
+        return self.make_name_clean(obj.name)
+
+    def get_bills(self, obj):
+        bills = self.bill.get_cosponsor_bill(obj.name)
+        if not bills:
+            return self.bill.bill_congress_type_number
+        return self.bill.bill_congress_type_number + ', ' + ', '.join(bills)
 
     def make_name_clean(self, name):
         sec = [i.strip() for i in name.split(',')]

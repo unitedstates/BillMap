@@ -5,6 +5,7 @@ from typing import Dict
 from operator import itemgetter
 
 from django.conf import settings
+from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
@@ -14,9 +15,9 @@ from django_tables2 import MultiTableMixin
 
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
-from bills.models import Bill
+from bills.models import Bill, Cosponsor
 from bills.tables import RelatedBillTable
-from bills.serializers import RelatedBillSerializer
+from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 
 def deep_get(dictionary: Dict, *keys):
   """
@@ -244,6 +245,7 @@ class BillDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['related_bills'] = json.dumps(self.get_related_bills())
+        context['cosponsors'] = json.dumps(self.get_cosponsors())
         return context
 
     # def get_tables(self):
@@ -255,5 +257,16 @@ class BillDetailView(DetailView):
     def get_related_bills(self):
         qs = self.get_qs_related_bill()
         serializer = RelatedBillSerializer(
+            qs, many=True, context={'bill': self.object})
+        return serializer.data
+
+    def get_cosponsors(self):
+        cosponsor_ids = list(self.object.cosponsors.values_list('pk', flat=True))
+        sponsor_name = self.object.sponsor.get('name')
+        if sponsor_name:
+            sponsor_id = Cosponsor.objects.filter(name=sponsor_name).first().pk
+            cosponsor_ids.append(sponsor_id)
+        qs = Cosponsor.objects.filter(pk__in=cosponsor_ids)
+        serializer = CosponsorSerializer(
             qs, many=True, context={'bill': self.object})
         return serializer.data

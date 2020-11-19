@@ -121,114 +121,113 @@ def similar_bills_view(request):
     }
     return render(request, 'bills/bill-similar.html', context)
 
-def bill_view(request, bill):
-    context = {'billCongressTypeNumber': bill, 'bill': {}}
+# def bill_view(request, bill):
+#     context = {'billCongressTypeNumber': bill, 'bill': {}}
 
-    bill_parts = re.match(BILL_REGEX, bill)
-    if bill_parts:
-        bill_parts = list(bill_parts.groups())
-        congress = bill_parts[0]
-        bill_type = bill_parts[1].upper()
-        context['bill']['type'] = bill_type
-        bill_number = bill_parts[2]
-        BILLMETA_PATH = os.path.join(CONGRESS_DATA_PATH, congress, 'bills', bill_type.lower(), bill_type.lower() + bill_number, 'data.json')
-        with open(BILLMETA_PATH, 'rb') as f:
-            bill_meta = json.load(f)
+#     bill_parts = re.match(BILL_REGEX, bill)
+#     if bill_parts:
+#         bill_parts = list(bill_parts.groups())
+#         congress = bill_parts[0]
+#         bill_type = bill_parts[1].upper()
+#         context['bill']['type'] = bill_type
+#         bill_number = bill_parts[2]
+#         BILLMETA_PATH = os.path.join(CONGRESS_DATA_PATH, congress, 'bills', bill_type.lower(), bill_type.lower() + bill_number, 'data.json')
+#         with open(BILLMETA_PATH, 'rb') as f:
+#             bill_meta = json.load(f)
         
-        RELATED_BILLDATA_PATH = os.path.join(CONGRESS_DATA_PATH, 'relatedbills', bill.lower() + '.json')
-        with open(RELATED_BILLDATA_PATH, 'rb') as f:
-            relatedBillData = json.load(f)
+#         RELATED_BILLDATA_PATH = os.path.join(CONGRESS_DATA_PATH, 'relatedbills', bill.lower() + '.json')
+#         with open(RELATED_BILLDATA_PATH, 'rb') as f:
+#             relatedBillData = json.load(f)
 
-        relatedBills = deep_get(relatedBillData, 'related')
-        if not relatedBills:
-            relatedBills = {} 
+#         relatedBills = deep_get(relatedBillData, 'related')
+#         if not relatedBills:
+#             relatedBills = {} 
     
-        context['bill']['meta'] = bill_meta
-        bill_summary = deep_get(bill_meta, 'summary', 'text')
-        if bill_summary and len(bill_summary) > 200:
-            context['bill']['meta']['summary_short'] = bill_summary[0:200] + '...'
-        else:
-            context['bill']['meta']['summary_short'] = bill_summary
-        bctns = relatedBills.keys()
-        context['bill']['related_bill_numbers'] = ', '.join(bctns)
+#         context['bill']['meta'] = bill_meta
+#         bill_summary = deep_get(bill_meta, 'summary', 'text')
+#         if bill_summary and len(bill_summary) > 200:
+#             context['bill']['meta']['summary_short'] = bill_summary[0:200] + '...'
+#         else:
+#             context['bill']['meta']['summary_short'] = bill_summary
+#         bctns = relatedBills.keys()
+#         context['bill']['related_bill_numbers'] = ', '.join(bctns)
 
-        relatedTable = []
-        for bctn in bctns:
-            relatedTableItem = relatedBills.get(bctn, {})
-            relatedTableItem['billCongressTypeNumber'] = bctn
-            # TODO handle the same bill number (maybe put it at the top?)
-            if bill == bctn:
-                relatedTableItem['reason'] = 'identical'
-            titles = deep_get(relatedBills, bctn, 'titles')
-            if titles:
-                relatedTableItem['titles_list'] = ", ".join(titles)
-            else:
-                relatedTableItem['titles_list'] = ""
+#         relatedTable = []
+#         for bctn in bctns:
+#             relatedTableItem = relatedBills.get(bctn, {})
+#             relatedTableItem['billCongressTypeNumber'] = bctn
+#             # TODO handle the same bill number (maybe put it at the top?)
+#             if bill == bctn:
+#                 relatedTableItem['reason'] = 'identical'
+#             titles = deep_get(relatedBills, bctn, 'titles')
+#             if titles:
+#                 relatedTableItem['titles_list'] = ", ".join(titles)
+#             else:
+#                 relatedTableItem['titles_list'] = ""
 
-            titles_year = deep_get(relatedBills, bctn, 'titles_year')
-            if titles_year:
-                relatedTableItem['titles_year_list'] = ", ".join(titles_year)
-            else:
-                relatedTableItem['titles_year_list'] = ""
-            relatedTableItem['sponsor_name'] = makeName(deep_get(relatedBills, bctn, 'sponsor', 'name'))
-            cosponsors = deep_get(relatedBills, bctn, 'cosponsors')
-            if cosponsors:
-                relatedTableItem['cosponsor_names'] = ", ".join(list(map(lambda item: makeName(item.get('name', '')), cosponsors)))
-            else:
-                relatedTableItem['cosponsor_names'] = ''
-            relatedTable.append(relatedTableItem)
+#             titles_year = deep_get(relatedBills, bctn, 'titles_year')
+#             if titles_year:
+#                 relatedTableItem['titles_year_list'] = ", ".join(titles_year)
+#             else:
+#                 relatedTableItem['titles_year_list'] = ""
+#             relatedTableItem['sponsor_name'] = makeName(deep_get(relatedBills, bctn, 'sponsor', 'name'))
+#             cosponsors = deep_get(relatedBills, bctn, 'cosponsors')
+#             if cosponsors:
+#                 relatedTableItem['cosponsor_names'] = ", ".join(list(map(lambda item: makeName(item.get('name', '')), cosponsors)))
+#             else:
+#                 relatedTableItem['cosponsor_names'] = ''
+#             relatedTable.append(relatedTableItem)
             
-        context['bill']['related_table'] =  json.dumps(relatedTable)
+#         context['bill']['related_table'] =  json.dumps(relatedTable)
 
-        context['bill']['type_abbrev'] = makeTypeAbbrev(bill_type)
-        meta_sponsor_name = deep_get(bill_meta, 'sponsor', 'name')
-        if meta_sponsor_name:
-            sponsor_name = cleanSponsorName(meta_sponsor_name)
-        else:
-            sponsor_name = ''
-        title = deep_get(bill_meta, 'sponsor', 'title')
-        if not title:
-            title = ''
-        context['bill']['sponsor_fullname'] = title + '. ' + sponsor_name + ' '  + makeSponsorBracket(bill_meta.get('sponsor', '')) 
+#         context['bill']['type_abbrev'] = makeTypeAbbrev(bill_type)
+#         meta_sponsor_name = deep_get(bill_meta, 'sponsor', 'name')
+#         if meta_sponsor_name:
+#             sponsor_name = cleanSponsorName(meta_sponsor_name)
+#         else:
+#             sponsor_name = ''
+#         title = deep_get(bill_meta, 'sponsor', 'title')
+#         if not title:
+#             title = ''
+#         context['bill']['sponsor_fullname'] = title + '. ' + sponsor_name + ' '  + makeSponsorBracket(bill_meta.get('sponsor', '')) 
 
-        cosponsorsDict = { cleanSponsorName(item.get('name')): item for item in relatedBillData.get('cosponsors', [])}
-        # TODO test that the person with the same name is actually the same sponsor
+#         cosponsorsDict = { cleanSponsorName(item.get('name')): item for item in relatedBillData.get('cosponsors', [])}
+#         # TODO test that the person with the same name is actually the same sponsor
 
-        for bctn in bctns:
-            relatedBillItem = relatedBills.get(bctn)
-            sponsor = relatedBillItem.get('sponsor')
-            # Add sponsor with *
-            if sponsor:
-                sponsorName = '*' + cleanSponsorName(sponsor.get('name'))
-                if not cosponsorsDict.get(sponsorName):
-                    cosponsorsDict[sponsorName] = sponsor
-                    cosponsorsDict[sponsorName]['bills'] = [bctn]
-                else:
-                    if deep_get(cosponsorsDict, sponsorName, 'bills'):
-                        cosponsorsDict[sponsorName]['bills'].append(bctn)
-                    else:
-                        cosponsorsDict[sponsorName]['bills'] = [bctn]
+#         for bctn in bctns:
+#             relatedBillItem = relatedBills.get(bctn)
+#             sponsor = relatedBillItem.get('sponsor')
+#             # Add sponsor with *
+#             if sponsor:
+#                 sponsorName = '*' + cleanSponsorName(sponsor.get('name'))
+#                 if not cosponsorsDict.get(sponsorName):
+#                     cosponsorsDict[sponsorName] = sponsor
+#                     cosponsorsDict[sponsorName]['bills'] = [bctn]
+#                 else:
+#                     if deep_get(cosponsorsDict, sponsorName, 'bills'):
+#                         cosponsorsDict[sponsorName]['bills'].append(bctn)
+#                     else:
+#                         cosponsorsDict[sponsorName]['bills'] = [bctn]
 
-            cosponsors = relatedBillItem.get('cosponsors')
-            if cosponsors:
-                for cosponsor in cosponsors:
-                    cosponsorName = cleanSponsorName(cosponsor.get('name'))
-                    if not cosponsorsDict[cosponsorName].get('bills'):
-                        cosponsorsDict[cosponsorName]['bills'] = [bctn]
-                    else:
-                        cosponsorsDict[cosponsorName]['bills'].append(bctn)
-        for cleanName in cosponsorsDict.keys():
-            cosponsorsDict[cleanName]['name_clean'] = cleanName
-            billsList = deep_get(cosponsorsDict, cleanName, 'bills')
-            if billsList:
-                # TODO: sort smaller number bills (e.g. 100 vs 1000)
-                cosponsorsDict[cleanName]['bills_str'] = ', '.join(sorted(billsList, key=None, reverse=True))
-        context['bill']['cosponsors_table']= json.dumps(sorted([item for item in cosponsorsDict.values()], key= lambda x: x.get('name_clean'), reverse=False))
-    else:
-        return render(request, 'bills/bill.html', context)
-    print(context['bill']['cosponsors_table'])
-    context = context
-    return render(request, 'bills/bill.html', context)
+#             cosponsors = relatedBillItem.get('cosponsors')
+#             if cosponsors:
+#                 for cosponsor in cosponsors:
+#                     cosponsorName = cleanSponsorName(cosponsor.get('name'))
+#                     if not cosponsorsDict[cosponsorName].get('bills'):
+#                         cosponsorsDict[cosponsorName]['bills'] = [bctn]
+#                     else:
+#                         cosponsorsDict[cosponsorName]['bills'].append(bctn)
+#         for cleanName in cosponsorsDict.keys():
+#             cosponsorsDict[cleanName]['name_clean'] = cleanName
+#             billsList = deep_get(cosponsorsDict, cleanName, 'bills')
+#             if billsList:
+#                 # TODO: sort smaller number bills (e.g. 100 vs 1000)
+#                 cosponsorsDict[cleanName]['bills_str'] = ', '.join(sorted(billsList, key=None, reverse=True))
+#         context['bill']['cosponsors_table']= json.dumps(sorted([item for item in cosponsorsDict.values()], key= lambda x: x.get('name_clean'), reverse=False))
+#     else:
+#         return render(request, 'bills/bill.html', context)
+#     context = context
+#     return render(request, 'bills/bill.html', context)
 
 
 class BillDetailView(DetailView):

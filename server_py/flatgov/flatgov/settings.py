@@ -46,6 +46,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'bills',
+
+    'rest_framework',
+    'django_tables2',
+    'admin_auto_filters',
 ]
 
 MIDDLEWARE = [
@@ -135,3 +139,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+DJANGO_TABLES2_TEMPLATE = os.path.join(BASE_DIR, 'templates/django_tables2/table.html')
+DJANGO_TABLES2_PAGINATE_BY = 10
+DJANGO_TABLES2_STYLE = {
+    'class': 'table table-striped table-bordered mb-0',
+}

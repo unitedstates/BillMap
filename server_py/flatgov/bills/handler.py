@@ -9,7 +9,7 @@ class BillDataHandler(object):
         self.cosponsors = self.get_cosponsors(bill=self.bill)
 
     def get_bill(self, *args, **kwargs):
-        related = self.data.get('related')
+        related = self.data.get('related', {})
         target = related.get(self.congress)
 
         if not target:
@@ -34,6 +34,7 @@ class BillDataHandler(object):
             'type': self.data.get('type'),
             'congress': self.data.get('congress'),
             'related_bills': self.data.get('related_bills'),
+            'related_dict': related,
             'sponsor': sponsor,
             'cosponsors_dict': cosponsors_dict,
         }

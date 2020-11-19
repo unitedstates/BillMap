@@ -1,3 +1,6 @@
+{% load django_tables2 %}
+{% load render_table from django_tables2 %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -285,7 +288,8 @@
         </ul>
         <div class="tab-content light-gray-tabs p-4" id="myTabContent">
           <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
-            <div id="related-bills-table"></div>
+            <div id="related-bills-table">
+            </div>
             <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium
               magnam nisi reprehenderit animi iste rem ut corrupti, vel libero
@@ -643,7 +647,7 @@
     Footer
   </footer>
   <script type="text/javascript">
-    var related_bills = JSON.parse(`{{ bill.related_table|safe|escapejs }}`);
+    var related_bills = JSON.parse(`{{ related_bills|safe|escapejs }}`);
     var titlesYearNotEmpty = related_bills.filter(item => item.titles_year_list) ? related_bills.filter(item => item.titles_year_list).length > 0 : false;
     console.log(related_bills.filter(item => item.titles_year_list));
     console.log(titlesYearNotEmpty);
@@ -658,10 +662,10 @@
       columns: [ //Define Table Columns
         {
           title: "Bill",
-          field: "billCongressTypeNumber",
+          field: "bill_congress_type_number",
           width: 150,
           formatter: "link",
-          formatterParams: {labelField: "billCongressTypeNumber", urlPrefix: "/bills/", urlField: "billCongressTypeNumber"},
+          formatterParams: {labelField: "bill_congress_type_number", urlPrefix: "/bills/", urlField: "bill_congress_type_number"},
         },
         {
           title: "Reason",
@@ -670,7 +674,7 @@
         },
         {
           title: "Titles (shared)",
-          field: "titles_list"
+          field: "titles"
         },
         {
           title: "Titles (similar)",
@@ -679,12 +683,12 @@
         },
         {
           title: "Sponsor (shared)",
-          field: "sponsor_name",
+          field: "sponsor",
           width: 150
         },
         {
           title: "Shared cosponsors",
-          field: "cosponsor_names"
+          field: "cosponsor"
         },
         {
           title: "Id By",

@@ -15,6 +15,7 @@ class Bill(models.Model):
     cosponsors = models.ManyToManyField(
         'bills.Cosponsor', blank=True, related_name='cosponsors')
     related_bills = models.JSONField(default=list)
+    related_dict = models.JSONField(default=dict)
     cosponsors_dict = models.JSONField(default=list)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -27,7 +28,7 @@ class Bill(models.Model):
         return ''.join([letter.upper() + '.' for letter in self.type])
 
     def get_related_bill_numbers(self):
-        return [bill.get('billCongressTypeNumber') for bill in self.related_bills]
+        return self.related_dict.keys()
 
 
 class Cosponsor(models.Model):

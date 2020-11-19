@@ -1,20 +1,22 @@
 import os
-from django.shortcuts import render
+import json
+from functools import reduce
+from typing import Dict
 from operator import itemgetter
 
-# Create your views here.
-
-from django.http import HttpResponse
 from django.conf import settings
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+from django.shortcuts import render
 from django.views.generic import DetailView
 
-from functools import reduce
-import json
-from typing import Dict
+from django_tables2 import MultiTableMixin
+
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
 from bills.models import Bill
+from bills.tables import RelatedBillTable
+from bills.serializers import RelatedBillSerializer
 
 def deep_get(dictionary: Dict, *keys):
   """
@@ -223,7 +225,7 @@ def bill_view(request, bill):
         context['bill']['cosponsors_table']= json.dumps(sorted([item for item in cosponsorsDict.values()], key= lambda x: x.get('name_clean'), reverse=False))
     else:
         return render(request, 'bills/bill.html', context)
-
+    print(context['bill']['related_table'])
     context = context
     return render(request, 'bills/bill.html', context)
 
@@ -232,7 +234,27 @@ class BillDetailView(DetailView):
     model = Bill
     template_name = 'bills/bill_.html'
     slug_field = 'bill_congress_type_number'
+    # paginate_by = settings.DJANGO_TABLES2_PAGINATE_BY
+
+    def get_qs_related_bill(self):
+        congress_list = self.object.get_related_bill_numbers()
+        qs = Bill.objects.filter(bill_congress_type_number__in=congress_list)
+        return qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['related_bills'] = json.dumps(self.get_related_bills())
+        print(context['related_bills'])
         return context
+
+    # def get_tables(self):
+    #     self.tables = [
+    #         RelatedBillTable(self.object, data=self.get_qs_related_bill(), prefix="bill")
+    #     ]
+    #     return super().get_tables()
+
+    def get_related_bills(self):
+        qs = self.get_qs_related_bill()
+        serializer = RelatedBillSerializer(
+            qs, many=True, context={'bill': self.object})
+        return serializer.data

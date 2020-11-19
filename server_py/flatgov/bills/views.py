@@ -225,7 +225,7 @@ def bill_view(request, bill):
         context['bill']['cosponsors_table']= json.dumps(sorted([item for item in cosponsorsDict.values()], key= lambda x: x.get('name_clean'), reverse=False))
     else:
         return render(request, 'bills/bill.html', context)
-    print(context['bill']['related_table'])
+    print(context['bill']['cosponsors_table'])
     context = context
     return render(request, 'bills/bill.html', context)
 
@@ -244,7 +244,6 @@ class BillDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['related_bills'] = json.dumps(self.get_related_bills())
-        print(context['related_bills'])
         return context
 
     # def get_tables(self):

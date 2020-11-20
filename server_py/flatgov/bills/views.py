@@ -232,7 +232,7 @@ def similar_bills_view(request):
 
 class BillDetailView(DetailView):
     model = Bill
-    template_name = 'bills/bill_.html'
+    template_name = 'bills/bill.html'
     slug_field = 'bill_congress_type_number'
     # paginate_by = settings.DJANGO_TABLES2_PAGINATE_BY
 

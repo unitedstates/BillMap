@@ -9,7 +9,7 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
-from django.views.generic import DetailView
+from django.views.generic import TemplateView, DetailView
 
 from django_tables2 import MultiTableMixin
 
@@ -57,6 +57,7 @@ def billIdToBillNumber(bill_id: str) -> str:
     # TODO test if it has the right form, otherwise throw an exception
     return ''.join(reversed(bill_id.split('-')))
 
+
 def cleanSponsorName(lastfirst: str) -> str:
     """
     Takes a name of the form "Last, First" and returns "First Last"
@@ -72,8 +73,10 @@ def cleanSponsorName(lastfirst: str) -> str:
     else:
         return ' '.join(reversed(lastfirst.split(', ')))
 
+
 def makeTypeAbbrev(bill_type) -> str:
     return ''.join([letter+'.' for letter in bill_type])
+
 
 def makeSponsorBracket(sponsor: dict, party='X') -> str:
     # TODO: in the future, make party required 
@@ -87,13 +90,16 @@ def makeSponsorBracket(sponsor: dict, party='X') -> str:
 
     return '[' + party + '-' +  state + district + ']'
 
-def index(request):
-    return HttpResponse("Hello, world. You're at the bills index.")
+
+class BillListView(TemplateView):
+    template_name = 'bills/list.html'
+
 
 def makeName(commaName):
     if not commaName:
         return ''
     return ' '.join(reversed(commaName.split(',')))
+
 
 def similar_bills_view(request):
     noResults = False
@@ -232,7 +238,7 @@ def similar_bills_view(request):
 
 class BillDetailView(DetailView):
     model = Bill
-    template_name = 'bills/bill.html'
+    template_name = 'bills/detail.html'
     slug_field = 'bill_congress_type_number'
     # paginate_by = settings.DJANGO_TABLES2_PAGINATE_BY
 

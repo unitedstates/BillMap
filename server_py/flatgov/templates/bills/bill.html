@@ -61,9 +61,37 @@
         </li>
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="myTabContent">
-        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
-            <div id="related-bills-table">
-            </div>
+        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">            
+            <table class="table mt-3" id="related-bills-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Titles (shared)</th>
+                        <th scope="col">Titles (similar)</th>
+                        <th scope="col">Sponsor (shared)</th>
+                        <th scope="col">Shared cosponsors</th>
+                        <th scope="col">Id By</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in related_bills %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
+                                {{ bill.bill_congress_type_number }}
+                            </a>
+                        </td>
+                        <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
+                        <td>{{ bill.titles|truncatechars:30 }}</td>
+                        <td>{{ bill.titles_year_list }}</td>
+                        <td>{{ bill.sponsor }}</td>
+                        <td>{{ bill.cosponsor|truncatechars:30 }}</td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
             <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
             </div>
@@ -104,45 +132,28 @@
             <h6 class="pt-3">
                 View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
             </h6>
-            <div id="cosponsors-table"></div>
-            <!--
-                <table class="table mt-3">
+            <table class="table mt-3" id="cosponsors-table">
                 <thead>
-                <tr>
-                    <th scope="col">Co-Sponsor</th>
-                    <th scope="col">Committee Jurisdiction</th>
-                    <th scope="col">Party</th>
-                    <th scope="col">Rank</th>
-                </tr>
+                    <tr>
+                        <th scope="col">Co-Sponsor</th>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Committees</th>
+                        <th scope="col">Party</th>
+                        <th scope="col">Position</th>
+                    </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>Raúl Grijalva</td>
-                    <td>No</td>
-                    <td>D</td>
-                    <td>No</td>
-                </tr>
-                <tr>
-                    <td>Rodney Davis</td>
-                    <td>House Administration</td>
-                    <td>R</td>
-                    <td>Ranking Member</td>
-                </tr>
-                <tr>
-                    <td>Jim Cooper</td>
-                    <td>House Oversight</td>
-                    <td>D</td>
-                    <td>No</td>
-                </tr>
-                <tr>
-                    <td>Virginia Foxx</td>
-                    <td>House Oversight</td>
-                    <td>R</td>
-                    <td>No</td>
-                </tr>
+                    {% for cosponsor in cosponsors %}
+                    <tr>
+                        <td>{{ cosponsor.name }}</td>
+                        <td>{{ cosponsor.bills }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+                    {% endfor %}
                 </tbody>
             </table>
-            -->
         </div>
         <div class="tab-pane fade" id="senate" role="tabpanel" aria-labelledby="senate-tab">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
@@ -383,94 +394,10 @@
 {% endblock %}
 
 {% block extra_js %}
+<script src="{% static 'js/bill.js' %}"></script>
 <script>
-    var related_bills = JSON.parse(`{{ related_bills|safe|escapejs }}`);
-    console.log(related_bills)
-    var titlesYearNotEmpty = related_bills.filter(item => item.titles_year_list) ? related_bills.filter(item => item.titles_year_list).length > 0 : false;
-
-    console.log(related_bills.filter(item => item.titles_year_list));
-    console.log(titlesYearNotEmpty);
-
-    //create Tabulator on DOM element with id "example-table"
-    var table = new Tabulator("#related-bills-table", {
-        // rowFormatter:function(row){
-
-        // },
-        height: 205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
-        data: related_bills, //assign data to table
-        layout: "fitColumns", //fit columns to width of table (optional)
-        columns: [ //Define Table Columns
-        {
-            title: "Bill",
-            field: "bill_congress_type_number",
-            width: 150,
-            formatter: "link",
-            formatterParams: {labelField: "bill_congress_type_number", urlPrefix: "/bills/", urlField: "bill_congress_type_number"},
-        },
-        {
-            title: "Reason",
-            field: "reason",
-            width: 100
-        },
-        {
-            title: "Titles (shared)",
-            field: "titles"
-        },
-        {
-            title: "Titles (similar)",
-            field: "titles_year_list",
-            visible: titlesYearNotEmpty
-        },
-        {
-            title: "Sponsor (shared)",
-            field: "sponsor",
-            width: 150
-        },
-        {
-            title: "Shared cosponsors",
-            field: "cosponsor"
-        },
-        {
-            title: "Id By",
-            field: "identified_by",
-            width: 100
-        }
-        ]
-    });
-
     var table = new Tabulator("#committee-jurisdiction-table", {
         // rowFormatter:function(row){
-    });
-    var sponsors_table = JSON.parse(`{{ cosponsors|safe|escapejs }}`);
-    //create Tabulator on DOM element with id "example-table"
-    var table = new Tabulator("#cosponsors-table", {
-        height: 205, // set height of table (in CSS or here), this enables the Virtual DOM and improves render speed dramatically (can be any valid css height value)
-        data: sponsors_table, //assign data to table
-        layout: "fitColumns", //fit columns to width of table (optional)
-        columns: [ //Define Table Columns
-        {
-            title: "Co-Sponsor",
-            field: "name",
-            width: 150
-        },
-        {
-            title: "Bill",
-            field: "bills"
-        },
-        {
-            title: "Committees",
-            field: "committees",
-            width: 150
-        },
-        {
-            title: "Party",
-            field: "party"
-        },
-        {
-            title: "Position",
-            field: "position"
-        },
-        ]
     });
 </script>
 {% endblock %}

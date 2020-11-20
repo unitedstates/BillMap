@@ -243,8 +243,8 @@ class BillDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['related_bills'] = json.dumps(self.get_related_bills())
-        context['cosponsors'] = json.dumps(self.get_cosponsors())
+        context['cosponsors'] = self.get_cosponsors()
+        context['related_bills'] = self.get_related_bills()
         return context
 
     # def get_tables(self):

@@ -16,7 +16,31 @@
 }
 
 .table tbody>tr>td {
-    border-color: #9d2146 !important;
+
+}
+
+.dataTables_paginate a {
+    border-radius: 100% !important;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    padding: 0;
+    border-color: #ffffff !important;
+    text-align: center;
+    font-size: small;
+}
+
+.dataTables_info {
+    font-size: small;
+    font-weight: bold;
+}
+
+.dataTables_filter {
+    font-size: small;
+}
+
+.dataTables_length {
+    font-size: small;
 }
 
 .light-gray-body {
@@ -223,29 +247,6 @@ footer {
 .committee-jurisdiction {
     width: 549px;
     border-radius: 10px;
-}
-
-/*Theme the Tabulator element*/
-#related-bills-table, #committee-jurisdiction-table{
-    font-size: small;
-    background-color:none;
-    border-radius: 10px;
-}
-
-#committee-jurisdiction-table {
-    margin-top: 25px;
-}
-
-/*Theme the header*/
-#committee-jurisdiction-table .tabulator-header,#related-bills-table .tabulator-header {
-    background-color:none;
-    border-top: none;
-    border-color: #9d2146 !important;
-}
-/*Color the table rows*/
-#committee-jurisdiction-table .tabulator-tableHolder .tabulator-table .tabulator-row,#related-bills-table .tabulator-tableHolder .tabulator-table .tabulator-row{
-    background-color: none;
-    border-color: #9d2146 !important;
 }
 
 .sponsors-buttons {

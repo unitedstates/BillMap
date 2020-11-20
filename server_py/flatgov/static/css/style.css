@@ -1,0 +1,342 @@
+.btn-primary {
+    background-color: #1d4e70!important;
+    border-color: #1d4e70!important;
+}
+
+.btn-shadow {
+    box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
+}
+
+.table {
+    font-size: small;
+}
+
+.table thead>tr>th {
+    border: none !important;
+}
+
+.table tbody>tr>td {
+    border-color: #9d2146 !important;
+}
+
+.light-gray-body {
+    background-color: #f7f7f7;
+    border-radius: 10px;
+    box-shadow: 3px 4px 4px #d4d4d4;
+}
+
+.light-gray-tabs {
+    background-color: #f7f7f7;
+    border-bottom-left-radius: 10px;
+    border-bottom-right-radius: 10px;
+    box-shadow: 3px 4px 4px #d4d4d4;
+}
+
+.light-gray-nav-link .active {
+    color: #495057;
+    background-color: #d4d4d4;
+    border-color: noner;
+}
+
+.nav-link.active {
+    background-color: #f7f7f7 !important;
+    border-color: #f7f7f7 !important;
+}
+
+.nav-tabs {
+    border-bottom: #f7f7f7 !important;
+}
+
+.dark-gray-body {
+    background-color: 1px solid #d4d4d4 !important;
+}
+
+.title, .search {
+    padding: 30px 100px 30px 100px;
+}
+
+#bill-search .tt-menu {
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+#or-div{
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.typeahead {
+    height: 30px;
+    padding: 8px 12px;
+    font-size: 24px;
+    line-height: 30px;
+    border: 2px solid #ccc;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border-radius: 8px;
+    outline: none;
+}
+
+span.twitter-typeahead .tt-menu,
+span.twitter-typeahead .tt-dropdown-menu {
+    cursor: pointer;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 1000;
+    display: none;
+    float: left;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    list-style: none;
+    font-size: 14px;
+    text-align: left;
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 4px;
+    -webkit-box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.175);
+    background-clip: padding-box;
+}
+
+span.twitter-typeahead .tt-suggestion {
+    display: block;
+    padding: 3px 20px;
+    clear: both;
+    font-weight: normal;
+    line-height: 1.42857143;
+    color: #333333;
+    white-space: nowrap;
+}
+
+span.twitter-typeahead .tt-suggestion.tt-cursor,
+span.twitter-typeahead .tt-suggestion:hover,
+span.twitter-typeahead .tt-suggestion:focus {
+    color: #ffffff;
+    text-decoration: none;
+    outline: 0;
+    background-color: #337ab7;
+}
+
+.input-group.input-group-lg span.twitter-typeahead .form-control {
+    height: 46px;
+    padding: 10px 16px;
+    font-size: 18px;
+    line-height: 1.3333333;
+    border-radius: 6px;
+}
+
+.input-group.input-group-sm span.twitter-typeahead .form-control {
+    height: 30px;
+    padding: 5px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-radius: 3px;
+}
+
+span.twitter-typeahead {
+    width: 100%;
+}
+
+.input-group span.twitter-typeahead {
+    display: block !important;
+    height: 34px;
+}
+
+.input-group span.twitter-typeahead .tt-menu,
+.input-group span.twitter-typeahead .tt-dropdown-menu {
+    top: 32px !important;
+}
+
+.input-group span.twitter-typeahead:not(:first-child):not(:last-child) .form-control {
+    border-radius: 0;
+}
+
+.input-group span.twitter-typeahead:first-child .form-control {
+    border-top-left-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
+.input-group span.twitter-typeahead:last-child .form-control {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+}
+
+.input-group.input-group-sm span.twitter-typeahead {
+    height: 30px;
+}
+
+.input-group.input-group-sm span.twitter-typeahead .tt-menu,
+.input-group.input-group-sm span.twitter-typeahead .tt-dropdown-menu {
+    top: 30px !important;
+}
+
+.input-group.input-group-lg span.twitter-typeahead {
+    height: 46px;
+}
+
+.input-group.input-group-lg span.twitter-typeahead .tt-menu,
+.input-group.input-group-lg span.twitter-typeahead .tt-dropdown-menu {
+    top: 46px !important;
+}
+
+@media only screen and (min-width: 768px) {
+
+/* For desktop: */
+    .typeahead {
+        width: 500px!important;
+    }
+
+}
+
+label {
+    display: inline-block;
+}
+
+label textarea{
+    vertical-align: middle;
+}
+
+#bill-text-div {
+}
+
+footer {
+    color: white;
+    background: rgb(120, 26, 54);
+    padding: 100px;
+    text-align: center;
+    grid-area: footer;
+}
+
+.bill {
+    width: 549px;
+    border-radius: 10px;
+    margin-right: 1%;
+}
+
+.committee-jurisdiction {
+    width: 549px;
+    border-radius: 10px;
+}
+
+/*Theme the Tabulator element*/
+#related-bills-table, #committee-jurisdiction-table{
+    font-size: small;
+    background-color:none;
+    border-radius: 10px;
+}
+
+#committee-jurisdiction-table {
+    margin-top: 25px;
+}
+
+/*Theme the header*/
+#committee-jurisdiction-table .tabulator-header,#related-bills-table .tabulator-header {
+    background-color:none;
+    border-top: none;
+    border-color: #9d2146 !important;
+}
+/*Color the table rows*/
+#committee-jurisdiction-table .tabulator-tableHolder .tabulator-table .tabulator-row,#related-bills-table .tabulator-tableHolder .tabulator-table .tabulator-row{
+    background-color: none;
+    border-color: #9d2146 !important;
+}
+
+.sponsors-buttons {
+    margin-top: 100px;
+}
+
+.horizontal-form-divider {
+    border-bottom: 1px solid lightgray;
+    margin-bottom: 20px;
+}
+
+.spacer {
+    width: 43%;
+}
+
+.cbo-score {}
+
+.left-understanding-context-body {
+    width: 50%;
+    margin-right: 3%;
+}
+
+.right-understanding-context-body {}
+
+.timeline-detail {
+}
+
+/* Circle */
+.circle{
+    background: #9d2146;
+    width: 2.5em;
+    height: 6em;
+    line-height: 6em;
+    border-radius: 100%;
+    text-align: center;
+}
+
+.circle.single {
+    background: #d4d4d4!important;
+    height: 2.5em!important;
+}
+
+.circle.muted {
+    background: #d4d4d4!important;
+}
+
+.dotted-line {
+    border-right: 1px dotted #9d2146;
+    height: 100%;
+    width: 1px;
+    transform: scale(1, 1.6);
+    transform-origin: 50% -4%;
+    width: 0;
+    padding-right: 47%;
+  }
+
+.dotted-line.muted {
+    border-right: 1px dotted #d4d4d4!important;
+}
+
+.down-arrow {
+    color: #9d2146;
+    padding-left: 14.5px;
+}
+
+.down-arrow.muted{
+    color: #d4d4d4!important;
+}
+
+.timeline-spacer {
+    padding: 0 60px 0 0px;
+}
+
+.timeline-date {
+    min-width: 60px;
+}
+
+@media only screen and (min-width: 768px) {
+    /* For desktop: */
+    .horizontal-form-divider {
+        border-right: 1px solid lightgray;
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-right: 75px;
+    }
+
+    .timeline-date {
+        min-width: 120px;
+    }
+
+    .timeline-spacer {
+        padding-right: 120px;
+    }
+}

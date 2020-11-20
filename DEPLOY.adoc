@@ -176,6 +176,10 @@ sudo /bin/systemctl enable elasticsearch.service
 
 `sudo systemctl start elasticsearch.service`
 
+* Create the `billsections` index
+
+In Python, with the `flatgov` virtual environment, run `createIndex(delete=True)` from https://github.com/aih/FlatGov/blob/master/flatgovtools/elastic_load.py. This will create the index with the correct mappings.
+
 
 #### Install Elasticdump to restore and backup data (requires NodeJS and NPM)
 

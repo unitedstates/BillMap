@@ -13,6 +13,11 @@
 
     <!-- font awesome -->
     <script src="https://use.fontawesome.com/4b14720de5.js"></script>
+
+    <!-- Full Calendar -->
+    {% load static %}
+    <link href="{% static 'assets/fullcalendar/main.css' %}" rel='stylesheet' />
+
     <title>gov track demo template</title>
     <style>
       .btn-primary {
@@ -265,6 +270,13 @@ label textarea{
           </div>
         </div>
       </div>
+
+      <div id="wrap" class="p-4">
+        <div id="calendar"></div>
+        <div style="clear:both"></div>
+      </div>
+
+      <div class="my-5"></div>
     </div>
       <!-- jQuery first, then Popper.js, then Bootstrap JS and typeahead -->
       <!-- Uses the full version of jQuery for ajax functions -->
@@ -278,6 +290,8 @@ label textarea{
       </script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/typeahead.js/0.11.1/typeahead.bundle.min.js" crossorigin="anonymous">
       </script>
+
+      <script src="{% static 'assets/fullcalendar/main.js' %}" type="text/javascript"></script>
   </body>
   <script type="text/javascript">
     //TODO add bills_list as a JSON array to the context
@@ -334,9 +348,46 @@ label textarea{
         alert(inputText);
       }
 
-    }; 
+    };
 
     $(document).ready(function() {
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var calendarEl = document.getElementById('calendar');
+
+      var calendar = new FullCalendar.Calendar(calendarEl, {
+
+        headerToolbar: {
+          left: 'prev,next today',
+          center: 'title',
+          right: 'timeGridDay,timeGridWeek,dayGridMonth,listYear'
+        },
+
+        initialView: 'timeGridWeek',
+
+        contentHeight: 'auto',
+
+        displayEventTime: false, // don't show the time column in list view
+
+        // THIS KEY WON'T WORK IN PRODUCTION!!!
+        // To make your own Google API key, follow the directions here:
+        // http://fullcalendar.io/docs/google_calendar/
+        googleCalendarApiKey: 'AIzaSyDcnW6WejpTOCffshGDDb4neIrXVUA1EAE',
+
+        // US Holidays
+        events: 'en.usa#holiday@group.v.calendar.google.com',
+
+        eventClick: function(arg) {
+          // opens events in a popup window
+          window.open(arg.event.url, 'google-calendar-event', 'width=700,height=600');
+
+          arg.jsEvent.preventDefault() // don't navigate in main tab
+        }
+
+      });
+
+      calendar.render();
     });
   </script>
 

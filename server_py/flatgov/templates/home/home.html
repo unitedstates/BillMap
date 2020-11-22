@@ -256,13 +256,16 @@ label textarea{
         <div class="search p-4 mb-4">
           <p>Search for bills from the 110th through the current Congress</p>
           <div >
-            <input id="bill-search" type="text" class="typeahead" placeholder="Search for bill">
+            <input id="bill-search" type="text" class="typeahead" placeholder="Search for bill (e.g. 116sres99)">
             <!--<a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>-->
           </div>
           <div id="or-div">
-          OR
+          <a data-toggle="collapse" href="#bill-text-div" role="button" aria-expanded="false" aria-controls="bill-text-div">
+            <i class="fa fa-caret-down" aria-hidden="true"></i>
+            Show more search options
+          </a>
           </div>
-          <div id="bill-text-div">
+          <div id="bill-text-div" class="collapse">
             <form action="" method="POST" class="post-form">{% csrf_token %}
               {{ form.as_p }}
               <input class="btn btn-outline-primary" type="submit" value="Find similar bills">

@@ -275,9 +275,9 @@ $ ssh-keygen
 ```bash
 $ echo "put /path/to/mykey.pub" | sftp -i /path/to/admin/key.pem admin-username@ec2-address.amazonaws.com
 ```
-* Admin sets up new user (`kirsten`) on server:
+* Admin sets up new user (`david`) on server:
 ```bash
-$ sudo adduser david
+$ sudo adduser --disabled-password david
 $ sudo mkdir /home/david/.ssh
 $ sudo cp mykey.pub /home/david/.ssh/authorized_keys
 $ sudo chown -R david:david /home/kirsten/.ssh

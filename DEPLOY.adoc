@@ -176,6 +176,10 @@ sudo /bin/systemctl enable elasticsearch.service
 
 `sudo systemctl start elasticsearch.service`
 
+* Create the `billsections` index
+
+In Python, with the `flatgov` virtual environment, run `createIndex(delete=True)` from https://github.com/aih/FlatGov/blob/master/flatgovtools/elastic_load.py. This will create the index with the correct mappings.
+
 
 #### Install Elasticdump to restore and backup data (requires NodeJS and NPM)
 
@@ -260,5 +264,55 @@ See https://docs.pylonsproject.org/projects/waitress/en/stable/
 and https://stackoverflow.com/a/38943785/628748
 
 The `waitress` server will already be installed in your pyenv environment from `requirements.txt`. The `server_py/server.py` file can be used to serve the app from the command line with `python server.py` (within the `flatgov` pyenv environment).
+
+### Add other SSH users
+* User generates a keypair:
+```bash
+$ ssh-keygen
+```
+* User then sends `.pub` file to admin (**not the other file**)
+* Admin copies `.pub` file to server:
+```bash
+$ echo "put /path/to/mykey.pub" | sftp -i /path/to/admin/key.pem admin-username@ec2-address.amazonaws.com
+```
+* Admin sets up new user (`david`) on server:
+```bash
+$ sudo adduser --disabled-password david
+$ sudo mkdir /home/david/.ssh
+$ sudo cp mykey.pub /home/david/.ssh/authorized_keys
+$ sudo chown -R david:david /home/david/.ssh
+$ sudo chmod 700 /home/david/.ssh
+$ sudo chmod 600 /home/david/.ssh/authorized_keys
+```
+* Now user can log in to server:
+```bash
+$ ssh -i /path/to/mykey david@ec2-address.amazonaws.com
+```
+
+#### Provide sudoer access (only) to those who need it [CAUTION]
+WARNING: This can be insecure. Make sure that anyone who has `sudo` access really needs it and will act responsibly.
+
+Change password defaults in the `sudoers` file:
+```bash
+$ sudo visudo
+```
+
+This opens a `vi` instance on `/etc/sudoers`.  Find the line reading:
+```
+## Allows people in group wheel to run all commands
+%wheel        ALL=(ALL)       ALL
+```
+Comment that out.  Below that, you will find the line:
+```
+## Same thing without a password
+# %wheel  ALL=(ALL)       NOPASSWD: ALL
+```
+Uncomment this option, then save and quit `vi`.
+
+Finally, to provide sudo access to the new user:
+[subs=+quotes]
+```bash
+$ sudo usermod -aG wheel _USERNAME_
+```
 
 

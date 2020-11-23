@@ -31,11 +31,24 @@ $ cd FlatGov
 
 Create a new Python virtual environment. You can use `venv`, `virtualenv` or preferably https://github.com/pyenv/pyenv-virtualenv[`pyenv virtualenv`], which requires installing https://github.com/pyenv/pyenv[pyenv] first).
 
+If you don't have pyenv, try installing with homebrew
+```bash
+$ brew update
+$ brew install pyenv
+```
+
+If you don't have pyenv-virtualenv, try installing with homebrew
+```bash
+$ brew install pyenv-virtualenv
+```
+Note: you may have to manually update `~/.bashrc` for virtual env commands to work
+
 Create the environment (with pyenv virtualenv):
 ```bash
 $ pyenv install 3.7
 $ pyenv virtualenv 3.7 flatgov
 ```
+Note: you may have to specify the patch version e.g. 3.7.9
 
 Activate the environment
 ```bash
@@ -50,7 +63,7 @@ $ pip install -r requirements.txt
 ```
 
 ```bash
-$ cd /path/to/FlatGov/flatgovtools
+$ cd /path/to/FlatGov/
 $ pip install -r requirements.txt
 ```
 
@@ -116,6 +129,7 @@ Alternately, use scripts to scrape the `congress` directory and generate metadat
    $ cd /path/to/flatgovtools
    $ pyenv activate flatgov 
    $ python billdata.py #runs the billdata script
+   # If you get an error saying No module named 'flatgovtools', run command 'pip install -e ./'
    # Can take quite a while (~ 30 min to an hour)
    # creates large billsMeta.json and billsMeta.json.gz files
    # as well as a file for each bill in `congress/data/relatedbills

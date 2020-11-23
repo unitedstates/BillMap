@@ -280,7 +280,7 @@ $ echo "put /path/to/mykey.pub" | sftp -i /path/to/admin/key.pem admin-username@
 $ sudo adduser --disabled-password david
 $ sudo mkdir /home/david/.ssh
 $ sudo cp mykey.pub /home/david/.ssh/authorized_keys
-$ sudo chown -R david:david /home/kirsten/.ssh
+$ sudo chown -R david:david /home/david/.ssh
 $ sudo chmod 700 /home/david/.ssh
 $ sudo chmod 600 /home/david/.ssh/authorized_keys
 ```

@@ -1,0 +1,15 @@
+{
+    "settings": {
+        "index": {
+            "similarity": {
+                "custom_similarity_1": {
+                    "type": "DFR",
+                    "basic_model": "g",
+                    "after_effect": "l",
+                    "normalization": "h2",
+                    "normalization.h2.c": "3.0"
+                }
+            }
+        }
+    }
+}

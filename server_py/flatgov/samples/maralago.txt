@@ -1,0 +1,35 @@
+SEC. 2. IMPROVING ACCESS TO INFLUENTIAL VISITOR ACCESS RECORDS.
+
+(a) Definitions.—In this section:
+
+(1) COVERED LOCATION.—The term “covered location” means—
+
+(A) the White House;
+
+(B) the residence of the Vice President; and
+
+(C) any other location at which the President or the Vice President regularly conducts official business.
+
+(2) COVERED RECORDS.—The term “covered records” means information relating to a visit at a covered location, which shall include—
+
+(A) the name of each visitor at the covered location;
+
+(B) the name of each individual with whom each visitor described in subparagraph (A) met at the covered location; and
+
+(C) the purpose of the visit.
+
+(b) Requirement.—Except as provided in subsection (c), not later than 30 days after the date of enactment of this Act, the President shall establish and update, every 90 days, a publicly available database that contains covered records for the preceding 30-day period.
+
+(c) Exceptions.—
+
+(1) IN GENERAL.—The President shall not include in the database established under subsection (b) any covered record—
+
+(A) the posting of which would implicate personal privacy or law enforcement concerns or threaten national security; or
+
+(B) relating to a purely personal guest at a covered location.
+
+(2) SENSITIVE MEETINGS.—With respect to a particularly sensitive meeting at a covered location, the President shall—
+
+(A) include the number of visitors at the covered location in the database established under subsection (b); and
+
+(B) post the applicable covered records in the database established under subsection (b) when the President determines that release of the covered records is no longer sensitive.

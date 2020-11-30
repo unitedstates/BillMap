@@ -77,6 +77,8 @@ Copy `server_py/flatgov/.env-sample` to `server_py/flatgov/.env`, and change the
 
 ##### Copy `congress/`
 
+NOTE: the steps below have been superceded by Django manage.py commands which download the data and populate the database: https://github.com/aih/FlatGov/blob/master/django_database.adoc
+
 Data for the application is stored in a `congress/` directory, which should be stored in the `FlatgovDir` directory, with a soft-link to `server_py/congress`. If you have a copy of `congress/` (e.g. through access to the FlatGov AWS S3 bucket), move it to `/path/to/FlatgovDir/congress`. Then:
 
 ```

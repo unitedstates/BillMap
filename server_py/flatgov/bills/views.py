@@ -251,6 +251,7 @@ class BillDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['cosponsors'] = self.get_cosponsors()
         context['related_bills'] = self.get_related_bills()
+        context['similar_bills'] = self.object.get_similar_bills
         return context
 
     # def get_tables(self):

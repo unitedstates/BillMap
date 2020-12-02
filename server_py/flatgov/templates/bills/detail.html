@@ -49,7 +49,7 @@
         </div>
     </div>
 </div>
-<div class="similar-bills mt-4">
+<div class="related-bills mt-4">
     <h4>Analyze Related Bills</h4>
     <span class="small">
         Discover related bills to {{ bill.get_type_abbrev }} {{ bill.number }}: Access to Congressionally Mandated Reports Act. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
@@ -88,6 +88,49 @@
                         <td>{{ bill.sponsor }}</td>
                         <td>{{ bill.cosponsor|truncatechars:30 }}</td>
                         <td></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
+            </div>
+        </div>
+    </div>
+</div>
+<div class="similar-bills mt-4">
+    <h4>Analyze Similar Bills</h4>
+    <span class="small">
+        Discover similar bills to {{ bill.get_type_abbrev }} {{ bill.number }}
+    </span>
+    <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="current-tab" data-toggle="tab" href="#current" role="tab"
+            aria-controls="current" aria-selected="true">All</a>
+        </li>
+    </ul>
+    <div class="tab-content light-gray-tabs p-4" id="myTabContent">
+        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">            
+            <table class="table mt-3" id="similar-bills-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in similar_bills %}
+                    <tr>
+                        <td>
+                            {% if bill.in_db %}
+                                <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
+                                    {{ bill.bill_congress_type_number }}
+                                </a>
+                            {% else %}
+                                {{ bill.bill_congress_type_number }}
+                            {% endif %}
+                        </td>
+                        <td>{% if bill.score %}{{ bill.score }}{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

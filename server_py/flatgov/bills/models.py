@@ -1,3 +1,4 @@
+from collections import Counter
 from django.db import models
 
 class Bill(models.Model):
@@ -17,6 +18,7 @@ class Bill(models.Model):
     related_bills = models.JSONField(default=list)
     related_dict = models.JSONField(default=dict)
     cosponsors_dict = models.JSONField(default=list)
+    es_similarity = models.JSONField(default=list)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -45,6 +47,33 @@ class Bill(models.Model):
             else:
                 continue
         return result
+
+    @property
+    def get_similar_bills(self):
+        res = Counter()
+        es_similarity = self.es_similarity
+        for section in es_similarity:
+            similars = section.get('similars')
+
+            for similar in similars:
+                score = similar.get('score')
+                billnumber = similar.get('billnumber')
+                res[billnumber] += score
+        similar_bills = list()
+        for bill_congress_type_number, score in res.items():
+            qs_bill = Bill.objects.filter(
+                bill_congress_type_number=bill_congress_type_number)
+
+            if qs_bill.exists():
+                in_db = True
+            else:
+                in_db = False
+            similar_bills.append({
+                "score": score,
+                "in_db": in_db,
+                "bill_congress_type_number": bill_congress_type_number
+            })
+        return sorted(similar_bills, key=lambda k: k['score'], reverse=True)
 
 
 class Cosponsor(models.Model):

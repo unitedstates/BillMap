@@ -8,9 +8,14 @@ These instructions walk through installation of dependencies on a standard Ubunt
 * Store your private key (e.g. `mykey.pem`) and ensure it is readable (`chmod 400 mykey.pem`)
 * Log in to the server from a terminal with ssh (e.g. `ssh -F /dev/null -i ./mykey.pem ubuntu@ec....compute-1.amazonaws.com`
 
-#### Update server packages 
+#### Update and upgrade server packages 
 
 `sudo apt-get update`
+`sudo apt-get upgrade`
+
+### Mount additional EBS volume on `/data`
+
+See https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ebs-using-volumes.html
 
 #### Create flatgov directory
 
@@ -141,9 +146,28 @@ Ensure that the `flatgov` virtual environment is activated:
 From the top level of this repository:
 ```bash
 $ cd /opt/flatgov/FlatGov
-$ pip install -r requirements.txt
-$ pip install -r server_py/requirements.txt
+$ pip install -e ./
+# These requirements should be added to setup.py
+# $ pip install -r requirements.txt
+# $ pip install -r server_py/requirements.txt
 ```
+
+NOTE: to install psycopg2 on ubuntu, I had to `sudo apt-get install --reinstall libpq-dev`. See https://stackoverflow.com/questions/58961043/how-to-install-libpq-fe-h#
+
+#### Install Postgresql
+
+https://www.postgresql.org/download/linux/ubuntu/
+```bash
+sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list'
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+sudo apt-get update
+sudo apt-get -y install postgresql
+```
+
+
+#### Install db, run migrations and add data
+
+Follow the instructions in django_database.adoc
 
 #### Install Elasticsearch (for similarity data)
 

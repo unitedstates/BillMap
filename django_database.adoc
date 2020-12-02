@@ -40,6 +40,16 @@ On a Mac, with the `postgres` user, enter the psql command line this way:
 
 `psql -h localhost -d postgres`
 
+On Ubuntu, set a password for the postgres user:
+`sudo -u postgres psql postgres`
+
+Then
+`\password postgres`
+
+Set the password and then close psql:
+
+`\q`
+
 * Create the `flatgov` db and `vmm` user
 
 ```bash

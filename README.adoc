@@ -77,6 +77,8 @@ Copy `server_py/flatgov/.env-sample` to `server_py/flatgov/.env`, and change the
 
 ##### Copy `congress/`
 
+NOTE: the steps below have been superceded by Django manage.py commands which download the data and populate the database: https://github.com/aih/FlatGov/blob/master/django_database.adoc
+
 Data for the application is stored in a `congress/` directory, which should be stored in the `FlatgovDir` directory, with a soft-link to `server_py/congress`. If you have a copy of `congress/` (e.g. through access to the FlatGov AWS S3 bucket), move it to `/path/to/FlatgovDir/congress`. Then:
 
 ```
@@ -292,17 +294,8 @@ It does this by creating a billnumber index with the bill metadata, and any simi
 
 ### Similarity calculation
 
-For any bill (e.g. 116hr100ih), we want to find related bills for previous congresses. Related bills are listed for the same congress in Congress.gov, e.g. https://www.congress.gov/bill/116th-congress/house-bill/2/related-bills?q={"search":["hr2"]}&r=1&s=3.  There are many ways of calculating similarity. We will use an overall similarity measure, with a value between 0 and 1. The similarity is calculated as a linear combination of matching functions of the form:
+For any bill (e.g. 116hr100ih), we want to find related bills for previous congresses. Related bills are listed for the same congress in Congress.gov, e.g. https://www.congress.gov/bill/116th-congress/house-bill/2/related-bills?q={"search":["hr2"]}&r=1&s=3. There are many ways of calculating similarity. 
 
-`Similarity(bill~1~,bill~2~) = normalize(w~1~*f~1~(bill~1~, bill~2~) + w~2~*f~2~(bill1, bill2) + ...)`
+For purposes of efficiency and performance, we will develop a similarity measure based on a search engine. In particular, we have built an index of document headers and sections in Elasticsearch. We can calculate the similarity between any input text and sections in the index using the ES/Lucene 'more like this' metric. We can combine the section to section similarity scores to yield an overall bill similarity measure.  For more details, see https://github.com/aih/FlatGov/blob/master/server_py/flatgov/elasticsearch/README.adoc
 
 NOTE: a bill text similarity engine is here https://github.com/govtrack/govtrack.us-web/blob/master/analysis/text_incorporation.py
-
-Each similarity function has the following properties:
-
-name:: a unique name for the feature being measured
-function:: a function that takes in metadata or text from the two bills and returns a value between 0 and 1
-minthreshold:: the minimum value of the function that will be counted; if the function value is less than minthreshold, it is set to 0
-maxthreshold:: 
-a threshold that sets the whole function to 'true'. If the function is greater than this value, the two bills are considered to be a match. For example, if the titles are identical, the two bills will be considered a match, regardless of the value of the other functions.
-

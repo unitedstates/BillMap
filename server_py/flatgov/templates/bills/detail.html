@@ -110,11 +110,12 @@
         </li>
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="myTabContent">
-        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">            
+        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
             <table class="table mt-3" id="similar-bills-table">
                 <thead>
                     <tr>
                         <th scope="col">Bill</th>
+                        <th scope="col">Titles</th>
                         <th scope="col">Score</th>
                     </tr>
                 </thead>
@@ -130,6 +131,7 @@
                                 {{ bill.bill_congress_type_number }}
                             {% endif %}
                         </td>
+                        <td>{{ bill.title }}</td>
                         <td>{% if bill.score %}{{ bill.score }}{% endif %}</td>
                     </tr>
                     {% endfor %}

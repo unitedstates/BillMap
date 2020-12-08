@@ -51,6 +51,14 @@ class Bill(models.Model):
     @property
     def get_similar_bills(self):
         res = Counter()
+        a = {
+            'score': None,
+            'billnumber': None,
+            'title': None,
+            'section_match_number': None,
+            'best_match_score': None,
+            'best_match_section': None
+        }
         es_similarity = self.es_similarity
         for section in es_similarity:
             similars = section.get('similars')
@@ -59,15 +67,19 @@ class Bill(models.Model):
                 score = similar.get('score')
                 billnumber = similar.get('billnumber')
                 res[billnumber] += score
+
         similar_bills = list()
         for bill_congress_type_number, score in res.items():
             qs_bill = Bill.objects.filter(
                 bill_congress_type_number=bill_congress_type_number)
 
+            # target_bill = qs_bill.first()
+
             if qs_bill.exists():
                 in_db = True
             else:
                 in_db = False
+
             similar_bills.append({
                 "score": score,
                 "in_db": in_db,

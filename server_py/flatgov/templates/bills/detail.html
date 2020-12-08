@@ -131,8 +131,9 @@
                                 {{ bill.bill_congress_type_number }}
                             {% endif %}
                         </td>
+
                         <td>{{ bill.title }}</td>
-                        <td>{% if bill.score %}{{ bill.score }}{% endif %}</td>
+                        <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

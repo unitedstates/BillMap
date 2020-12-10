@@ -50,42 +50,52 @@ class Bill(models.Model):
 
     @property
     def get_similar_bills(self):
-        res = Counter()
-        a = {
-            'score': None,
-            'billnumber': None,
-            'title': None,
-            'section_match_number': None,
-            'best_match_score': None,
-            'best_match_section': None
-        }
+        res = list()
+        section_obj = dict()
+
         es_similarity = self.es_similarity
         for section in es_similarity:
             similars = section.get('similars')
+            section_text = section.get('section')
 
             for similar in similars:
-                score = similar.get('score')
                 billnumber = similar.get('billnumber')
-                res[billnumber] += score
+                score = similar.get('score')
+                title = similar.get('title')
 
-        similar_bills = list()
-        for bill_congress_type_number, score in res.items():
+                target = section_obj.get(billnumber, {})
+                title_list = target.get('title', [])
+                title_list.append(title)
+
+                scores_list = target.get('scores', [])
+                scores_list.append({'score': score, 'section': section_text})
+                sorted_scores_list = sorted(scores_list, key=lambda k: k['score'], reverse=True)
+
+                target['score'] = target.get('score', 0) + score
+                target['title'] = title_list
+                target['number_of_sections'] = target.get('number_of_sections', 0) + 1
+                target['scores'] = sorted_scores_list
+                section_obj[billnumber] = target
+                # score = similar.get('score')
+                # billnumber = similar.get('billnumber')
+                # res[billnumber] += score
+
+        for bill_congress_type_number, obj in section_obj.items():
             qs_bill = Bill.objects.filter(
                 bill_congress_type_number=bill_congress_type_number)
-
-            # target_bill = qs_bill.first()
-
+            score = obj.get('score')
             if qs_bill.exists():
                 in_db = True
             else:
                 in_db = False
 
-            similar_bills.append({
+            res.append({
                 "score": score,
                 "in_db": in_db,
-                "bill_congress_type_number": bill_congress_type_number
+                "bill_congress_type_number": bill_congress_type_number,
+                "info": obj
             })
-        return sorted(similar_bills, key=lambda k: k['score'], reverse=True)
+        return sorted(res, key=lambda k: k['score'], reverse=True)
 
 
 class Cosponsor(models.Model):

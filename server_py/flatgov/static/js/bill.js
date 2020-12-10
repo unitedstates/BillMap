@@ -43,5 +43,6 @@ $(document).ready( function () {
             lengthMenu: "_MENU_ bills",
         },
         lengthMenu: [100, 50, 20, 5],
+        order: [[ 2, 'desc' ]]
     });
 } );

@@ -117,6 +117,9 @@
                         <th scope="col">Bill</th>
                         <th scope="col">Titles</th>
                         <th scope="col">Score</th>
+                        <th scope="col">Number of sections matched</th>
+                        <th scope="col">Best match score</th>
+                        <th scope="col">Best match sections</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -132,8 +135,11 @@
                             {% endif %}
                         </td>
 
-                        <td>{{ bill.title }}</td>
+                        <td>{{ bill.info.title.0 }}</td>
                         <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
+                        <td>{{ bill.info.number_of_sections }}</td>
+                        <td>{{ bill.info.scores.0.score|floatformat:2 }}</td>
+                        <td>{{ bill.info.scores.0.section|truncatechars:40 }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>

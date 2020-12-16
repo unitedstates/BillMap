@@ -83,10 +83,10 @@
                             </a>
                         </td>
                         <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
-                        <td>{{ bill.titles|truncatechars:30 }}</td>
+                        <td><span title="{{ bill.titles }}">{{ bill.titles|truncatechars:30 }}</span></td>
                         <td>{{ bill.titles_year_list }}</td>
                         <td>{{ bill.sponsor }}</td>
-                        <td>{{ bill.cosponsor|truncatechars:30 }}</td>
+                        <td><span title="{{ bill.cosponsor }}">{{ bill.cosponsor|truncatechars:30 }}</span></td>
                         <td></td>
                     </tr>
                     {% endfor %}
@@ -110,6 +110,7 @@
         </li>
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="myTabContent">
+        <p><span><strong>Number of sections: {{ object.titles|length }}</strong></span></p>
         <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
             <table class="table mt-3" id="similar-bills-table">
                 <thead>
@@ -135,11 +136,12 @@
                             {% endif %}
                         </td>
 
-                        <td>{{ bill.info.title.0 }}</td>
+                        <td><span title="{{ bill.info.title.0 }}">{{ bill.info.title.0|truncatechars:40 }}</span></td>
                         <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
                         <td>{{ bill.info.number_of_sections }}</td>
                         <td>{{ bill.info.scores.0.score|floatformat:2 }}</td>
-                        <td>{{ bill.info.scores.0.section|truncatechars:40 }}</td>
+                        <td><span title="{{ bill.info.scores.0.section }}">{{ bill.info.scores.0.section|truncatechars:40 }}</span></td>
+                        <!-- <td>{{ bill.info.scores.0.section|truncatechars:40 }}</td> -->
                     </tr>
                     {% endfor %}
                 </tbody>

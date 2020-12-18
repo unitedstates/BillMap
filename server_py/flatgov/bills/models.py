@@ -97,6 +97,22 @@ class Bill(models.Model):
             })
         return sorted(res, key=lambda k: k['score'], reverse=True)
 
+    def get_second_similar_bills(self, second_bill):
+        res = list()
+        for item in self.es_similarity:
+            similars = item.get('similars')
+
+            if not similars:
+                continue
+
+            for similar in similars:
+                bill_number = similar.get('billnumber')
+
+                if bill_number == second_bill:
+                    similar['section'] = item.get('section')
+                    res.append(similar)
+        return res
+
 
 class Cosponsor(models.Model):
     name = models.CharField(max_length=100)

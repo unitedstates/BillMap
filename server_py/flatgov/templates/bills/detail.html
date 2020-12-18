@@ -116,6 +116,7 @@
                 <thead>
                     <tr>
                         <th scope="col">Bill</th>
+                        <th scope="col">Detail</th>
                         <th scope="col">Titles</th>
                         <th scope="col">Score</th>
                         <th scope="col">Number of sections matched</th>
@@ -135,7 +136,15 @@
                                 {{ bill.bill_congress_type_number }}
                             {% endif %}
                         </td>
-
+                        <td>
+                            {% if bill.in_db %}
+                                <a href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
+                                    <img src="{% static 'images/share-files.png' %}" alt="">
+                                </a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
                         <td><span title="{{ bill.info.title.0 }}">{{ bill.info.title.0|truncatechars:40 }}</span></td>
                         <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
                         <td>{{ bill.info.number_of_sections }}</td>

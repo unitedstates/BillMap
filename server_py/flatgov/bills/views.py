@@ -276,3 +276,16 @@ class BillDetailView(DetailView):
         serializer = CosponsorSerializer(
             qs, many=True, context={'bill': self.object})
         return serializer.data
+
+
+class BillToBillView(DetailView):
+    model = Bill
+    template_name = 'bills/compare.html'
+    slug_field = 'bill_congress_type_number'
+
+    def get_context_data(self, *args, **kwargs):
+        context = super().get_context_data(**kwargs)
+        second_bill = self.kwargs.get('second_bill')
+        context['second_bill'] = Bill.objects.get(bill_congress_type_number=second_bill)
+        context['bill_to_bill'] = self.object.get_second_similar_bills(second_bill)
+        return context

@@ -1,0 +1,86 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="title">
+    <hr />
+    <span>Home > Bills > Compare > {{ bill.type }} {{ bill.number }} ({{ bill.congress }}th) / {{ second_bill.type }} {{ second_bill.number }} ({{ second_bill.congress }}th)</span>
+    <h1>
+        Similarity between {{ bill.bill_congress_type_number }} and {{ second_bill.bill_congress_type_number }}
+    </h1>
+    <span class="small">{{ bill.congress }}th Congress / {{ second_bill.congress }}th congress (2019-2020)</span>
+    <hr />
+</div>
+<div class="mt-4">
+    <h4>Titles</h4>
+    <span class="small">
+        {{ bill.bill_congress_type_number }} / {{ second_bill.bill_congress_type_number }}: 
+    </span>
+    <div class="tab-content light-gray-tabs p-4">
+        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+            <table class="table mt-3">
+                <thead>
+                    <tr>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Titles</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>
+                            <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
+                                {{ bill.bill_congress_type_number }}
+                            </a>
+                        <td><span title="{{ bill.titles }}">{{ bill.short_title }}</span></td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <a href="{% url 'bill-detail' slug=second_bill.bill_congress_type_number  %}">
+                                {{ second_bill.bill_congress_type_number }}
+                            </a>
+                        <td><span title="{{ second_bill.titles }}">{{ second_bill.short_title }}</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<div class="mt-4">
+    <h4>Sections Matched</h4>
+    <span class="small">
+        Discover sections matched between {{ bill.bill_congress_type_number }} and {{ second_bill.bill_congress_type_number }}
+    </span>
+    <div class="tab-content light-gray-tabs p-4">
+        <p><span><strong>Number of sections matched: {{ bill_to_bill|length }}</strong></span></p>
+        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+            <table class="table mt-3">
+                <thead>
+                    <tr class="d-flex">
+                        <th class="col-2">Score</th>
+                        <th class="col-5">Section match from {{ bill.bill_congress_type_number }}</th>
+                        <th class="col-5">Section match from {{ second_bill.bill_congress_type_number }}</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bill_to_bill %}
+                    <tr class="d-flex">
+                        <td class="col-2">{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
+                        <td class="col-5"><span title="{{ bill.section }}">{{ bill.section }}</span></td>
+                        <td class="col-5"><span title="{{ bill.section_text }}">{{ bill.section_text }}</span></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/bill.js' %}"></script>
+<script>
+    var table = new Tabulator("#committee-jurisdiction-table", {
+        // rowFormatter:function(row){
+    });
+</script>
+{% endblock %}

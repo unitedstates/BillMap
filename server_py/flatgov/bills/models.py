@@ -128,7 +128,7 @@ class Bill(models.Model):
                     similar['target_section_header'] = target_section_header
                     similar['target_section_number'] = target_section_number
                     res.append(similar)
-        return sorted(res, key=lambda k: k['score'], reverse=True)
+        return sorted(res, key=lambda k: k['score'], reverse=True)[:10]
 
 
 class Cosponsor(models.Model):

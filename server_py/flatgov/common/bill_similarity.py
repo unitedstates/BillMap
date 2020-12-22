@@ -57,33 +57,6 @@ def indexBill(bill_path: str=PATH_BILL):
   else:
     billnumber_text = getBillNumberFromBillPath(bill_path)
   sections = billTree.xpath('//section')
-  # headers = billTree.xpath('//header')
-  # from collections import OrderedDict
-  # headers_text = [ header.text for header in headers]
-
-  # Uses an OrderedDict to deduplicate headers
-  # TODO handle missing header and enum separately
-  # doc = {
-  #     'congress': congress_text,
-  #     'session': session_text,
-  #     'dc': dublinCore,
-  #     'legisnum': legisnum_text,
-  #     'billnumber': billnumber_text,
-  #     'headers': list(OrderedDict.fromkeys(headers_text)),
-  #     'sections': [{
-  #         'section_number': section.xpath('enum')[0].text,
-  #         'section_header':  section.xpath('header')[0].text,
-  #         'section_text': etree.tostring(section, method="text", encoding="unicode"),
-  #         'section_xml': etree.tostring(section, method="xml", encoding="unicode")
-  #     } if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0) else
-  #     {
-  #         'section_number': '',
-  #         'section_header': '', 
-  #         'section_text': etree.tostring(section, method="text", encoding="unicode"),
-  #         'section_xml': etree.tostring(section, method="xml", encoding="unicode")
-  #     } 
-  #     for section in sections ]
-  # }
 
   qs_bill = Bill.objects.filter(bill_congress_type_number=billnumber_text)
   if qs_bill.exists():
@@ -91,9 +64,19 @@ def indexBill(bill_path: str=PATH_BILL):
     es_similarity = list()
 
     for section in sections:
-      section_item = dict()
+      if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0):
+        section_item = {
+          'billnumber': billnumber_text,
+          'section_number': section.xpath('enum')[0].text,
+          'section_header':  section.xpath('header')[0].text,
+        }
+      else:
+        section_item = {
+          'billnumber': billnumber_text,
+          'section_number': '',
+          'section_header': '',
+        }
       section_text = etree.tostring(section, method="text", encoding="unicode")
-      section_item['section'] = section_text
 
       similarity = moreLikeThis(queryText=section_text)
       similar_sections = sorted(getSimilarSections(similarity), key=itemgetter('score'), reverse=True)
@@ -120,6 +103,7 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd'):
         pass
 
 def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO, size: int=10) -> dict:
+  query = query
   return es.search(index=index, body=query, size=size)
 
 def moreLikeThis(queryText: str, index: str='billsections'):
@@ -170,9 +154,6 @@ def getSimilarSections(res):
         "title": title,
         "section_num": num,
         "section_header": header,
-        "section_num_header": num + header, 
-        "section_xml": innerResultSections[0].get('_source', {}).get('section_xml', ''),
-        "section_text": innerResultSections[0].get('_source', {}).get('section_text', '')
       }
       similarSections.append(match)
     return similarSections 

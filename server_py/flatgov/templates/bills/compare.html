@@ -65,8 +65,8 @@
                     {% for bill in bill_to_bill %}
                     <tr class="d-flex">
                         <td class="col-2">{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
-                        <td class="col-5"><span title="{{ bill.section }}">{{ bill.section }}</span></td>
-                        <td class="col-5"><span title="{{ bill.section_text }}">{{ bill.section_text }}</span></td>
+                        <td class="col-5"><span>{{ bill.target_section_number }}&nbsp;{{ bill.target_section_header }}</span></td>
+                        <td class="col-5"><span>{{ bill.section_num }}&nbsp;{{ bill.section_header }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>

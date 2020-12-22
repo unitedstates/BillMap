@@ -121,7 +121,8 @@
                         <th scope="col">Score</th>
                         <th scope="col">Number of sections matched</th>
                         <th scope="col">Best match score</th>
-                        <th scope="col">Best match sections</th>
+                        <th scope="col">Best match section header</th>
+                        <th scope="col">Best match section number</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -149,7 +150,8 @@
                         <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
                         <td>{{ bill.info.number_of_sections }}</td>
                         <td>{{ bill.info.scores.0.score|floatformat:2 }}</td>
-                        <td><span title="{{ bill.info.scores.0.section }}">{{ bill.info.scores.0.section|truncatechars:40 }}</span></td>
+                        <td><span title="{{ bill.info.scores.0.section_header }}">{{ bill.info.scores.0.section_header|truncatechars:40 }}</span></td>
+                        <td><span>{{ bill.info.scores.0.section_num }}</span></td>
                         <!-- <td>{{ bill.info.scores.0.section|truncatechars:40 }}</td> -->
                     </tr>
                     {% endfor %}

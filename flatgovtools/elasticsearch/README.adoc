@@ -97,3 +97,14 @@ $ tar -xvf logstash-7.9.2.tar.gz
 * Set up a logstash config file
 
 See https://www.elastic.co/guide/en/logstash/current/configuration.html
+
+
+### Bill Similarity metrics
+1. Of all of the bills, the bill should be most similar to itself. But now, it isn't.
+
+For example: I am not seeing that `116hr300` is in the similar bills list for `116hr300`.
+The issue occurs due to `moreLikeThis` function.
+
+We need to update elastic search query `moreLikeThis` function is using.
+
+

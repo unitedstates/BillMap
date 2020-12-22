@@ -73,75 +73,11 @@ The requirements for `flatgovtools` and `server_py` are separate. But for simpli
 
 Copy `server_py/flatgov/.env-sample` to `server_py/flatgov/.env`, and change the `SECRET_KEY` defined in that file.
 
-#### Metadata: Copy or generate `congress` directory data
+#### Data: download and process
 
-##### Copy `congress/`
+Use Django manage.py commands to download the data and populate the database: https://github.com/aih/FlatGov/blob/master/django_database.adoc
 
-NOTE: the steps below have been superceded by Django manage.py commands which download the data and populate the database: https://github.com/aih/FlatGov/blob/master/django_database.adoc
-
-Data for the application is stored in a `congress/` directory, which should be stored in the `FlatgovDir` directory, with a soft-link to `server_py/congress`. If you have a copy of `congress/` (e.g. through access to the FlatGov AWS S3 bucket), move it to `/path/to/FlatgovDir/congress`. Then:
-
-```
-$ cd /path/to/server_py/flatgov
-$ ln -s ../../../congress ./congress
-```
-
-Your directory will then look like:
-
-```bash
-FlatgovDir
-    |
-  FlatGov
-    |
-   server_py
-       |
-       -flatgov
-          |
-         congress@
-          |
-          data
-           |
-           116
-           115
-           114
-           ...
-```
-
-##### Generate `congress/`
-
-Alternately, use scripts to scrape the `congress` directory and generate metadata. To do this:
-
- 1. Run `download_bills.sh`
-  ```bash
-  $ cd /path/to/flatgovtools
-  $ ./download_bills.sh # The file must be executable, which requires running: chmod u+x ./download_bills.sh
-  # This command downloads, unzips and prepares the `congress` directory. It may take ~ 20 minutes.
-  ```
- 2. Link `congress` directory to a directory inside the Django app 
-
- ```bash
-  $ cd /path/to/server_py/flatgov
-  $ ln -s ../../../congress ./congress
-
-  ```
-
- 3. Run `relatedBills.py`
-
-  ```bash
-   $ cd /path/to/flatgovtools
-   $ pyenv activate flatgov 
-   $ python billdata.py #runs the billdata script
-   # If you get an error saying No module named 'flatgovtools', run command 'pip install -e ./'
-   # Can take quite a while (~ 30 min to an hour)
-   # creates large billsMeta.json and billsMeta.json.gz files
-   # as well as a file for each bill in `congress/data/relatedbills
-    ...
-   $ python process_bill_meta.py # combines data from the results of the above script, to get titles
-   # Very fast (< 1 min) 
-    ...
-   $ python relatedBills.py # processes the data above to add related bills and sponsor data to each file in `congress/datsa/relatedbills` 
-   # Takes ~20 min
-  ```
+TODO: describe what data will be stored locally after setting up the scrapers and database from `django_database.adoc`
 
 #### Run the Django application
 

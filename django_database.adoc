@@ -30,7 +30,10 @@ See https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-
 
 ### Install PostgreSQL
 
-On a Mac, this can be done with `brew install postgresql`, on Linux  `sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib`
+On a Mac, this can be done with `brew install postgresql` or manually via https://www.postgresql.org/download/macosx/
+If downloading manually, postgres command line should be enabled. See https://postgresapp.com/documentation/cli-tools.html
+
+On Linux  `sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib`
 
 ### Set up the FlatGov database
 
@@ -107,6 +110,16 @@ Applying contenttypes.0001_initial... OK
   Applying bills.0007_auto_20201116_1432... OK
   Applying bills.0008_bill_cosponsors_dict... OK
   Applying sessions.0001_initial... OK
+```
+
+If modules error, make sure
+(1) you are in the python virtual environment
+(2) environment variables are set
+(3) requirements.txt has been run (if haven't yet)
+
+```
+cd /path/to/FlatGov/server_py
+pip install -r requirements.txt
 ```
 
 ## Create billsMeta.json file via Django command.

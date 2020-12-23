@@ -70,6 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         initialView: 'timeGridWeek',
+        firstDay: 1,
 
         contentHeight: 'auto',
 

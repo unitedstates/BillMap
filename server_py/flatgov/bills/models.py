@@ -111,14 +111,15 @@ class Bill(models.Model):
             target_billnumber = item.get('billnumber')
             target_section_header = item.get('section_header')
             target_section_number = item.get('section_number')
+            dup_checker = target_billnumber + target_section_header
 
             if not similars:
                 continue
 
-            if target_section_header in target_section_header_list:
+            if dup_checker in target_section_header_list:
                 continue
             else:
-                target_section_header_list.append(target_section_header)
+                target_section_header_list.append(dup_checker)
 
             for similar in similars:
                 bill_number = similar.get('billnumber')

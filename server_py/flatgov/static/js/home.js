@@ -70,10 +70,13 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         initialView: 'timeGridWeek',
+        firstDay: 1,
+        slotMinTime: '07:00:00',
+        slotMaxTime: '20:00:00',
 
         contentHeight: 'auto',
 
-        displayEventTime: false, // don't show the time column in list view
+        displayEventTime: true,
 
         // THIS KEY WON'T WORK IN PRODUCTION!!!
         // To make your own Google API key, follow the directions here:

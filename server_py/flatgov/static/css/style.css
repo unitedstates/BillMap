@@ -160,10 +160,6 @@ span.twitter-typeahead .tt-suggestion:focus {
     border-radius: 3px;
 }
 
-span.twitter-typeahead {
-    width: 100%;
-}
-
 .input-group span.twitter-typeahead {
     display: block !important;
     height: 34px;
@@ -210,12 +206,21 @@ span.twitter-typeahead {
     top: 46px !important;
 }
 
-@media only screen and (min-width: 768px) {
+.twitter-typeahead {
+    width: 100%;
+}
 
-/* For desktop: */
-    .typeahead {
-        width: 500px!important;
-    }
+#bill-search {
+    padding-right: 40px;
+}
+
+#search-icon {
+    position: absolute;
+    right: 20px;
+    top: 10px;
+}
+
+@media only screen and (min-width: 768px) {
 
 }
 
@@ -331,6 +336,9 @@ tbody td img {
 tbody td img:hover {
     max-width: 23px;
     box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
+}
+.advanced-search-toggle {
+    display: block;
 }
 
 @media only screen and (min-width: 768px) {

@@ -56,7 +56,7 @@ def indexBill(bill_path: str=PATH_BILL):
     billnumber_text = congress_text + legisnum_text.lower().replace('. ', '')
   else:
     billnumber_text = getBillNumberFromBillPath(bill_path)
-  sections = billTree.xpath('//section')
+  sections = billTree.xpath('//section[not(ancestor::section)]')
 
   qs_bill = Bill.objects.filter(bill_congress_type_number=billnumber_text)
   if qs_bill.exists():

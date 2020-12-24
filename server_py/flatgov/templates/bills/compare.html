@@ -51,7 +51,11 @@
         Discover sections matched between {{ bill.bill_congress_type_number }} and {{ second_bill.bill_congress_type_number }}
     </span>
     <div class="tab-content light-gray-tabs p-4">
-        <p><span><strong>Top 10 matched sections:</strong></span></p>
+        {% if bill_to_bill|length == 10 %}
+            <p><span><strong>Top 10 matched sections :</strong></span></p>
+        {% else %}
+            <p><span><strong>Sections matched ({{ bill_to_bill|length }}) :</strong></span></p>
+        {% endif %}
         <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
             <table class="table mt-3">
                 <thead>

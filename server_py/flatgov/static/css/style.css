@@ -329,6 +329,14 @@ footer {
     min-width: 60px;
 }
 
+tbody td img {
+    max-width: 20px;
+}
+
+tbody td img:hover {
+    max-width: 23px;
+    box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
+}
 .advanced-search-toggle {
     display: block;
 }

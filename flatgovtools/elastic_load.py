@@ -67,7 +67,7 @@ def indexBill(bill_path: str=PATH_BILL):
     billnumber_text = congress_text + legisnum_text.lower().replace('. ', '')
   else:
     billnumber_text = getBillNumberFromBillPath(bill_path)
-  sections = billTree.xpath('//section')
+  sections = billTree.xpath('//section[not(ancestor::section)]')
   headers = billTree.xpath('//header')
   from collections import OrderedDict
   headers_text = [ header.text for header in headers]

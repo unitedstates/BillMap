@@ -56,7 +56,8 @@ class Bill(models.Model):
         es_similarity = self.es_similarity
         for section in es_similarity:
             similars = section.get('similars')
-            section_text = section.get('section')
+            section_num = section.get('section_number')
+            section_header = section.get('section_header')
 
             for similar in similars:
                 billnumber = similar.get('billnumber')
@@ -68,7 +69,11 @@ class Bill(models.Model):
                 title_list.append(title)
 
                 scores_list = target.get('scores', [])
-                scores_list.append({'score': score, 'section': section_text})
+                scores_list.append({
+                    'score': score,
+                    'section_num': section_num,
+                    'section_header': section_header,
+                })
                 sorted_scores_list = sorted(scores_list, key=lambda k: k['score'], reverse=True)
 
                 target['score'] = target.get('score', 0) + score
@@ -96,6 +101,34 @@ class Bill(models.Model):
                 "info": obj
             })
         return sorted(res, key=lambda k: k['score'], reverse=True)
+
+    def get_second_similar_bills(self, second_bill):
+        res = list()
+        dup_checker_list = list()
+
+        for item in self.es_similarity:
+            similars = item.get('similars')
+            target_billnumber = item.get('billnumber')
+            target_section_header = item.get('section_header')
+            if target_section_header:
+                target_section_header = ' '.join(target_section_header.split())
+            target_section_number = item.get('section_number')
+            dup_checker = target_billnumber + target_section_header
+
+            if not similars:
+                continue
+
+            for similar in similars:
+                bill_number = similar.get('billnumber')
+
+                if bill_number == second_bill and dup_checker not in dup_checker_list:
+                    dup_checker_list.append(dup_checker)
+                    dup_checker_list = list(set(dup_checker_list))
+                    similar['target_billnumber'] = target_billnumber
+                    similar['target_section_header'] = target_section_header
+                    similar['target_section_number'] = target_section_number
+                    res.append(similar)
+        return sorted(res, key=lambda k: k['score'], reverse=True)[:10]
 
 
 class Cosponsor(models.Model):

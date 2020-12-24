@@ -35,6 +35,7 @@ $(document).ready( function () {
     });
     $('#similar-bills-table').DataTable({
         sDom: "Rlfrtip",
+        order: [[ 3, 'desc' ]],
         bFilter: true,
         iDisplayLength: 100,
         scrollY: '50vh',
@@ -49,6 +50,5 @@ $(document).ready( function () {
             lengthMenu: "_MENU_ bills",
         },
         lengthMenu: [100, 50, 20, 5],
-        order: [[ 2, 'desc' ]]
     });
 } );

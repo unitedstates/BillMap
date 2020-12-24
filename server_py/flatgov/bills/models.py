@@ -111,7 +111,7 @@ class Bill(models.Model):
             target_billnumber = item.get('billnumber')
             target_section_header = item.get('section_header')
             target_section_number = item.get('section_number')
-            dup_checker = target_billnumber + target_section_header
+            dup_checker = target_billnumber + target_section_header.replace('\n', '').replace('\t', '')
 
             if not similars:
                 continue

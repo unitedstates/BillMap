@@ -70,3 +70,9 @@ class CosponsorSerializer(serializers.ModelSerializer):
     def make_name_clean(self, name):
         sec = [i.strip() for i in name.split(',')]
         return sec[1] + ' ' + sec[0]
+
+
+class BillNumberListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Bill
+        fields = ['bill_congress_type_number']

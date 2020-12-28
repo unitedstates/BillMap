@@ -2,7 +2,7 @@
 var billsDataSample = ['116hr5', '116hr532', '116hr1500', '116hjres31', '116hr1220'];
 var billsDataURL = 'bill-list';
 $.get(billsDataURL).then(function (results) {
-    const billsData = results.bill_list ? results.bill_list.sort().reverse() : billsDataSample;
+    const billsData = results.bill_list ? results.bill_list.sort() : billsDataSample;
     $("#bill-search").typeahead({
         hint: true,
         minLength: 1,

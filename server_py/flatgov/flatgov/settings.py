@@ -14,9 +14,15 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
+import subprocess
+import flatgov
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
+try:
+    flatgov.__build__ = subprocess.check_output(["git", "describe", "--tags", "--always"], cwd=BASE_DIR).decode('utf-8').strip()
+except:
+    flatgov.__build__ = flatgov.__version__ + " ?"
 
 
 # Quick-start development settings - unsuitable for production

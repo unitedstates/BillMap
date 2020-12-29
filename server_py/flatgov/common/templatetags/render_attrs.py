@@ -3,6 +3,8 @@ from django.conf import settings
 
 from django_tables2.utils import AttributeDict
 
+import flatgov
+
 register = template.Library()
 
 
@@ -17,3 +19,8 @@ def render_attrs(attrs, **kwargs):
         ret.update(attrs)
 
     return ret.as_html()
+
+
+@register.simple_tag
+def app_version():
+    return flatgov.__build__.split('-')[0]

@@ -36,5 +36,4 @@ class BillListAPIView(View):
     def get(self, request):
         bills = Bill.objects.values_list('bill_congress_type_number', flat=True) \
             .order_by('bill_congress_type_number')
-        print(bills[:100])
         return JsonResponse({"bill_list": list(bills)})

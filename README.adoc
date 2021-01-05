@@ -89,7 +89,7 @@ $ python manage.py runserver
 ```
 
 This will serve the application on localhost:8000. Currently, there is no home page; only pages for individual bills, at, e.g.:
-http://localhost:8000/bills/116hr1500enr
+http://localhost:8000/bills/116hr1500
 
 ## Data Background
 

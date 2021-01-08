@@ -1,0 +1,19 @@
+# FlatGov Scrapers
+
+Scrapers here are built using `scrapy` a Python web scraping framework. See https://docs.scrapy.org.
+
+## Statements of Administration Policy
+
+NOTE: I downloaded the entire whitehouse.gov site using:
+`wget -r "https://www.whitehouse.gov/omb/statements-of-administration-policy"`
+(For just pdfs, we could have used:
+`wget -r -A "*.pdf" "https://www.whitehouse.gov/omb/statements-of-administration-policy"`)
+
+This scraper is defined in `scrapers/statementAdminPolicy`. It downloads pdf files from `https://www.whitehouse.gov/omb/statements-of-administration-policy` into the `scrapers/statementAdminPolicy/pdf` directory.
+
+To run it:
+
+```bash
+$ cd ./scrapers/statementAdminPolicy
+$ scrapy crawl sap_pdf
+```

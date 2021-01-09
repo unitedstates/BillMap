@@ -6,7 +6,7 @@ django-admin-autocomplete-filter==0.6.1
 django-tables2==2.3.3
 djangorestframework==3.12.2
 elasticsearch==7.9.1
-lxml==4.6.1
+lxml==4.6.2
 psycopg2==2.8.6
 python-dotenv==0.14.0
 pytz==2020.1

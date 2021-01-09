@@ -9,11 +9,11 @@ NOTE: I downloaded the entire whitehouse.gov site using:
 (For just pdfs, we could have used:
 `wget -r -A "*.pdf" "https://www.whitehouse.gov/omb/statements-of-administration-policy"`)
 
-This scraper is defined in `scrapers/statementAdminPolicy`. It downloads pdf files from `https://www.whitehouse.gov/omb/statements-of-administration-policy` into the `scrapers/statementAdminPolicy/pdf` directory.
+This scraper is defined in `scrapers/statementAdminPolicy`. It downloads pdf files from `https://www.whitehouse.gov/omb/statements-of-administration-policy` into the `scrapers/statementAdminPolicy/statementAdminPolicy/pdf` directory along with a metadata file with the link text, url and path information in `scrapers/statementAdminPolicy/statementAdminPolicy/pdf/meta.json`.
 
 To run it:
 
 ```bash
 $ cd ./scrapers/statementAdminPolicy
-$ scrapy crawl sap_pdf
+$ scrapy crawl sap_download > sap_download.log
 ```

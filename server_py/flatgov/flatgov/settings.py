@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.1/ref/settings/
 
 from pathlib import Path
 import os
+from kombu import Queue
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 import subprocess
@@ -163,3 +164,15 @@ DJANGO_TABLES2_PAGINATE_BY = 10
 DJANGO_TABLES2_STYLE = {
     'class': 'table table-striped table-bordered mb-0',
 }
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERYD_TASK_SOFT_TIME_LIMIT = 1000
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_DEFAULT_QUEUE = 'bill'
+CELERY_QUEUES = (
+    Queue('bill'),
+)
+CELERY_CREATE_MISSING_QUEUES = True
+redbeat_redis_url = os.getenv('REDBEAT_REDIS_URL', CELERY_RESULT_BACKEND)

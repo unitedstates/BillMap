@@ -1,6 +1,6 @@
 from django.contrib import admin
 from admin_auto_filters.filters import AutocompleteFilter
-from bills.models import Bill, Sponsor, Cosponsor
+from bills.models import Bill, Sponsor, Cosponsor, BillUpdateJob
 
 
 @admin.register(Bill)
@@ -11,3 +11,4 @@ class BillAdmin(admin.ModelAdmin):
 
 admin.site.register(Sponsor)
 admin.site.register(Cosponsor)
+admin.site.register(BillUpdateJob)

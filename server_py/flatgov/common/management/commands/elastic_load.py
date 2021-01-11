@@ -14,16 +14,16 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '-c',
-            '--uncongress',
+            '--uscongress',
             action='store_true',
             help='Open source scraper - unitedstates/congress'
         )
 
     def handle(self, *args, **options):
-        uncongress = options['uncongress']
+        uscongress = options['uscongress']
 
         createIndex(delete=True)
-        indexBills(uncongress=uncongress)
+        indexBills(uscongress=uscongress)
         refreshIndices()
         res = runQuery()
         billnumbers = getResultBillnumbers(res)

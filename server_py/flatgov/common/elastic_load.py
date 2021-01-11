@@ -15,8 +15,8 @@ PATH_BILL = os.path.join(constants.PATH_TO_CONGRESSDATA_XML_DIR, bill_file)
 
 BASE_DIR = settings.BASE_DIR
 
-def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uncongress: bool = True) -> str:
-  if uncongress:
+def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: bool = True) -> str:
+  if uscongress:
     return os.path.join(BASE_DIR, 'unitedstates_congress', 'data', congress, 'bills')
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
 
@@ -105,27 +105,27 @@ def indexBill(bill_path: str=PATH_BILL):
     # nsmap = {k if k is not None else '':v for k,v in billRoot.nsmap.items()}
 
 
-def get_bill_xml(congressDir: str, uncongress: bool = True) -> list:
-  if not uncongress:
+def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
+  if not uscongress:
     return [file for file in os.listdir(congressDir) if file.endswith(".xml")]
 
   xml_files = list()
-  UNCONGRESS_XML_FILE = settings.UNCONGRESS_XML_FILE
+  USCONGRESS_XML_FILE = settings.USCONGRESS_XML_FILE
   for root, dirs, files in os.walk(congressDir):
-    if UNCONGRESS_XML_FILE in files:
-      xml_path = os.path.join(root, UNCONGRESS_XML_FILE)
+    if USCONGRESS_XML_FILE in files:
+      xml_path = os.path.join(root, USCONGRESS_XML_FILE)
       xml_files.append(xml_path)
   return xml_files
 
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 117)]
-def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uncongress: bool=False):
+def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Indexing congress: {0}'.format(congress))
-    congressDir = getXMLDirByCongress(congress=congress, docType=docType, uncongress=uncongress)
-    billFiles = get_bill_xml(congressDir=congressDir, uncongress=uncongress)
+    congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
+    billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
     for billFile in billFiles:
-      if uncongress:
+      if uscongress:
         billFilePath = billFile
       else:
         billFilePath = os.path.join(congressDir, billFile)

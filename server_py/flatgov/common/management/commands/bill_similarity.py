@@ -12,15 +12,15 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument(
             '-c',
-            '--uncongress',
+            '--uscongress',
             action='store_true',
             help='Open source scraper - unitedstates/congress'
         )
 
     def handle(self, *args, **options):
         if os.getenv('DJANGO_SETTINGS_MODULE') and os.getenv('SECRET_KEY'):
-            uncongress = options['uncongress']
-            indexBills(uncongress=uncongress)
+            uscongress = options['uscongress']
+            indexBills(uscongress=uscongress)
         else:
             msg = 'DJANGO_SETTINGS_MODULE & SECRET_KEY missing from env vars.'
             ValidationError(msg)

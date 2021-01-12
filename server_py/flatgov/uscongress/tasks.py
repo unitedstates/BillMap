@@ -12,6 +12,24 @@ BILLS_OPTIONS = {}
 
 @shared_task(bind=True)
 def update_bill_task(self):
-    obj = UscongressUpdateJob.objects.create(job_id=self.request.id)
-    govinfo.run(GOVINFO_OPTIONS)
-    bills.run(BILLS_OPTIONS)
+    history = UscongressUpdateJob.objects.create(job_id=self.request.id)
+    try:
+        govinfo.run(GOVINFO_OPTIONS)
+        history.fdsys_status = UscongressUpdateJob.SUCCESS
+        history.save(update_fields=['fdsys_status'])
+    except Exception as e:
+        history.fdsys_status = UscongressUpdateJob.FAILED
+        history.save(update_fields=['fdsys_status'])
+    try:
+        bills.run(BILLS_OPTIONS)
+        history.data_status = UscongressUpdateJob.SUCCESS
+        history.save(update_fields=['data_status'])
+    except Exception as e:
+        history.data_status = UscongressUpdateJob.FAILED
+        history.save(update_fields=['data_status'])
+
+
+@shared_task(bind=True)
+def bill_data_task(self, pk):
+    history = UscongressUpdateJob.objects.get(pk=pk)
+

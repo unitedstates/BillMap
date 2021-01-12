@@ -15,7 +15,7 @@ app.conf.worker_prefetch_multiplier = 1
 
 app.conf.beat_schedule = {
     'update_bill': {
-        'task': 'bills.tasks.update_bill_task',
+        'task': 'uscongress.tasks.update_bill_task',
         'schedule': crontab(minute=0, hour=0),
         'options': {'queue': 'bill'}
     }

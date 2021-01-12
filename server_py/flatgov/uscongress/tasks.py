@@ -27,6 +27,7 @@ def update_bill_task(self):
     except Exception as e:
         history.data_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['data_status'])
+    return history.id
 
 
 @shared_task(bind=True)

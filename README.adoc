@@ -238,7 +238,8 @@ NOTE: a bill text similarity engine is here https://github.com/govtrack/govtrack
 
 
 #### Download bills with open source scraper
-- run command `./run govinfo --collections=BILLS --congress=112 --extract=mods,xml`
+- run command `./run govinfo --bulkdata=BILLSTATUS --congress=117`
+`./run bills`
 
 
 #### Celery task for bill update daily job

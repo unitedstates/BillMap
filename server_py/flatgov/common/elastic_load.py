@@ -17,7 +17,7 @@ BASE_DIR = settings.BASE_DIR
 
 def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: bool = True) -> str:
   if uscongress:
-    return os.path.join(BASE_DIR, 'unitedstates_congress', 'data', congress, 'bills')
+    return os.path.join(BASE_DIR, 'uscongress', 'data', congress, 'bills')
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
 
 def getMapping(map_path):

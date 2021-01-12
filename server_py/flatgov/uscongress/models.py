@@ -25,7 +25,7 @@ class UscongressUpdateJob(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return self.job_id if self.job_id else self.status
+        return self.job_id if self.job_id else str(self.pk)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

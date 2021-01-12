@@ -21,9 +21,10 @@ def update_bill_task(self):
         history.fdsys_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['fdsys_status'])
     try:
-        bills.run(BILLS_OPTIONS)
+        processed = bills.run(BILLS_OPTIONS)
         history.data_status = UscongressUpdateJob.SUCCESS
-        history.save(update_fields=['data_status'])
+        history.content = processed
+        history.save(update_fields=['data_status', 'content'])
     except Exception as e:
         history.data_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['data_status'])

@@ -5,7 +5,7 @@ import datetime
 import time
 import logging
 
-import utils
+from . import utils
 from vote_info import output_vote
 
 # load some hard-coded codes

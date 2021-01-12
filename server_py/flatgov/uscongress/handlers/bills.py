@@ -4,10 +4,10 @@ import os
 import re
 import xmltodict
 
-import bill_info
-import amendment_info
-import govinfo
-import utils
+from . import bill_info
+from . import amendment_info
+from . import govinfo
+from . import utils
 
 
 def run(options):

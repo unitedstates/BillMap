@@ -63,10 +63,10 @@ import json
 import os.path
 import subprocess
 
-import utils
-import bill_info
-import bill_versions
-import fdsys
+from . import utils
+from . import bill_info
+from . import bill_versions
+from . import fdsys
 
 
 def run(options):

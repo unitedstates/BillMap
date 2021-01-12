@@ -1,4 +1,4 @@
-import utils
+from . import utils
 import logging
 import sys
 import os
@@ -13,7 +13,7 @@ import subprocess
 
 from bs4 import BeautifulSoup
 
-from bills import output_for_bill
+from .bills import output_for_bill
 
 # Parsing data from the House' upcoming floor feed, at
 # https://docs.house.gov/floor/

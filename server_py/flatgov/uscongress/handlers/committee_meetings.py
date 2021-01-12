@@ -1,4 +1,4 @@
-import utils
+from . import utils
 import os.path
 import os
 import re

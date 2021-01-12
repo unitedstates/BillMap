@@ -50,7 +50,7 @@ else:
     logging.basicConfig(format='%(message)s', level=log_level.upper())
 
 
-sys.path.append(os.path.join(CONGRESS_ROOT, "tasks"))
+sys.path.append(os.path.join(CONGRESS_ROOT, "handlers"))
 import utils
 
 try:

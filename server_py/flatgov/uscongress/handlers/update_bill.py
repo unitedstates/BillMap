@@ -1,5 +1,5 @@
 from celery import shared_task, current_app
-from bills.models import BillUpdateJob
+from uncongress.models import BillUpdateJob
 
 
 @shared_task(bind=True)

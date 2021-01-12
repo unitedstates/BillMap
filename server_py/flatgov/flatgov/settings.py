@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'bills',
+    'uscongress',
 
     'rest_framework',
     'django_tables2',

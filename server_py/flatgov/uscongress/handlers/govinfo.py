@@ -67,12 +67,13 @@ ns = {"x": "http://www.sitemaps.org/schemas/sitemap/0.9"}
 
 def run(options):
     # Process sitemaps.
-    for collection in sorted(options.get("collections", "").split(",")):
-        if collection != "":
-            update_sitemap(COLLECTION_SITEMAPINDEX_PATTERN.format(collection=collection), None, [], options)
-    for collection in sorted(options.get("bulkdata", "").split(",")):
-        if collection != "":
-            update_sitemap(BULKDATA_SITEMAPINDEX_PATTERN.format(collection=collection), None, [], options)
+    print(options)
+    # for collection in sorted(options.get("collections", "").split(",")):
+    #     if collection != "":
+    #         update_sitemap(COLLECTION_SITEMAPINDEX_PATTERN.format(collection=collection), None, [], options)
+    # for collection in sorted(options.get("bulkdata", "").split(",")):
+    #     if collection != "":
+    #         update_sitemap(BULKDATA_SITEMAPINDEX_PATTERN.format(collection=collection), None, [], options)
 
 def update_sitemap(url, current_lastmod, how_we_got_here, options):
     """Updates the local cache of a sitemap file."""

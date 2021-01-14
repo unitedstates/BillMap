@@ -94,6 +94,12 @@ def makeSponsorBracket(sponsor: dict, party='X') -> str:
 class BillListView(TemplateView):
     template_name = 'bills/list.html'
 
+    def get_context_data(self, **kwargs):
+        from uscongress.tasks import related_bill_task
+        related_bill_task(23)
+        context = super().get_context_data(**kwargs)
+        return context
+
 
 def makeName(commaName):
     if not commaName:

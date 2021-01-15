@@ -99,6 +99,7 @@ def indexBill(bill_path: str=PATH_BILL):
   } 
 
   res = es.index(index="billsections", body=doc)
+  return res
 
     # billRoot = billTree.getroot()
     # nsmap = {k if k is not None else '':v for k,v in billRoot.nsmap.items()}

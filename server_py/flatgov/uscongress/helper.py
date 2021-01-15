@@ -1,5 +1,6 @@
 import os
 from django.conf import settings
+from elasticsearch import exceptions, Elasticsearch
 from common import constants
 from common.utils import dumpRelatedBillJSON
 from common.billdata import (
@@ -9,9 +10,13 @@ from common.billdata import (
     getBillTitles,
     getCosponsors,
 )
+from common.elastic_load import indexBill
 
+
+es = Elasticsearch()
 DIR = settings.PATH_TO_CONGRESSDATA_DIR
-BILL_XML = 'data.json'
+BILL_JSON = 'data.json'
+BILL_XML = 'data.xml'
 
 def get_bill_dir(bill):
     """
@@ -23,9 +28,9 @@ def get_bill_dir(bill):
     return os.path.join(DIR, congress, 'bills', bill_type, bill_type_num)
 
 
-def validate_bill_dir(bill_dir):
+def validate_bill_dir(bill_dir, fname):
     files = os.listdir(bill_dir)
-    return True if BILL_XML in files else False
+    return True if fname in files else False
 
 
 def add_bill_meta(dirName: str, fileName: str):
@@ -59,7 +64,23 @@ def add_bill_meta(dirName: str, fileName: str):
 
 def update_bills_meta(bill):
     bill_dir = get_bill_dir(bill)
-    if not validate_bill_dir(bill_dir):
+    if not validate_bill_dir(bill_dir, BILL_JSON):
         return False
-    bill_congress_type_number, related_dict = add_bill_meta(bill_dir, BILL_XML)
+    bill_congress_type_number, related_dict = add_bill_meta(bill_dir, BILL_JSON)
     return bill_congress_type_number, related_dict
+
+
+def create_es_index(index: str='billsections', body: dict=constants.BILLSECTION_MAPPING):
+    indices = es.indices.get_alias().keys()
+    if index in indices:
+        return False
+    es.indices.create(index=index, ignore=400, body=body)
+    return True
+
+
+def es_index_bill(bill):
+    bill_dir = get_bill_dir(bill)
+    if not validate_bill_dir(bill_dir, BILL_XML):
+        return False
+    res = indexBill(os.path.join(bill_dir, BILL_XML))
+    return res

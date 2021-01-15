@@ -1,10 +1,20 @@
 from celery import shared_task, current_app
 from uscongress.models import UscongressUpdateJob
 from uscongress.handlers import govinfo, bills
-from uscongress.helper import update_bills_meta
+from uscongress.helper import (
+    create_es_index,
+    es_index_bill,
+    update_bills_meta,
+)
 from common.billdata import saveBillsMeta
 from common.process_bill_meta import makeAndSaveTitlesIndex
 from common.relatedBills import makeAndSaveRelatedBills
+from common.elastic_load import ( 
+    refreshIndices,
+    runQuery,
+    getResultBillnumbers,
+    getInnerResults,
+)
 
 GOVINFO_OPTIONS = {
     'bulkdata': 'BILLSTATUS',
@@ -74,3 +84,21 @@ def related_bill_task(self, pk):
     except Exception as e:
         history.related_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['related_status'])
+
+
+@shared_task(bind=True)
+def elastic_load_task(self, pk):
+    try:
+        history = UscongressUpdateJob.objects.get(pk=pk)
+        created = create_es_index()
+        for bill_id in history.saved:
+            res = es_index_bill(bill_id)
+        refreshIndices()
+        res = runQuery()
+        billnumbers = getResultBillnumbers(res)
+        innerResults = getInnerResults(res)
+        history.elastic_status = UscongressUpdateJob.SUCCESS
+        history.save(update_fields=['elastic_status'])
+    except Exception as e:
+        history.elastic_status = UscongressUpdateJob.FAILED
+        history.save(update_fields=['elastic_status'])

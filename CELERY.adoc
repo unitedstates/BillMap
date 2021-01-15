@@ -1,9 +1,9 @@
 ### Scraping bill text and metadata
 
-The repository here provides a scraper for metadata and xml:
+The repository here provides a scraper for bill metadata and xml:
 https://github.com/unitedstates/congress
 
-It creates a directory tree as follows:
+Running the scraper creates a directory tree as follows:
 
  data
     ├── 110
@@ -44,16 +44,15 @@ It creates a directory tree as follows:
     │       ├── hr
 
 
-- Difference between document.xml and data.xml
+NOTE: `data.xml` and `document.xml` are very different. The `data.xml` is metadata only and corresponds to the `data.json` at the same level. The xml of the bill itself, used in the bill similarity calculations, is `document.xml`, found in the `text_versions` directory.
 
-data.xml corresponds to the data.json at the same level that is the metadata.
-
-The xml for bill similarity is in text_versions that is the bill document itself.
-
-- We don't need `pdf` or `text` in downloaded bill data.
+NOTE: We don't need `pdf` or `text` in downloaded bill data.
 
 ### Celery Tasks - What they do.
-Celery tasks updates uscongress bill and metadata at regular intervals (at this moment, it runs daily at midnight).
+Celery tasks update uscongress bill and metadata at regular intervals (currently, it runs daily at midnight).
+
+There are six celery tasks, that run sequentially:
+`update_bill_task`, `bill_data_task`, `process_bill_meta_task`, `related_bill_task`, `elastic_load_task`, `bill_similarity_task`
 
 1. Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.
 
@@ -61,7 +60,7 @@ With the open source scraper itself, we run `./run govinfo --collections=BILLS -
 
 Then `./run bills`
 
-It will creates `data.json` out of `data.xml` and text_versions.
+It will create `data.json` out of `data.xml` and text_versions.
 
 Instead of open source scraper command, we are using celery task named `update_bill_task` to download new bill metadata and text.
 
@@ -109,11 +108,11 @@ We will proivde an option, which will be the default, to get bill XML from the d
 
 3. Process bill meta data.
 
-After completing celery task `bill_data_task`, another celery task `process_bill_meta_task` runs.
+After completing `bill_data_task`, `process_bill_meta_task` runs. This processes and organizes the metadata for bills.
 
 4. Create Related bills.
 
-Once the celery task above is finished, other celery task named `related_bill_task` runs.
+Next, the `related_bill_task` runs.
 
 In the task it creates bill instances in the Bill table in the database.
 
@@ -140,8 +139,7 @@ So we use them.
 
 For many bills, there are many more than 2 versions. (see above the data structure)
 
-In the feature, we may have to distinguish.
-
+In the future, we may have to distinguish these. One way to do this is to run bill similarity for each version and store each as an object, e.g. {ih: [similaritydata], eh: [similaritydata], enr: [similaritydata]}. When displaying similarity table in the UI, we will need to choose which of these objects-- or which combination of objects -- to show. 
 
 #### Flat structure
 

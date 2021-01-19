@@ -306,8 +306,36 @@
                 </tbody>
             </table>
         </div>
-        <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
+        <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="max-height: 50vh; overflow: scroll;">
+            <h6 class="pt-3">
+                View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }} Congress
+            </h6>
+            <table class="table mt-3" id="statements-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Bill Number</th>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Congres</th>
+                        <th scope="col">Date Issued</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for statement in statements %}
+
+                    <tr>
+                        <td>{{ statement.bill_number|truncatechars:10}}</td>
+                        <td style="width: 300px;">{{ statement.bill|truncatechars:120 }}</td>
+                        <td>{{ statement.congres }}</td>
+                        <td>{{ statement.date_issued }}</td>
+                        <td><a href='{{ statement.link }}' target="_blank" class='btn btn-primary'>
+                            Full Report
+                        </a></td>
+                    </tr>
+
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
         <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?

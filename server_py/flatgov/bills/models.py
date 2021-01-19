@@ -156,3 +156,19 @@ class Sponsor(models.Model):
 
     def __str__(self):
         return self.name
+
+
+
+class Statement(models.Model):
+    bill_number = models.CharField(max_length=127)
+    bill = models.CharField(max_length=250)
+    congres = models.CharField(max_length=10)
+    date_issued = models.CharField(max_length=35)
+    pdf_link = models.CharField(max_length=255, null=True, blank=True)
+    link = models.CharField(max_length=255, null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f'{self.bill_number} - {self.pdf_link}'

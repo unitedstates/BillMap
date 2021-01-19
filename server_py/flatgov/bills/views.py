@@ -15,8 +15,9 @@ from django_tables2 import MultiTableMixin
 
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
-from bills.models import Bill, Cosponsor
+from bills.models import Bill, Cosponsor, Statement
 from bills.tables import RelatedBillTable
+
 from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 
 def deep_get(dictionary: Dict, *keys):
@@ -252,8 +253,15 @@ class BillDetailView(DetailView):
         context['cosponsors'] = self.get_cosponsors()
         context['related_bills'] = self.get_related_bills()
         context['similar_bills'] = self.object.get_similar_bills
+        context['statements'] = self.get_related_statements()
         return context
 
+    
+    def get_related_statements(self, **kwargs):
+
+        slug = self.kwargs['slug']
+        return Statement.objects.filter(bill_number__iexact=slug[3:])
+        
     # def get_tables(self):
     #     self.tables = [
     #         RelatedBillTable(self.object, data=self.get_qs_related_bill(), prefix="bill")

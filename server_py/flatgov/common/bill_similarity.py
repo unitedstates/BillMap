@@ -90,6 +90,7 @@ def indexBill(bill_path: str=PATH_BILL):
 
     bill.es_similarity = es_similarity
     bill.save(update_fields=['es_similarity'])
+    return bill
 
 
 def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:

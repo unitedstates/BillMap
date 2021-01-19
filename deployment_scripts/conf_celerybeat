@@ -1,0 +1,6 @@
+CELERY_BIN=".../Flatgov/server_py/flatgov/venv/bin/celery"
+CELERY_APP="read_later.celery:app"
+CELERYBEAT_CHDIR=".../Flatgov/server_py/flatgov"
+CELERYBEAT_USER="flatgov"
+CELERYBEAT_GROUP="flatgov"
+CELERYBEAT_OPTS="--schedule=/var/run/celery/celerybeat-schedule"

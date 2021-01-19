@@ -5,10 +5,10 @@ from uscongress.helper import (
     create_es_index,
     es_index_bill,
     update_bills_meta,
+    es_similarity_bill,
 )
 from common.billdata import saveBillsMeta
 from common.process_bill_meta import makeAndSaveTitlesIndex
-from common.relatedBills import makeAndSaveRelatedBills
 from common.elastic_load import ( 
     refreshIndices,
     runQuery,
@@ -17,8 +17,10 @@ from common.elastic_load import (
 )
 
 GOVINFO_OPTIONS = {
+    'collections': 'BILLS',
     'bulkdata': 'BILLSTATUS',
-    'congress': '117'
+    'congress': '117',
+    'extract': 'mods,xml,premis'
 }
 
 BILLS_OPTIONS = {}
@@ -76,6 +78,7 @@ def process_bill_meta_task(self, pk):
 
 @shared_task(bind=True)
 def related_bill_task(self, pk):
+    from common.relatedBills import makeAndSaveRelatedBills
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
         makeAndSaveRelatedBills()
@@ -102,3 +105,16 @@ def elastic_load_task(self, pk):
     except Exception as e:
         history.elastic_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['elastic_status'])
+
+
+@shared_task(bind=True)
+def bill_similarity_task(self, pk):
+    try:
+        history = UscongressUpdateJob.objects.get(pk=pk)
+        for bill_id in history.saved:
+            res = es_similarity_bill(bill_id)
+        history.elastic_status = UscongressUpdateJob.SUCCESS
+        history.save(update_fields=['similarity_status'])
+    except Exception as e:
+        history.elastic_status = UscongressUpdateJob.FAILED
+        history.save(update_fields=['similarity_status'])

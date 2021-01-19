@@ -95,8 +95,8 @@ class BillListView(TemplateView):
     template_name = 'bills/list.html'
 
     def get_context_data(self, **kwargs):
-        from uscongress.tasks import elastic_load_task
-        elastic_load_task(23)
+        from uscongress.tasks import bill_similarity_task
+        bill_similarity_task(26)
         context = super().get_context_data(**kwargs)
         return context
 

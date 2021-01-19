@@ -18,7 +18,7 @@ class UscongressUpdateJob(models.Model):
     meta_status = models.CharField(choices=STATUS, default=PENDING, max_length=20)
     related_status = models.CharField(choices=STATUS, default=PENDING, max_length=20)
     elastic_status = models.CharField(choices=STATUS, default=PENDING, max_length=20)
-    similarity = models.CharField(choices=STATUS, default=PENDING, max_length=20)
+    similarity_status = models.CharField(choices=STATUS, default=PENDING, max_length=20)
 
     saved = models.JSONField(default=list, blank=True, null=True)
     skips = models.JSONField(default=list, blank=True, null=True)
@@ -33,29 +33,36 @@ class UscongressUpdateJob(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if self.pk and self.data_status == self.SUCCESS:
+        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
             current_app.send_task(
                 'uscongress.tasks.bill_data_task',
                 args=(self.pk, ),
                 queue='bill'
             )
-        if self.pk and self.bill_status == self.SUCCESS:
+        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
             current_app.send_task(
                 'uscongress.tasks.process_bill_meta_task',
                 args=(self.pk, ),
                 queue='bill'
             )
 
-        if self.pk and self.meta_status == self.SUCCESS:
+        if self.pk and self.meta_status == self.SUCCESS and self.related_status == self.PENDING:
             current_app.send_task(
                 'uscongress.tasks.related_bill_task',
                 args=(self.pk, ),
                 queue='bill'
             )
 
-        if self.pk and self.related_status == self.SUCCESS:
+        if self.pk and self.related_status == self.SUCCESS and self.elastic_status == self.PENDING:
             current_app.send_task(
                 'uscongress.tasks.elastic_load_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+
+        if self.pk and self.elastic_status == self.SUCCESS and self.similarity_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.bill_similarity_task',
                 args=(self.pk, ),
                 queue='bill'
             )

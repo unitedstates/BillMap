@@ -21,7 +21,7 @@ new = {
     'link_text': '',
     'bill_number': '',
     'date_issued': '',
-    'congres': '',
+    'congress': '',
 }
 
 

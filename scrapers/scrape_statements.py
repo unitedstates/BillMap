@@ -50,13 +50,13 @@ for i in range(len(ps)):
             
             print(new['date_issued'][-2:])
             if new['date_issued'][-2:] in ['15', '16']:
-                new['congres'] = '114'
+                new['congress'] = '114'
             elif new['date_issued'][-2:] in ['17', '18']:
-                new['congres'] = '115'
+                new['congress'] = '115'
             elif new['date_issued'][-2:] in ['19', '20']:
-                new['congres'] = '116'
+                new['congress'] = '116'
             elif new['date_issued'][-2:] in ['21', '22']:
-                new['congres'] = '117'
+                new['congress'] = '117'
             new['url'] = url
             with open('data.json', 'a+') as meta_write_file:
                 json.dump(new, meta_write_file, indent=4)

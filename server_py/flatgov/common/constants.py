@@ -9,6 +9,7 @@ import json
 
 from django.conf import settings
 
+RESULTS_DEFAULT = 20
 PATH_SEC_602 = settings.PATH_SEC_602
 PATH_MAL = settings.PATH_MAL
 PATH_BILLSECTIONS_JSON = settings.PATH_BILLSECTIONS_JSON
@@ -137,6 +138,7 @@ def getQueryText(text_path: str=''):
 
 # more like this query (working)
 SAMPLE_QUERY_NESTED_MLT = {
+  "size": RESULTS_DEFAULT,
   "query": {
     "nested": {
       "path": "sections",

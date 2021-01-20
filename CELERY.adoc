@@ -167,3 +167,74 @@ In the future, we may have to distinguish these. One way to do this is to run bi
 ├── 116
 │   ├── dtd
 │   ├── pdf
+
+
+#### How to run celery task.
+
+#####. On the local.
+
+For celery worker, open one terminal, go to the Django project root directory (in our case `.../Flatgov/server_py/flatgov`), then activate the virtual environment.
+
+Run the command below (Run the celery worker).
+
+`celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info`
+
+For celery scheduler, open another terminal, go to the Django project root directory (in our case `.../Flatgov/server_py/flatgov`), then activate the virtual environment.
+
+Run the command below (Run the celery redbeat)
+
+`celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`
+
+Then the background tasks (celery tasks ) run daily at midnight.
+
+
+#####. How to run celery as a daemon on the Ubuntu server?
+
+1. Init-script: celeryd
+
+Before configuring it, go to the `deployment_scripts/conf_celeryd` and update all the paths with the absolute paths
+
+Copy `deployment_scripts/bill_celeryd` file to `/etc/init.d/celeryd`.
+
+Make celeryd executable (Run following commands from the terminal.)
+
+`sudo chmod 755 /etc/init.d/celeryd`
+
+`sudo chown root:root /etc/init.d/celeryd`
+
+For configuration, copy `deployment_scripts/conf_celeryd` file to `/etc/default/celeryd`.
+
+You can check if the worker is active by:
+
+`sudo /etc/init.d/celeryd start`
+
+`sudo /etc/init.d/celeryd status`
+
+
+2. Init-script: celerybeat
+
+Before configuring it, go to the `deployment_scripts/celerybeat` and update all the paths with the absolute paths
+
+Copy `deployment_scripts/celerybeat` file to `/etc/init.d/celerybeat`.
+
+Make celerybeat executable (Run following commands from the terminal.)
+
+`sudo chmod 755 /etc/init.d/celerybeat`
+
+`sudo chown root:root /etc/init.d/celerybeat`
+
+For configuration, copy `deployment_scripts/conf_celerybeat` file to `/etc/default/celerybeat`.
+
+You can check if the beat is active by:
+
+`sudo /etc/init.d/celerybeat start`
+
+`sudo /etc/init.d/celerybeat status`
+
+3. Maintenance
+
+As it was show you can control worker and beat with the following commands:
+
+`/etc/init.d/celeryd {start|stop|restart}`
+
+`/etc/init.d/celerybeat {start|stop|restart}`

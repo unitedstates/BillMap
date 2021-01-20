@@ -55,6 +55,7 @@ CURRENT_CONGRESS, cs_temp = divmod(round(((datetime.date(CURRENT_CONGRESSIONAL_Y
 CURRENT_SESSION = cs_temp + 1
 
 SAMPLE_QUERY = {
+  "size": RESULTS_DEFAULT,
   "query": {
     "match": {
       "headers": {
@@ -65,6 +66,7 @@ SAMPLE_QUERY = {
 }
 
 SAMPLE_QUERY_W_CONGRESS = {
+  "size": RESULTS_DEFAULT,
   "query": {
     "bool": {
       "must": [
@@ -85,6 +87,7 @@ SAMPLE_QUERY_W_CONGRESS = {
 }
 
 SAMPLE_QUERY_NESTED = {
+  "size": RESULTS_DEFAULT,
   "query": {
     "nested": {
       "path": "sections",
@@ -107,7 +110,9 @@ SAMPLE_QUERY_NESTED = {
 }
 
 # more like this query (working)
-SAMPLE_QUERY_MLT_HEADERS  = {"query": {
+SAMPLE_QUERY_MLT_HEADERS  = {
+  "size": RESULTS_DEFAULT,
+  "query": {
   "more_like_this": {
     "fields": ["headers"],
     "like": "Dependent care credit improvements",

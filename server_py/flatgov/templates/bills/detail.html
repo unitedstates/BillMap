@@ -308,7 +308,7 @@
         </div>
         <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="max-height: 50vh; overflow: scroll;">
             <h6 class="pt-3">
-                View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }} Congress
+                View all the Stamements of Administration Policy of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress
             </h6>
             <table class="table mt-3" id="statements-table">
                 <thead>
@@ -326,7 +326,7 @@
                     <tr>
                         <td>{{ statement.bill_number|truncatechars:10}}</td>
                         <td style="width: 300px;">{{ statement.bill|truncatechars:120 }}</td>
-                        <td>{{ statement.congres }}</td>
+                        <td>{{ statement.congress }}</td>
                         <td>{{ statement.date_issued }}</td>
                         <td><a href='{{ statement.link }}' target="_blank" class='btn btn-primary'>
                             Full Report

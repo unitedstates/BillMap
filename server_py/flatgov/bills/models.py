@@ -162,7 +162,7 @@ class Sponsor(models.Model):
 class Statement(models.Model):
     bill_number = models.CharField(max_length=127)
     bill = models.CharField(max_length=250)
-    congres = models.CharField(max_length=10)
+    congress = models.CharField(max_length=10)
     date_issued = models.CharField(max_length=35)
     pdf_link = models.CharField(max_length=255, null=True, blank=True)
     link = models.CharField(max_length=255, null=True, blank=True)

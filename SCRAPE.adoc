@@ -1,6 +1,6 @@
 ### Scraping bill text and metadata
 
-This is only necessary if you want the text files (e.g. .txt, .html, .pdf) in the `congress` directory. It is more complicated and adds ~10Gb of data above the downloads from ProPublica which are automated in `scripts/download_bills.sh`.
+This is only necessary if you want the text files (e.g. .txt, .html, .pdf) in the `congress` directory. It is more complicated and adds ~10Gb of data above the downloads from ProPublica which are automated in `flatgovtools/download_bills.sh`.
 
 #### Install `unitedstates/congress` repository
 

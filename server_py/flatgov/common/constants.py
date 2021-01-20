@@ -10,6 +10,7 @@ import json
 from django.conf import settings
 
 RESULTS_DEFAULT = 20
+MIN_SCORE_DEFAULT = 25
 PATH_SEC_602 = settings.PATH_SEC_602
 PATH_MAL = settings.PATH_MAL
 PATH_BILLSECTIONS_JSON = settings.PATH_BILLSECTIONS_JSON
@@ -56,6 +57,7 @@ CURRENT_SESSION = cs_temp + 1
 
 SAMPLE_QUERY = {
   "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
     "match": {
       "headers": {
@@ -67,6 +69,7 @@ SAMPLE_QUERY = {
 
 SAMPLE_QUERY_W_CONGRESS = {
   "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
     "bool": {
       "must": [
@@ -88,6 +91,7 @@ SAMPLE_QUERY_W_CONGRESS = {
 
 SAMPLE_QUERY_NESTED = {
   "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
     "nested": {
       "path": "sections",
@@ -112,6 +116,7 @@ SAMPLE_QUERY_NESTED = {
 # more like this query (working)
 SAMPLE_QUERY_MLT_HEADERS  = {
   "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
   "more_like_this": {
     "fields": ["headers"],
@@ -144,6 +149,7 @@ def getQueryText(text_path: str=''):
 # more like this query (working)
 SAMPLE_QUERY_NESTED_MLT = {
   "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
     "nested": {
       "path": "sections",

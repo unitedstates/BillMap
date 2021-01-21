@@ -50,6 +50,8 @@ from . import utils
 
 import rtyaml
 
+logger = logging.getLogger("update_bill")
+
 
 # globals
 GOVINFO_BASE_URL = "https://www.govinfo.gov/"

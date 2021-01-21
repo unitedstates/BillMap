@@ -113,8 +113,8 @@ def bill_similarity_task(self, pk):
         history = UscongressUpdateJob.objects.get(pk=pk)
         for bill_id in history.saved:
             res = es_similarity_bill(bill_id)
-        history.elastic_status = UscongressUpdateJob.SUCCESS
+        history.similarity_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['similarity_status'])
     except Exception as e:
-        history.elastic_status = UscongressUpdateJob.FAILED
+        history.similarity_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['similarity_status'])

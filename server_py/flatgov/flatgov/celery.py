@@ -17,6 +17,7 @@ app.conf.beat_schedule = {
     'update_bill': {
         'task': 'uscongress.tasks.update_bill_task',
         'schedule': crontab(minute=0, hour=0),
+        # 'schedule': crontab(),
         'options': {'queue': 'bill'}
     }
 }

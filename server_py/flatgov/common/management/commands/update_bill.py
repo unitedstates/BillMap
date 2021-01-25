@@ -10,8 +10,7 @@ GOVINFO_OPTIONS = {
     'extract': 'mods,xml,premis',
 }
 
-# CONGRESS = [113, 114, 115, 116, 117]
-CONGRESS = ['113', '114']
+CONGRESS = ['113', '114', '115', '116']
 
 BILLS_OPTIONS = {}
 

@@ -44,6 +44,8 @@ def loadRelatedBillJSON(billCongressTypeNumber, relatedBillDirPath=constants.PAT
     return relatedBillJSON 
 
 def dumpRelatedBillJSON(billCongressTypeNumber, relatedBillJSON, relatedBillDirPath=constants.PATH_TO_RELATEDBILLS_DIR):
+    if not os.path.isdir(relatedBillDirPath):
+        os.mkdir(relatedBillDirPath)
     relatedBillJSONPath = os.path.join(relatedBillDirPath, billCongressTypeNumber +'.json')
     if not relatedBillJSON:
         relatedBillJSON = {'related': {}}

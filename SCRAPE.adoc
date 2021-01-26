@@ -53,3 +53,83 @@ From the `congress` repository directory, `pip install -r requirements.txt`
 When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:
 
 `find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
+
+
+#### Download bill text and metadata with Django command using uscongress open source scraper.
+
+1. Set up database
+
+Before downloading bill text and metadata with Django command, make sure that postgresql database is ready set up.
+
+Please see django_database.adoc about it.
+
+2. Activate virtual environment and check if modules are imported.
+
+If modules error, make sure
+(1) you are in the python virtual environment
+(2) environment variables are set
+(3) requirements.txt has been run (if haven't yet)
+
+```
+cd /path/to/FlatGov/server_py
+pip install -r requirements.txt
+```
+
+3. Download bill text and metadata
+
+- Run the django command `python manage.py update_bill`
+
+It will download bills (113 ~ 116) using uscongress open source scraper and store them into `server_py/flatgov/congress/data`.
+
+This process would take several hours.
+
+We set up logging system, so we can keep tracking of the download status via console.
+
+#### Update bill data in the database and loading of the `updated` bills into Elasticsearch
+
+1. Create billsMeta.json file via Django command.
+
+```bash
+$ python manage.py bill_data
+```
+
+2. Process bills metadata
+
+```bash
+$ python manage.py process_bill_meta
+```
+
+3. Create related bills
+
+```bash
+$ python manage.py related_bills
+```
+
+4. Update loading of the `new` bills into Elasticsearch
+
+```bash
+$ python manage.py elastic_load --uscongress
+```
+
+Please note that we are using 2 data structures - one is flat structure, the other one is open source structure.
+
+If you are going to use open source structure, add option `--uscongress` to the django command above.
+
+`getXMLDirByCongress` function address the bill path based on the data structure.
+
+If you are going to use flat structure, run django command without option `python manage.py elastic_load`
+
+
+5. Add similarity to the bill
+
+```bash
+$ python manage.py bill_similarity --uscongress
+```
+
+Please note that we are using 2 data structures - one is flat structure, the other one is open source structure.
+
+If you are going to use open source structure, add option `--uscongress` to the django command above.
+
+`getXMLDirByCongress` function address the bill path based on the data structure.
+
+If you are going to use flat structure, run django command without option `python manage.py bill_similarity`

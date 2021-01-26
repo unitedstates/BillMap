@@ -67,7 +67,7 @@ $ cd /path/to/FlatGov/
 $ pip install -r requirements.txt
 ```
 
-The requirements for `flatgovtools` and `server_py` are separate. But for simplicity, it's probably best to load them both in a single virtual environment.
+The requirements for `flatgovtools` and `server_py` are separate. But for simplicity, it's best to load them both in a single virtual environment.
 
 #### Create .env file 
 
@@ -232,6 +232,31 @@ It does this by creating a billnumber index with the bill metadata, and any simi
 
 For any bill (e.g. 116hr100ih), we want to find related bills for previous congresses. Related bills are listed for the same congress in Congress.gov, e.g. https://www.congress.gov/bill/116th-congress/house-bill/2/related-bills?q={"search":["hr2"]}&r=1&s=3. There are many ways of calculating similarity. 
 
-For purposes of efficiency and performance, we will develop a similarity measure based on a search engine. In particular, we have built an index of document headers and sections in Elasticsearch. We can calculate the similarity between any input text and sections in the index using the ES/Lucene 'more like this' metric. We can combine the section to section similarity scores to yield an overall bill similarity measure.  For more details, see https://github.com/aih/FlatGov/blob/master/server_py/flatgov/elasticsearch/README.adoc
+For purposes of efficiency and performance, we have developed a similarity measure that built on a search engine model. In particular, we build an index of document headers and sections in Elasticsearch. We then calculate the similarity between any input text and sections in the index using the ES/Lucene 'more like this' metric. We combine the section to section similarity scores to yield an overall bill similarity measure.  For more details, see https://github.com/aih/FlatGov/blob/master/server_py/flatgov/elasticsearch/README.adoc
 
-NOTE: a bill text similarity engine is here https://github.com/govtrack/govtrack.us-web/blob/master/analysis/text_incorporation.py
+NOTE: a comparable bill text similarity engine is here https://github.com/govtrack/govtrack.us-web/blob/master/analysis/text_incorporation.py
+
+
+#### Download bills with the unitedstates/congress scraper
+
+- run the commands
+```bash
+./run govinfo --bulkdata=BILLSTATUS --congress=117`
+./run bills
+```
+
+#### Celery task to update bill downloads and data
+
+Updates to the data are done through the Celery taskrunner (see https://docs.celeryproject.org/en/stable/getting-started/introduction.html). Details of the tasks in Flatgov are in CELERY.adoc
+
+- activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
+```bash
+$ pyenv activate flatgov
+$ cd ~/.../FlatGov/server_py/flatgov 
+```
+- Run the Celery worker
+
+`celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info`
+
+- Set up Celery schedule
+`celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`

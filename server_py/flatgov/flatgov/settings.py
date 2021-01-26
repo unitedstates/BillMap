@@ -10,8 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 
+import logging.config
 from pathlib import Path
 import os
+from kombu import Queue
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
 import subprocess
@@ -52,6 +54,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'bills',
+    'uscongress',
 
     'rest_framework',
     'django_tables2',
@@ -163,3 +166,39 @@ DJANGO_TABLES2_PAGINATE_BY = 10
 DJANGO_TABLES2_STYLE = {
     'class': 'table table-striped table-bordered mb-0',
 }
+
+
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# CELERYD_TASK_SOFT_TIME_LIMIT = 1000
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_BACKEND = os.getenv('REDIS_URL', 'redis://localhost:6379/0')
+CELERY_DEFAULT_QUEUE = 'bill'
+CELERY_QUEUES = (
+    Queue('bill'),
+)
+CELERY_CREATE_MISSING_QUEUES = True
+redbeat_redis_url = os.getenv('REDBEAT_REDIS_URL', CELERY_RESULT_BACKEND)
+
+
+logging.config.dictConfig({
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'console': {
+            # exact format is not important, this is the minimum information
+            'format': '%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'console',
+        },
+    },
+    'loggers': {
+        '': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+        },
+    },
+})

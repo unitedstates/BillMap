@@ -21,5 +21,6 @@ urlpatterns = [
     re_path(r'^$', RedirectView.as_view(url='home/', permanent=False), name='index'),
     path('bills/', include('bills.urls')),
     path('home/', include('home.urls')),
+    path('uscongress/debug/', include('uscongress.urls')),
     path('admin/', admin.site.urls),
 ]

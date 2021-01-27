@@ -1,4 +1,78 @@
-### Scraping bill text and metadata
+:toc:
+
+## Scraping bill text and metadata
+
+### Django commands
+
+The steps below will create the baseline bill text and metadata directories that are used by this project. The initial scraping may take a very long time (1 or 2 days). Updates are done through the Celery task runner.
+
+NOTE: These instructions use the scrapers maintained in `https://github.com/unitedstates/congress`. In some ways the data structure they create is not ideal: each bill is many levels deep in a nested hierarchy, requiring tree walking to store and retrieve files. However, it is a widely-used and maintained scraper that is compatible with `govtrack`, so we use it here. 
+
+#### Download
+
+1. Set up the database
+
+Before downloading bill text and metadata with Django commands, ensure that the `postgresql` database is ready set up.
+
+Please see django_database.adoc for details.
++
+2. Activate the virtual environment and check if modules are imported.
+
+If you get a `module not found` error, make sure that:
+
+    a. you are in the Python virtual environment
+    b. environment variables are set
+    c. requirements.txt has been run previously in the virtual environment
+```
+cd /path/to/FlatGov/server_py
+pip install -r requirements.txt
+```
++
+3. Download bill text and metadata
+
+- Run the django command `python manage.py update_bill`
+
+It will download bills (113 ~ 116) using uscongress open source scraper and store them into `server_py/flatgov/congress/data`.
+
+This process will take several hours.
+
+We set up a logging system, so we can keep tracking of the download status via the admin console.
+
+#### Update bill data in the database and index into Elasticsearch
+
+1. Create billsMeta.json file via Django command.
+
+```bash
+$ python manage.py bill_data
+```
+
+2. Process bills metadata
+
+```bash
+$ python manage.py process_bill_meta --uscongress
+```
+
+3. Create related bills
+
+```bash
+$ python manage.py related_bills --uscongress
+```
+
+4. Update loading of the `new` bills into Elasticsearch
+
+```bash
+$ python manage.py elastic_load --uscongress
+```
+
+NOTE: The `--uscongress` option is necessary to use data from the `uscongress` scraper. There is an alternate scraper (not included in this repository) that uses a flat structure to store bill text (e.g. `116/dtd/BILLS-116hr200ih.xml`); without the `--uscongress` option, the commands would try to load data from that structure. The `getXMLDirByCongress` function takes the data-structure as an option and finds the bill xml in either data structure.
+
+5. Calculate bill similarity and store in db
+
+```bash
+$ python manage.py bill_similarity --uscongress
+```
+
+### Alternative: Manual scraping 
 
 This is only necessary if you want the text files (e.g. .txt, .html, .pdf) in the `congress` directory. It is more complicated and adds ~10Gb of data above the downloads from ProPublica which are automated in `flatgovtools/download_bills.sh`.
 
@@ -43,7 +117,7 @@ pip install cryptography
 
 From the `congress` repository directory, `pip install -r requirements.txt`
 
-### Run the scraper
+#### Run the scraper
 
 ```bash
 ./run govinfo --bulkdata=BILLSTATUS
@@ -54,82 +128,3 @@ When running initially, I got an error because the bulk directories had not been
 
 `find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
 
-
-#### Download bill text and metadata with Django command using uscongress open source scraper.
-
-1. Set up database
-
-Before downloading bill text and metadata with Django command, make sure that postgresql database is ready set up.
-
-Please see django_database.adoc about it.
-
-2. Activate virtual environment and check if modules are imported.
-
-If modules error, make sure
-(1) you are in the python virtual environment
-(2) environment variables are set
-(3) requirements.txt has been run (if haven't yet)
-
-```
-cd /path/to/FlatGov/server_py
-pip install -r requirements.txt
-```
-
-3. Download bill text and metadata
-
-- Run the django command `python manage.py update_bill`
-
-It will download bills (113 ~ 116) using uscongress open source scraper and store them into `server_py/flatgov/congress/data`.
-
-This process would take several hours.
-
-We set up logging system, so we can keep tracking of the download status via console.
-
-#### Update bill data in the database and loading of the `updated` bills into Elasticsearch
-
-1. Create billsMeta.json file via Django command.
-
-```bash
-$ python manage.py bill_data
-```
-
-2. Process bills metadata
-
-```bash
-$ python manage.py process_bill_meta
-```
-
-3. Create related bills
-
-```bash
-$ python manage.py related_bills
-```
-
-4. Update loading of the `new` bills into Elasticsearch
-
-```bash
-$ python manage.py elastic_load --uscongress
-```
-
-Please note that we are using 2 data structures - one is flat structure, the other one is open source structure.
-
-If you are going to use open source structure, add option `--uscongress` to the django command above.
-
-`getXMLDirByCongress` function address the bill path based on the data structure.
-
-If you are going to use flat structure, run django command without option `python manage.py elastic_load`
-
-
-5. Add similarity to the bill
-
-```bash
-$ python manage.py bill_similarity --uscongress
-```
-
-Please note that we are using 2 data structures - one is flat structure, the other one is open source structure.
-
-If you are going to use open source structure, add option `--uscongress` to the django command above.
-
-`getXMLDirByCongress` function address the bill path based on the data structure.
-
-If you are going to use flat structure, run django command without option `python manage.py bill_similarity`

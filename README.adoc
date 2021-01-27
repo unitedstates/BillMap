@@ -235,3 +235,21 @@ For any bill (e.g. 116hr100ih), we want to find related bills for previous congr
 For purposes of efficiency and performance, we will develop a similarity measure based on a search engine. In particular, we have built an index of document headers and sections in Elasticsearch. We can calculate the similarity between any input text and sections in the index using the ES/Lucene 'more like this' metric. We can combine the section to section similarity scores to yield an overall bill similarity measure.  For more details, see https://github.com/aih/FlatGov/blob/master/server_py/flatgov/elasticsearch/README.adoc
 
 NOTE: a bill text similarity engine is here https://github.com/govtrack/govtrack.us-web/blob/master/analysis/text_incorporation.py
+
+
+
+## Statement of Administration Policy
+
+The metadata for Statement of Administration Policy section has been scraped and stored in json files. The pdfs are stored in the media directory.
+
+### Load Policy Data for Obama Administration to Database
+
+- activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
+```bash
+$ pyenv activate flatgov
+$ cd ~/.../FlatGov/server_py/flatgov 
+./manage.py loaddata statements_datas.json 
+```
+
+
+

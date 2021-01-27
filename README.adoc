@@ -260,3 +260,17 @@ $ cd ~/.../FlatGov/server_py/flatgov
 
 - Set up Celery schedule
 `celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`
+
+
+## Statement of Administration Policy
+
+The metadata for Statement of Administration Policy section has been scraped and stored in json files. The pdfs are stored in the media directory.
+
+### Load Policy Data for Obama Administration to Database
+
+- activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
+```bash
+$ pyenv activate flatgov
+$ cd ~/.../FlatGov/server_py/flatgov 
+./manage.py loaddata statements_datas.json 
+```

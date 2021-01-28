@@ -306,14 +306,16 @@
                 </tbody>
             </table>
         </div>
-        <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="max-height: 50vh; overflow: scroll;">
+        <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="min-height:20vh; max-height: 50vh; overflow: scroll;">
             <h6 class="pt-3">
-                View all the Statements of Administration Policy for {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress
+                View all the Statements of Administration Policy of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congres }}th Congress
             </h6>
-            <table class="table mt-3" id="statements-table">
+
+            <table class="table mt-3" id='statements-tables'>
                 <thead>
                     <tr>
                         <th scope="col">Bill Number</th>
+                        <th scope="col">Bill Id</th>
                         <th scope="col">Bill</th>
                         <th scope="col">Congress</th>
                         <th scope="col">Date Issued</th>
@@ -324,19 +326,28 @@
                     {% for statement in statements %}
 
                     <tr>
-                        <td>{{ statement.bill_number|truncatechars:10}}</td>
-                        <td style="width: 300px;">{{ statement.bill|truncatechars:120 }}</td>
+                        <td>{{ statement.bill_number }}</td>
+                        <td>{{ statement.bill_id }}</td>
+                        <td style="width: 300px;">{{ statement.bill_title|truncatechars:120 }}</td>
                         <td>{{ statement.congress }}</td>
                         <td>{{ statement.date_issued }}</td>
-                        <td><a href='{{ statement.link }}' target="_blank" class='btn btn-primary'>
+                        <td><a href='{{ statement.permanent_pdf_link.url }}' target="_blank" class='btn btn-primary'>
                             Full Report
                         </a></td>
                     </tr>
 
                     {% endfor %}
+                    <tr>
+                        <td>
+
+                            {% if not statements %}
+                                No data available in table.
+                            {% endif %}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
-        </div>
+    </div>
         <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
         </div>

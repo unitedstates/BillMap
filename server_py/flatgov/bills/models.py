@@ -161,14 +161,15 @@ class Sponsor(models.Model):
 
 class Statement(models.Model):
     bill_number = models.CharField(max_length=127)
-    bill = models.CharField(max_length=250)
+    bill_id = models.CharField(max_length=127, null=True, blank=True)
+    bill_title = models.CharField(max_length=250)
     congress = models.CharField(max_length=10)
     date_issued = models.CharField(max_length=35)
-    pdf_link = models.CharField(max_length=255, null=True, blank=True)
-    link = models.CharField(max_length=255, null=True, blank=True)
+    permanent_pdf_link = models.FileField(upload_to='statements/', blank=True, null=True)
+    original_pdf_link = models.CharField(max_length=255, null=True, blank=True)
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    date_fetched = models.DateTimeField(auto_now_add=True)
 
 
     def __str__(self):
-        return f'{self.bill_number} - {self.pdf_link}'
+        return f'{self.bill_number} - {self.permanent_pdf_link}'

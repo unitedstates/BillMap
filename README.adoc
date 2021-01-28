@@ -262,15 +262,43 @@ $ cd ~/.../FlatGov/server_py/flatgov
 `celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`
 
 
+
+
 ## Statement of Administration Policy
 
 The metadata for Statement of Administration Policy section has been scraped and stored in json files. The pdfs are stored in the media directory.
 
 ### Load Policy Data for Obama Administration to Database
 
-- activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
+- activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py$`
 ```bash
-$ pyenv activate flatgov
-$ cd ~/.../FlatGov/server_py/flatgov 
-./manage.py loaddata statements_datas.json 
+
+$ cd ~/.../FlatGov/server_py
+$ source .venv/bin/activate
+
+```
+
+- Go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
+
+```bash
+
+$ cd flatgov
+
+```
+
+- Apply all migrations
+
+```bash
+
+./manage.py makemigrations
+./manage.py migrate
+
+```
+
+- Load Statement of Administration Policy data
+
+```bash
+
+./manage.py loaddata dumped_statements.json 
+
 ```

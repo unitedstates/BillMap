@@ -246,10 +246,28 @@ The metadata for Statement of Administration Policy section has been scraped and
 
 - activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
 ```bash
+
 $ pyenv activate flatgov
 $ cd ~/.../FlatGov/server_py/flatgov 
-./manage.py loaddata statements_datas.json 
+
 ```
+- Apply all migrations
+
+```bash
+
+./manage.py makemigrations
+./manage.py migrate
+
+```
+
+- Load Statement of Administration Policy data
+
+```bash
+
+./manage.py loaddata dumped_statements.json 
+
+```
+
 
 
 

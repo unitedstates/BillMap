@@ -257,7 +257,7 @@ class BillDetailView(DetailView):
         return context
 
     
-     def get_related_statements(self, **kwargs):
+    def get_related_statements(self, **kwargs):
         slug = self.kwargs['slug']
         return Statement.objects.filter(bill_number__iexact=slug[3:]).filter(congress__iexact=slug[:3])
         

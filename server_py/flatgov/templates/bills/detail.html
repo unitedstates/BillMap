@@ -331,9 +331,13 @@
                         <td style="width: 300px;">{{ statement.bill_title|truncatechars:120 }}</td>
                         <td>{{ statement.congress }}</td>
                         <td>{{ statement.date_issued }}</td>
-                        <td><a href='{{ statement.permanent_pdf_link.url }}' target="_blank" class='btn btn-primary'>
+                        <td>
+                        {% if statement.permanent_pdf_link %}
+                        <a href='{{ statement.permanent_pdf_link }}' target="_blank" class='btn btn-primary'>
                             Full Report
-                        </a></td>
+                        </a>
+                        {% endif %}
+                        </td>
                     </tr>
 
                     {% endfor %}

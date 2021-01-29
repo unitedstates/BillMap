@@ -7,6 +7,7 @@ from elasticsearch import exceptions, Elasticsearch
 es = Elasticsearch()
 from collections import OrderedDict
 
+from django.conf import settings
 from common import constants
 from bills.models import Bill
 
@@ -14,7 +15,11 @@ bill_file = "BILLS-116hr1500rh.xml"
 bill_file2 = "BILLS-116hr299ih.xml"
 PATH_BILL = os.path.join(constants.PATH_TO_CONGRESSDATA_XML_DIR, bill_file)
 
-def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd') -> str:
+BASE_DIR = settings.BASE_DIR
+
+def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: bool = True) -> str:
+  if uscongress:
+    return os.path.join(BASE_DIR, 'uscongress', 'data', congress, 'bills')
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
 
 def getMapping(map_path):
@@ -85,16 +90,33 @@ def indexBill(bill_path: str=PATH_BILL):
 
     bill.es_similarity = es_similarity
     bill.save(update_fields=['es_similarity'])
+    return bill
+
+
+def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
+  if not uscongress:
+    return [file for file in os.listdir(congressDir) if file.endswith(".xml")]
+
+  xml_files = list()
+  USCONGRESS_XML_FILE = settings.USCONGRESS_XML_FILE
+  for root, dirs, files in os.walk(congressDir):
+    if USCONGRESS_XML_FILE in files:
+      xml_path = os.path.join(root, USCONGRESS_XML_FILE)
+      xml_files.append(xml_path)
+  return xml_files
 
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 117)]
-def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd'):
+def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Finding Similarity congress: {0}'.format(congress))
-    congressDir = getXMLDirByCongress(congress=congress, docType=docType) 
-    billFiles = [file for file in os.listdir(congressDir) if file.endswith(".xml")]
+    congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
+    billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
     for billFile in billFiles:
-      billFilePath = os.path.join(congressDir, billFile)
+      if uscongress:
+        billFilePath = billFile
+      else:
+        billFilePath = os.path.join(congressDir, billFile)
       print('Finding Similiarity {0}'.format(billFilePath))
       try:
         indexBill(billFilePath)

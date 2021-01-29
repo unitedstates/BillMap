@@ -157,8 +157,6 @@ class Sponsor(models.Model):
     def __str__(self):
         return self.name
 
-
-
 class Statement(models.Model):
     bill_number = models.CharField(max_length=127)
     bill_id = models.CharField(max_length=127, null=True, blank=True)

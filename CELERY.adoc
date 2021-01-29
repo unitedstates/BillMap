@@ -1,0 +1,240 @@
+### Scraping bill text and metadata
+
+The repository here provides a scraper for bill metadata and xml:
+https://github.com/unitedstates/congress
+
+Running the scraper creates a directory tree as follows:
+
+ data
+    ├── 110
+    │   └── bills
+    │       ├── hconres
+    │       ├── hjres
+    │       ├── hr
+                      ...
+                       |-── hr994
+                          └── text-versions/
+                                    └── eh
+                                        └── data.json
+                                        └── document.xml
+                                        └── mods.xml
+                                        └── package.zip
+                                        └── premis.xml
+                                    └── ih
+                                    └── rfs
+                          └── data-fromfdsys-lastmod.txt
+                          └── data.json
+                          └── data.xml
+                          └── fdsys_billstatus-lastmod.txt
+                          └── fdsys_billstatus.xml
+                      ├── hr995
+                      ├── hr996
+                      ├── hr997
+                      ├── hr998
+                     └── hr999
+    │       ├── hres
+    │       ├── s
+    │       ├── sconres
+    │       ├── sjres
+    │       └── sres
+    ├── 111
+    │   └── bills
+    │       ├── hconres
+    │       ├── hjres
+    │       ├── hr
+
+
+NOTE: `data.xml` and `document.xml` are very different. The `data.xml` is metadata only and corresponds to the `data.json` at the same level. The xml of the bill itself, used in the bill similarity calculations, is `document.xml`, found in the `text_versions` directory.
+
+NOTE: We don't need `pdf` or `text` in downloaded bill data.
+
+### Celery Tasks - What they do.
+Celery tasks update uscongress bill and metadata at regular intervals (currently, it runs daily at midnight).
+
+There are six celery tasks, that run sequentially:
+`update_bill_task`, `bill_data_task`, `process_bill_meta_task`, `related_bill_task`, `elastic_load_task`, `bill_similarity_task`
+
+1. Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.
+
+With the open source scraper itself, we run `./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS`
+
+Then `./run bills`
+
+It will create `data.json` out of `data.xml` and text_versions.
+
+Instead of open source scraper command, we are using celery task named `update_bill_task` to download new bill metadata and text.
+
+The celery task is running daily at midnight in the server background.
+
+Whenever celery task started running, it creates `UscongressUpdateJob` table record in the database to track the task status.
+
+The fields in the `UscongressUpdateJob`:
+
+- job_id : celery task id
+
+- fdsys_status : choice field (pending, success, failed) : It represents the status of uscongress bill download (fdsys and text versions) what the celery task `update_bill_task` does. Once it's finished, the field value turns to `success` or `failed`
+
+- saved : the list of bill congress numbers downloaded by running the celery task `update_bill_task`.
+
+- skips : the list of bill congress numbers skipped by running the celery task `update_bill_task`.
+
+- data_status : choice field (pending, success, failed) : Once download is finished, the celery task `update_bill_task` creates `data.json` out of `data.xml` and text_versions that is exactly same as the `./run bills` does.
+
+- bill_status : choice field (pending, success, failed) : After creating `data.json`, we creates `billList.json` and `billsMeta.json` by running another celery task named `bill_data_task`. the field represents the status of the celery task to see if it's finished (succeed or failed)
+
+- meta_status : choice field (pending, success, failed) : After creating `billList.json` and `billsMeta.json`, we process the metadata by running the celery task named `process_bill_meta_task`. It represents the status of the task to see if it's finished or in pending.
+
+- related_status : choice field (pending, success, failed) : Once the celery task `process_bill_meta_task` is finished, the other celery task named `related_bill_task` to get related bills. This field represents the status of the celery task.
+
+- elastic_status : choice field (pending, success, failed) : Once the task `related_bill_task` is finished, the other celery task named `elastic_load_task` runs in order to update loading of the `new` bills into Elasticsearch. This field represents the status of the task.
+
+- similarity :  choice field (pending, success, failed) : After finishing `elastic_load_task`, we update `es_similarity` field of each bill in the database. This is the field of the task status.
+
+- created : the date time field represents the time when the record is created. 
+
+2. Create `billList.json` and `billsMeta.json`
+
+Once the celery task `update_bill_task` is finished (complete the download bill text and metadata), the other celery task named `bill_data_task` runs.
+
+As mentioned above, whenever the `update_bill_task` runs, it creates `UscongressUpdateJob` table record in the database.
+
+In `saved` fields, there is the list of bill congress number that represents which bills are newly downloaded.
+
+The task `bill_data_task` creates billList.json and `billsMeta.json` file with the list in `saved` field and dump related bill json files.
+
+data.json files at the top level (not the data.json in the text versions) are used to create metadata.
+
+We will proivde an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)
+
+3. Process bill meta data.
+
+After completing `bill_data_task`, `process_bill_meta_task` runs. This processes and organizes the metadata for bills.
+
+4. Create Related bills.
+
+Next, the `related_bill_task` runs.
+
+In the task it creates bill instances in the Bill table in the database.
+
+5. Update loading of the `new` bills into Elasticsearch
+
+The celery task `elastic_load_task` update loading of the `new` bills into Elasticsearch
+
+The xml for bill similarity is in text_versions that is the bill document itself.
+
+We use them.
+
+6. Update the bill similarity
+
+The celery task `bill_similarity_task` update the bill similarity.
+
+It only update the new bills since the new bill list is in the `saved` field in the UscongressUpdateJob table record.
+
+The xml for bill similarity is in text_versions that is the bill document itself.
+
+So we use them.
+
+
+#### In the future.
+
+For many bills, there are many more than 2 versions. (see above the data structure)
+
+In the future, we may have to distinguish these. One way to do this is to run bill similarity for each version and store each as an object, e.g. {ih: [similaritydata], eh: [similaritydata], enr: [similaritydata]}. When displaying similarity table in the UI, we will need to choose which of these objects-- or which combination of objects -- to show. 
+
+#### Flat structure
+
+├── 110
+│   ├── dtd
+│   └── pdf
+├── 111
+│   ├── dtd
+│   └── pdf
+├── 112
+│   ├── dtd
+│   └── pdf
+├── 113
+│   ├── dtd
+   └── pdf
+├── 114
+│   ├── dtd
+│   ├── pdf
+├── 115
+│   ├── dtd
+│   ├── pdf
+├── 115-bk
+│   ├── dtd
+│   ├── pdf
+├── 116
+│   ├── dtd
+│   ├── pdf
+
+
+#### How to run celery task.
+
+#####. On the local.
+
+For celery worker, open one terminal, go to the Django project root directory (in our case `.../Flatgov/server_py/flatgov`), then activate the virtual environment.
+
+Run the command below (Run the celery worker).
+
+`celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info`
+
+For celery scheduler, open another terminal, go to the Django project root directory (in our case `.../Flatgov/server_py/flatgov`), then activate the virtual environment.
+
+Run the command below (Run the celery redbeat)
+
+`celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`
+
+Then the background tasks (celery tasks ) run daily at midnight.
+
+
+#####. How to run celery as a daemon on the Ubuntu server?
+
+1. Init-script: celeryd
+
+Before configuring it, go to the `deployment_scripts/conf_celeryd` and update all the paths with the absolute paths
+
+Copy `deployment_scripts/bill_celeryd` file to `/etc/init.d/celeryd`.
+
+Make celeryd executable (Run following commands from the terminal.)
+
+`sudo chmod 755 /etc/init.d/celeryd`
+
+`sudo chown root:root /etc/init.d/celeryd`
+
+For configuration, copy `deployment_scripts/conf_celeryd` file to `/etc/default/celeryd`.
+
+You can check if the worker is active by:
+
+`sudo /etc/init.d/celeryd start`
+
+`sudo /etc/init.d/celeryd status`
+
+
+2. Init-script: celerybeat
+
+Before configuring it, go to the `deployment_scripts/celerybeat` and update all the paths with the absolute paths
+
+Copy `deployment_scripts/celerybeat` file to `/etc/init.d/celerybeat`.
+
+Make celerybeat executable (Run following commands from the terminal.)
+
+`sudo chmod 755 /etc/init.d/celerybeat`
+
+`sudo chown root:root /etc/init.d/celerybeat`
+
+For configuration, copy `deployment_scripts/conf_celerybeat` file to `/etc/default/celerybeat`.
+
+You can check if the beat is active by:
+
+`sudo /etc/init.d/celerybeat start`
+
+`sudo /etc/init.d/celerybeat status`
+
+3. Maintenance
+
+As it was show you can control worker and beat with the following commands:
+
+`/etc/init.d/celeryd {start|stop|restart}`
+
+`/etc/init.d/celerybeat {start|stop|restart}`

@@ -94,7 +94,7 @@ def indexBill(bill_path: str=PATH_BILL):
           'section_xml': etree.tostring(section, method="xml", encoding="unicode")
       } 
       for section in sections ]
-  } 
+  }
 
   res = es.index(index="billsections", body=doc)
   print(res['result'])

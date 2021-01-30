@@ -1,0 +1,5 @@
+[postgresql]
+host=localhost
+database=crs
+user=(your username)
+password=(your password)

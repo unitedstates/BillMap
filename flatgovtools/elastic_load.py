@@ -95,7 +95,7 @@ def indexBill(bill_path: str=PATH_BILL):
           'section_xml': etree.tostring(section, method="xml", encoding="unicode")
       } 
       for section in sections ]
-  } 
+  }
 
   # If the document has no identifiable bill number, it will be indexed with a random id
   # This will make retrieval and updates ambiguous

@@ -19,7 +19,7 @@ BASE_DIR = settings.BASE_DIR
 
 def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: bool = True) -> str:
   if uscongress:
-    return os.path.join(BASE_DIR, 'uscongress', 'data', congress, 'bills')
+    return os.path.join(BASE_DIR, 'congress', 'data', congress, 'bills')
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
 
 def getMapping(map_path):
@@ -106,7 +106,7 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
   return xml_files
 
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 117)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(117, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Finding Similarity congress: {0}'.format(congress))

@@ -64,6 +64,9 @@ class Bill(models.Model):
                 score = similar.get('score')
                 title = similar.get('title')
 
+                if section_obj.get(billnumber, {}).get('section_title') == title:
+                    continue
+
                 target = section_obj.get(billnumber, {})
                 title_list = target.get('title', [])
                 title_list.append(title)
@@ -78,6 +81,7 @@ class Bill(models.Model):
 
                 target['score'] = target.get('score', 0) + score
                 target['title'] = title_list
+                target['section_title'] = title
                 target['number_of_sections'] = target.get('number_of_sections', 0) + 1
                 target['scores'] = sorted_scores_list
                 section_obj[billnumber] = target

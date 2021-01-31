@@ -139,7 +139,7 @@ For each bill a metadata file is created in `congress/data/relatedbills` with th
       titles: [],
       sponsor: {},
       cosponsors: [],
-      identifies_by: "CRS"
+      identified_by: "CRS"
     }
     },
 

@@ -48,6 +48,15 @@ NOTE: `data.xml` and `document.xml` are very different. The `data.xml` is metada
 
 NOTE: We don't need `pdf` or `text` in downloaded bill data.
 
+### Initialize data for Congresses until Now
+
+We download all data to-date using the following:
+
+1. Download metadata as described in xref:README.adoc#bulk_downloads:_bill_metadata[README] (Bulk downloads: bill metadata)
+
+2. Use the `unitedstates/congress` scraper to download xml files
+
+
 ### Celery Tasks - What they do.
 Celery tasks update uscongress bill and metadata at regular intervals (currently, it runs daily at midnight).
 

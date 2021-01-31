@@ -97,6 +97,11 @@ def indexBill(bill_path: str=PATH_BILL):
       } 
       for section in sections ]
   } 
+  
+  # If the document has no identifiable bill number, it will be indexed with a random id
+  # This will make retrieval and updates ambiguous
+  if billnumber_text is not None and len(billnumber_text) > 7:
+      doc['id'] = billnumber_text
 
   res = es.index(index="billsections", body=doc)
   return res

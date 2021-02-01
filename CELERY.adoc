@@ -54,8 +54,13 @@ We download all data to-date using the following:
 
 1. Download metadata as described in xref:README.adoc#bulk_downloads:_bill_metadata[README] (Bulk downloads: bill metadata)
 
-2. Use the `unitedstates/congress` scraper to download xml files
+2. Use the `unitedstates/congress` scraper to download xml files, and copy the `congress/data` directory to the parent of this repository.
 
+for CONGRESSNUM in {114..116}
+do
+  echo "./run govinfo --collections=BILLS --congress=$CONGRESSNUM --extract=mods,xml,premis --bulkdata=BILLSTATUS"
+  ./run govinfo --collections=BILLS --congress=$CONGRESSNUM --extract=mods,xml,premis --bulkdata=BILLSTATUS
+done
 
 ### Celery Tasks - What they do.
 Celery tasks update uscongress bill and metadata at regular intervals (currently, it runs daily at midnight).

@@ -32,6 +32,10 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+congress
+cache
+us_congress
+
 # Elasticsearch artifacts
 elasticsearch-*
 logstash*

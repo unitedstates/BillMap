@@ -63,6 +63,7 @@ def indexBill(bill_path: str=PATH_BILL):
   billCongressTypeNumberVersion = '' 
   if dctitle and dctitle.find(':') > -1:
     billCongressTypeNumberVersion = dctitle.split(':')[0].replace(' ','').lower()
+  dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
   session = billTree.xpath('//form/session')
@@ -84,6 +85,7 @@ def indexBill(bill_path: str=PATH_BILL):
       'congress': congress_text,
       'session': session_text,
       'dc': dublinCore,
+      'date': dcdate,
       'legisnum': legisnum_text,
       'billnumber': billnumber_text,
       'billnumber_version': billCongressTypeNumberVersion,

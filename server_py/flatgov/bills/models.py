@@ -174,6 +174,8 @@ class Statement(models.Model):
 
     date_fetched = models.DateTimeField(auto_now_add=True)
 
+    bills = models.ManyToManyField(Bill, blank=True)
+
 
     def __str__(self):
         return f'{self.bill_number} - {self.permanent_pdf_link}'

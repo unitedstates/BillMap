@@ -6,13 +6,18 @@ from elasticsearch import exceptions, Elasticsearch
 es = Elasticsearch()
 from collections import OrderedDict
 
+from django.conf import settings
 from common import constants
 
 bill_file = "BILLS-116hr1500rh.xml"
 bill_file2 = "BILLS-116hr299ih.xml"
 PATH_BILL = os.path.join(constants.PATH_TO_CONGRESSDATA_XML_DIR, bill_file)
 
-def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd') -> str:
+BASE_DIR = settings.BASE_DIR
+
+def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: bool = True) -> str:
+  if uscongress:
+    return os.path.join(BASE_DIR, 'congress', 'data', congress, 'bills')
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
 
 def getMapping(map_path):
@@ -54,6 +59,11 @@ def indexBill(bill_path: str=PATH_BILL):
     dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
   else:
     dublinCore = ''
+  dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
+  billCongressTypeNumberVersion = '' 
+  if dctitle and dctitle.find(':') > -1:
+    billCongressTypeNumberVersion = dctitle.split(':')[0].replace(' ','').lower()
+  dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
   session = billTree.xpath('//form/session')
@@ -75,8 +85,10 @@ def indexBill(bill_path: str=PATH_BILL):
       'congress': congress_text,
       'session': session_text,
       'dc': dublinCore,
+      'date': dcdate,
       'legisnum': legisnum_text,
       'billnumber': billnumber_text,
+      'billnumber_version': billCongressTypeNumberVersion,
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
           'section_number': section.xpath('enum')[0].text,
@@ -92,21 +104,43 @@ def indexBill(bill_path: str=PATH_BILL):
       } 
       for section in sections ]
   } 
+  
+  # If the document has no identifiable bill number, it will be indexed with a random id
+  # This will make retrieval and updates ambiguous
+  if billCongressTypeNumberVersion is not '' and len(billCongressTypeNumberVersion) > 7:
+      doc['id'] = billCongressTypeNumberVersion 
 
   res = es.index(index="billsections", body=doc)
-  print(res['result'])
+  return res
 
     # billRoot = billTree.getroot()
     # nsmap = {k if k is not None else '':v for k,v in billRoot.nsmap.items()}
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 117)]
-def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd'):
+
+def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
+  if not uscongress:
+    return [file for file in os.listdir(congressDir) if file.endswith(".xml")]
+
+  xml_files = list()
+  USCONGRESS_XML_FILE = settings.USCONGRESS_XML_FILE
+  for root, dirs, files in os.walk(congressDir):
+    if USCONGRESS_XML_FILE in files:
+      xml_path = os.path.join(root, USCONGRESS_XML_FILE)
+      xml_files.append(xml_path)
+  return xml_files
+
+
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 117)]
+def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Indexing congress: {0}'.format(congress))
-    congressDir = getXMLDirByCongress(congress=congress, docType=docType) 
-    billFiles = [file for file in os.listdir(congressDir) if file.endswith(".xml")]
+    congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
+    billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
     for billFile in billFiles:
-      billFilePath = os.path.join(congressDir, billFile)
+      if uscongress:
+        billFilePath = billFile
+      else:
+        billFilePath = os.path.join(congressDir, billFile)
       print('Indexing {0}'.format(billFilePath))
       try:
         indexBill(billFilePath)

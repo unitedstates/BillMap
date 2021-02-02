@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('bills', '0017_bill_es_similarity'),
+        ('bills', '0018_billupdatejob'),
     ]
 
     operations = [

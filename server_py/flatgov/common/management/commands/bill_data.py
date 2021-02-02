@@ -22,5 +22,5 @@ class Command(BaseCommand):
     #                   action="store_true")
 
     def handle(self, *args, **options):
-        updateBillsList()
+        # updateBillsList()
         updateBillsMeta()

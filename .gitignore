@@ -3,6 +3,9 @@
 .idea
 
 congress
+cache
+data
+us_congress
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

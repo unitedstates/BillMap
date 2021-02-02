@@ -119,11 +119,11 @@ def getCosponsors(fileDict: Dict, includeFields = []) -> list:
   Returns:
       list: a list of cosponsors, with selected fields determined by includeFields 
   """
-  cosponsors = fileDict.get('cosponsors')
+  cosponsors = fileDict.get('cosponsors', [])
 
   if includeFields:
     cosponsors = list(map(lambda cosponsor: { field: cosponsor.get(field) for field in includeFields }, cosponsors))
-
+  
   # for sponsor in cosponsors:
   #   if not sponsor.get('bioguide_id'):
   #     continue
@@ -142,7 +142,7 @@ def getBillTitles(fileDict: Dict, include_partial = True, billType = 'all') -> l
   Returns:
       list: a list of titles for the bill; either all titles or only whole-bill titles 
   """
-  titles = fileDict.get('titles')
+  titles = fileDict.get('titles', [])
   if not include_partial:
     titles = [title for title in titles if not title.get('is_for_portion')]
   

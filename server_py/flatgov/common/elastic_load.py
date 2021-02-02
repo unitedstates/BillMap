@@ -59,6 +59,10 @@ def indexBill(bill_path: str=PATH_BILL):
     dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
   else:
     dublinCore = ''
+  dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
+  billCongressTypeNumberVersion = '' 
+  if dctitle and dctitle.find(':') > -1:
+    billCongressTypeNumberVersion = dctitle.split(':')[0].replace(' ','').lower()
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
   session = billTree.xpath('//form/session')
@@ -82,6 +86,7 @@ def indexBill(bill_path: str=PATH_BILL):
       'dc': dublinCore,
       'legisnum': legisnum_text,
       'billnumber': billnumber_text,
+      'billnumber_version': billCongressTypeNumberVersion,
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
           'section_number': section.xpath('enum')[0].text,
@@ -100,8 +105,8 @@ def indexBill(bill_path: str=PATH_BILL):
   
   # If the document has no identifiable bill number, it will be indexed with a random id
   # This will make retrieval and updates ambiguous
-  if billnumber_text is not None and len(billnumber_text) > 7:
-      doc['id'] = billnumber_text
+  if billCongressTypeNumberVersion is not '' and len(billCongressTypeNumberVersion) > 7:
+      doc['id'] = billCongressTypeNumberVersion 
 
   res = es.index(index="billsections", body=doc)
   return res

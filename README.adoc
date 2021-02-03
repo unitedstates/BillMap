@@ -242,7 +242,7 @@ NOTE: a bill text similarity engine is here https://github.com/govtrack/govtrack
 
 The metadata for Statement of Administration Policy section has been scraped and stored in json files. The pdfs are stored in the media directory.
 
-### Load Policy Data for Obama Administration to Database
+### Load Statement of Administration Policy Data to Database
 
 - activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py$`
 ```bash

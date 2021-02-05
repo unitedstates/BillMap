@@ -107,7 +107,7 @@ def indexBill(bill_path: str=PATH_BILL):
   
   # If the document has no identifiable bill number, it will be indexed with a random id
   # This will make retrieval and updates ambiguous
-  if billCongressTypeNumberVersion is not '' and len(billCongressTypeNumberVersion) > 7:
+  if billCongressTypeNumberVersion != '' and len(billCongressTypeNumberVersion) > 7:
       doc['id'] = billCongressTypeNumberVersion 
 
   res = es.index(index="billsections", body=doc)

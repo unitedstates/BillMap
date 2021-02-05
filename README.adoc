@@ -273,7 +273,7 @@ $ cd flatgov
 
 ```bash
 
-./manage.py loaddata dumped_statements.json 
+./manage.py load_statements
 
 ```
 

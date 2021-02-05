@@ -60,12 +60,12 @@ def indexBill(bill_path: str=PATH_BILL):
   else:
     dublinCore = ''
   dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
-  billCongressTypeNumberVersion = ''
-  billVersion = ''
+
+  doc_id = ''
   if dctitle and dctitle.find(':') > -1:
-    billCongressTypeNumberVersion = dctitle.split(':')[0].replace(' ','').lower()
     try:
-      billVersion = dctitle.split(':')[0].split(' ')[-1].lower()
+      billVersion = dctitle.split(':')[0].split(' ')[-1].lower()      
+      doc_id = billnumber_text + billVersion
     except Exception:
       pass
   dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
@@ -83,7 +83,6 @@ def indexBill(bill_path: str=PATH_BILL):
   headers = billTree.xpath('//header')
   from collections import OrderedDict
   headers_text = [ header.text for header in headers]
-  doc_id = billnumber_text + billVersion
 
   # Uses an OrderedDict to deduplicate headers
   # TODO handle missing header and enum separately
@@ -95,7 +94,6 @@ def indexBill(bill_path: str=PATH_BILL):
       'date': dcdate,
       'legisnum': legisnum_text,
       'billnumber': billnumber_text,
-      'billnumber_version': billCongressTypeNumberVersion,
       'bill_version': billVersion,
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
@@ -115,7 +113,7 @@ def indexBill(bill_path: str=PATH_BILL):
   
   # If the document has no identifiable bill number, it will be indexed with a random id
   # This will make retrieval and updates ambiguous
-  if billCongressTypeNumberVersion != '' and len(billCongressTypeNumberVersion) > 7:
+  if doc_id != '' and len(doc_id) > 7:
       doc['id'] = doc_id
 
   res = es.index(index="billsections", body=doc)

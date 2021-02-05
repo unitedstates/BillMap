@@ -134,10 +134,16 @@ $ python manage.py process_bill_meta
 $ python manage.py related_bills
 ```
 
-NOTE: `~FlatGov/server_py/flatgov/common` directory contains all the django commands.
+NOTE: `~FlatGov/server_py/flatgov/common` directory contains all the django commands. Also, the `--congress` flag tells the scripts to use data from the `congress` directory in ` ...server_py/flatgov/congress`, created by the `unitedstates/congress` scraper, described in SCRAPER.adoc. This will have directories for each congress: ` ...server_py/flatgov/congress/data/117`, ` ...server_py/flatgov/congress/data/116`, ` ...server_py/flatgov/congress/data/115`, etc.
 
 The `billdata.py` file creates bill, sponsor objects and adds proper relations.
 
+After the metadata is loaded, index the bills to Elasticsearch and process bill similarity:
+
+```bash
+$ python manage.py elastic_load --uscongress
+$ python manage.py bill_similarity --uscongress
+```
 
 ## Review Models with Django Admin
 

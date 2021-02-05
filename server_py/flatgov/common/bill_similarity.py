@@ -106,7 +106,7 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
   return xml_files
 
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Finding Similarity congress: {0}'.format(congress))
@@ -168,6 +168,7 @@ def getSimilarSections(res):
         num = num + " "
       header = innerResultSections[0].get('_source', {}).get('section_header', '')
       match = {
+        "bill_number_version": billSource.get('id', ''),
         "score": innerResultSections[0].get('_score', ''),
         "billnumber": billSource.get('billnumber', ''),
         "congress": billSource.get('_source', {}).get('congress', ''),
@@ -176,6 +177,7 @@ def getSimilarSections(res):
         "title": title,
         "section_num": num,
         "section_header": header,
+        "date": billSource.get('date'),
       }
       similarSections.append(match)
     return similarSections 

@@ -60,9 +60,14 @@ def indexBill(bill_path: str=PATH_BILL):
   else:
     dublinCore = ''
   dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
-  billCongressTypeNumberVersion = '' 
+
+  doc_id = ''
   if dctitle and dctitle.find(':') > -1:
-    billCongressTypeNumberVersion = dctitle.split(':')[0].replace(' ','').lower()
+    try:
+      billVersion = dctitle.split(':')[0].split(' ')[-1].lower()      
+      doc_id = billnumber_text + billVersion
+    except Exception:
+      pass
   dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
@@ -82,13 +87,14 @@ def indexBill(bill_path: str=PATH_BILL):
   # Uses an OrderedDict to deduplicate headers
   # TODO handle missing header and enum separately
   doc = {
+      'id': billnumber_text,
       'congress': congress_text,
       'session': session_text,
       'dc': dublinCore,
       'date': dcdate,
       'legisnum': legisnum_text,
       'billnumber': billnumber_text,
-      'billnumber_version': billCongressTypeNumberVersion,
+      'bill_version': billVersion,
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
           'section_number': section.xpath('enum')[0].text,
@@ -107,8 +113,8 @@ def indexBill(bill_path: str=PATH_BILL):
   
   # If the document has no identifiable bill number, it will be indexed with a random id
   # This will make retrieval and updates ambiguous
-  if billCongressTypeNumberVersion is not '' and len(billCongressTypeNumberVersion) > 7:
-      doc['id'] = billCongressTypeNumberVersion 
+  if doc_id != '' and len(doc_id) > 7:
+      doc['id'] = doc_id
 
   res = es.index(index="billsections", body=doc)
   return res
@@ -130,7 +136,7 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
   return xml_files
 
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 117)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Indexing congress: {0}'.format(congress))

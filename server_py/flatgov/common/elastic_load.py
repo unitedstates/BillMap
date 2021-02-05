@@ -59,15 +59,6 @@ def indexBill(bill_path: str=PATH_BILL):
     dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
   else:
     dublinCore = ''
-  dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
-
-  doc_id = ''
-  if dctitle and dctitle.find(':') > -1:
-    try:
-      billVersion = dctitle.split(':')[0].split(' ')[-1].lower()      
-      doc_id = billnumber_text + billVersion
-    except Exception:
-      pass
   dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
@@ -79,6 +70,16 @@ def indexBill(bill_path: str=PATH_BILL):
     billnumber_text = congress_text + legisnum_text.lower().replace('. ', '')
   else:
     billnumber_text = getBillNumberFromBillPath(bill_path)
+  dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
+
+  doc_id = ''
+  billVersion = ''
+  if dctitle and dctitle.find(':') > -1:
+    try:
+      billVersion = dctitle.split(':')[0].split(' ')[-1].lower()      
+      doc_id = billnumber_text + billVersion
+    except Exception:
+      pass
   sections = billTree.xpath('//section')
   headers = billTree.xpath('//header')
   from collections import OrderedDict

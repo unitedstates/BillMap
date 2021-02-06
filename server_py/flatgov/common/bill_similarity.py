@@ -9,6 +9,7 @@ es = Elasticsearch()
 from collections import OrderedDict
 from iteration_utilities import unique_everseen, duplicates
 
+from common.utils import getText, getBillNumberFromBillPath, getBillNumberFromCongressScraperBillPath 
 from django.conf import settings
 from common import constants
 from bills.models import Bill
@@ -32,33 +33,42 @@ def getMapping(map_path):
     with open(map_path, 'r') as f:
         return json.load(f)
 
-def getText(item):
-  if item is None:
-    return ''
-  if isinstance(item, list):
-    item = item[0]
+def setBillNumberQuery(billnumber: str) -> dict:
+  """
+  Sets Elasticsearch query by bill number
+  Args:
+      billnumber (str): billnumber (no version) 
 
-  try:
-    return item.text 
-  except:
-    return ''
-
-def getBillNumberFromBillPath(bill_path: str):
-  # e.g. [path]/116/dtd/BILLS-116hr1500rh.xml
-  return re.sub(r'.*\/', '', bill_path).replace('BILLS-', '').replace('.xml', '')
-
-US_CONGRESS_PATH_REGEXP = re.compile(r'data\/(?P<congress>[1-9][0-9]*)\/([a-z]+)\/([a-z]{1,8})\/(?P<billnumber>[a-z]{1,8}[1-9][0-9]*)\/')
-def getBillNumberFromCongressScraperBillPath(bill_path: str):
-  # e.g. [path]/data/116/bills/hr/hr1/text-versions
-  
-  match = US_CONGRESS_PATH_REGEXP.search(bill_path)
-  bill_number = None
-  if match:
-    match_groups = match.groupdict()
-    bill_number = match_groups.get('congress', '') + match_groups.get('billnumber', '') 
-  return bill_number
-
-def setBillNumberQuery(billnumber: str):
+  Returns:
+      dict: [description]
+      "hits" : [
+        {
+          "_index" : "billsections",
+          "_type" : "_doc",
+          "_id" : "yH0adHcByMv3L6kFHKWS",
+          "_score" : null,
+          "fields" : {
+             "date" : [
+              "2019-03-05T00:00:00.000Z"
+            ],
+            "billnumber" : [
+              "116hr1500"
+            ],
+            "id" : [
+              "116hr1500ih"
+            ],
+            "bill_version" : [
+              "ih"
+            ],
+            "dc" : [
+             ... 
+            ]
+          },
+          "sort" : [
+            1558569600000
+          ]
+        },
+  """
   return {
   "sort" : [
   { "date" : {"order" : "desc"}}
@@ -68,58 +78,30 @@ def setBillNumberQuery(billnumber: str):
       "billnumber": billnumber
     }
   },
-  "fields": ["id", "billnumber", "bill_version", "date", "dc"],
+  "fields": ["id", "billnumber", "billversion", "billnumber_version", "date"],
   "_source": False
 }
   
-"""
+def getLatestBillVersion(billnumber: str) -> str:
+  """
+  Find latest version in Elasticsearch
 
-Returns results of the form:
-    "hits" : [
-      {
-        "_index" : "billsections",
-        "_type" : "_doc",
-        "_id" : "yH0adHcByMv3L6kFHKWS",
-        "_score" : null,
-        "fields" : {
-           "date" : [
-            "2019-03-05T00:00:00.000Z"
-          ],
-          "billnumber" : [
-            "116hr1500"
-          ],
-          "id" : [
-            "116hr1500ih"
-          ],
-          "bill_version" : [
-            "ih"
-          ],
-          "dc" : [
-           ... 
-          ]
-        },
-        "sort" : [
-          1558569600000
-        ]
-      },
-"""
+  Args:
+      billnumber (str): billnumber (without version) 
 
-# Find latest version in Elasticsearch
-def getLatestBillVersion(billnumber: str):
+  Returns:
+      str: version (e.g. 'ih', 'eh', 'enr', etc.) 
+  """
   bills = runQuery(index='billsections', query=setBillNumberQuery(billnumber))
-  if bills.get('hits') and bills.get('hits').length > 0:
-    tophit = bills.get('hits')[0]
+  billversion = ''
+  if bills.get('hits') and bills.get('hits').length > 0 and bills.get('hits')[0].get('fields'):
+    tophit = bills.get('hits')[0].get('fields')
     billnumber = tophit.get('billnumber')[0] 
-    billversion = tophit.get('bill_version')[0]
-    if billnumber and billversion:
-      return billnumber + billversion
-    else:
-      # TODO raise an exception to be caught later
-      return None
+    billversion = tophit.get('billversion')
 
-  return billVersion
+  return billversion
 
-def indexBill(bill_path: str=PATH_BILL):
+def processBill(bill_path: str=PATH_BILL):
   try:
     billTree = etree.parse(bill_path)
   except:
@@ -131,17 +113,21 @@ def indexBill(bill_path: str=PATH_BILL):
     dublinCore = ''
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
-  session = billTree.xpath('//form/session')
+  # session = billTree.xpath('//form/session')
   # session_text = re.sub(r'[a-zA-Z ]+$', '', getText(session))
   legisnum = billTree.xpath('//legis-num')
   legisnum_text = getText(legisnum)
-  if congress and legisnum_text:
-    billnumber_text = congress_text + legisnum_text.lower().replace('. ', '')
+  billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path) 
+  if billnumber_version == '':
+    billnumber_version = getBillNumberFromBillPath(bill_path)
+  billnumber = ''
+  if billnumber_version:
+    billnumber = re.sub(r'[a-z]$', '', billnumber_version)
   else:
-    billnumber_text = getBillNumberFromBillPath(bill_path)
+    raise Exception('Could not get billnumber and version')
   sections = billTree.xpath('//section[not(ancestor::section)]')
 
-  qs_bill = Bill.objects.filter(bill_congress_type_number=billnumber_text)
+  qs_bill = Bill.objects.filter(bill_congress_type_number=billnumber)
   if qs_bill.exists():
     bill = qs_bill.first()
     es_similarity = list()
@@ -149,13 +135,15 @@ def indexBill(bill_path: str=PATH_BILL):
     for section in sections:
       if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0):
         section_item = {
-          'billnumber': billnumber_text,
+          'billnumber': billnumber,
+          'billnumber_version': billnumber_version,
           'section_number': section.xpath('enum')[0].text,
           'section_header':  section.xpath('header')[0].text,
         }
       else:
         section_item = {
-          'billnumber': billnumber_text,
+          'billnumber': billnumber,
+          'billnumber_version': billnumber_version,
           'section_number': '',
           'section_header': '',
         }
@@ -199,7 +187,7 @@ def filterLatestVersionOnly(billFiles: List[str]):
   return billFilesFiltered
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 118)]
-def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
+def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Finding Similarity congress: {0}'.format(congress))
     congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
@@ -213,7 +201,7 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscon
         billFilePath = os.path.join(congressDir, billFile)
       print('Finding Similiarity {0}'.format(billFilePath))
       try:
-        indexBill(billFilePath)
+        processBill(billFilePath)
       except Exception as err:
         print('Could not index: {0}'.format(str(err)))
         pass
@@ -251,7 +239,7 @@ def getSimilarSections(res):
       if dublinCores:
         dublinCore = dublinCores[0]
 
-      titleMatch = re.search(r'<dc:title>(.*)?<', dublinCore)
+      titleMatch = re.search(r'<dc:title>(.*)?<', str(dublinCore))
       if titleMatch:
         title = titleMatch[1].strip()
       num = innerResultSections[0].get('_source', {}).get('section_number', '')

@@ -1,11 +1,13 @@
 import os
 import json
 import re
+from typing import List
 from lxml import etree
 from operator import itemgetter
 from elasticsearch import exceptions, Elasticsearch
 es = Elasticsearch()
 from collections import OrderedDict
+from iteration_utilities import unique_everseen, duplicates
 
 from django.conf import settings
 from common import constants
@@ -16,6 +18,10 @@ bill_file2 = "BILLS-116hr299ih.xml"
 PATH_BILL = os.path.join(constants.PATH_TO_CONGRESSDATA_XML_DIR, bill_file)
 
 BASE_DIR = settings.BASE_DIR
+
+def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO, size: int=10) -> dict:
+  query = query
+  return es.search(index=index, body=query, size=size)
 
 def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: bool = True) -> str:
   if uscongress:
@@ -40,6 +46,78 @@ def getText(item):
 def getBillNumberFromBillPath(bill_path: str):
   # e.g. [path]/116/dtd/BILLS-116hr1500rh.xml
   return re.sub(r'.*\/', '', bill_path).replace('BILLS-', '').replace('.xml', '')
+
+US_CONGRESS_PATH_REGEXP = re.compile(r'data\/(?P<congress>[1-9][0-9]*)\/([a-z]+)\/([a-z]{1,8})\/(?P<billnumber>[a-z]{1,8}[1-9][0-9]*)\/')
+def getBillNumberFromCongressScraperBillPath(bill_path: str):
+  # e.g. [path]/data/116/bills/hr/hr1/text-versions
+  
+  match = US_CONGRESS_PATH_REGEXP.search(bill_path)
+  bill_number = None
+  if match:
+    match_groups = match.groupdict()
+    bill_number = match_groups.get('congress', '') + match_groups.get('billnumber', '') 
+  return bill_number
+
+def setBillNumberQuery(billnumber: str):
+  return {
+  "sort" : [
+  { "date" : {"order" : "desc"}}
+  ],
+  "query": {
+    "match": {
+      "billnumber": billnumber
+    }
+  },
+  "fields": ["id", "billnumber", "bill_version", "date", "dc"],
+  "_source": False
+}
+  
+"""
+
+Returns results of the form:
+    "hits" : [
+      {
+        "_index" : "billsections",
+        "_type" : "_doc",
+        "_id" : "yH0adHcByMv3L6kFHKWS",
+        "_score" : null,
+        "fields" : {
+           "date" : [
+            "2019-03-05T00:00:00.000Z"
+          ],
+          "billnumber" : [
+            "116hr1500"
+          ],
+          "id" : [
+            "116hr1500ih"
+          ],
+          "bill_version" : [
+            "ih"
+          ],
+          "dc" : [
+           ... 
+          ]
+        },
+        "sort" : [
+          1558569600000
+        ]
+      },
+"""
+
+# Find latest version in Elasticsearch
+def getLatestBillVersion(billnumber: str):
+  bills = runQuery(index='billsections', query=setBillNumberQuery(billnumber))
+  if bills.get('hits') and bills.get('hits').length > 0:
+    tophit = bills.get('hits')[0]
+    billnumber = tophit.get('billnumber')[0] 
+    billversion = tophit.get('bill_version')[0]
+    if billnumber and billversion:
+      return billnumber + billversion
+    else:
+      # TODO raise an exception to be caught later
+      return None
+
+  return billVersion
 
 def indexBill(bill_path: str=PATH_BILL):
   try:
@@ -105,6 +183,20 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
       xml_files.append(xml_path)
   return xml_files
 
+def filterLatestVersionOnly(billFiles: List[str]):
+  # TODO: For bills that are not unique, get only the latest one
+
+  # Filter to get just the path before /text-versions
+  billPaths = filter(lambda f: f.split('/text')[0], billFiles)
+  billPathsUnique = list(unique_everseen(billPaths))
+  billFilesFiltered = filter(lambda f: f.split('/text')[0] in billPathsUnique, billFiles)
+  billPathsDupes = list(set(duplicates(billPaths)))
+  billNumbersDupes = filter(None, map(getBillNumberFromCongressScraperBillPath, billPathsDupes))
+  billVersions = map(getLatestBillVersion, billNumbersDupes)
+  # Keep that one in the list
+  # Add those to the billFilesFiltered
+
+  return billFilesFiltered
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
@@ -112,6 +204,8 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscon
     print('Finding Similarity congress: {0}'.format(congress))
     congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
     billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
+    if uscongress:
+      billFiles = filterLatestVersionOnly(billFiles)
     for billFile in billFiles:
       if uscongress:
         billFilePath = billFile
@@ -124,9 +218,6 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscon
         print('Could not index: {0}'.format(str(err)))
         pass
 
-def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO, size: int=10) -> dict:
-  query = query
-  return es.search(index=index, body=query, size=size)
 
 def moreLikeThis(queryText: str, index: str='billsections'):
   query = constants.makeMLTQuery(queryText)
@@ -137,22 +228,22 @@ def printResults(res):
     for hit in res['hits']['hits']:
         print(hit["_source"])
 
-def getHits(res):
+def getInnerHits(res):
   return res.get('hits').get('hits')
 
 def getResultBillnumbers(res):
-  return [hit.get('_source').get('billnumber') for hit in getHits(res)]
+  return [hit.get('_source').get('billnumber') for hit in getInnerHits(res)]
 
 def getInnerResults(res):
-   return [hit.get('inner_hits') for hit in getHits(res)]
+   return [hit.get('inner_hits') for hit in getInnerHits(res)]
 
 def getSimilarSections(res):
   similarSections = []
   try:
-    hits = getHits(res)
+    hits = getInnerHits(res)
     innerResults = getInnerResults(res)
     for index, hit in enumerate(hits):
-      innerResultSections = getHits(innerResults[index].get('sections'))
+      innerResultSections = getInnerHits(innerResults[index].get('sections'))
       billSource = hit.get('_source')
       title = ''
       dublinCore = ''

@@ -41,7 +41,7 @@ def indexBill(bill_path: str=PATH_BILL):
   except:
     raise Exception('Could not parse bill')
   dublinCores = billTree.xpath('//dublinCore')
-  if dublinCores and dublinCores[0]:
+  if (dublinCores is not None) and (dublinCores[0] is not None):
     dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
   else:
     dublinCore = ''

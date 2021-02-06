@@ -3,6 +3,9 @@
 .idea
 
 congress
+cache
+data
+us_congress
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -31,6 +34,10 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+congress
+cache
+us_congress
 
 # Elasticsearch artifacts
 elasticsearch-*

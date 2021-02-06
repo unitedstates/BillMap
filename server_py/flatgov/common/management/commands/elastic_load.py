@@ -11,9 +11,19 @@ from common.elastic_load import (
 class Command(BaseCommand):
     help = 'create bill data via billdata.py'
 
+    def add_arguments(self, parser):
+        parser.add_argument(
+            '-c',
+            '--uscongress',
+            action='store_true',
+            help='Open source scraper - unitedstates/congress'
+        )
+
     def handle(self, *args, **options):
+        uscongress = options['uscongress']
+
         createIndex(delete=True)
-        indexBills()
+        indexBills(uscongress=uscongress)
         refreshIndices()
         res = runQuery()
         billnumbers = getResultBillnumbers(res)

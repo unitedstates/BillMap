@@ -122,10 +122,13 @@ def processBill(bill_path: str=PATH_BILL):
     billnumber_version = getBillNumberFromBillPath(bill_path)
   billnumber = ''
   if billnumber_version:
-    billnumber = re.sub(r'[a-z]$', '', billnumber_version)
+    billnumber = re.sub(r'[a-z]*$', '', billnumber_version)
   else:
     raise Exception('Could not get billnumber and version')
   sections = billTree.xpath('//section[not(ancestor::section)]')
+
+  #print('Bill number: {0}'.format(billnumber))
+  #print('Bill number + version: {0}'.format(billnumber_version))
 
   qs_bill = Bill.objects.filter(bill_congress_type_number=billnumber)
   if qs_bill.exists():

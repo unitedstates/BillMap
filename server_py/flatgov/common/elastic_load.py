@@ -52,9 +52,8 @@ def indexBill(bill_path: str=PATH_BILL):
   session_text = re.sub(r'[a-zA-Z ]+$', '', getText(session))
   legisnum = billTree.xpath('//legis-num')
   legisnum_text = getText(legisnum)
-  if congress and legisnum_text:
-    billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path)
-  else:
+  billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path)
+  if billnumber_version == '':
     billnumber_version = getBillNumberFromBillPath(bill_path)
   dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
 
@@ -64,7 +63,7 @@ def indexBill(bill_path: str=PATH_BILL):
   billnumber = ''
   if billMatch:
     billMatchGroup = billMatch.groupdict()
-    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('billnumber')
+    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('number')
     billversion = billMatchGroup.get('version') 
   sections = billTree.xpath('//section')
   headers = billTree.xpath('//header')
@@ -78,6 +77,7 @@ def indexBill(bill_path: str=PATH_BILL):
       'congress': congress_text,
       'session': session_text,
       'dc': dublinCore,
+      'dctitle': dctitle,
       'date': dcdate,
       'legisnum': legisnum_text,
       'billnumber': billnumber,

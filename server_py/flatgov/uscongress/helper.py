@@ -11,7 +11,7 @@ from common.billdata import (
     getCosponsors,
 )
 from common.elastic_load import indexBill
-from common.bill_similarity import indexBill as es_indexBill
+from common.bill_similarity import processBill
 
 
 es = Elasticsearch()
@@ -95,5 +95,5 @@ def es_similarity_bill(bill):
     valid_bill_dir = validate_bill_dir(bill_dir, BILL_XML)
     if not valid_bill_dir:
         return False
-    res = es_indexBill(os.path.join(valid_bill_dir, BILL_XML))
+    res = processBill(os.path.join(valid_bill_dir, BILL_XML))
     return res

@@ -95,6 +95,12 @@ def makeSponsorBracket(sponsor: dict, party='X') -> str:
 class BillListView(TemplateView):
     template_name = 'bills/list.html'
 
+    def get_context_data(self, **kwargs):
+        from uscongress.tasks import bill_similarity_task
+        bill_similarity_task(26)
+        context = super().get_context_data(**kwargs)
+        return context
+
 
 def makeName(commaName):
     if not commaName:
@@ -257,7 +263,7 @@ class BillDetailView(DetailView):
         return context
 
     
-     def get_related_statements(self, **kwargs):
+    def get_related_statements(self, **kwargs):
         slug = self.kwargs['slug']
         return Statement.objects.filter(bill_number__iexact=slug[3:]).filter(congress__iexact=slug[:3])
         

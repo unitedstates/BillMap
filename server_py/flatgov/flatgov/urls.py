@@ -25,4 +25,4 @@ urlpatterns = [
     path('uscongress/debug/', include('uscongress.urls')),
     path('admin/', admin.site.urls),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-
+a

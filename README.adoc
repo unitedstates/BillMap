@@ -234,17 +234,7 @@ For any bill (e.g. 116hr100ih), we want to find related bills for previous congr
 
 For purposes of efficiency and performance, we have developed a similarity measure that built on a search engine model. In particular, we build an index of document headers and sections in Elasticsearch. We then calculate the similarity between any input text and sections in the index using the ES/Lucene 'more like this' metric. We combine the section to section similarity scores to yield an overall bill similarity measure.  For more details, see https://github.com/aih/FlatGov/blob/master/server_py/flatgov/elasticsearch/README.adoc
 
-NOTE: a bill text similarity engine is here https://github.com/govtrack/govtrack.us-web/blob/master/analysis/text_incorporation.py
-
-
-
-## Statement of Administration Policy
-
-The metadata for Statement of Administration Policy section has been scraped and stored in json files. The pdfs are stored in the media directory.
-
-### Load Policy Data for Obama Administration to Database
 NOTE: a comparable bill text similarity engine is here https://github.com/govtrack/govtrack.us-web/blob/master/analysis/text_incorporation.py
-
 
 #### Download bills with the unitedstates/congress scraper
 
@@ -258,15 +248,6 @@ NOTE: a comparable bill text similarity engine is here https://github.com/govtra
 
 Updates to the data are done through the Celery taskrunner (see https://docs.celeryproject.org/en/stable/getting-started/introduction.html). Details of the tasks in Flatgov are in CELERY.adoc
 
-- activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
-```bash
-$ pyenv activate flatgov
-$ cd ~/.../FlatGov/server_py/flatgov 
-./manage.py loaddata statements_datas.json 
-```
-
-
-
 ```
 - Run the Celery worker
 
@@ -275,14 +256,11 @@ $ cd ~/.../FlatGov/server_py/flatgov
 - Set up Celery schedule
 `celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`
 
-
-
-
 ## Statement of Administration Policy
 
 The metadata for Statement of Administration Policy section has been scraped and stored in json files. The pdfs are stored in the media directory.
 
-### Load Policy Data for Obama Administration to Database
+### Load Statement of Administration Policy Data to Database
 
 - activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py$`
 ```bash
@@ -313,6 +291,7 @@ $ cd flatgov
 
 ```bash
 
-./manage.py loaddata dumped_statements.json 
+./manage.py load_statements
 
 ```
+

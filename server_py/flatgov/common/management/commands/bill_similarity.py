@@ -3,7 +3,7 @@ import os
 from django.core.management.base import BaseCommand
 from django.core.exceptions import ValidationError
 from common.relatedBills import makeAndSaveRelatedBills
-from common.bill_similarity import indexBills
+from common.bill_similarity import processBills
 
 
 class Command(BaseCommand):

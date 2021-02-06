@@ -56,7 +56,7 @@ class Bill(models.Model):
         res = list()
         section_obj = dict()
 
-        for section in self.get_clean_similarity():
+        for section in self.es_similarity:
             similars = section.get('similars')
             section_num = section.get('section_number')
             section_header = section.get('section_header')
@@ -109,7 +109,7 @@ class Bill(models.Model):
         res = list()
         dup_checker_list = list()
 
-        for item in self.get_clean_similarity():
+        for item in self.es_similarity:
             similars = item.get('similars')
             target_billnumber = item.get('billnumber')
             target_section_header = item.get('section_header')
@@ -132,29 +132,6 @@ class Bill(models.Model):
                     similar['target_section_number'] = target_section_number
                     res.append(similar)
         return sorted(res, key=lambda k: k['score'], reverse=True)[:10]
-
-    def get_clean_similarity(self):
-        res = list()
-        for similarity in self.es_similarity:
-            bill_number_list = list()
-            similars = similarity.get('similars')
-            # convert date field string to datetime
-            for similar in similars:
-                similar.update(
-                    (k, datetime.strptime(v, '%Y-%m-%d')) \
-                    for k, v in similar.items() if k == "date")
-            # sort by date field
-            date_ordered = sorted(similars, key=itemgetter('date'), reverse=True)
-            # remove dups
-            for item in date_ordered:
-                if item.get('billnumber') in bill_number_list:
-                    date_ordered.remove(item)
-                bill_number_list.append(item.get('billnumber'))
-            similarity['similars'] = date_ordered
-            res.append(similarity)
-        return res
-
-
 class Cosponsor(models.Model):
     name = models.CharField(max_length=100)
     bioguide_id = models.CharField(max_length=100, blank=True, null=True)

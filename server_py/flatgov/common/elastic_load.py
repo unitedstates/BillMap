@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 from django.conf import settings
 from common import constants
+from common.utils import getText, getBillNumberFromBillPath, getBillNumberFromCongressScraperBillPath
 
 bill_file = "BILLS-116hr1500rh.xml"
 bill_file2 = "BILLS-116hr299ih.xml"
@@ -20,21 +21,9 @@ def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: 
     return os.path.join(BASE_DIR, 'congress', 'data', congress, 'bills')
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
 
-def getMapping(map_path):
+def getMapping(map_path: str) -> dict:
     with open(map_path, 'r') as f:
         return json.load(f)
-
-def getText(item):
-  if item is None:
-    return ''
-  if isinstance(item, list):
-    item = item[0]
-
-  try:
-    return item.text 
-  except:
-    return ''
-
 
 def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPPING, delete=False):
   if delete:
@@ -45,9 +34,6 @@ def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPP
 
   es.indices.create(index=index, ignore=400, body=body)
 
-def getBillNumberFromBillPath(bill_path: str):
-  # e.g. [path]/116/dtd/BILLS-116hr1500rh.xml
-  return re.sub(r'.*\/', '', bill_path).replace('BILLS-', '').replace('.xml', '')
 
 def indexBill(bill_path: str=PATH_BILL):
   try:
@@ -55,7 +41,7 @@ def indexBill(bill_path: str=PATH_BILL):
   except:
     raise Exception('Could not parse bill')
   dublinCores = billTree.xpath('//dublinCore')
-  if dublinCores and dublinCores[0]:
+  if (dublinCores is not None) and (dublinCores[0] is not None):
     dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
   else:
     dublinCore = ''
@@ -66,20 +52,19 @@ def indexBill(bill_path: str=PATH_BILL):
   session_text = re.sub(r'[a-zA-Z ]+$', '', getText(session))
   legisnum = billTree.xpath('//legis-num')
   legisnum_text = getText(legisnum)
-  if congress and legisnum_text:
-    billnumber_text = congress_text + legisnum_text.lower().replace('. ', '')
-  else:
-    billnumber_text = getBillNumberFromBillPath(bill_path)
+  billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path)
+  if billnumber_version == '':
+    billnumber_version = getBillNumberFromBillPath(bill_path)
   dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
 
   doc_id = ''
-  billVersion = ''
-  if dctitle and dctitle.find(':') > -1:
-    try:
-      billVersion = dctitle.split(':')[0].split(' ')[-1].lower()      
-      doc_id = billnumber_text + billVersion
-    except Exception:
-      pass
+  billMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billnumber_version)
+  billversion = ''
+  billnumber = ''
+  if billMatch:
+    billMatchGroup = billMatch.groupdict()
+    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('number')
+    billversion = billMatchGroup.get('version') 
   sections = billTree.xpath('//section')
   headers = billTree.xpath('//header')
   from collections import OrderedDict
@@ -88,14 +73,15 @@ def indexBill(bill_path: str=PATH_BILL):
   # Uses an OrderedDict to deduplicate headers
   # TODO handle missing header and enum separately
   doc = {
-      'id': billnumber_text,
+      'id': billnumber_version,
       'congress': congress_text,
       'session': session_text,
       'dc': dublinCore,
+      'dctitle': dctitle,
       'date': dcdate,
       'legisnum': legisnum_text,
-      'billnumber': billnumber_text,
-      'bill_version': billVersion,
+      'billnumber': billnumber,
+      'billversion': billversion,
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
           'section_number': section.xpath('enum')[0].text,
@@ -180,7 +166,7 @@ def getResultBillnumbers(res):
 def getInnerResults(res):
    return [hit.get('inner_hits') for hit in getHits(res)]
 
-def getSimilarSections(res):
+def getSimilarSections(res) -> list:
   similarSections = []
   try:
     hits = getHits(res)
@@ -194,7 +180,7 @@ def getSimilarSections(res):
       if dublinCores:
         dublinCore = dublinCores[0]
 
-      titleMatch = re.search(r'<dc:title>(.*)?<', dublinCore)
+      titleMatch = re.search(r'<dc:title>(.*)?<', str(dublinCore))
       if titleMatch:
         title = titleMatch[1].strip()
       num = innerResultSections[0].get('_source', {}).get('section_number', '')

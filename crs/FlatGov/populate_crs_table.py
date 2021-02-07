@@ -61,4 +61,4 @@ class CrsFromApi:
             report.save()  # call save after all bills will be added
         print(f'{reports_count} reports processed')
         print(f'{extracted_count} bill numbers extracted')
-        print(f'{self.matched_count} reports processed')
+        print(f'{self.matched_count} bills matched')

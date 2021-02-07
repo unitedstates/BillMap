@@ -12,7 +12,7 @@ pip3.9 install requirements.txt
 
 ## Collecting the data
 
-SQLite database is attached and pre-filled with bills records.
+SQLite database is used as a test.
 
 Two tables defined in the models: `Bills` and `CrsReport`. Table `Bills` is pre-populated from JSON, and it happens during applying first migration `0001_initial.py`. 
 
@@ -26,15 +26,15 @@ wget https://github.com/aih/FlatGov/files/5878874/billsMeta.json.gz
 gunzip billsMeta.json.gz
 ```
 
-Apply only first migration on a clean database:
+Apply a migrations on a clean database:
 
 ```shell
-python3.9 manage.py migrate 0001_initial
+python3.9 manage.py migrate FlatGov
 ```
 
-The migration command will trigger importing values from `billsMeta.json` to `Bills`.
+The migration command will trigger importing values from `billsMeta.json` to `Bills` automatically.
 
-To scrape the data to CRS table enter a Django console and do:
+Then To scrape the data to CRS table enter a Django console and do:
 
 ```shell
 python3.9 manage.py shell

@@ -7,7 +7,8 @@ This is the Django based scraper for the CRS reports.
 ## Installation
 
 ```shell
-pip3.9 install requirements.txt
+pyenv activate flatgov # Assumes Python >=3.7
+pip install requirements.txt
 ```
 
 ## Collecting the data
@@ -29,7 +30,8 @@ gunzip billsMeta.json.gz
 Apply a migrations on a clean database:
 
 ```shell
-python3.9 manage.py migrate FlatGov
+pyenv activate flatgov
+python manage.py migrate FlatGov
 ```
 
 The migration command will trigger importing values from `billsMeta.json` to `Bills` automatically.
@@ -37,7 +39,7 @@ The migration command will trigger importing values from `billsMeta.json` to `Bi
 Then To scrape the data to CRS table enter a Django console and do:
 
 ```shell
-python3.9 manage.py shell
+python manage.py shell
 ```
 
 ```python

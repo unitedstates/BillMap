@@ -142,3 +142,18 @@ class Statement(models.Model):
 
     def __str__(self):
         return f'{self.bill_number} - {self.permanent_pdf_link}'
+
+
+class Transaction(models.Model):
+    pub_date = models.CharField(max_length=50)
+    title = models.CharField(max_length=1000)
+    original_pdf_link = models.CharField(max_length=255)
+    congress = models.CharField(max_length=55)
+    bill_number = models.CharField(max_length=127)
+    bill_id = models.CharField(max_length=127, null=True, blank=True)
+
+    date_fetched = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f'{self.bill_number} - {self.original_pdf_link}'

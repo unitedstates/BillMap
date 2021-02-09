@@ -7,7 +7,7 @@ from typing import Dict
 from functools import reduce
 
 from common import constants, utils
-from bills.models import Bill, Sponsor
+from bills.models import Transaction
 
 import xmltodict
 
@@ -64,15 +64,20 @@ def isDataXML(fileName: str) -> bool:
 def rec_cbo_item(cbo_items):
   #print(cbo_items)
   #quit()
-  print('-----')
+  #print('-----')
+  cbo = {}
+  
   for cbo_item in cbo_items:
     if type(cbo_item) is not str:
       #print(cbo_item)
       rec_cbo_item(cbo_item)
       
     else:
-      print(cbo_item)
-      print(cbo_items[cbo_item])
+      #print(cbo_item)
+      #print(cbo_items[cbo_item])
+      cbo[cbo_item] = cbo_items[cbo_item]
+
+  return cbo
 
 
 def collect_cbo_data_into_json(rootDir = constants.PATH_TO_CONGRESSDATA_DIR, processFile = logName, dirMatch = getTopBillLevel, fileMatch = isDataXML):
@@ -95,14 +100,62 @@ def collect_cbo_data_into_json(rootDir = constants.PATH_TO_CONGRESSDATA_DIR, pro
 
             cbo_items = cbo_cost_estimates['item']
             #print('-------', cbo_items)
-            rec_cbo_item(cbo_items)
+            cbo_data = rec_cbo_item(cbo_items)
+            #print(cbo_data)
+            save_cbo_data_to_db(cbo_data)
+            #print('------------------', rec_cbo_item(cbo_items))
             #for cbo_item in cbo_items:
               #print('-----------', type(cbo_item))
 
 
           #quit()
             #processFile(dirName=dirName, fileName=fname)
-          
+
+def save_cbo_data_to_db(cbo_data):
+  
+  try:
+    cbo = {}
+    pub_date = cbo_data['pubDate']
+    title = cbo_data['title']
+    url = cbo_data['url']
+    bill_number = title.split(',')
+    splited = ''.join(bill_number[0].split('.'))
+    splited = ''.join(splited.split(' '))
+    of_split = splited.split('of')[-1]
+    or_split = of_split.split('or')[-1]
+    bill_number = or_split
+    date = pub_date.split('T')[0]
+    year = date[:4]
+    month = date[5:7]
+    day = date[8:10]
+    congress = 0
+    #print(day)
+    const_year = 2022
+    const_congress = 117
+    dif = const_year - int(year)
+    congress = const_congress - (dif // 2)
+    cbo['pub_date'] = date
+    cbo['title'] = title
+    cbo['original_pdf_link'] = url
+    cbo['bill_number'] = bill_number
+    cbo['congress'] = congress
+    #print(cbo)
+    transaction = Transaction()
+    transaction.pub_date = cbo['pub_date']
+    transaction.title = cbo['title']
+    transaction.original_pdf_link = cbo['original_pdf_link']
+    transaction.bill_id = str(cbo['congress']) + str(cbo['bill_number']).lower()
+    transaction.bill_number = cbo['bill_number']
+    transaction.congress = cbo['congress']
+    print(congress)
+    transaction.save()
+
+
+  except Exception as e:
+    #print("------------------------------------ COULDN'T SAVE ---------------------------------------")
+    #print(cbo_data)
+    print('-------- ERROR --------', e)
+    pass
 
 def cbo():
   collect_cbo_data_into_json()

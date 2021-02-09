@@ -375,7 +375,46 @@
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
         </div>
         <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
+            <h6 class="pt-3">
+                View all the CBO {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congres }}th Congress
+            </h6>
+
+            <table class="table mt-3" id='cbo-tables'>
+                <thead>
+                    <tr>
+                        <th scope="col">Bill Number</th>
+                        <th scope="col">Bill Id</th>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Congress</th>
+                        <th scope="col">Date Issued</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+
+                    <tr>
+                        <td>{{ transaction.bill_number }}</td>
+                        <td>{{ transaction.bill_id }}</td>
+                        <td style="width: 300px;">{{ transaction.title|truncatechars:120 }}</td>
+                        <td>{{ transaction.congress }}</td>
+                        <td>{{ transaction.pub_date }}</td>
+                        <td><a href='{{ transaction.original_pdf_link }}' target="_blank" class='btn btn-primary'>
+                            Full Report
+                        </a></td>
+                    </tr>
+
+                    {% endfor %}
+                    <tr>
+                        <td>
+
+                            {% if not statements %}
+                                No data available in table.
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div class="tab-pane fade" id="relevant-committee" role="tabpanel" aria-labelledby="relevant-committee-tab">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?

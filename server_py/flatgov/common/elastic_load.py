@@ -46,6 +46,15 @@ def indexBill(bill_path: str=PATH_BILL):
   else:
     dublinCore = ''
   dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
+  if len(dcdate) == 0 and  '/data.xml' in bill_path:
+    metadata_path = bill_path.replace('/data.xml', '/data.json')
+    try:
+      with open(metadata_path, 'rb') as f:
+        metadata = json.load(f)
+        dcdate = metadata.get('issued_on', '')
+    except:
+      pass
+
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
   session = billTree.xpath('//form/session')

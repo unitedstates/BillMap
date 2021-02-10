@@ -207,7 +207,12 @@ def getCleanSimilars(similarBills: dict) -> dict:
   similarsDict = {} 
   for similarSections in similarBills.values():
     for similarSection in similarSections:
-      similarsDict[similarSection.get('sectionIndex')].append(similarSection)
+      currentIndex = similarSection.get('sectionIndex')
+      print('currentIndex' + currentIndex)
+      similarsDictItem = similarsDict.get(currentIndex)
+      if not similarsDictItem:
+        print('Could not get item for currentIndex:' + currentIndex)
+      similarsDictItem.append(similarSection)
 
   return similarsDict
 
@@ -274,7 +279,7 @@ def processBill(bill_path: str=PATH_BILL):
     print(cleanedSimilars)
     es_similarity_clean = []
     for sectionIndex, sectionItem in enumerate(es_similarity):
-      es_similarity_clean.append({"similars": cleanedSimilars.get(sectionIndex, [])})
+      es_similarity_clean.append({"similars": cleanedSimilars.get(str(sectionIndex), [])})
 
     bill.es_similarity = es_similarity_clean
     try:
@@ -315,7 +320,7 @@ def filterLatestVersionOnly(billFiles: List[str]):
 
   return billFilesFiltered
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(117, 118)]
 def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Finding Similarity congress: {0}'.format(congress))
@@ -376,6 +381,7 @@ def getSimilarBills(es_similarity: List[dict]) -> dict:
   sectionSimilars = [item.get('similars', []) for item in es_similarity]
   billnumbers = list(unique_everseen(flatten([[similarItem.get('billnumber') for similarItem in similars] for similars in sectionSimilars])))
   for billnumber in billnumbers:
+    print(billnumber)
     similarBills[billnumber] = []
     for sectionIndex, similarItem in enumerate(sectionSimilars):
       print('sectionIndex:' +  str(sectionIndex))
@@ -393,7 +399,7 @@ def getSimilarBills(es_similarity: List[dict]) -> dict:
           del similarBills[billnumber][dupeIndex]
           dupeIndex = None
         if not dupeIndex:
-          sectionBillItem['sectionIndex'] = sectionIndex
+          sectionBillItem['sectionIndex'] = str(sectionIndex)
           similarBills[billnumber].append(sectionBillItem)
   return similarBills 
 

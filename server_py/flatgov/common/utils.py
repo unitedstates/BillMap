@@ -53,7 +53,10 @@ def getBillNumberFromCongressScraperBillPath(bill_path: str) -> str:
   billnumber_version = '' 
   if match:
     match_groups = match.groupdict()
-    billnumber_version = match_groups.get('congress', '') + match_groups.get('billnumber', '') 
+    version = match_groups.get('version', '')
+    if version is None:
+        version = '' 
+    billnumber_version = match_groups.get('congress', '') + match_groups.get('billnumber', '') + version
   else:
     raise Exception('No match for bill number in bill path')
   return billnumber_version

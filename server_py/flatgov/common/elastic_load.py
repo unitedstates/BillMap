@@ -34,6 +34,8 @@ def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPP
     except exceptions.NotFoundError:
       print('No index to delete: {0}'.format(index))
 
+  print('Creating index with mapping: ')
+  print(str(body))
   es.indices.create(index=index, ignore=400, body=body)
 
 
@@ -65,6 +67,7 @@ def indexBill(bill_path: str=PATH_BILL):
   legisnum = billTree.xpath('//legis-num')
   legisnum_text = getText(legisnum)
   billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path)
+  print('billnumber_version: ' + billnumber_version)
   if billnumber_version == '':
     billnumber_version = getBillNumberFromBillPath(bill_path)
   dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
@@ -135,7 +138,7 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
   return xml_files
 
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(117, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Indexing congress: {0}'.format(congress))

@@ -2,16 +2,25 @@
     "settings": {
         "index": {
             "similarity": {
+                "custom_similarity_1": {
+                    "type": "BM25",
+                    "k1": 1.2,
+                    "b": 0.5,
+                    "discount_overlaps": false
+                },
                 "custom_similarity_2": {
                     "type": "DFR",
-                    "basic_model": "g",
+                    "basic_model": "if",
                     "after_effect": "l",
-                    "normalization": "h1",
-                    "normalization.h1.c": "1.0"
+                    "normalization": "h3",
+                    "normalization.h2.c": "3.0"
+                },
+                "custom_similarity_3": {
+                    "type": "DFR"
                 }
             }
         }
-    },
+    }, 
     "mappings": {
         "properties": {
             "headers": {
@@ -29,7 +38,8 @@
                         "type": "text"
                     },
                     "section_text": {
-                        "type": "text"
+                        "type": "text",
+                        "similarity": "custom_similarity_3"
                     },
                     "section_xml": {
                         "type": "text",

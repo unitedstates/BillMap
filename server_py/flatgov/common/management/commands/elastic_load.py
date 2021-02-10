@@ -25,8 +25,3 @@ class Command(BaseCommand):
         createIndex(delete=True)
         indexBills(uscongress=uscongress)
         refreshIndices()
-        res = runQuery()
-        billnumbers = getResultBillnumbers(res)
-        print('Top matching bills: {0}'.format(', '.join(billnumbers)))
-        innerResults = getInnerResults(res)
-        print(innerResults)

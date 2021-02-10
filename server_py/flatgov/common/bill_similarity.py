@@ -119,13 +119,20 @@ def getBillStatus(billnumber: str):
   billMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billnumber) 
   if not billMatch:
     raise Exception(billnumber + ': bill number is not of the expected form')
+  billstatus_path = ''
   try:
       billstatus_path = os.path.join(getBillPath(billnumber), 'fdsys_billstatus.xml')
       return etree.parse(billstatus_path)
   except:
+    print('Could not parse bill status at: ' + billstatus_path)
     pass
   return None
 
+
+BILL_VERSIONS = {
+  'Referred in Senate': 'rfs',
+  'Enrolled Bill': 'enr'
+}
 
 def getLatestBillVersion(billnumber: str) -> str:
   """
@@ -152,13 +159,18 @@ def getLatestBillVersion(billnumber: str) -> str:
   try:
     billTypes = billStatus.xpath('//textVersions/item[1]/type')
     if billTypes is not None and billTypes[0] is not None:
-      billversion = re.sub('[a-z ]', '', billTypes[0].text).lower()
+      billType = billTypes[0].text
+      if billType in ['Enrolled Bill', 'Referred in Senate']:
+        billversion = BILL_VERSIONS[billType]
+      else:
+        billversion = re.sub('[a-z ]', '', billTypes[0].text).lower()
     else:
       raise Exception('No bill type found in bill status for: ' + billnumber)
     billnumber_version = billnumber + billversion
     return billnumber_version
   except Exception as err:
     print(err)
+    print('Using search to get the latest version for: ' + billnumber)
     pass
   return getLatestBillVersionSearch(billnumber)
 
@@ -174,10 +186,10 @@ def getLatestBillVersionSearch(billnumber: str) -> str:
   """
   bills = runQuery(index='billsections', query=setBillNumberQuery(billnumber))
   billversion = ''
-  if bills.get('hits') and bills.get('hits').length > 0 and bills.get('hits')[0].get('fields'):
-    tophit = bills.get('hits')[0].get('fields')
-    billnumber = tophit.get('billnumber')[0] 
-    billversion = tophit.get('billversion')
+  if bills.get('hits', {}).get('total', {}).get('value', {}) and bills.get('hits', {}).get('total', {}).get('value', {}) > 0:
+      tophit = bills.get('hits').get('hits')[0].get('fields')
+      billnumber = tophit.get('billnumber')[0] 
+      billversion = tophit.get('billversion', '')
 
   return billnumber + billversion
 
@@ -265,13 +277,14 @@ def filterLatestVersionOnly(billFiles: List[str]):
   billFilesUnique = list(filter(lambda f: f.split('/text')[0] in billPathsUnique, billFiles))
   billNumbersDupes = list(set(filter(None, map(getBillNumberFromCongressScraperBillPath, billPathsDupes))))
   latestBillVersions = list(map(getLatestBillVersion, billNumbersDupes))
-  billFilesDupes = [ os.path.join(billPathsDupes[i], 'text-versions', version, 'document.xml') for i, version in enumerate(latestBillVersions)]
+  print('Number of latestBillVersions: ' + str(len(latestBillVersions)))
+  billFilesDupes = [ os.path.join(getBillPath(version), 'text-versions',re.sub(r'[0-9]+[a-z]+[0-9]+', '', version), 'document.xml') for i, version  in enumerate(latestBillVersions)]
   billFilesFiltered = billFilesUnique + billFilesDupes
   print('Number of bills (latest versions): ' + str(len(billFilesFiltered)))
 
   return billFilesFiltered
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(117, 118)]
 def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Finding Similarity congress: {0}'.format(congress))
@@ -288,7 +301,7 @@ def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', usc
       try:
         processBill(billFilePath)
       except Exception as err:
-        print('Could not index: {0}'.format(str(err)))
+        print('Could not process for similarity: {0}'.format(str(err)))
         pass
 
 

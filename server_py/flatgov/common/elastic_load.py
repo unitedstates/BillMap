@@ -46,6 +46,7 @@ def indexBill(bill_path: str=PATH_BILL):
   else:
     dublinCore = ''
   dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
+  # TODO find date for enr bills in the bill status (for the flat congress directory structure)
   if len(dcdate) == 0 and  '/data.xml' in bill_path:
     metadata_path = bill_path.replace('/data.xml', '/data.json')
     try:

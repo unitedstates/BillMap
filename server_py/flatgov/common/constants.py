@@ -161,7 +161,7 @@ SAMPLE_QUERY_NESTED_MLT = {
           "fields": ["sections.section_text"],
           "like": reporting_requirement,
           "min_term_freq" : 2,
-          "max_query_terms" : 15,
+          "max_query_terms" : 30,
           "min_doc_freq" : 2 
         }
       },

@@ -189,7 +189,7 @@ def getLatestBillVersionSearch(billnumber: str) -> str:
   if bills.get('hits', {}).get('total', {}).get('value', {}) and bills.get('hits', {}).get('total', {}).get('value', {}) > 0:
       tophit = bills.get('hits').get('hits')[0].get('fields')
       billnumber = tophit.get('billnumber')[0] 
-      billversion = tophit.get('billversion', '')
+      billversion = tophit.get('billversion', '')[0]
 
   return billnumber + billversion
 
@@ -284,7 +284,7 @@ def filterLatestVersionOnly(billFiles: List[str]):
 
   return billFilesFiltered
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(117, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 118)]
 def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Finding Similarity congress: {0}'.format(congress))

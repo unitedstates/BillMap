@@ -16,7 +16,11 @@
                     "normalization.h2.c": "3.0"
                 },
                 "custom_similarity_3": {
-                    "type": "DFR"
+                    "type": "DFR",
+                    "basic_model": "g",
+                    "after_effect": "l",
+                    "normalization": "h2",
+                    "normalization.h2.c": "1.5"
                 }
             }
         }

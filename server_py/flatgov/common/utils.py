@@ -54,6 +54,8 @@ def getBillNumberFromCongressScraperBillPath(bill_path: str) -> str:
   if match:
     match_groups = match.groupdict()
     billnumber_version = match_groups.get('congress', '') + match_groups.get('billnumber', '') 
+  else:
+    raise Exception('No match for bill number in bill path')
   return billnumber_version
 
 def loadTitlesIndex(titleIndexPath=constants.PATH_TO_TITLES_INDEX, zip=True):

@@ -25,6 +25,8 @@ def getMapping(map_path: str) -> dict:
     with open(map_path, 'r') as f:
         return json.load(f)
 
+# For future possible improvements, see https://www.is.inf.uni-due.de/bib/pdf/ir/Abolhassani_Fuhr_04.pdf
+# Applying the Divergence From Randomness Approach for Content-Only Search in XML Documents
 def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPPING, delete=False):
   if delete:
     try:
@@ -47,7 +49,7 @@ def indexBill(bill_path: str=PATH_BILL):
     dublinCore = ''
   dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
   # TODO find date for enr bills in the bill status (for the flat congress directory structure)
-  if len(dcdate) == 0 and  '/data.xml' in bill_path:
+  if (dcdate is None or len(dcdate) == 0) and  '/data.xml' in bill_path:
     metadata_path = bill_path.replace('/data.xml', '/data.json')
     try:
       with open(metadata_path, 'rb') as f:
@@ -73,7 +75,7 @@ def indexBill(bill_path: str=PATH_BILL):
   billnumber = ''
   if billMatch:
     billMatchGroup = billMatch.groupdict()
-    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('number')
+    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('stage') + billMatchGroup.get('number')
     billversion = billMatchGroup.get('version') 
   sections = billTree.xpath('//section')
   headers = billTree.xpath('//header')
@@ -220,8 +222,3 @@ if __name__ == "__main__":
   createIndex(delete=True)
   indexBills()
   refreshIndices()
-  res = runQuery()
-  billnumbers = getResultBillnumbers(res)
-  print('Top matching bills: {0}'.format(', '.join(billnumbers)))
-  innerResults = getInnerResults(res)
-  print(innerResults)

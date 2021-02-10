@@ -2,12 +2,12 @@
     "settings": {
         "index": {
             "similarity": {
-                "custom_similarity_1": {
+                "custom_similarity_2": {
                     "type": "DFR",
                     "basic_model": "g",
                     "after_effect": "l",
-                    "normalization": "h2",
-                    "normalization.h2.c": "3.0"
+                    "normalization": "h1",
+                    "normalization.h1.c": "1.0"
                 }
             }
         }

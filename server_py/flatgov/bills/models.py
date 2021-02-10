@@ -60,7 +60,6 @@ class Bill(models.Model):
       sectionSimilars = [item.get('similars', []) for item in self.es_similarity]
       billnumbers = list(unique_everseen(flatten([[similarItem.get('billnumber') for similarItem in similars] for similars in sectionSimilars])))
       for billnumber in billnumbers:
-        print(billnumber)
         qs_bill = Bill.objects.filter(
                 bill_congress_type_number=billnumber)
         in_db = qs_bill.exists()
@@ -70,7 +69,6 @@ class Bill(models.Model):
         for similarItem in sectionSimilars:
           sectionMaxItem = None
           sectionMaxItems = sorted(filter(lambda x: x.get('billnumber', '') == billnumber, similarItem), key=lambda k: k.get('score', 0), reverse=True)
-          print(sectionMaxItems)
           if sectionMaxItems and len(sectionMaxItems) > 0:
             sectionMaxItem = sectionMaxItems[0]
             total_score += sectionMaxItem.get('score', 0)

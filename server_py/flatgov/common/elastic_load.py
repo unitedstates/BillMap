@@ -25,6 +25,8 @@ def getMapping(map_path: str) -> dict:
     with open(map_path, 'r') as f:
         return json.load(f)
 
+# For future possible improvements, see https://www.is.inf.uni-due.de/bib/pdf/ir/Abolhassani_Fuhr_04.pdf
+# Applying the Divergence From Randomness Approach for Content-Only Search in XML Documents
 def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPPING, delete=False):
   if delete:
     try:
@@ -32,6 +34,8 @@ def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPP
     except exceptions.NotFoundError:
       print('No index to delete: {0}'.format(index))
 
+  print('Creating index with mapping: ')
+  print(str(body))
   es.indices.create(index=index, ignore=400, body=body)
 
 
@@ -46,6 +50,16 @@ def indexBill(bill_path: str=PATH_BILL):
   else:
     dublinCore = ''
   dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
+  # TODO find date for enr bills in the bill status (for the flat congress directory structure)
+  if (dcdate is None or len(dcdate) == 0) and  '/data.xml' in bill_path:
+    metadata_path = bill_path.replace('/data.xml', '/data.json')
+    try:
+      with open(metadata_path, 'rb') as f:
+        metadata = json.load(f)
+        dcdate = metadata.get('issued_on', '')
+    except:
+      pass
+
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
   session = billTree.xpath('//form/session')
@@ -53,6 +67,7 @@ def indexBill(bill_path: str=PATH_BILL):
   legisnum = billTree.xpath('//legis-num')
   legisnum_text = getText(legisnum)
   billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path)
+  print('billnumber_version: ' + billnumber_version)
   if billnumber_version == '':
     billnumber_version = getBillNumberFromBillPath(bill_path)
   dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
@@ -63,7 +78,7 @@ def indexBill(bill_path: str=PATH_BILL):
   billnumber = ''
   if billMatch:
     billMatchGroup = billMatch.groupdict()
-    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('number')
+    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('stage') + billMatchGroup.get('number')
     billversion = billMatchGroup.get('version') 
   sections = billTree.xpath('//section')
   headers = billTree.xpath('//header')
@@ -123,7 +138,7 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
   return xml_files
 
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(113, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Indexing congress: {0}'.format(congress))
@@ -210,8 +225,3 @@ if __name__ == "__main__":
   createIndex(delete=True)
   indexBills()
   refreshIndices()
-  res = runQuery()
-  billnumbers = getResultBillnumbers(res)
-  print('Top matching bills: {0}'.format(', '.join(billnumbers)))
-  innerResults = getInnerResults(res)
-  print(innerResults)

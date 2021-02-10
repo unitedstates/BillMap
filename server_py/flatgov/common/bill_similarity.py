@@ -207,12 +207,12 @@ def getCleanSimilars(similarBills: dict) -> dict:
   similarsDict = {} 
   for similarSections in similarBills.values():
     for similarSection in similarSections:
-      currentIndex = similarSection.get('sectionIndex')
-      print('currentIndex' + currentIndex)
-      similarsDictItem = similarsDict.get(currentIndex)
-      if not similarsDictItem:
-        print('Could not get item for currentIndex:' + currentIndex)
-      similarsDictItem.append(similarSection)
+      currentIndex = str(similarSection.get('sectionIndex'))
+      print('currentIndex ' + currentIndex)
+      if not similarsDict.get(currentIndex):
+        similarsDict[currentIndex] = similarSection
+      else:
+        similarsDict[currentIndex].append(similarSection)
 
   return similarsDict
 

@@ -3,6 +3,7 @@ from datetime import datetime
 from operator import itemgetter
 
 from django.db import models
+from iteration_utilities import flatten, unique_everseen, duplicates
 
 class Bill(models.Model):
     bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
@@ -53,57 +54,39 @@ class Bill(models.Model):
 
     @property
     def get_similar_bills(self):
-        res = list()
-        section_obj = dict()
-
-        for section in self.es_similarity:
-            similars = section.get('similars')
-            section_num = section.get('section_number')
-            section_header = section.get('section_header')
-
-            for similar in similars:
-                billnumber = similar.get('billnumber')
-                score = similar.get('score')
-                title = similar.get('title')
-
-                target = section_obj.get(billnumber, {})
-                title_list = target.get('title', [])
-                title_list.append(title)
-
-                scores_list = target.get('scores', [])
-                scores_list.append({
-                    'score': score,
-                    'section_num': section_num,
-                    'section_header': section_header,
-                })
-                sorted_scores_list = sorted(scores_list, key=lambda k: k['score'], reverse=True)
-
-                target['score'] = target.get('score', 0) + score
-                target['title'] = title_list
-                target['section_title'] = title
-                target['number_of_sections'] = target.get('number_of_sections', 0) + 1
-                target['scores'] = sorted_scores_list
-                section_obj[billnumber] = target
-                # score = similar.get('score')
-                # billnumber = similar.get('billnumber')
-                # res[billnumber] += score
-
-        for bill_congress_type_number, obj in section_obj.items():
-            qs_bill = Bill.objects.filter(
-                bill_congress_type_number=bill_congress_type_number)
-            score = obj.get('score')
-            if qs_bill.exists():
-                in_db = True
-            else:
-                in_db = False
-
-            res.append({
-                "score": score,
-                "in_db": in_db,
-                "bill_congress_type_number": bill_congress_type_number,
-                "info": obj
-            })
-        return sorted(res, key=lambda k: k['score'], reverse=True)
+      res = list()
+      section_obj = dict()
+      section_obj = {}
+      sectionSimilars = [item.get('similars', []) for item in self.es_similarity]
+      billnumbers = list(unique_everseen(flatten([[similarItem.get('billnumber') for similarItem in similars] for similars in sectionSimilars])))
+      for billnumber in billnumbers:
+        print(billnumber)
+        qs_bill = Bill.objects.filter(
+                bill_congress_type_number=billnumber)
+        in_db = qs_bill.exists()
+        total_score = 0
+        number_of_sections = 0
+        maxItem = {}
+        for similarItem in sectionSimilars:
+          sectionMaxItem = None
+          sectionMaxItems = sorted(filter(lambda x: x.get('billnumber', '') == billnumber, similarItem), key=lambda k: k.get('score', 0), reverse=True)
+          print(sectionMaxItems)
+          if sectionMaxItems and len(sectionMaxItems) > 0:
+            sectionMaxItem = sectionMaxItems[0]
+            total_score += sectionMaxItem.get('score', 0)
+            number_of_sections =  number_of_sections + 1
+          if sectionMaxItem is not None and sectionMaxItem.get('score', 0) > maxItem.get('score', 0):
+            maxItem = sectionMaxItem
+            maxItem['title_list'] = [sectionMaxItem.get('title', '')]
+            maxItem['in_db'] = in_db
+        maxItem['number_of_sections'] = number_of_sections
+        res.append({
+            'score': total_score,
+            'in_db': in_db,
+            'bill_congress_type_number': billnumber,
+            'info': maxItem
+        })
+      return sorted(res, key=lambda k: k['score'], reverse=True)
 
     def get_second_similar_bills(self, second_bill):
         res = list()

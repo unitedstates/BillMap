@@ -7,7 +7,7 @@ from operator import itemgetter
 from elasticsearch import exceptions, Elasticsearch
 es = Elasticsearch()
 from collections import OrderedDict
-from iteration_utilities import unique_everseen, duplicates
+from iteration_utilities import flatten, unique_everseen, duplicates
 
 from common.utils import getText, getBillNumberFromBillPath, getBillNumberFromCongressScraperBillPath 
 from django.conf import settings
@@ -101,6 +101,29 @@ def getLatestBillVersion(billnumber: str) -> str:
 
   return billversion
 
+def getSimilarBills(es_similarity: list):
+  similarBills = []
+  sectionSimilars = [item.get('similars', []) for item in es_similarity]
+  billnumbers = list(unique_everseen(flatten([[similarItem.get('billnumber') for similarItem in similars] for similars in sectionSimilars])))
+
+  for billnumber in billnumbers:
+    similarBill = {'billnumber': billnumber}
+    maxItem = {}
+    
+    for similarItem in sectionSimilars:
+      sectionMaxItem = None
+      sectionMaxItems = sorted(filter(lambda x: x.get('billnumber', '') == billnumber, similarItem), key=lambda k: k.get('score', 0), reverse=True)
+      if sectionMaxItems and len(sectionMaxItems) > 0:
+        sectionMaxItem = sectionMaxItems[0]
+      
+      if sectionMaxItem is not None and sectionMaxItem > maxItem.get('score', 0):
+        maxItem = sectionMaxItem
+        maxItem['title_list'] = sectionMaxItem.get('title', [])
+      
+    similarBill['scores'].append(maxItem)
+
+  return similarBills
+
 def processBill(bill_path: str=PATH_BILL):
   try:
     billTree = etree.parse(bill_path)
@@ -158,6 +181,7 @@ def processBill(bill_path: str=PATH_BILL):
       es_similarity.append(section_item)
 
     bill.es_similarity = es_similarity
+    similar_bills = getSimilarBills(es_similarity)
     bill.save(update_fields=['es_similarity'])
     return bill
 

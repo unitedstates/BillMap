@@ -131,3 +131,5 @@ class BillUpdateJob(models.Model):
     status = models.CharField(choices=[('pending', 'pending'), ('success', 'success')], default='pending', max_length=20)
     content = models.JSONField(default=dict)
     created = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['-created']

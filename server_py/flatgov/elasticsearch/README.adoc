@@ -23,6 +23,17 @@ $ cd elasticsearch-7.9.2/bin
 $ ./elasticsearch
 ```
 
+#### Update memory settings
+
+Elasticsearch may be `kill`ed by the jvm process when running bill similarity calculations. To try to avoid this, we set vm parameters:
+
+See https://www.elastic.co/guide/en/elasticsearch/reference/5.5/setup-configuration-memory.html
+and https://discuss.elastic.co/t/elasticsearch-process-getting-killed/205691/6
+```
+flatgov$ sudo sh -c 'echo 0 > /proc/sys/vm/swappiness'
+flatgov$ sudo sh -c 'echo 1 > /proc/sys/vm/overcommit_memory'
+```
+
 #### Indexing with Python
 
 See, e.g., https://kb.objectrocket.com/elasticsearch/use-python-to-index-files-into-elasticsearch-index-all-files-in-a-directory-part-2-852

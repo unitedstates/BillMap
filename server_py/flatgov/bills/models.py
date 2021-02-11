@@ -125,3 +125,11 @@ class Sponsor(models.Model):
 
     def __str__(self):
         return self.name
+
+class BillUpdateJob(models.Model):
+    job_id = models.CharField(blank=True, max_length=50, null=True)
+    status = models.CharField(choices=[('pending', 'pending'), ('success', 'success')], default='pending', max_length=20)
+    content = models.JSONField(default=dict)
+    created = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        ordering = ['-created']

@@ -208,9 +208,8 @@ def getCleanSimilars(similarBills: dict) -> dict:
   for similarSections in similarBills.values():
     for similarSection in similarSections:
       currentIndex = str(similarSection.get('sectionIndex'))
-      print('currentIndex ' + currentIndex)
       if not similarsDict.get(currentIndex):
-        similarsDict[currentIndex] = similarSection
+        similarsDict[currentIndex] = [similarSection]
       else:
         similarsDict[currentIndex].append(similarSection)
 
@@ -273,15 +272,13 @@ def processBill(bill_path: str=PATH_BILL):
       es_similarity.append(section_item)
 
     similarBills = getSimilarBills(es_similarity)
-    print(similarBills)
     bill.es_similar_bills_dict = similarBills
     cleanedSimilars = getCleanSimilars(similarBills)
     print(cleanedSimilars)
-    es_similarity_clean = []
     for sectionIndex, sectionItem in enumerate(es_similarity):
-      es_similarity_clean.append({"similars": cleanedSimilars.get(str(sectionIndex), [])})
+      es_similarity[sectionIndex]["similars"] = cleanedSimilars.get(str(sectionIndex), [])
 
-    bill.es_similarity = es_similarity_clean
+    bill.es_similarity = es_similarity
     try:
       bill.save(update_fields=['es_similarity', 'es_similar_bills_dict'])
     except Exception as err:
@@ -400,6 +397,8 @@ def getSimilarBills(es_similarity: List[dict]) -> dict:
           dupeIndex = None
         if not dupeIndex:
           sectionBillItem['sectionIndex'] = str(sectionIndex)
+          sectionBillItem['target_section_number'] = es_similarity[sectionIndex].get('section_number', '')
+          sectionBillItem['target_section_header'] = es_similarity[sectionIndex].get('section_header', '')
           similarBills[billnumber].append(sectionBillItem)
   return similarBills 
 

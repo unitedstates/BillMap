@@ -16,13 +16,9 @@ The FlatGov web application is built using the Django/Python web application fra
 
 Below are instructions to set up a local development environment. For production deployment instructions, see <<DEPLOYMENT.adoc#,DEPLOYMENT>>.
 
-### Create directories and clone this directory
-
-Create a parent `FlatgovDir` and *within* that directory, clone this repository:
+### Clone this repository
 
 ```bash
-$ mkdir FlatgovDir
-$ cd FlatgovDir
 $ git clone https://github.com/aih/FlatGov.git
 $ cd FlatGov
 ```
@@ -70,6 +66,9 @@ Copy `server_py/flatgov/.env-sample` to `server_py/flatgov/.env`, and change the
 
 Use Django manage.py commands to download the data and populate the database (see <<DATABASE.adoc#,DATABASE>>).
 
+### Data structure: the `Bill` model
+
+The core of the application is a `bill`. This is described in <<BILL_MODEL.adoc#,BILL_MODEL>>, and the model itself is set up in Django in `server_py/flatgov/bills/models.py`. We model bills at the level of the `billnumber`, e.g. `116hr1500` is a bill in the 116th Congress, in the House of Representatives, bill number 1500. This bill may have many versions, which may differ significantly from each other (e.g the `Introduced` version may have just a few sections, while the `Reported in House` version has an entirely new thousand section bill substituted in its place). Where there are differences, we attempt to process the latest version of any bill (e.g to calculate bill similarity).
 
 ### Data: download bills with the https://github.com/unitedstates/congress[unitedstates/congress] scraper
 
@@ -118,6 +117,8 @@ Bill-to-bill data pages are at:
 
 ## Deployment
 
+### Deployment instructions
+
 Deployment instructions are in <<DEPLOYMENT.adoc#, DEPLOYMENT>>. The application is served on a Linux server (currently Ubuntu `Ubuntu 18.04.5 LTS` on AWS).
 
 ### System components
@@ -131,7 +132,7 @@ The components of the system are:
 * Python/Django application (this repository)
 * uwsgi Python server running the Django application, proxied by Nginx above
 * Bill metadata and xml, downloaded using scrapers from https://github.com/unitedstates/congress[unitedstates/congress]
-* Other data scraped from public sources, including: 
+* Scrapers: other data scraped from public sources, including: 
 
   -Statements of Administration Policy
   -Press statements
@@ -139,6 +140,28 @@ The components of the system are:
   -Congressional Research Service reports
   -Calendar information from various congressional sources
 
-## Scrapers 
+These are described in more detail in <<SCRAPERS.adoc#, SCRAPERS>.
 
-## Bill Similarity 
+## Related Bills and Bill Similarity 
+
+### Related bills
+
+Bills that are related to each other are identified in two ways:
+
+1. Metadata (in `billstatus` XML) from the Congressional Research Service identifies bills as `identical` or related (e.g through a Committee process). We show these in the `Related Bills` table of the application.
+2. Same or similar titles. Two bills are considered related if they have exactly the same title, or differ only in the year (e.g. 'The Very Important Information Act of 2022' and 'The Very Important Information Act of 2023'). We process metadata to collect bill titles and show these bills in the `Related Bills` table.
+
+### Bill similarity -- text similarity
+
+* Bill-to-bill comparison is impractical
+
+Calculating the `text` similarity between two bills may be relatively straightforward: we can find the percentage of overlapping text between the two bills. We may consider such a comparison for the `/compare` view of the application.
+
+However, for a database of the size of this one, calculating the similarity of all bills is impractical, particularly if we want to update the data. The calculation requires approximately n^2^ comparisons, where n is the number of bills. For the ~80k bills in our corpus, this would be 6.4 billion comparisons.
+
+* Search-based comparison
+To improve performance, we use search. In particular, we search each section of the latest version of abill against an index of all bills, and combine the results of all of the section-wise searches to get a total score. We then have to filter results to remove duplicates (due to the different versions of all bills). 
+
+This approach is imperfect, since many individual sections may share language with unrelated bills (e.g. an Effective Date provision). Smaller bills may not have enough text to reliably find the most relevant 'similar' bills. On the other hand, large bills may match many similar bills on a subset of sections.
+
+This application sets up the basic mechanisms for similarity measurements (described further in <<ES_SIMILARITY.adoc#,ES_SIMILARITY>>), which are open to many refinements (e.g. with the similarity metric that is used in the comparison).

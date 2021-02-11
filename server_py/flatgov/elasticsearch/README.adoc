@@ -32,7 +32,14 @@ and https://discuss.elastic.co/t/elasticsearch-process-getting-killed/205691/6
 ```
 flatgov$ sudo sh -c 'echo 0 > /proc/sys/vm/swappiness'
 flatgov$ sudo sh -c 'echo 1 > /proc/sys/vm/overcommit_memory'
+
+
 ```
+
+#### Logs
+
+Elasticsearch logs may be found in `/var/log/elasticsearch`. To see recent activity:
+`journalctl -u elasticsearch.service -xe`
 
 #### Indexing with Python
 

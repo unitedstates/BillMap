@@ -274,7 +274,6 @@ def processBill(bill_path: str=PATH_BILL):
     similarBills = getSimilarBills(es_similarity)
     bill.es_similar_bills_dict = similarBills
     cleanedSimilars = getCleanSimilars(similarBills)
-    print(cleanedSimilars)
     for sectionIndex, sectionItem in enumerate(es_similarity):
       es_similarity[sectionIndex]["similars"] = cleanedSimilars.get(str(sectionIndex), [])
 
@@ -381,21 +380,16 @@ def getSimilarBills(es_similarity: List[dict]) -> dict:
     print(billnumber)
     similarBills[billnumber] = []
     for sectionIndex, similarItem in enumerate(sectionSimilars):
-      print('sectionIndex:' +  str(sectionIndex))
       sectionBillItem = None
       sectionBillItems = sorted(filter(lambda x: x.get('billnumber', '') == billnumber, similarItem), key=lambda k: k.get('score', 0), reverse=True)
       if sectionBillItems and len(sectionBillItems) > 0:
         sectionBillItem = sectionBillItems[0]
         #  "sectionIndex": similarIndex
         # Check if we've seen this billItem before and which has a higher score
-        try:
-          dupeIndex = next(similarBillIndex for similarBillIndex, similarBill in enumerate(similarBills.get(billnumber, [])) if similarBill.get('section_num') + similarBill.get('section_header') == sectionBillItem.get('section_num') + sectionBillItem.get('section_header'))
-        except StopIteration as e:
-          dupeIndex = None
-        if dupeIndex and sectionBillItem.get('score', 0) > similarBills[dupeIndex].get('score', 0):
-          del similarBills[billnumber][dupeIndex]
-          dupeIndex = None
-        if not dupeIndex:
+        currentSection = sectionBillItem.get('section_num', '') + sectionBillItem.get('section_header', '')
+        dupeIndexes = [similarBillIndex for similarBillIndex, similarBill in enumerate(similarBills.get(billnumber, [])) if (similarBill.get('section_num', '') + similarBill.get('section_header', '')) == currentSection]
+        # Any duplicate has a lower score, because items are sorged in descending score order
+        if not dupeIndexes:
           sectionBillItem['sectionIndex'] = str(sectionIndex)
           sectionBillItem['target_section_number'] = es_similarity[sectionIndex].get('section_number', '')
           sectionBillItem['target_section_header'] = es_similarity[sectionIndex].get('section_header', '')

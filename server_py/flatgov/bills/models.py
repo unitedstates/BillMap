@@ -56,34 +56,20 @@ class Bill(models.Model):
     @property
     def get_similar_bills(self):
       res = list()
-      section_obj = dict()
-      section_obj = {}
-      sectionSimilars = [item.get('similars', []) for item in self.es_similarity]
-      billnumbers = list(unique_everseen(flatten([[similarItem.get('billnumber') for similarItem in similars] for similars in sectionSimilars])))
-      for billnumber in billnumbers:
+      for billnumber, similarBillItem in self.es_similar_bills_dict.items():
         qs_bill = Bill.objects.filter(
-                bill_congress_type_number=billnumber)
-        in_db = qs_bill.exists()
-        total_score = 0
-        number_of_sections = 0
-        maxItem = {}
-        for similarItem in sectionSimilars:
-          sectionMaxItem = None
-          sectionMaxItems = sorted(filter(lambda x: x.get('billnumber', '') == billnumber, similarItem), key=lambda k: k.get('score', 0), reverse=True)
-          if sectionMaxItems and len(sectionMaxItems) > 0:
-            sectionMaxItem = sectionMaxItems[0]
-            total_score += sectionMaxItem.get('score', 0)
-            number_of_sections =  number_of_sections + 1
-          if sectionMaxItem is not None and sectionMaxItem.get('score', 0) > maxItem.get('score', 0):
-            maxItem = sectionMaxItem
-            maxItem['title_list'] = [sectionMaxItem.get('title', '')]
-            maxItem['in_db'] = in_db
-        maxItem['number_of_sections'] = number_of_sections
+            bill_congress_type_number=billnumber)
+        if similarBillItem:
+            maxItem = sorted(similarBillItem, key=lambda k: k['score'], reverse=True)[0]
+        else:
+            maxItem = {}
         res.append({
-            'score': total_score,
-            'in_db': in_db,
-            'bill_congress_type_number': billnumber,
-            'info': maxItem
+          'score': sum([item.get('score', 0) for item in similarBillItem]),
+          'number_of_sections': len(similarBillItem),
+          'in_db': qs_bill.exists(),
+          'title_list': maxItem.get('title', ''),
+          'bill_congress_type_number': billnumber,
+          'max_item': maxItem 
         })
       return sorted(res, key=lambda k: k['score'], reverse=True)
 

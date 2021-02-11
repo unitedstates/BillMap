@@ -149,11 +149,11 @@
                                 N/A
                             {% endif %}
                         </td>
-                        <td><span title="{{ bill.info.title }}">{{ bill.info.title|truncatechars:40 }}</span></td>
+                        <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
                         <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
-                        <td>{{ bill.info.number_of_sections }}</td>
+                        <td>{{ bill.number_of_sections }}</td>
                         <!--td>{{ bill.info.score|floatformat:2 }}</td-->
-                        <td>{% if bill.info.section_num %}<span>{{ bill.info.section_num }}</span> {% endif %}<span title="{{ bill.info.section_header }}">{{ bill.info.section_header|truncatechars:40 }}</span></td>
+                        <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>

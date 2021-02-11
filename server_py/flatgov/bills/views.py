@@ -261,12 +261,6 @@ class BillDetailView(DetailView):
         context['es_similarity'] = self.object.es_similarity
         return context
 
-    # def get_tables(self):
-    #     self.tables = [
-    #         RelatedBillTable(self.object, data=self.get_qs_related_bill(), prefix="bill")
-    #     ]
-    #     return super().get_tables()
-
     def get_related_bills(self):
         qs = self.get_qs_related_bill()
         serializer = RelatedBillSerializer(
@@ -294,5 +288,5 @@ class BillToBillView(DetailView):
         context = super().get_context_data(**kwargs)
         second_bill = self.kwargs.get('second_bill')
         context['second_bill'] = Bill.objects.get(bill_congress_type_number=second_bill)
-        context['bill_to_bill'] = self.object.get_second_similar_bills(second_bill)
+        context['bill_to_bill'] = self.object.es_similar_bills_dict.get(second_bill, [])
         return context

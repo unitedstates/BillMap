@@ -316,7 +316,7 @@ def filterLatestVersionOnly(billFiles: List[str]):
 
   return billFilesFiltered
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(117, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(115, 118)]
 def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Finding Similarity congress: {0}'.format(congress))

@@ -138,7 +138,7 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
   return xml_files
 
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(115, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   for congress in congresses:
     print('Indexing congress: {0}'.format(congress))

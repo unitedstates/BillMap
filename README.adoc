@@ -3,6 +3,8 @@
 # FlatGov: A https://demandprogress.org[Demand Progress] Project 
 Utilities and applications for the FlatGov project by Demand Progress
 
+A live demo of the application is https://flatgov.linkedlegislation.com[here]. These application documentation are also available there, at https://flatgov.linkedlegislation.com/static/docs/README.html When the documentation has been updated, it can be converted to html and copied to the application directory with the script `scripts/docs_generator has been updated, it can be converted to html and copied to the application directory with the script `scripts/docs_generator.sh` (requires installation of asciidoctor).
+
 This repository contains:
 
 * A web application showing information for a given bill (Django/Python)
@@ -140,7 +142,7 @@ The components of the system are:
   -Congressional Research Service reports
   -Calendar information from various congressional sources
 
-These are described in more detail in <<SCRAPERS.adoc#, SCRAPERS>.
+These are described in more detail in <<SCRAPING.adoc#, SCRAPING>>.
 
 ## Related Bills and Bill Similarity 
 
@@ -153,6 +155,8 @@ Bills that are related to each other are identified in two ways:
 
 ### Bill similarity -- text similarity
 
+#### Overview
+
 * Bill-to-bill comparison is impractical
 
 Calculating the `text` similarity between two bills may be relatively straightforward: we can find the percentage of overlapping text between the two bills. We may consider such a comparison for the `/compare` view of the application.
@@ -160,8 +164,34 @@ Calculating the `text` similarity between two bills may be relatively straightfo
 However, for a database of the size of this one, calculating the similarity of all bills is impractical, particularly if we want to update the data. The calculation requires approximately n^2^ comparisons, where n is the number of bills. For the ~80k bills in our corpus, this would be 6.4 billion comparisons.
 
 * Search-based comparison
+
 To improve performance, we use search. In particular, we search each section of the latest version of abill against an index of all bills, and combine the results of all of the section-wise searches to get a total score. We then have to filter results to remove duplicates (due to the different versions of all bills). 
 
 This approach is imperfect, since many individual sections may share language with unrelated bills (e.g. an Effective Date provision). Smaller bills may not have enough text to reliably find the most relevant 'similar' bills. On the other hand, large bills may match many similar bills on a subset of sections.
 
 This application sets up the basic mechanisms for similarity measurements (described further in <<ES_SIMILARITY.adoc#,ES_SIMILARITY>>), which are open to many refinements (e.g. with the similarity metric that is used in the comparison).
+
+#### Finding Similar Bills 
+
+As shown below, the application has three main views to explore bill similarity:
+
+1. A list of similar bills, in order of similarity.
+2. A section-by-section analysis of which other bills have similar sections.
+3. A bill-to-bill comparision showing matching sections between two bills.
+
+Note that small sections with common language will *not* show as matches using our methodology. We will only show sections that use distinct language, where that language is shared between sections of the two bills.
+
+.Similar Bills
+[#img-similar-bills]
+[caption="Figure 1: " ]
+image::media/bill-similarity115hr4733.png[SimilarBills,300,200]
+
+.Section-by-section List
+[#img-similarity-by-section]
+[caption="Figure 2: " ]
+image::media/bill-similarity-by-section-115hr4733.png[SectionBySectionBills,300,200]
+
+.Bill-to-bill Similarity 
+[#img-bill-to-bill-similarity]
+[caption="Figure 3: " ]
+image::media/bill-similarity-compare.png[SectionBySectionBills,300,200]

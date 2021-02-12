@@ -1,5 +1,9 @@
 from collections import Counter
+from datetime import datetime
+from operator import itemgetter
+
 from django.db import models
+from iteration_utilities import flatten, unique_everseen, duplicates
 
 class Bill(models.Model):
     bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
@@ -19,6 +23,7 @@ class Bill(models.Model):
     related_dict = models.JSONField(default=dict)
     cosponsors_dict = models.JSONField(default=list)
     es_similarity = models.JSONField(default=list)
+    es_similar_bills_dict = models.JSONField(default=dict)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -50,57 +55,23 @@ class Bill(models.Model):
 
     @property
     def get_similar_bills(self):
-        res = list()
-        section_obj = dict()
-
-        es_similarity = self.es_similarity
-        for section in es_similarity:
-            similars = section.get('similars')
-            section_num = section.get('section_number')
-            section_header = section.get('section_header')
-
-            for similar in similars:
-                billnumber = similar.get('billnumber')
-                score = similar.get('score')
-                title = similar.get('title')
-
-                target = section_obj.get(billnumber, {})
-                title_list = target.get('title', [])
-                title_list.append(title)
-
-                scores_list = target.get('scores', [])
-                scores_list.append({
-                    'score': score,
-                    'section_num': section_num,
-                    'section_header': section_header,
-                })
-                sorted_scores_list = sorted(scores_list, key=lambda k: k['score'], reverse=True)
-
-                target['score'] = target.get('score', 0) + score
-                target['title'] = title_list
-                target['number_of_sections'] = target.get('number_of_sections', 0) + 1
-                target['scores'] = sorted_scores_list
-                section_obj[billnumber] = target
-                # score = similar.get('score')
-                # billnumber = similar.get('billnumber')
-                # res[billnumber] += score
-
-        for bill_congress_type_number, obj in section_obj.items():
-            qs_bill = Bill.objects.filter(
-                bill_congress_type_number=bill_congress_type_number)
-            score = obj.get('score')
-            if qs_bill.exists():
-                in_db = True
-            else:
-                in_db = False
-
-            res.append({
-                "score": score,
-                "in_db": in_db,
-                "bill_congress_type_number": bill_congress_type_number,
-                "info": obj
-            })
-        return sorted(res, key=lambda k: k['score'], reverse=True)
+      res = list()
+      for billnumber, similarBillItem in self.es_similar_bills_dict.items():
+        qs_bill = Bill.objects.filter(
+            bill_congress_type_number=billnumber)
+        if similarBillItem:
+            maxItem = sorted(similarBillItem, key=lambda k: k['score'], reverse=True)[0]
+        else:
+            maxItem = {}
+        res.append({
+          'score': sum([item.get('score', 0) for item in similarBillItem]),
+          'number_of_sections': len(similarBillItem),
+          'in_db': qs_bill.exists(),
+          'title_list': maxItem.get('title', ''),
+          'bill_congress_type_number': billnumber,
+          'max_item': maxItem 
+        })
+      return sorted(res, key=lambda k: k['score'], reverse=True)
 
     def get_second_similar_bills(self, second_bill):
         res = list()
@@ -129,8 +100,6 @@ class Bill(models.Model):
                     similar['target_section_number'] = target_section_number
                     res.append(similar)
         return sorted(res, key=lambda k: k['score'], reverse=True)[:10]
-
-
 class Cosponsor(models.Model):
     name = models.CharField(max_length=100)
     bioguide_id = models.CharField(max_length=100, blank=True, null=True)

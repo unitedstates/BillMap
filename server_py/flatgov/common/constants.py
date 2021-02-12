@@ -9,6 +9,8 @@ import json
 
 from django.conf import settings
 
+RESULTS_DEFAULT = 20
+MIN_SCORE_DEFAULT = 25
 PATH_SEC_602 = settings.PATH_SEC_602
 PATH_MAL = settings.PATH_MAL
 PATH_BILLSECTIONS_JSON = settings.PATH_BILLSECTIONS_JSON
@@ -39,10 +41,13 @@ PATH_TO_RELATEDBILLS_DIR = settings.PATH_TO_RELATEDBILLS_DIR
 SAVE_ON_COUNT = 1000
 
 BILL_ID_REGEX = r'[a-z]+[1-9][0-9]*-[1-9][0-9]+'
-BILL_NUMBER_REGEX = r'([1-9][0-9]*)([a-z]+)([0-9]+)([a-z]+)?$'
+BILL_NUMBER_REGEX = r'(?P<congress>[1-9][0-9]*)(?P<stage>[a-z]+)(?P<number>[0-9]+)(?P<version>[a-z]+)?$'
 BILL_DIR_REGEX = r'.*?([1-9][0-9]*)\/bills\/[a-z]+\/([a-z]+)([0-9]+)$'
 BILL_NUMBER_REGEX_COMPILED = re.compile(BILL_NUMBER_REGEX)
 BILL_DIR_REGEX_COMPILED = re.compile(BILL_DIR_REGEX)
+
+# congress/data/117/bills/sconres/sconres2
+US_CONGRESS_PATH_REGEX_COMPILED = re.compile(r'data\/(?P<congress>[1-9][0-9]*)\/(?P<doctype>[a-z]+)\/(?P<stage>[a-z]{1,8})\/(?P<billnumber>[a-z]{1,8}[1-9][0-9]*)\/?(text-versions\/)?(?P<version>[a-z]+)?')
 
 BILL_TYPES = {
   'ih': 'introduced',
@@ -54,6 +59,8 @@ CURRENT_CONGRESS, cs_temp = divmod(round(((datetime.date(CURRENT_CONGRESSIONAL_Y
 CURRENT_SESSION = cs_temp + 1
 
 SAMPLE_QUERY = {
+  "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
     "match": {
       "headers": {
@@ -64,6 +71,8 @@ SAMPLE_QUERY = {
 }
 
 SAMPLE_QUERY_W_CONGRESS = {
+  "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
     "bool": {
       "must": [
@@ -84,6 +93,8 @@ SAMPLE_QUERY_W_CONGRESS = {
 }
 
 SAMPLE_QUERY_NESTED = {
+  "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
     "nested": {
       "path": "sections",
@@ -106,7 +117,10 @@ SAMPLE_QUERY_NESTED = {
 }
 
 # more like this query (working)
-SAMPLE_QUERY_MLT_HEADERS  = {"query": {
+SAMPLE_QUERY_MLT_HEADERS  = {
+  "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
+  "query": {
   "more_like_this": {
     "fields": ["headers"],
     "like": "Dependent care credit improvements",
@@ -137,6 +151,8 @@ def getQueryText(text_path: str=''):
 
 # more like this query (working)
 SAMPLE_QUERY_NESTED_MLT = {
+  "size": RESULTS_DEFAULT,
+  "min_score": MIN_SCORE_DEFAULT,
   "query": {
     "nested": {
       "path": "sections",
@@ -145,8 +161,8 @@ SAMPLE_QUERY_NESTED_MLT = {
           "fields": ["sections.section_text"],
           "like": reporting_requirement,
           "min_term_freq" : 2,
-          "max_query_terms" : 10,
-          "min_doc_freq" : 3 
+          "max_query_terms" : 30,
+          "min_doc_freq" : 2 
         }
       },
       "inner_hits": {

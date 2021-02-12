@@ -4,12 +4,62 @@ import sys, os
 import logging
 import gzip
 import json
+import re
 from common import constants
 
 logging.basicConfig(filename='utils.log',
                     filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
+
+def getText(item) -> str:
+  if item is None:
+    return ''
+  if isinstance(item, list):
+    item = item[0]
+
+  try:
+    return item.text
+  except:
+    return ''
+
+def getBillNumberFromBillPath(bill_path: str) -> str:
+  """
+  Gets billnumber + version from the bill path
+  Args:
+      bill_path (str): bill path of the form [path]/116/dtd/BILLS-116hr1500rh.xml
+
+  Returns:
+      str: e.g. 116hr1500rh 
+  """
+
+  billnumber_version = re.sub(r'.*\/', '', bill_path).replace('BILLS-', '').replace('.xml', '')
+  if constants.BILL_NUMBER_REGEX_COMPILED.match(billnumber_version):
+      return billnumber_version
+  else:
+      return ''
+
+def getBillNumberFromCongressScraperBillPath(bill_path: str) -> str:
+  """
+  Gets billnumber + version from the bill path
+  Args:
+      bill_path (str): bill path of the form e.g. [path]/data/116/bills/hr/hr1/text-versions
+
+  Returns:
+      str: e.g. 116hr1500rh 
+  """
+  
+  match = constants.US_CONGRESS_PATH_REGEX_COMPILED.search(bill_path)
+  billnumber_version = '' 
+  if match:
+    match_groups = match.groupdict()
+    version = match_groups.get('version', '')
+    if version is None:
+        version = '' 
+    billnumber_version = match_groups.get('congress', '') + match_groups.get('billnumber', '') + version
+  else:
+    raise Exception('No match for bill number in bill path')
+  return billnumber_version
 
 def loadTitlesIndex(titleIndexPath=constants.PATH_TO_TITLES_INDEX, zip=True):
     titlesIndex = {}
@@ -44,6 +94,8 @@ def loadRelatedBillJSON(billCongressTypeNumber, relatedBillDirPath=constants.PAT
     return relatedBillJSON 
 
 def dumpRelatedBillJSON(billCongressTypeNumber, relatedBillJSON, relatedBillDirPath=constants.PATH_TO_RELATEDBILLS_DIR):
+    if not os.path.isdir(relatedBillDirPath):
+        os.mkdir(relatedBillDirPath)
     relatedBillJSONPath = os.path.join(relatedBillDirPath, billCongressTypeNumber +'.json')
     if not relatedBillJSON:
         relatedBillJSON = {'related': {}}

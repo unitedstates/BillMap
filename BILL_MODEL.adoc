@@ -1,0 +1,114 @@
+### Our Bill Model
+
+
+* bill_congress_type_number : number + type + congress
+
+* type : The bill's type.
+
+* congress : The number of the Congress in which the bill was introduced.
+
+* number : The bill's number (just the integer part).
+
+* titles : The bill's display titles.
+
+* summary : The bill's summary.
+
+* titles_whole_bill : The bill's type.
+
+* short_title : The bill's short title.
+
+* sponsor : a `json` document with a sponsors list
+
+* cosponsors : indicating cosponsorship (a many-to-many table connecting to the 'sponsors')
+
+* related_bills : related bills.
+```
+eg:
+
+[{"reason": "related", "bill_id": "hjres7-110", "billCongressTypeNumber": "110hjres7"}, {"reason": "related", "bill_id": "hjres10-110", "billCongressTypeNumber": "110hjres10"}, {"reason": "related", "bill_id": "hjres21-110", "billCongressTypeNumber": "110hjres21"}, {"reason": "related", "bill_id": "hjres45-110", "billCongressTypeNumber": "110hjres45"}, {"reason": "related", "bill_id": "hjres81-110", "billCongressTypeNumber": "110hjres81"}, {"reason": "related", "bill_id": "sjres24-110", "billCongressTypeNumber": "110sjres24"}]
+```
+
+* cosponsors_dict : cosponsors dictionary
+```
+eg:
+
+
+[{"name": "Aderholt, Robert B.", "state": "AL", "title": "Rep", "district": "4", "thomas_id": "01460", "sponsored_at": "2007-01-24", "withdrawn_at": null}, {"name": "Akin, W. Todd", "state": "MO", "title": "Rep", "district": "2", "thomas_id": "01655", "sponsored_at": "2007-01-04", "withdrawn_at": null}, {"name": "Bachmann, Michele", "state": "MN", "title": "Rep", "district": "6", "thomas_id": "01858", "sponsored_at": "2007-01-04", "withdrawn_at": null}]
+```
+
+* es_similarity: a list of similar bills for each section of this bill. Generated from `bill_similarity.py`
+
+* es_similar_bills_dict: a dictionary of similar bills for each section of this bill. Generated from `bill_similarity.py` and formatted to make the `bill similarity` table easy to generate.
+
+* created: a date field for when the bill record was created
+* updated: a date field for when the bill record was updated 
+
+### GovTrack Bill Model
+
+* title : The bill's primary display title, including its number.
+
+* lock_title :Whether the title has been manually overridden.
+
+* titles : serialized list of all bill titles as (type, as_of, text)
+
+* bill_type The bill's type (e.g. H.R., S., H.J.Res. etc.)
+
+* congress : The number of the Congress in which the bill was introduced. The current Congress is %d."
+
+* number : The bill's number (just the integer part).
+
+* sponsor : The primary sponsor of the bill.
+
+* sponsor_role : The role of the primary sponsor of the bill at the time the bill was introduced.
+
+* committees : Committees to which the bill has been referred.
+
+* terms : Subject areas associated with the bill.
+
+* current_status : The current status of the bill.
+
+* current_status_date : The date of the last major action on the bill corresponding to the current_status.
+
+* introduced_date : The date the bill was introduced.
+
+* cosponsors : The bill's cosponsors.
+
+* major_actions : serialized list of all major actions (date/datetime, BillStatus, description)
+
+* committee_reports : serialized list of committee report citations
+
+* sliplawpubpriv : For enacted laws, whether the law is a public (PUB) or private (PRI) law. Unique with congress and sliplawnum.
+
+* sliplawnum : For enacted laws, the slip law number (i.e. the law number in P.L. XXX-123). Unique with congress and sliplawpublpriv.
+
+* source : The primary source for this bill's metadata.
+
+* source_link : When set, a link to the page on the primary source website for this bill. Set when source='americanmemory' only.
+
+* docs_house_gov_postdate : The date on which the bill was posted to http://docs.house.gov (which is different from the date it was expected to be debated).
+
+* senate_floor_schedule_postdate : The date on which the bill was posted on the Senate Floor Schedule (which is different from the date it was expected to be debated).
+
+* scheduled_consideration_date : The date on which the bill is expected to be considered on the floor for the most recent of docs_house_gov_postdate and senate_floor_schedule_postdate, and if for docs.house.gov it is the week that this is the Monday of.
+
+* text_incorporation : What enacted bills have provisions of this bill been incorporated into?
+
+* original_intent_replaced : Whether the bill has become the vehicle for passage of an unrelated measure *and* the original substance of the bill is completely gone. Set to False to flag that the enacted bill has been reviewed and it was not a vehicle.
+
+
+
+### Related Fields
+
+* type : The bill's type.
+
+* congress : The number of the Congress in which the bill was introduced.
+
+* number : The bill's number (just the integer part).
+
+* titles : The bill's display titles.
+
+* sponsor : indicating sponsor.
+
+* cosponsors : indicating cosponsorship.
+
+* related_bills : related bills.

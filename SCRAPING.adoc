@@ -1,0 +1,130 @@
+:toc:
+
+## Scraping bill text and metadata
+
+### Django commands
+
+The steps below will create the baseline bill text and metadata directories that are used by this project. The initial scraping may take a very long time (1 or 2 days). Updates are done through the Celery task runner.
+
+NOTE: These instructions use the scrapers maintained in `https://github.com/unitedstates/congress`. In some ways the data structure they create is not ideal: each bill is many levels deep in a nested hierarchy, requiring tree walking to store and retrieve files. However, it is a widely-used and maintained scraper that is compatible with `govtrack`, so we use it here. 
+
+#### Download
+
+1. Set up the database
+
+Before downloading bill text and metadata with Django commands, ensure that the `postgresql` database is ready set up.
+
+Please see django_database.adoc for details.
++
+2. Activate the virtual environment and check if modules are imported.
+
+If you get a `module not found` error, make sure that:
+
+    a. you are in the Python virtual environment
+    b. environment variables are set
+    c. requirements.txt has been run previously in the virtual environment
+```
+cd /path/to/FlatGov/server_py
+pip install -r requirements.txt
+```
++
+3. Download bill text and metadata
+
+- Run the django command `python manage.py update_bill`
+
+It will download bills (113 ~ 116) using uscongress open source scraper and store them into `server_py/flatgov/congress/data`.
+
+This process will take several hours.
+
+We set up a logging system, so we can keep tracking of the download status via the admin console.
+
+#### Update bill data in the database and index into Elasticsearch
+
+1. Create billsMeta.json file via Django command.
+
+```bash
+$ python manage.py bill_data
+```
+
+2. Process bills metadata
+
+```bash
+$ python manage.py process_bill_meta
+```
+
+3. Create related bills
+
+```bash
+$ python manage.py related_bills
+```
+
+4. Update loading of the `new` bills into Elasticsearch
+
+```bash
+$ python manage.py elastic_load --uscongress
+```
+
+NOTE: The `--uscongress` option is necessary to use data from the `uscongress` scraper. There is an alternate scraper (not included in this repository) that uses a flat structure to store bill text (e.g. `116/dtd/BILLS-116hr200ih.xml`); without the `--uscongress` option, the commands would try to load data from that structure. The `getXMLDirByCongress` function takes the data-structure as an option and finds the bill xml in either data structure.
+
+5. Calculate bill similarity and store in db
+
+```bash
+$ python manage.py bill_similarity --uscongress
+```
+
+### Alternative: Manual scraping 
+
+This is only necessary if you want the text files (e.g. .txt, .html, .pdf) in the `congress` directory. It is more complicated and adds ~10Gb of data above the downloads from ProPublica which are automated in `flatgovtools/download_bills.sh`.
+
+#### Install `unitedstates/congress` repository
+
+The text of bills can be scraped with the Python project here: `https://github.com/unitedstates/congress`. First, clone this repository as a child of the `FlatGovDir` directory above, and a sibling of `congress`. In this way, running the scraper will fill out the text data within the `congress` directory.
+
+```
+$ cd /path/to/FlatGovDir
+$ git clone https://github.com/unitedstates/congress.git
+(no credentials needed-- it is an open repo)
+```
+
+#### Install scraper dependencies
+
+Install the `congress` Python virtual environment, install the requirements (`pip install requirements.txt`). The scrapers were built with Python 2.7 and have not been upgraded; updates may be needed for a production environment, but the `@unitedstates/congress` scraper is sufficient to gather the baseline data to test the utilities in this repository.
+
+NOTE: Scraping the initial data can be *very* time-consuming (most of a day, depending on your internet download speeds). To get started, it is worth finding a source for bulk downloads of the text, if possible.
+
+On MacOS (Catalina), installing the `congress` requirements involved a few adjustments:
+
+1. Install OpenSSL 1.02 with Homebrew. The latest OpenSSL (>1.1) causes problems with certain requirements; unfortunately, version 1.0.0 also failed. A script was set up by a Github user to install version 1.0.2.
+
+`brew uninstall openssl --ignore-dependencies; brew uninstall openssl --ignore-dependencies; brew uninstall libressl --ignore-dependencies; brew install https://raw.githubusercontent.com/Homebrew/homebrew-core/8b9d6d688f483a0f33fcfc93d433de501b9c3513/Formula/openssl.rb;`
+
+2. Link the OpenSSL libraries
+
+```
+export LDFLAGS=-L/usr/local/opt/openssl/lib
+export CPPFLAGS=-I/usr/local/opt/openssl/include
+```
+
+3. Install `pytz`, `pep517` and `cryptography` directly
+
+```bash
+pip install pytz
+pip install pep517
+pip install cryptography
+```
+
+4. Install requirements
+
+From the `congress` repository directory, `pip install -r requirements.txt`
+
+#### Run the scraper
+
+```bash
+./run govinfo --bulkdata=BILLSTATUS
+./run bills
+```
+
+When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:
+
+`find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
+

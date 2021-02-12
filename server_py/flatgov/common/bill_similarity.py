@@ -187,7 +187,8 @@ def getLatestBillVersionSearch(billnumber: str) -> str:
   """
   bills = runQuery(index='billsections', query=setBillNumberQuery(billnumber))
   billversion = ''
-  if bills.get('hits', {}).get('total', {}).get('value', {}) and bills.get('hits', {}).get('total', {}).get('value', {}) > 0:
+  if bills.get('hits', {}).get('total', {}).get('value', 0) and bills.get('hits', {}).get('total', {}).get('value', 0) > 0:
+
       tophit = bills.get('hits').get('hits')[0].get('fields')
       billnumber = tophit.get('billnumber')[0] 
       billversion = tophit.get('billversion', '')[0]

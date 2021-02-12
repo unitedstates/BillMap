@@ -1,15 +1,17 @@
 """
-from FlatGov.populate_crs_table import CrsFromApi
-crs = CrsFromApi()
-crs.populate()
+Use to populate:
+
+from crs.populate_crs_table import CrsFromApi
+crs_api = CrsFromApi()
+crs_api.populate()
 """
 import re
 import math
 import json
-from FlatGov.models import Bill
-from FlatGov.scrapers.everycrsreport_com import EveryCrsReport
+from bills.models import Bill
+from crs.scrapers.everycrsreport_com import EveryCrsReport
 
-# Bill's unique phrases {'sres', 'hjres', 'hconres', 's', 'hres', 'sjres', 'hr', 'sconres'}
+# Bill's types {'sres', 'hjres', 'hconres', 's', 'hres', 'sjres', 'hr', 'sconres'}
 BILL_NUMBER_RE = re.compile(
     r'\W(\s?h\s?j\s?res\s?\d+|s\s?res\s?\d+|h\s?con\s?res\s?\d+|h\s?res\s?\d+'
     r'|s\s?j\s?res\s?\d+|h\s?r\s?\d+|s\s?con\s?res\s?\d+)', re.I | re.M)
@@ -45,7 +47,14 @@ class CrsFromApi:
                 self.matched_count += 1
             except Bill.DoesNotExist:
                 print(f'{bill_id} does not have a matches in Bills. Creating new one.')
-                bill = Bill(number=bill_id, titles=json.dumps([report.title]))
+                bill_type = re.search(r'([a-z]+)(\d+)', bill_id)[1]
+                bill = Bill(
+                    type=bill_type,
+                    number=re.search(r'([a-z]+)(\d+)', bill_id)[2],
+                    congress=congress_number,
+                    bill_congress_type_number=bill_id,
+                    titles=json.dumps([report.title])
+                )
             bill.save()
             report.bills.add(bill)
 

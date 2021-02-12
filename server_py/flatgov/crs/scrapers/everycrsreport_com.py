@@ -1,15 +1,11 @@
-"""
-from FlatGov.scrapers.everycrsreport_com import EveryCrsReport
-api = EveryCrsReport()
-api.scrape()
-
-"""
+import os
 import csv
 import json
 import requests
 from urllib.parse import urljoin
 
-from FlatGov.models import CrsReport
+from crs.models import CrsReport
+from django.conf import settings
 
 
 class EveryCrsReport:
@@ -49,7 +45,7 @@ class EveryCrsReport:
     @staticmethod
     def download_report(filename):
         r = requests.get(urljoin(EveryCrsReport.SITE_URL, filename), stream=True)
-        with open(filename, 'wb') as fd:
+        with open(os.path.join(settings.BASE_DIR, 'crs', filename), 'wb') as fd:
             for chunk in r.iter_content(100000):
                 fd.write(chunk)
 

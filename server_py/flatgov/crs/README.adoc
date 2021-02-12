@@ -1,0 +1,26 @@
+## About
+
+This is the Django based scraper for the CRS reports.
+
+## Installation
+
+```shell
+pyenv activate flatgov # Assumes Python >=3.7
+pip install requirements.txt
+```
+
+## Collecting the data
+
+Two models involved: `Bills` and `CrsReport`. Table `Bills` assumed to exist and have a bills data.
+
+To scrape the data to CRS table enter a Django console and do:
+
+```shell
+python manage.py shell
+```
+
+```python
+from crs.populate_crs_table import CrsFromApi
+crs_api = CrsFromApi()
+crs_api.populate()
+```

@@ -23,4 +23,5 @@ urlpatterns = [
     path('home/', include('home.urls')),
     path('uscongress/debug/', include('uscongress.urls')),
     path('admin/', admin.site.urls),
+    path('crs/', include('crs.urls')),
 ]

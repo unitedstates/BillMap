@@ -162,7 +162,7 @@ class Sponsor(models.Model):
 class Statement(models.Model):
     bill_number = models.CharField(max_length=127)
     bill_id = models.CharField(max_length=127, null=True, blank=True)
-    bill_title = models.CharField(max_length=250)
+    bill_title = models.TextField(null=True, blank=True)
     congress = models.CharField(max_length=10)
     date_issued = models.CharField(max_length=35)
     permanent_pdf_link = models.FileField(upload_to='statements/', blank=True, null=True)

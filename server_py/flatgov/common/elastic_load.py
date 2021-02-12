@@ -2,6 +2,7 @@ import os
 import json
 import re
 from lxml import etree
+from datetime import datetime
 from elasticsearch import exceptions, Elasticsearch
 es = Elasticsearch()
 from collections import OrderedDict
@@ -140,10 +141,12 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(115, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
+  number_of_bills_total = 0
   for congress in congresses:
-    print('Indexing congress: {0}'.format(congress))
+    print(str(datetime.now()) + ' - Indexing congress: {0}'.format(congress))
     congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
     billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
+    number_of_bills = 0
     for billFile in billFiles:
       if uscongress:
         billFilePath = billFile
@@ -152,9 +155,17 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscon
       print('Indexing {0}'.format(billFilePath))
       try:
         indexBill(billFilePath)
+        number_of_bills += 1
+        if number_of_bills % 200 == 0:
+          print('Indexed ' + str(number_of_bills) + ' bills')
       except Exception as err:
         print('Could not index: {0}'.format(str(err)))
         pass
+    print(str(datetime.now()) + ' - Finished indexing bills for Congress: ' + str(congress))
+    print('Indexed ' + str(number_of_bills) + ' bills')
+    number_of_bills_total += number_of_bills
+  print(str(datetime.now()) + ' - Finished indexing bills for all Congresses: ' + str(', '.join(congresses)))
+  print('Indexed ' + str(number_of_bills_total) + ' bills')
 
 def refreshIndices(index: str="billsections"):
   es.indices.refresh(index=index)

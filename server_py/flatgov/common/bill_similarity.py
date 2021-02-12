@@ -1,3 +1,4 @@
+from datetime import datetime
 import os
 import json
 import re
@@ -318,8 +319,10 @@ def filterLatestVersionOnly(billFiles: List[str]):
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(115, 118)]
 def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
+  number_of_bills_total = 0
   for congress in congresses:
-    print('Finding Similarity congress: {0}'.format(congress))
+    number_of_bills = 0
+    print(str(datetime.now()) + ' - Finding Similarity congress: {0}'.format(congress))
     congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
     billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
     if uscongress:
@@ -332,9 +335,14 @@ def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', usc
       print('Finding Similiarity {0}'.format(billFilePath))
       try:
         processBill(billFilePath)
+        number_of_bills += 1
       except Exception as err:
         print('Could not process for similarity: {0}'.format(str(err)))
         pass
+    print(str(datetime.now()) + ' - Finished Similarity for congress: {0}'.format(congress))
+    print(str(datetime.now()) + 'Processed {0} bills'.format(str(number_of_bills)))
+  print(str(datetime.now()) + ' - Finished Similarity for all congresses: {0}'.format(', '.join(congresses)))
+  print(str(datetime.now()) + 'Processed {0} bills'.format(str(number_of_bills_total)))
 
 
 def moreLikeThis(queryText: str, index: str='billsections'):

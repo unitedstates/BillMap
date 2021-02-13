@@ -64,7 +64,7 @@ titlesIndex.json.gz
 /congress
 tmp/
 flatgov/crs/files
-*/db.sqlite3
+server_py/flatgov/db.sqlite3
 
 # Mac artifacts
 .DS_Store

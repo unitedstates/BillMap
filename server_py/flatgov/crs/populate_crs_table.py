@@ -22,7 +22,7 @@ BILL_NUMBER_S_FOR_TITLE_RE = re.compile(r'\W(S\s?\d+)')
 BILL_NUMBER_S_FOR_TEXT_RE = re.compile(r'\W(S\s?\d{3,4})')
 
 
-def get_congress_number_for_year(year):
+def get_congress_number_for_year(year: str) -> int:
     return math.ceil((int(year) - 1788) / 2)
 
 
@@ -39,11 +39,17 @@ class CrsFromApi:
                 .replace('\n', '').lower()
             bill_ids.add(bill_id)
 
+            # Add prior year if report was in January or February
+            if int(report.date[5:7]) < 3:
+                bill_id = f'{congress_number-1}{bill_number}'.replace(' ', '')\
+                .replace('\n', '').lower()
+                bill_ids.add(bill_id)
+
         self.extracted_count += len(bill_ids)
         for bill_id in bill_ids:
             try:
                 bill = Bill.objects.get(bill_congress_type_number=bill_id)
-                print(f'{bill_id} got matched, use existing bill.')
+                print(f'{bill_id} was matched, use existing bill.')
                 self.matched_count += 1
             except Bill.DoesNotExist:
                 print(f'{bill_id} does not have a match in Bills. Creating new one.')

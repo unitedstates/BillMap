@@ -38,7 +38,10 @@ except Exception as err:
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+if os.getenv('DJANGO_SETTINGS_MODULE') == flatgov.dev:
+    DEBUG = True 
+else:
+    DEBUG = False 
 
 ALLOWED_HOSTS = ['localhost', 'flatgov.linkedlegislation.com']
 

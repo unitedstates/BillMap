@@ -38,7 +38,7 @@ except Exception as err:
 
 
 # SECURITY WARNING: don't run with debug turned on in production!
-if os.getenv('DJANGO_SETTINGS_MODULE') == flatgov.dev:
+if os.getenv('DJANGO_SETTINGS_MODULE') == "flatgov.dev":
     DEBUG = True 
 else:
     DEBUG = False 

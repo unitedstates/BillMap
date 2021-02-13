@@ -7,9 +7,7 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-        ('bills', '0019_delete_billupdatejob'),
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(

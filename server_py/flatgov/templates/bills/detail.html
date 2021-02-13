@@ -60,7 +60,7 @@
             aria-controls="current" aria-selected="true">All</a>
         </li>
     </ul>
-    <div class="tab-content light-gray-tabs p-4" id="myTabContent">
+    <div class="tab-content light-gray-tabs p-4" id="relatedBillsTableContent">
         <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">            
             <table class="table mt-3" id="related-bills-table">
                 <thead>
@@ -105,13 +105,17 @@
     </span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="current-tab" data-toggle="tab" href="#current" role="tab"
-            aria-controls="current" aria-selected="true">All</a>
+        <a class="nav-link active" id="current-tab" data-toggle="tab" href="#similar-bills" role="tab"
+            aria-controls="similar-bills" aria-selected="true">All</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="sections-tab" data-toggle="tab" href="#similar-sections" role="tab" aria-controls="similar-sections"
+            aria-selected="false">Sections</a>
         </li>
     </ul>
-    <div class="tab-content light-gray-tabs p-4" id="myTabContent">
-        <p><span><strong>Number of sections: {{ object.titles|length }}</strong></span></p>
-        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
+    <div class="tab-content light-gray-tabs p-4" id="similarBillsTableContent">
+        <p><span><strong>Number of sections: {{ es_similarity|length }}</strong></span></p>
+        <div class="tab-pane fade show active" id="similar-bills" role="tabpanel" aria-labelledby="similar-bills">
             <table class="table mt-3" id="similar-bills-table">
                 <thead>
                     <tr>
@@ -119,10 +123,9 @@
                         <th scope="col">Detail</th>
                         <th scope="col">Titles</th>
                         <th scope="col">Score</th>
-                        <th scope="col">Number of sections matched</th>
-                        <th scope="col">Best match score</th>
-                        <th scope="col">Best match section header</th>
-                        <th scope="col">Best match section number</th>
+                        <th scope="col">Sections matched</th>
+                        <!--th scope="col">Best match score</th-->
+                        <th scope="col">Best match section</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -146,20 +149,39 @@
                                 N/A
                             {% endif %}
                         </td>
-                        <td><span title="{{ bill.info.title.0 }}">{{ bill.info.title.0|truncatechars:40 }}</span></td>
+                        <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
                         <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
-                        <td>{{ bill.info.number_of_sections }}</td>
-                        <td>{{ bill.info.scores.0.score|floatformat:2 }}</td>
-                        <td><span title="{{ bill.info.scores.0.section_header }}">{{ bill.info.scores.0.section_header|truncatechars:40 }}</span></td>
-                        <td><span>{{ bill.info.scores.0.section_num }}</span></td>
-                        <!-- <td>{{ bill.info.scores.0.section|truncatechars:40 }}</td> -->
+                        <td>{{ bill.number_of_sections }}</td>
+                        <!--td>{{ bill.info.score|floatformat:2 }}</td-->
+                        <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-            <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
-            </div>
+        </div>
+        <div class="tab-pane fade" id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
+            <table class="table mt-3" id="similar-bills-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Section</th>
+                        <th scope="col">Similar Bills</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for section in es_similarity %}
+                      {% if section.similars %}
+                        <tr>
+                            <td><span>{{ section.section_number }}&nbsp;{{ section.section_header}}</span></td>
+                            <td>
+                               {% for similar in section.similars %}
+                                  {{ similar.bill_number_version }}{{ forloop.last|yesno:",&#44;"|safe }} 
+                               {% endfor %}
+                            </td>
+                        </tr>
+                      {% endif%}
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
@@ -192,7 +214,7 @@
             </div>
         </div>
     </ul>
-    <div class="tab-content light-gray-tabs p-4" id="myTabContent">
+    <div class="tab-content light-gray-tabs p-4" id="cosponsorsTabContent">
         <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
             <h6 class="pt-3">
                 View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
@@ -264,7 +286,7 @@
         </div>
         </div>
     </ul>
-    <div class="tab-content light-gray-tabs p-4" id="myTabContent">
+    <div class="tab-content light-gray-tabs p-4" id="crsReportContent">
         <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
             <h6 class="pt-3">
                 View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress
@@ -306,9 +328,48 @@
                 </tbody>
             </table>
         </div>
-        <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
-        </div>
+        <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="min-height:20vh; max-height: 50vh; overflow: scroll;">
+            <h6 class="pt-3">
+                View all the Statements of Administration Policy of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congres }}th Congress
+            </h6>
+
+            <table class="table mt-3" id='statements-tables'>
+                <thead>
+                    <tr>
+                        <th scope="col">Bill Number</th>
+                        <th scope="col">Bill Id</th>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Congress</th>
+                        <th scope="col">Date Issued</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for statement in statements %}
+
+                    <tr>
+                        <td>{{ statement.bill_number }}</td>
+                        <td>{{ statement.bill_id }}</td>
+                        <td style="width: 300px;">{{ statement.bill_title|truncatechars:120 }}</td>
+                        <td>{{ statement.congress }}</td>
+                        <td>{{ statement.date_issued }}</td>
+                        <td><a href='{{ statement.permanent_pdf_link.url }}' target="_blank" class='btn btn-primary'>
+                            Full Report
+                        </a></td>
+                    </tr>
+
+                    {% endfor %}
+                    <tr>
+                        <td>
+
+                            {% if not statements %}
+                                No data available in table.
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+    </div>
         <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
         </div>

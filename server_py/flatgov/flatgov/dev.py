@@ -1,5 +1,6 @@
 from .settings import *
 
+DEBUG = True
 
 INSTALLED_APPS += [
     'common',

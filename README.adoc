@@ -3,6 +3,8 @@
 # FlatGov: A https://demandprogress.org[Demand Progress] Project 
 Utilities and applications for the FlatGov project by Demand Progress
 
+A live demo of the application is https://flatgov.linkedlegislation.com[here]. These application documentation are also available there, at https://flatgov.linkedlegislation.com/static/docs/README.html When the documentation has been updated, it can be converted to html and copied to the application directory with the script `scripts/docs_generator has been updated, it can be converted to html and copied to the application directory with the script `scripts/docs_generator.sh` (requires installation of asciidoctor).
+
 This repository contains:
 
 * A web application showing information for a given bill (Django/Python)
@@ -10,24 +12,20 @@ This repository contains:
 
 Both components are described below.
 
-## Web Application
+## Web Application Quickstart (development)
 
-The FlatGov web application is built using the Django/Python web application framework. The application is contained in the `server_py` directory of this repository. It makes use of data that is processed using the scrapers and scripts described in the <<Data>> and <<Metadata>> sections below.
+The FlatGov web application is built using the Django/Python web application framework. The application is contained in the `server_py` directory of this repository. It makes use of data that is processed using the scrapers and scripts described in the <<DATA_BACKGROUND.adoc#,DATA_BACKGROUND>>.
 
-### Quickstart
+Below are instructions to set up a local development environment. For production deployment instructions, see <<DEPLOYMENT.adoc#,DEPLOYMENT>>.
 
-#### Create directories and clone this directory
-
-* Create a parent `FlatgovDir` and *within* that directory, clone this repository:
+### Clone this repository
 
 ```bash
-$ mkdir FlatgovDir
-$ cd FlatgovDir
 $ git clone https://github.com/aih/FlatGov.git
 $ cd FlatGov
 ```
 
-#### Install Python dependencies
+### Install Python dependencies
 
 Create a new Python virtual environment. You can use `venv`, `virtualenv` or preferably https://github.com/pyenv/pyenv-virtualenv[`pyenv virtualenv`], which requires installing https://github.com/pyenv/pyenv[pyenv] first).
 
@@ -62,22 +60,47 @@ $ cd /path/to/FlatGov/server_py
 $ pip install -r requirements.txt
 ```
 
-```bash
-$ cd /path/to/FlatGov/
-$ pip install -r requirements.txt
-```
-
-The requirements for `flatgovtools` and `server_py` are separate. But for simplicity, it's best to load them both in a single virtual environment.
-
-#### Create .env file 
+### Create .env file 
 
 Copy `server_py/flatgov/.env-sample` to `server_py/flatgov/.env`, and change the `SECRET_KEY` defined in that file.
 
-#### Data: download and process
+### Database set-up
 
-Use Django manage.py commands to download the data and populate the database: https://github.com/aih/FlatGov/blob/master/django_database.adoc
+Use Django manage.py commands to download the data and populate the database (see <<DATABASE.adoc#,DATABASE>>).
 
-TODO: describe what data will be stored locally after setting up the scrapers and database from `django_database.adoc`
+### Data structure: the `Bill` model
+
+The core of the application is a `bill`. This is described in <<BILL_MODEL.adoc#,BILL_MODEL>>, and the model itself is set up in Django in `server_py/flatgov/bills/models.py`. We model bills at the level of the `billnumber`, e.g. `116hr1500` is a bill in the 116th Congress, in the House of Representatives, bill number 1500. This bill may have many versions, which may differ significantly from each other (e.g the `Introduced` version may have just a few sections, while the `Reported in House` version has an entirely new thousand section bill substituted in its place). Where there are differences, we attempt to process the latest version of any bill (e.g to calculate bill similarity).
+
+### Data: download bills with the https://github.com/unitedstates/congress[unitedstates/congress] scraper
+
+To download and process data from earlier congresses, see details in <<DATA_BACKGROUND#, DATA_BACKGROUND>>. There are ~50Gb of data, total for Congresses 110-117, including processed json files, and `DATA_BACKGROUND`describes options for downloading and processing this data. For a 'quick start', you can use data from only the most recent Congress:
+
+Download data from the most recent Congress
+```bash
+cd flatgov/uscongress
+./run govinfo --bulkdata=BILLSTATUS --congress=117`
+./run bills
+```
+
+NOTE: You may need to separately clone the `unitedstates/congress` repository, run the command from there, and link the `data` directory to a directory `congress/data` in this repository.
+
+#### Celery task to update bill downloads and data
+
+Updates to the data are done through the Celery taskrunner (see https://docs.celeryproject.org/en/stable/getting-started/introduction.html). Details of the tasks in Flatgov are in <<CELERY.adoc#, CELERY>>.
+
+To run the Celery worker
+
+```bash
+$ pyenv activate flatgov
+$ cd ~/.../FlatGov/server_py/flatgov 
+$ celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info
+```
+
+Set up the Celery schedule
+```bash
+celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info
+```
 
 #### Run the Django application
 
@@ -88,217 +111,92 @@ $ cd server_py/flatgov
 $ python manage.py runserver
 ```
 
-This will serve the application on localhost:8000. Currently, there is no home page; only pages for individual bills, at, e.g.:
+This will serve the application on localhost:8000. Pages for individual bills follow the form:
 http://localhost:8000/bills/116hr1500
 
-## Data Background
+Bill-to-bill data pages are at:
+`/bills/compare/115s211/115hr604/`
 
-This repository contains scripts in the `/flatgovtools` directory that download and process bill data. The default location for the data is in the parent directory of this repository (`FlatgovDir`, described above).
+## Deployment
 
-### Bulk downloads: bill metadata
+### Deployment instructions
 
-The core metadata that will be used for this project can be downloaded in bulk from ProPublica^TM^ here: + https://www.propublica.org/datastore/dataset/congressional-data-bulk-legislation-bills
+Deployment instructions are in <<DEPLOYMENT.adoc#, DEPLOYMENT>>. The application is served on a Linux server (currently Ubuntu `Ubuntu 18.04.5 LTS` on AWS).
 
-For example:
-https://s3.amazonaws.com/pp-projects-static/congress/bills/116.zip?_ga=2.93052057.587919213.1601076458-407540952.1601076458 +
-https://s3.amazonaws.com/pp-projects-static/congress/bills/115.zip?_ga=2.159617977.587919213.1601076458-407540952.1601076458 +
-... +
-https://s3.amazonaws.com/pp-projects-static/congress/bills/110.zip?_ga=2.159617977.587919213.1601076458-407540952.1601076458 +
+### System components
 
-Bulk historical metadata is available for one-year ranges. Data for the current Congress is updated twice daily. The metadata is sufficient to test many of the functions in this library. Bill text comparison requires bulk download or scraping of the text.
+The components of the system are:
 
-A script to download and organize these files is provided in `flatgovtools/bulk_downloads.sh`.
+* Linux server on AWS (Ubuntu 18.04.5 LTS)
+* Nginx web server
+* Postgresql server (see <<DATABASE.adoc#,DATABASE>>)
+* Elasticsearch server for search and bill similarity processing (see <<ES_SIMILARITY.adoc#,ES_SIMILARITY>>) 
+* Python/Django application (this repository)
+* uwsgi Python server running the Django application, proxied by Nginx above
+* Bill metadata and xml, downloaded using scrapers from https://github.com/unitedstates/congress[unitedstates/congress]
+* Scrapers: other data scraped from public sources, including: 
 
-To start, it is sufficient to download a few recent congresses (e.g. `116, 115, 114, 113`). Unzip, and copy the deepest directory into a single hierarchy so that you have:
+  -Statements of Administration Policy
+  -Press statements
+  -Congressional Budget Office reports
+  -Congressional Research Service reports
+  -Calendar information from various congressional sources
 
-```bash
-FlatGovDir
-   |
-   -congress
-       |
-       -data
-          |
-          -116
-          -115
-          -114
-          -113
-```
-### Processing Metadata: Background
+These are described in more detail in <<SCRAPING.adoc#, SCRAPING>>.
 
-For each bill a metadata file is created in `congress/data/relatedbills` with the following form, combining data from the original data.json with additional information from other bills: 
+## Related Bills and Bill Similarity 
 
-116hr1ih.json
-```javascript
-{ 
-  titles: [...], 
-  titles_whole_bill: [...],
-  cosponsors: ['name1', 'name2'...],
-  related_bills: [],
-  related: [
-    {116s1356: {
-      titles: [],
-      sponsor: {},
-      cosponsors: [],
-      identifies_by: "CRS"
-    }
-    },
+### Related bills
 
-  ]
+Bills that are related to each other are identified in two ways:
 
-}
-```
+1. Metadata (in `billstatus` XML) from the Congressional Research Service identifies bills as `identical` or related (e.g through a Committee process). We show these in the `Related Bills` table of the application.
+2. Same or similar titles. Two bills are considered related if they have exactly the same title, or differ only in the year (e.g. 'The Very Important Information Act of 2022' and 'The Very Important Information Act of 2023'). We process metadata to collect bill titles and show these bills in the `Related Bills` table.
 
-Where 'titles' includes all titles and 'full_titles' includes those where `"is_for_portion": false` (see below). 
+### Bill similarity -- text similarity
 
-### Cosponsors
-This information is available for each bill in the `data.json` file. Two key fields in `sponsors` are `name` and `bioguide_id`
+#### Overview
 
-### Bill Titles
-This information is available for each bill (and version) in the `data.json` file. For example, in `/congress/data/116/bills/hr/hr3/data.json`. After collecting titles for each bill, a reverse index can be created, with the title as key and an array of billnumbers as value. This will identify the bills across congresses that share identical titles.
+* Bill-to-bill comparison is impractical
 
-The title information in `data.json` is of the form:
+Calculating the `text` similarity between two bills may be relatively straightforward: we can find the percentage of overlapping text between the two bills. We may consider such a comparison for the `/compare` view of the application.
 
-```javascript
-"titles": [
-    {
-      "as": "introduced", 
-      "is_for_portion": false, 
-      "title": "INVEST in America Act", 
-      "type": "short"
-    }, 
-    {
-      "as": "introduced", 
-      "is_for_portion": false, 
-      "title": "INVEST in America Act", 
-      "type": "short"
-    }, 
-    {
-      "as": "introduced", 
-      "is_for_portion": false, 
-      "title": "Investing in a New Vision for the Environment and Surface Transportation in America Act", 
-      "type": "short"
-    } ...
-]
-```
+However, for a database of the size of this one, calculating the similarity of all bills is impractical, particularly if we want to update the data. The calculation requires approximately n^2^ comparisons, where n is the number of bills. For the ~80k bills in our corpus, this would be 6.4 billion comparisons.
 
-## Finding Related Bills
+* Search-based comparison
 
-### Similarity measures: simple
-* Simple similarity measures are obtained using the relatedBills.py file which expands upon the functionality generated by the files: billdata.py and process_bill_meta.py. 
-* relatedBills.py uses the getRelatedBills() as a higher order function containing several functions that obtain simple similarity measures.
+To improve performance, we use search. In particular, we search each section of the latest version of abill against an index of all bills, and combine the results of all of the section-wise searches to get a total score. We then have to filter results to remove duplicates (due to the different versions of all bills). 
 
-A few 'simple' measures can be taken of similarity. Bills which share:
+This approach is imperfect, since many individual sections may share language with unrelated bills (e.g. an Effective Date provision). Smaller bills may not have enough text to reliably find the most relevant 'similar' bills. On the other hand, large bills may match many similar bills on a subset of sections.
 
-* Identical titles
-* Very similar titles (e.g. all but the year)
-* Identical sponsor lists
-* Significant overlap in sponsors
+This application sets up the basic mechanisms for similarity measurements (described further in <<ES_SIMILARITY.adoc#,ES_SIMILARITY>>), which are open to many refinements (e.g. with the similarity metric that is used in the comparison).
 
-This can be represented in a summary JSON of the form:
-`relatedBills.json`
+#### Finding Similar Bills 
 
-```javascript
-  116s130: {
-    same_titles: ['116hr201', ...]
-  }
-]
-```
+As shown below, the application has three main views to explore bill similarity:
 
-OR
+1. A list of similar bills, in order of similarity.
+2. A section-by-section analysis of which other bills have similar sections.
+3. A bill-to-bill comparision showing matching sections between two bills.
 
-```javascript
-116s130: [
-  { billCongressTypeNumber: '116hr201' 
-    cosponsors: [bioguide_id1, bioguide_id2],
-    titles: ['Shared Title 1', 'Shared Title 2', etc.]
-    similar_title: ['Similar (nonidentical) Title 1', 'Similar (nonidentical) Title 2', etc.]
-  }...
-  ],
+Note that small sections with common language will *not* show as matches using our methodology. We will only show sections that use distinct language, where that language is shared between sections of the two bills.
 
-]
-          
-```
+.Similar Bills
+[#img-similar-bills]
+[caption="Figure 1: " ]
+image::media/bill-similarity115hr4733.png[SimilarBills,300,200]
 
-#### (Same)Titles
-It does this by creating a billnumber index with the bill metadata, and any similarity measures will subsequently be attributed to its corresponding number in the index. For example, after the index is created,a “getSameTitles” function is run, which loops through the index and creates a list of titles for that billNumber. A bill number with more than one title would then indicate that the bill has more than one version of itself. Identical titles would indicate identical bills, with different bill numbers.
+.Section-by-section List
+[#img-similarity-by-section]
+[caption="Figure 2: " ]
+image::media/bill-similarity-by-section-115hr4733.png[SectionBySectionBills,300,200]
 
-#### Cosponsors
-(to do)
+.Bill-to-bill Similarity 
+[#img-bill-to-bill-similarity]
+[caption="Figure 3: " ]
+image::media/bill-similarity-compare.png[BilltoBillSimilarity,300,200]
 
-#### Similar Title
-(to )do
-
-### Similarity calculation
-
-For any bill (e.g. 116hr100ih), we want to find related bills for previous congresses. Related bills are listed for the same congress in Congress.gov, e.g. https://www.congress.gov/bill/116th-congress/house-bill/2/related-bills?q={"search":["hr2"]}&r=1&s=3. There are many ways of calculating similarity. 
-
-For purposes of efficiency and performance, we have developed a similarity measure that built on a search engine model. In particular, we build an index of document headers and sections in Elasticsearch. We then calculate the similarity between any input text and sections in the index using the ES/Lucene 'more like this' metric. We combine the section to section similarity scores to yield an overall bill similarity measure.  For more details, see https://github.com/aih/FlatGov/blob/master/server_py/flatgov/elasticsearch/README.adoc
-
-NOTE: a comparable bill text similarity engine is here https://github.com/govtrack/govtrack.us-web/blob/master/analysis/text_incorporation.py
-
-
-#### Download bills with the unitedstates/congress scraper
-
-- run the commands
-```bash
-./run govinfo --bulkdata=BILLSTATUS --congress=117`
-./run bills
-```
-
-#### Celery task to update bill downloads and data
-
-Updates to the data are done through the Celery taskrunner (see https://docs.celeryproject.org/en/stable/getting-started/introduction.html). Details of the tasks in Flatgov are in CELERY.adoc
-
-- activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
-```bash
-$ pyenv activate flatgov
-$ cd ~/.../FlatGov/server_py/flatgov 
-```
-- Run the Celery worker
-
-`celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info`
-
-- Set up Celery schedule
-`celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`
-
-
-
-
-## Statement of Administration Policy
-
-The metadata for Statement of Administration Policy section has been scraped and stored in json files. The pdfs are stored in the media directory.
-
-### Load Policy Data for Obama Administration to Database
-
-- activate the virtualenv and go to `(flatgov) ~/.../FlatGov/server_py$`
-```bash
-
-$ cd ~/.../FlatGov/server_py
-$ source .venv/bin/activate
-
-```
-
-- Go to `(flatgov) ~/.../FlatGov/server_py/flatgov$`
-
-```bash
-
-$ cd flatgov
-
-```
-
-- Apply all migrations
-
-```bash
-
-./manage.py makemigrations
-./manage.py migrate
-
-```
-
-- Load Statement of Administration Policy data
-
-```bash
-
-./manage.py loaddata dumped_statements.json 
-
-```
+.Text-to-bill Similarity 
+[#img-text-to-bill-similarity]
+[caption="Figure 4: " ]
+image::media/bill-similarity-text-search.png[TextToBillSimilarity,300,200]

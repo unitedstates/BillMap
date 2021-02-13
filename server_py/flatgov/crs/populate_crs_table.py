@@ -42,11 +42,11 @@ class CrsFromApi:
         self.extracted_count += len(bill_ids)
         for bill_id in bill_ids:
             try:
-                bill = Bill.objects.get(pk=bill_id)
+                bill = Bill.objects.get(bill_congress_type_number=bill_id)
                 print(f'{bill_id} got matched, use existing bill.')
                 self.matched_count += 1
             except Bill.DoesNotExist:
-                print(f'{bill_id} does not have a matches in Bills. Creating new one.')
+                print(f'{bill_id} does not have a match in Bills. Creating new one.')
                 bill_type = re.search(r'([a-z]+)(\d+)', bill_id)[1]
                 bill = Bill(
                     type=bill_type,

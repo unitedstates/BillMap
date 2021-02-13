@@ -41,10 +41,13 @@ PATH_TO_RELATEDBILLS_DIR = settings.PATH_TO_RELATEDBILLS_DIR
 SAVE_ON_COUNT = 1000
 
 BILL_ID_REGEX = r'[a-z]+[1-9][0-9]*-[1-9][0-9]+'
-BILL_NUMBER_REGEX = r'([1-9][0-9]*)([a-z]+)([0-9]+)([a-z]+)?$'
+BILL_NUMBER_REGEX = r'(?P<congress>[1-9][0-9]*)(?P<stage>[a-z]+)(?P<number>[0-9]+)(?P<version>[a-z]+)?$'
 BILL_DIR_REGEX = r'.*?([1-9][0-9]*)\/bills\/[a-z]+\/([a-z]+)([0-9]+)$'
 BILL_NUMBER_REGEX_COMPILED = re.compile(BILL_NUMBER_REGEX)
 BILL_DIR_REGEX_COMPILED = re.compile(BILL_DIR_REGEX)
+
+# congress/data/117/bills/sconres/sconres2
+US_CONGRESS_PATH_REGEX_COMPILED = re.compile(r'data\/(?P<congress>[1-9][0-9]*)\/(?P<doctype>[a-z]+)\/(?P<stage>[a-z]{1,8})\/(?P<billnumber>[a-z]{1,8}[1-9][0-9]*)\/?(text-versions\/)?(?P<version>[a-z]+)?')
 
 BILL_TYPES = {
   'ih': 'introduced',
@@ -158,8 +161,8 @@ SAMPLE_QUERY_NESTED_MLT = {
           "fields": ["sections.section_text"],
           "like": reporting_requirement,
           "min_term_freq" : 2,
-          "max_query_terms" : 10,
-          "min_doc_freq" : 3 
+          "max_query_terms" : 30,
+          "min_doc_freq" : 2 
         }
       },
       "inner_hits": {

@@ -15,8 +15,9 @@ from django_tables2 import MultiTableMixin
 
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
-from bills.models import Bill, Cosponsor
+from bills.models import Bill, Cosponsor, Statement
 from bills.tables import RelatedBillTable
+
 from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 
 def deep_get(dictionary: Dict, *keys):
@@ -256,16 +257,17 @@ class BillDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cosponsors'] = self.get_cosponsors()
+        context['statements'] = self.get_related_statements()
         context['related_bills'] = self.get_related_bills()
         context['similar_bills'] = self.object.get_similar_bills
+        context['es_similarity'] = self.object.es_similarity
         return context
 
-    # def get_tables(self):
-    #     self.tables = [
-    #         RelatedBillTable(self.object, data=self.get_qs_related_bill(), prefix="bill")
-    #     ]
-    #     return super().get_tables()
-
+    
+    def get_related_statements(self, **kwargs):
+        slug = self.kwargs['slug']
+        return Statement.objects.filter(bill_number__iexact=slug[3:]).filter(congress__iexact=slug[:3])
+        
     def get_related_bills(self):
         qs = self.get_qs_related_bill()
         serializer = RelatedBillSerializer(
@@ -293,5 +295,5 @@ class BillToBillView(DetailView):
         context = super().get_context_data(**kwargs)
         second_bill = self.kwargs.get('second_bill')
         context['second_bill'] = Bill.objects.get(bill_congress_type_number=second_bill)
-        context['bill_to_bill'] = self.object.get_second_similar_bills(second_bill)
+        context['bill_to_bill'] = self.object.es_similar_bills_dict.get(second_bill, [])
         return context

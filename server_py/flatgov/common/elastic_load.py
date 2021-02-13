@@ -2,12 +2,14 @@ import os
 import json
 import re
 from lxml import etree
+from datetime import datetime
 from elasticsearch import exceptions, Elasticsearch
 es = Elasticsearch()
 from collections import OrderedDict
 
 from django.conf import settings
 from common import constants
+from common.utils import getText, getBillNumberFromBillPath, getBillNumberFromCongressScraperBillPath
 
 bill_file = "BILLS-116hr1500rh.xml"
 bill_file2 = "BILLS-116hr299ih.xml"
@@ -17,25 +19,15 @@ BASE_DIR = settings.BASE_DIR
 
 def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: bool = True) -> str:
   if uscongress:
-    return os.path.join(BASE_DIR, 'uscongress', 'data', congress, 'bills')
+    return os.path.join(BASE_DIR, 'congress', 'data', congress, 'bills')
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
 
-def getMapping(map_path):
+def getMapping(map_path: str) -> dict:
     with open(map_path, 'r') as f:
         return json.load(f)
 
-def getText(item):
-  if item is None:
-    return ''
-  if isinstance(item, list):
-    item = item[0]
-
-  try:
-    return item.text 
-  except:
-    return ''
-
-
+# For future possible improvements, see https://www.is.inf.uni-due.de/bib/pdf/ir/Abolhassani_Fuhr_04.pdf
+# Applying the Divergence From Randomness Approach for Content-Only Search in XML Documents
 def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPPING, delete=False):
   if delete:
     try:
@@ -43,11 +35,10 @@ def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPP
     except exceptions.NotFoundError:
       print('No index to delete: {0}'.format(index))
 
+  print('Creating index with mapping: ')
+  print(str(body))
   es.indices.create(index=index, ignore=400, body=body)
 
-def getBillNumberFromBillPath(bill_path: str):
-  # e.g. [path]/116/dtd/BILLS-116hr1500rh.xml
-  return re.sub(r'.*\/', '', bill_path).replace('BILLS-', '').replace('.xml', '')
 
 def indexBill(bill_path: str=PATH_BILL):
   try:
@@ -55,20 +46,41 @@ def indexBill(bill_path: str=PATH_BILL):
   except:
     raise Exception('Could not parse bill')
   dublinCores = billTree.xpath('//dublinCore')
-  if dublinCores and dublinCores[0]:
+  if (dublinCores is not None) and (dublinCores[0] is not None):
     dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
   else:
     dublinCore = ''
+  dcdate = getText(billTree.xpath('//dublinCore/dc:date', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
+  # TODO find date for enr bills in the bill status (for the flat congress directory structure)
+  if (dcdate is None or len(dcdate) == 0) and  '/data.xml' in bill_path:
+    metadata_path = bill_path.replace('/data.xml', '/data.json')
+    try:
+      with open(metadata_path, 'rb') as f:
+        metadata = json.load(f)
+        dcdate = metadata.get('issued_on', '')
+    except:
+      pass
+
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
   session = billTree.xpath('//form/session')
   session_text = re.sub(r'[a-zA-Z ]+$', '', getText(session))
   legisnum = billTree.xpath('//legis-num')
   legisnum_text = getText(legisnum)
-  if congress and legisnum_text:
-    billnumber_text = congress_text + legisnum_text.lower().replace('. ', '')
-  else:
-    billnumber_text = getBillNumberFromBillPath(bill_path)
+  billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path)
+  print('billnumber_version: ' + billnumber_version)
+  if billnumber_version == '':
+    billnumber_version = getBillNumberFromBillPath(bill_path)
+  dctitle = getText(billTree.xpath('//dublinCore/dc:title', namespaces={'dc': 'http://purl.org/dc/elements/1.1/'}))
+
+  doc_id = ''
+  billMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billnumber_version)
+  billversion = ''
+  billnumber = ''
+  if billMatch:
+    billMatchGroup = billMatch.groupdict()
+    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('stage') + billMatchGroup.get('number')
+    billversion = billMatchGroup.get('version') 
   sections = billTree.xpath('//section')
   headers = billTree.xpath('//header')
   from collections import OrderedDict
@@ -77,11 +89,15 @@ def indexBill(bill_path: str=PATH_BILL):
   # Uses an OrderedDict to deduplicate headers
   # TODO handle missing header and enum separately
   doc = {
+      'id': billnumber_version,
       'congress': congress_text,
       'session': session_text,
       'dc': dublinCore,
+      'dctitle': dctitle,
+      'date': dcdate,
       'legisnum': legisnum_text,
-      'billnumber': billnumber_text,
+      'billnumber': billnumber,
+      'billversion': billversion,
       'headers': list(OrderedDict.fromkeys(headers_text)),
       'sections': [{
           'section_number': section.xpath('enum')[0].text,
@@ -97,6 +113,11 @@ def indexBill(bill_path: str=PATH_BILL):
       } 
       for section in sections ]
   } 
+  
+  # If the document has no identifiable bill number, it will be indexed with a random id
+  # This will make retrieval and updates ambiguous
+  if doc_id != '' and len(doc_id) > 7:
+      doc['id'] = doc_id
 
   res = es.index(index="billsections", body=doc)
   return res
@@ -118,12 +139,14 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
   return xml_files
 
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(116, 117)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(115, 118)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
+  number_of_bills_total = 0
   for congress in congresses:
-    print('Indexing congress: {0}'.format(congress))
+    print(str(datetime.now()) + ' - Indexing congress: {0}'.format(congress))
     congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
     billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
+    number_of_bills = 0
     for billFile in billFiles:
       if uscongress:
         billFilePath = billFile
@@ -132,9 +155,17 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscon
       print('Indexing {0}'.format(billFilePath))
       try:
         indexBill(billFilePath)
+        number_of_bills += 1
+        if number_of_bills % 200 == 0:
+          print('Indexed ' + str(number_of_bills) + ' bills')
       except Exception as err:
         print('Could not index: {0}'.format(str(err)))
         pass
+    print(str(datetime.now()) + ' - Finished indexing bills for Congress: ' + str(congress))
+    print('Indexed ' + str(number_of_bills) + ' bills')
+    number_of_bills_total += number_of_bills
+  print(str(datetime.now()) + ' - Finished indexing bills for all Congresses: ' + str(', '.join(congresses)))
+  print('Indexed ' + str(number_of_bills_total) + ' bills')
 
 def refreshIndices(index: str="billsections"):
   es.indices.refresh(index=index)
@@ -161,7 +192,7 @@ def getResultBillnumbers(res):
 def getInnerResults(res):
    return [hit.get('inner_hits') for hit in getHits(res)]
 
-def getSimilarSections(res):
+def getSimilarSections(res) -> list:
   similarSections = []
   try:
     hits = getHits(res)
@@ -175,7 +206,7 @@ def getSimilarSections(res):
       if dublinCores:
         dublinCore = dublinCores[0]
 
-      titleMatch = re.search(r'<dc:title>(.*)?<', dublinCore)
+      titleMatch = re.search(r'<dc:title>(.*)?<', str(dublinCore))
       if titleMatch:
         title = titleMatch[1].strip()
       num = innerResultSections[0].get('_source', {}).get('section_number', '')
@@ -205,8 +236,3 @@ if __name__ == "__main__":
   createIndex(delete=True)
   indexBills()
   refreshIndices()
-  res = runQuery()
-  billnumbers = getResultBillnumbers(res)
-  print('Top matching bills: {0}'.format(', '.join(billnumbers)))
-  innerResults = getInnerResults(res)
-  print(innerResults)

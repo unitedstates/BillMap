@@ -59,7 +59,9 @@ class CrsFromApi:
                     number=re.search(r'([a-z]+)(\d+)', bill_id)[2],
                     congress=congress_number,
                     bill_congress_type_number=bill_id,
-                    titles=json.dumps([report.title])
+                    titles=json.dumps([report.title]),
+                    es_similarity=json.dumps([]),
+                    es_similar_bills_dict=json.dumps({})
                 )
             bill.save()
             report.bills.add(bill)

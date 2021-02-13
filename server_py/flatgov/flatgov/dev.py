@@ -10,12 +10,12 @@ INSTALLED_APPS += [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'flatgov',
-        'USER': 'vmm',
-        'PASSWORD': 'vmm',
-        'HOST': 'localhost',
-        'PORT': 5432,
+       'ENGINE': 'django.db.backends.postgresql',
+       'NAME': 'flatgov',
+       'USER': 'vmm',
+       'PASSWORD': 'vmm',
+       'HOST': 'localhost',
+       'PORT': 5432,
     },
     'sqlite3': {
         'ENGINE': 'django.db.backends.sqlite3',

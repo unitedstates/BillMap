@@ -771,6 +771,12 @@ $ source .venv/bin/activate</code></pre>
 </div>
 <div class="title">Figure 1: CRS Report CSV table</div>
 </div>
+<div id="img-crs-report-data" class="imageblock">
+<div class="content">
+<img src="media/crs-report-csv.png" alt="CRS Report in the Database (Django Admin)" width="600" height="400">
+</div>
+<div class="title">Figure 2: CRS Report in Django Admin</div>
+</div>
 <div class="admonitionblock note">
 <table>
 <tr>
@@ -778,7 +784,7 @@ $ source .venv/bin/activate</code></pre>
 <div class="title">Note</div>
 </td>
 <td class="content">
-in most cases, it is not explicit in the report data <strong>which Congress</strong> a bill refers to (e.g. <code>H. R. 200</code>). We have made an initial association of the bill with the Congress on the date of the report publication. This leads to many-- possibly a majority&#8201;&#8212;&#8201;of the bills being mis-associated. There are many sources of this error: the date we are using may include a much later 'update' to a report; a report may refer to historical bills; in particular, bills in the early part of the year (January or February) may refer to the previous year&#8217;s bills. In addition, many reports refer to Public Laws, and we do not make an attempt to associate the P.L. with a bill (this would be more accurate, since the P.L. number includes the Congress).
+in most cases, it is not explicit in the report data <strong>which Congress</strong> a bill refers to (e.g. <code>H. R. 200</code>). We have made an initial association of the bill with the Congress on the date of the report publication. This leads to many-- possibly a majority&#8201;&#8212;&#8201;of the bills being mis-associated. There are many sources of this error: the date we are using may include a much later 'update' to a report; a report may refer to historical bills; in particular, bills in the early part of the year (January or February) may refer to the previous year&#8217;s bills. We attempt to handle this by adding bills from January/February to <strong>both</strong> congresses. In addition, many reports refer to Public Laws, and we do not make an attempt to associate the P.L. with a bill (this would be more accurate, since the P.L. number includes the Congress).
 </td>
 </tr>
 </table>
@@ -794,7 +800,7 @@ in most cases, it is not explicit in the report data <strong>which Congress</str
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-13 08:08:44 -0800
+Last updated 2021-02-13 10:21:58 -0800
 </div>
 </div>
 </body>

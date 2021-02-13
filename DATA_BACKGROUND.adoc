@@ -202,7 +202,12 @@ To download the CRS report data in csv format, go to `/crs/csv-report/`
 [caption="Figure 1: " ]
 image::media/crs-report-csv.png[CRS Report in CSV,600,400]
 
-NOTE: in most cases, it is not explicit in the report data *which Congress* a bill refers to (e.g. `H. R. 200`). We have made an initial association of the bill with the Congress on the date of the report publication. This leads to many-- possibly a majority -- of the bills being mis-associated. There are many sources of this error: the date we are using may include a much later 'update' to a report; a report may refer to historical bills; in particular, bills in the early part of the year (January or February) may refer to the previous year's bills. In addition, many reports refer to Public Laws, and we do not make an attempt to associate the P.L. with a bill (this would be more accurate, since the P.L. number includes the Congress).
+.CRS Report in Django Admin 
+[#img-crs-report-data]
+[caption="Figure 2: " ]
+image::media/crs-report-csv.png[CRS Report in the Database (Django Admin),600,400]
+
+NOTE: in most cases, it is not explicit in the report data *which Congress* a bill refers to (e.g. `H. R. 200`). We have made an initial association of the bill with the Congress on the date of the report publication. This leads to many-- possibly a majority -- of the bills being mis-associated. There are many sources of this error: the date we are using may include a much later 'update' to a report; a report may refer to historical bills; in particular, bills in the early part of the year (January or February) may refer to the previous year's bills. We attempt to handle this by adding bills from January/February to *both* congresses. In addition, many reports refer to Public Laws, and we do not make an attempt to associate the P.L. with a bill (this would be more accurate, since the P.L. number includes the Congress).
 
 Potential improvements:
 

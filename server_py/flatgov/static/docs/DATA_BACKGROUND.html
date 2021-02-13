@@ -438,6 +438,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_data_background">Data Background</a>
+<ul class="sectlevel2">
+<li><a href="#_bulk_downloads_bill_metadata">Bulk downloads: bill metadata</a></li>
+<li><a href="#_processing_metadata_background">Processing Metadata: Background</a></li>
+<li><a href="#_cosponsors">Cosponsors</a></li>
+<li><a href="#_bill_titles">Bill Titles</a></li>
+</ul>
+</li>
+<li><a href="#_finding_related_bills">Finding Related Bills</a>
+<ul class="sectlevel2">
+<li><a href="#_similarity_measures_simple">Similarity measures: simple</a></li>
+<li><a href="#_similarity_calculation">Similarity calculation</a></li>
+</ul>
+</li>
+<li><a href="#_statement_of_administration_policy">Statement of Administration Policy</a>
+<ul class="sectlevel2">
+<li><a href="#_load_policy_data_for_obama_administration_to_database">Load Policy Data for Obama Administration to Database</a></li>
+</ul>
+</li>
+<li><a href="#_crs_reports">CRS Reports</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
 <div class="sect1">
@@ -732,7 +757,7 @@ $ source .venv/bin/activate</code></pre>
 <p>CRS reports are scraped from the <code>everycrsreport</code> website. For each report, an attempt is made to associate it with bills by a combination of: the report title, the report metadata from <code>everycrsreport</code>, and the report html from the site. For example, if the report title includes <code>H. R. 200</code>, that bill is associated with the report in our database.</p>
 </div>
 <div class="paragraph">
-<p>The scraper, and its instructions, are described in <a href="#./CRS_REPORTS.adoc">CRS_REPORTS</a>.</p>
+<p>The scraper, and its instructions, are described in <a href="CRS_REPORTS.html">CRS_REPORTS</a>.</p>
 </div>
 <div class="paragraph">
 <p>There is a many-to-many association between reports and bills: more than one bill may be associated with a report, and a report may mention more than one bill.</p>
@@ -769,7 +794,7 @@ in most cases, it is not explicit in the report data <strong>which Congress</str
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-13 08:03:51 -0800
+Last updated 2021-02-13 08:08:44 -0800
 </div>
 </div>
 </body>

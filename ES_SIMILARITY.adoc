@@ -1,3 +1,5 @@
+:toc:
+
 ### Using Elasticsearch for Similarity and Search
 
 We use Elasticsearch (&#x2265; v7.9.2)

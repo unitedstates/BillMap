@@ -1,3 +1,5 @@
+:toc:
+
 ## Data Background
 
 The data for this repository consists of bill data scraped using the https://github.com/unitedstates[unitedstates/congress] open source scraper, enriched with a number of other public data sources. Where necessary, we have built scrapers for this project that download, process, store and update the data. The default location for the bill data is in a `congress/data` directory in the root of this repository.
@@ -189,7 +191,7 @@ $ cd flatgov
 
 CRS reports are scraped from the `everycrsreport` website. For each report, an attempt is made to associate it with bills by a combination of: the report title, the report metadata from `everycrsreport`, and the report html from the site. For example, if the report title includes `H. R. 200`, that bill is associated with the report in our database.
 
-The scraper, and its instructions, are described in <<./CRS_REPORTS.adoc, CRS_REPORTS>>.
+The scraper, and its instructions, are described in <<CRS_REPORTS.adoc#, CRS_REPORTS>>.
 
 There is a many-to-many association between reports and bills: more than one bill may be associated with a report, and a report may mention more than one bill.
 

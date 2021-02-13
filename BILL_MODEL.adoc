@@ -1,3 +1,5 @@
+:toc:
+
 ### Our Bill Model
 
 

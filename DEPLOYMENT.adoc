@@ -1,3 +1,5 @@
+:toc:
+
 ### Deployment
 
 These instructions walk through installation of dependencies on a standard Ubuntu server. Installation for other Linux flavors will be similar.

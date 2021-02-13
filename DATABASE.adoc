@@ -1,3 +1,5 @@
+:toc:
+
 # Setting up the FlatGov db for Django
 
 We are storing the data for this application in a SQL (Postgres) database to make use of the Django ORM.

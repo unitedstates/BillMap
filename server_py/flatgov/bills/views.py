@@ -162,8 +162,17 @@ class BillDetailView(DetailView):
 
     def get_crs_reports(self, **kwargs):
         slug = self.kwargs['slug']
-        return self.object.crsreport_set.all()
-        
+        crs_reports = list(self.object.crsreport_set.all())
+        crs_reports_context = []
+        for report in crs_reports:
+            context_item = {"title": report.title, "date": report.date}
+            metadata = json.loads(report.metadata)
+            versions = metadata.get('versions', [])
+            if versions and len(versions) > 0:
+                context_item["link"] = versions[0].get('sourceLink', '')
+            crs_reports_context.append(context_item)
+        return crs_reports_context 
+
     def get_related_bills(self):
         qs = self.get_qs_related_bill()
         serializer = RelatedBillSerializer(

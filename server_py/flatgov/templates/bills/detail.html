@@ -252,7 +252,7 @@
 </div>
 <div class="understanding-context mt-4 pb-2">
     <h4>Understand the Context</h4>
-    <span class="small">Identify the Sponsor and Cosponsors of this bill and which related</span>
+    <span class="small">Reports and other information for this bill</span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
         <a class="nav-link active" id="crs-report-tab" data-toggle="tab" href="#crs-report" role="tab" aria-controls="house"
@@ -289,41 +289,36 @@
     <div class="tab-content light-gray-tabs p-4" id="crsReportContent">
         <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
             <h6 class="pt-3">
-                View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress
+                View CRS reports for {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congres }}th Congress
             </h6>
-            <table class="table mt-3">
+
+            <table class="table mt-3" id='statements-tables'>
                 <thead>
                     <tr>
-                        <th scope="col">Co-Sponsor</th>
-                        <th scope="col">Committee Jurisdiction</th>
-                        <th scope="col">Party</th>
-                        <th scope="col">Rank</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Link</th>
                     </tr>
                 </thead>
                 <tbody>
+                    {% for crs_report in crs_reports %}
+
                     <tr>
-                        <td>Raúl Grijalva</td>
-                        <td>No</td>
-                        <td>D</td>
-                        <td>No</td>
+                        <td style="width: 300px;">{{ crs_report.title|truncatechars:120 }}</td>
+                        <td>{{ crs_report.date }}</td>
+                        <td><a href='{{ crs_report.permanent_pdf_link.url }}' target="_blank" class='btn btn-primary'>
+                            Full Report
+                        </a></td>
                     </tr>
+
+                    {% endfor %}
                     <tr>
-                        <td>Rodney Davis</td>
-                        <td>House Administration</td>
-                        <td>R</td>
-                        <td>Ranking Member</td>
-                    </tr>
-                    <tr>
-                        <td>Jim Cooper</td>
-                        <td>House Oversight</td>
-                        <td>D</td>
-                        <td>No</td>
-                    </tr>
-                    <tr>
-                        <td>Virginia Foxx</td>
-                        <td>House Oversight</td>
-                        <td>R</td>
-                        <td>No</td>
+                        <td>
+
+                            {% if not crs_reports %}
+                                No data available in table.
+                            {% endif %}
+                        </td>
                     </tr>
                 </tbody>
             </table>

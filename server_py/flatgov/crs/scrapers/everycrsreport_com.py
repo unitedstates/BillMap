@@ -30,6 +30,7 @@ class EveryCrsReport:
             try:
                 r_report_html = requests.get(urljoin(EveryCrsReport.SITE_URL, row['latestHTML']))
                 report_content_raw = r_report_html.text
+                # TODO consider finding the bills here and only storing snippets that can be shown
             except requests.exceptions.RequestException:
                 report_content_raw = None
 

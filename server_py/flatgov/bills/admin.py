@@ -1,6 +1,7 @@
 from django.contrib import admin
 from admin_auto_filters.filters import AutocompleteFilter
 from bills.models import Bill, Sponsor, Cosponsor, Statement
+from crs.models import CrsReport 
 
 
 @admin.register(Bill)
@@ -12,3 +13,4 @@ class BillAdmin(admin.ModelAdmin):
 admin.site.register(Sponsor)
 admin.site.register(Cosponsor)
 admin.site.register(Statement)
+admin.site.register(CrsReport)

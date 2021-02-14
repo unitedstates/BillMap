@@ -62,6 +62,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_tables2',
     'admin_auto_filters',
+
+    'crs'  # by Dmitry
 ]
 
 MIDDLEWARE = [

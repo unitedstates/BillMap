@@ -438,6 +438,31 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
+<div id="toc" class="toc">
+<div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_data_background">Data Background</a>
+<ul class="sectlevel2">
+<li><a href="#_bulk_downloads_bill_metadata">Bulk downloads: bill metadata</a></li>
+<li><a href="#_processing_metadata_background">Processing Metadata: Background</a></li>
+<li><a href="#_cosponsors">Cosponsors</a></li>
+<li><a href="#_bill_titles">Bill Titles</a></li>
+</ul>
+</li>
+<li><a href="#_finding_related_bills">Finding Related Bills</a>
+<ul class="sectlevel2">
+<li><a href="#_similarity_measures_simple">Similarity measures: simple</a></li>
+<li><a href="#_similarity_calculation">Similarity calculation</a></li>
+</ul>
+</li>
+<li><a href="#_statement_of_administration_policy">Statement of Administration Policy</a>
+<ul class="sectlevel2">
+<li><a href="#_load_policy_data_for_obama_administration_to_database">Load Policy Data for Obama Administration to Database</a></li>
+</ul>
+</li>
+<li><a href="#_crs_reports">CRS Reports</a></li>
+</ul>
+</div>
 </div>
 <div id="content">
 <div class="sect1">
@@ -725,10 +750,57 @@ $ source .venv/bin/activate</code></pre>
 </div>
 </div>
 </div>
+<div class="sect1">
+<h2 id="_crs_reports">CRS Reports</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>CRS reports are scraped from the <code>everycrsreport</code> website. For each report, an attempt is made to associate it with bills by a combination of: the report title, the report metadata from <code>everycrsreport</code>, and the report html from the site. For example, if the report title includes <code>H. R. 200</code>, that bill is associated with the report in our database.</p>
+</div>
+<div class="paragraph">
+<p>The scraper, and its instructions, are described in <a href="CRS_REPORTS.html">CRS_REPORTS</a>.</p>
+</div>
+<div class="paragraph">
+<p>There is a many-to-many association between reports and bills: more than one bill may be associated with a report, and a report may mention more than one bill.</p>
+</div>
+<div class="paragraph">
+<p>To download the CRS report data in csv format, go to <code>/crs/csv-report/</code></p>
+</div>
+<div id="img-crs-report-in-csv" class="imageblock">
+<div class="content">
+<img src="media/crs-report-csv.png" alt="CRS Report in CSV" width="600" height="400">
+</div>
+<div class="title">Figure 1: CRS Report CSV table</div>
+</div>
+<div id="img-crs-report-data" class="imageblock">
+<div class="content">
+<img src="media/crs-report-csv.png" alt="CRS Report in the Database (Django Admin)" width="600" height="400">
+</div>
+<div class="title">Figure 2: CRS Report in Django Admin</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+in most cases, it is not explicit in the report data <strong>which Congress</strong> a bill refers to (e.g. <code>H. R. 200</code>). We have made an initial association of the bill with the Congress on the date of the report publication. This leads to many-- possibly a majority&#8201;&#8212;&#8201;of the bills being mis-associated. There are many sources of this error: the date we are using may include a much later 'update' to a report; a report may refer to historical bills; in particular, bills in the early part of the year (January or February) may refer to the previous year&#8217;s bills. We attempt to handle this by adding bills from January/February to <strong>both</strong> congresses. In addition, many reports refer to Public Laws, and we do not make an attempt to associate the P.L. with a bill (this would be more accurate, since the P.L. number includes the Congress).
+</td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>Potential improvements:</p>
+</div>
+<div class="paragraph">
+<p>*</p>
+</div>
+</div>
+</div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-02-12 15:42:35 -0800
+Last updated 2021-02-13 10:21:58 -0800
 </div>
 </div>
 </body>

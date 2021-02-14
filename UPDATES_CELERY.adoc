@@ -1,3 +1,5 @@
+:toc:
+
 ### Scraping bill text and metadata
 
 The repository here provides a scraper for bill metadata and xml:

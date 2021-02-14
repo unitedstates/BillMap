@@ -128,3 +128,13 @@ When running initially, I got an error because the bulk directories had not been
 
 `find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
 
+
+## Scraping Statements of Administration Policy
+
+Instructions for loading the database fixture for the Statements of Administration Policy are in the `DATA BACKGROUND` document, here: <<DATA_BACKGROUND#_statement_of_administration_policy, DATA BACKGROUND: Statement of Administration Policy>>.
+
+## Scraping CRS Reports
+
+The scraper for CRS Reports, and its instructions, are described in <<CRS_REPORTS.adoc, CRS_REPORTS_SCRAPER>>.
+
+

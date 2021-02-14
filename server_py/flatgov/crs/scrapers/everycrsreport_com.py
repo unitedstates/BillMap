@@ -12,7 +12,7 @@ class EveryCrsReport:
     SITE_URL = 'https://www.everycrsreport.com'
     REPORTS_API_URL = 'https://www.everycrsreport.com/reports.csv'
 
-    def scrape(self):
+    def scrape(self, download_pdf=False):
         """
         Structure of the row: number,url,sha1,latestPubDate,title,latestPDF,latestHTML
         """
@@ -33,7 +33,8 @@ class EveryCrsReport:
             except requests.exceptions.RequestException:
                 report_content_raw = None
 
-            EveryCrsReport.download_report(row['latestPDF'])
+            if download_pdf:
+                EveryCrsReport.download_report(row['latestPDF'])
             yield CrsReport(
                 title=row['title'],
                 file=row['latestPDF'].split('/')[-1],

@@ -144,7 +144,7 @@ class Statement(models.Model):
         return f'{self.bill_number} - {self.permanent_pdf_link}'
 
 
-class Transaction(models.Model):
+class CboReport(models.Model):
     pub_date = models.CharField(max_length=50)
     title = models.CharField(max_length=1000)
     original_pdf_link = models.CharField(max_length=255)

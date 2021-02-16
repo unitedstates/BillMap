@@ -7,7 +7,7 @@ from typing import Dict
 from functools import reduce
 
 from common import constants, utils
-from bills.models import Transaction
+from bills.models import CboReport
 
 import xmltodict
 
@@ -140,15 +140,15 @@ def save_cbo_data_to_db(cbo_data):
     cbo['bill_number'] = bill_number
     cbo['congress'] = congress
     #print(cbo)
-    transaction = Transaction()
-    transaction.pub_date = cbo['pub_date']
-    transaction.title = cbo['title']
-    transaction.original_pdf_link = cbo['original_pdf_link']
-    transaction.bill_id = str(cbo['congress']) + str(cbo['bill_number']).lower()
-    transaction.bill_number = cbo['bill_number']
-    transaction.congress = cbo['congress']
-    print(congress)
-    transaction.save()
+    cboreport = CboReport()
+    cboreport.pub_date = cbo['pub_date']
+    cboreport.title = cbo['title']
+    cboreport.original_pdf_link = cbo['original_pdf_link']
+    cboreport.bill_id = str(cbo['congress']) + str(cbo['bill_number']).lower()
+    cboreport.bill_number = cbo['bill_number']
+    cboreport.congress = cbo['congress']
+    print(str(congress) + ': ' + str(cbo['title']))
+    cboreport.save()
 
 
   except Exception as e:

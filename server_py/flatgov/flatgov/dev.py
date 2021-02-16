@@ -35,6 +35,8 @@ PATH_SEC_602 = os.path.join(BASE_DIR, 'samples/116hr5150-sec602.txt')
 PATH_MAL = os.path.join(BASE_DIR, 'samples/maralago.txt')
 PATH_BILLSECTIONS_JSON = os.path.join(
     BASE_DIR, 'elasticsearch/billsections_mapping.json')
+PATH_BILL_FULL_JSON = os.path.join(
+    BASE_DIR, 'elasticsearch/bill_full_mapping.json')
 
 
 PATH_TO_BILLS_META = os.path.join(BASE_DIR, 'billsMeta.json')

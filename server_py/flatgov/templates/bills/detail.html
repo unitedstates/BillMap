@@ -306,9 +306,15 @@
                     <tr>
                         <td style="width: 300px;">{{ crs_report.title|truncatechars:120 }}</td>
                         <td>{{ crs_report.date }}</td>
-                        <td><a href='{{ crs_report.link }}' target="_blank" class='btn btn-primary'>
+                        <td>
+                        {% if crs_report.link %}
+                        <a href='{{ crs_report.link }}' target="_blank" class='btn btn-primary'>
                             Full Report
-                        </a></td>
+                        </a>
+                        {% else %}
+                          [No link to report]
+                        {% endif %}
+                        </td>
                     </tr>
 
                     {% endfor %}

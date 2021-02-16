@@ -14,11 +14,13 @@ MIN_SCORE_DEFAULT = 25
 PATH_SEC_602 = settings.PATH_SEC_602
 PATH_MAL = settings.PATH_MAL
 PATH_BILLSECTIONS_JSON = settings.PATH_BILLSECTIONS_JSON
+PATH_BILL_FULL_JSON = settings.PATH_BILL_FULL_JSON
 
 try:
   SAMPLE_TEXT_602 = str(pkgutil.get_data(__name__, PATH_SEC_602))
   SAMPLE_TEXT_MAL = str(pkgutil.get_data(__name__, PATH_MAL))
   BILLSECTION_MAPPING = json.loads(pkgutil.get_data(__name__, PATH_BILLSECTIONS_JSON).decode("utf-8"))
+  BILL_FULL_MAPPING = json.loads(pkgutil.get_data(__name__, PATH_BILL_FULL_JSON).decode("utf-8"))
 except Exception as err:
   with open(PATH_SEC_602, 'r') as f:
     SAMPLE_TEXT_602 = f.read() 
@@ -28,6 +30,9 @@ except Exception as err:
 
   with open(PATH_BILLSECTIONS_JSON, 'r') as f:
     BILLSECTION_MAPPING = json.load(f)
+
+  with open(PATH_BILL_FULL_JSON, 'r') as f:
+    BILL_FULL_MAPPING = json.load(f)
 
 PATH_TO_BILLS_META = settings.PATH_TO_BILLS_META
 PATH_TO_CONGRESSDATA_DIR = settings.CONGRESS_DATA_PATH

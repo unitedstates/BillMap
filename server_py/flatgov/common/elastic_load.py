@@ -40,7 +40,20 @@ def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPP
   es.indices.create(index=index, ignore=400, body=body)
 
 
-def indexBill(bill_path: str=PATH_BILL):
+def indexBill(bill_path: str=PATH_BILL, index_types: list=['sections']):
+  """
+  Index bill with Elasticsearch
+
+  Args:
+      bill_path (str, optional): location of the bill xml file. Defaults to PATH_BILL.
+      index_types (list, optional): Index by 'sections', 'bill_full' or both. Defaults to ['sections'].
+
+  Raises:
+      Exception: [description]
+
+  Returns:
+      [type]: [description]
+  """
   try:
     billTree = etree.parse(bill_path)
   except:
@@ -88,7 +101,43 @@ def indexBill(bill_path: str=PATH_BILL):
 
   # Uses an OrderedDict to deduplicate headers
   # TODO handle missing header and enum separately
-  doc = {
+  if 'sections' in index_types:
+    doc = {
+        'id': billnumber_version,
+        'congress': congress_text,
+        'session': session_text,
+        'dc': dublinCore,
+        'dctitle': dctitle,
+        'date': dcdate,
+        'legisnum': legisnum_text,
+        'billnumber': billnumber,
+        'billversion': billversion,
+        'headers': list(OrderedDict.fromkeys(headers_text)),
+        'sections': [{
+            'section_number': section.xpath('enum')[0].text,
+            'section_header':  section.xpath('header')[0].text,
+            'section_text': etree.tostring(section, method="text", encoding="unicode"),
+            'section_xml': etree.tostring(section, method="xml", encoding="unicode")
+        } if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0) else
+        {
+            'section_number': '',
+            'section_header': '', 
+            'section_text': etree.tostring(section, method="text", encoding="unicode"),
+            'section_xml': etree.tostring(section, method="xml", encoding="unicode")
+        } 
+        for section in sections ]
+    } 
+  
+    # If the document has no identifiable bill number, it will be indexed with a random id
+    # This will make retrieval and updates ambiguous
+    if doc_id != '' and len(doc_id) > 7:
+        doc['id'] = doc_id
+
+    res = es.index(index="billsections", body=doc)
+
+  if 'bill_full' in index_types:
+    billText = etree.tostring(billTree, method="text", encoding="unicode") 
+    doc_full = {
       'id': billnumber_version,
       'congress': congress_text,
       'session': session_text,
@@ -99,28 +148,10 @@ def indexBill(bill_path: str=PATH_BILL):
       'billnumber': billnumber,
       'billversion': billversion,
       'headers': list(OrderedDict.fromkeys(headers_text)),
-      'sections': [{
-          'section_number': section.xpath('enum')[0].text,
-          'section_header':  section.xpath('header')[0].text,
-          'section_text': etree.tostring(section, method="text", encoding="unicode"),
-          'section_xml': etree.tostring(section, method="xml", encoding="unicode")
-      } if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0) else
-      {
-          'section_number': '',
-          'section_header': '', 
-          'section_text': etree.tostring(section, method="text", encoding="unicode"),
-          'section_xml': etree.tostring(section, method="xml", encoding="unicode")
-      } 
-      for section in sections ]
-  } 
-  
-  # If the document has no identifiable bill number, it will be indexed with a random id
-  # This will make retrieval and updates ambiguous
-  if doc_id != '' and len(doc_id) > 7:
-      doc['id'] = doc_id
-
-  res = es.index(index="billsections", body=doc)
-  return res
+      'billtext': billText
+    }
+    res = es.index(index="bill_full", body=doc_full)
+  return
 
     # billRoot = billTree.getroot()
     # nsmap = {k if k is not None else '':v for k,v in billRoot.nsmap.items()}
@@ -140,7 +171,7 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
 
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(115, 118)]
-def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
+def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False, index_types: list=['sections']):
   number_of_bills_total = 0
   for congress in congresses:
     print(str(datetime.now()) + ' - Indexing congress: {0}'.format(congress))
@@ -154,7 +185,7 @@ def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscon
         billFilePath = os.path.join(congressDir, billFile)
       print('Indexing {0}'.format(billFilePath))
       try:
-        indexBill(billFilePath)
+        indexBill(bill_path=billFilePath, index_types=index_types)
         number_of_bills += 1
         if number_of_bills % 200 == 0:
           print('Indexed ' + str(number_of_bills) + ' bills')

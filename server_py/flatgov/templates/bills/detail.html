@@ -289,7 +289,7 @@
     <div class="tab-content light-gray-tabs p-4" id="crsReportContent">
         <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
             <h6 class="pt-3">
-                View CRS reports for {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congres }}th Congress
+                View CRS reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -331,7 +331,7 @@
         </div>
         <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="min-height:20vh; max-height: 50vh; overflow: scroll;">
             <h6 class="pt-3">
-                View all the Statements of Administration Policy of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congres }}th Congress
+                View all the Statements of Administration Policy for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -375,7 +375,41 @@
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
         </div>
         <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
+            <h6 class="pt-3">
+                View all the CBO Reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
+            </h6>
+
+            <table class="table mt-3" id='cbo-tables'>
+                <thead>
+                    <tr>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Report</th>
+                        <th scope="col">Publication Date</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cboreport in cbo_reports %}
+
+                    <tr>
+                        <td>{{ cboreport.bill_id }}</td>
+                        <td style="width: 300px;">{{ cboreport.title|truncatechars:120 }}</td>
+                        <td>{{ cboreport.pub_date }}</td>
+                        <td><a href='{{ cboreport.original_pdf_link }}' target="_blank" class='btn btn-primary'>
+                            Full Report
+                        </a></td>
+                    </tr>
+                    {% endfor %}
+                    {% if not cbo_reports %}
+                    <tr>
+                        <td>
+
+                                No data available in table.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
         </div>
         <div class="tab-pane fade" id="relevant-committee" role="tabpanel" aria-labelledby="relevant-committee-tab">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?

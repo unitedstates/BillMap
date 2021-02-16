@@ -12,7 +12,7 @@ from crs.scrapers.everycrsreport_com import EveryCrsReport
 
 # Bill's types {'sres', 'hjres', 'hconres', 's', 'hres', 'sjres', 'hr', 'sconres'}
 BILL_NUMBER_RE = re.compile(r"\W((?:h\.\s?r\.|s\.|h\.conres\.|s\.conres\.|h\.\s?j\.\s?res\.|s\.\s?j\.\s?res\.|" 
-+ r"h\.\s?res\.|s\.\s?res\.)\s?(?:[1-9]\d{0,2}))", re.I | re.M)
++ r"h\.\s?res\.|s\.\s?res\.)\s?(?:[1-9]\d{0,3}))", re.I | re.M)
 
 def cleanBillNumber(billnumber):
     return billnumber.replace('.', '').replace(' ', '').lower()

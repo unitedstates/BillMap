@@ -7,50 +7,142 @@
 {% endblock %}
 
 {% block content %}
-<div class="title">
+<div class="title p-4">
     <hr />
-    <span>Home > Bills > {{ bill.type }} {{ bill.number }} ({{ bill.congress }}th)</span>
+    <span><b>Home > Bills > {{ bill.type }} {{ bill.number }} ({{ bill.congress }}th)</b></span>
     <h1>
-        {{ bill.get_type_abbrev }} {{ bill.number }}: {{ bill.short_title }}
+        <b>{{ bill.get_type_abbrev }} {{ bill.number }}: {{ bill.short_title }}</b>
     </h1>
     <span class="small">{{ bill.congress }}th Congress (2019-2020)</span>
     <hr />
 </div>
-<div class="d-flex flex-wrap">
-    <div class="bill light-gray-body p-4 mb-2">
-        <h4 class="pb-2">Bill Summary</h4>
-        <p>{{bill.summary_short}}</p>
-        <button type="button" class="btn btn-primary btn-shadow mb-2">Read Bill</button>
-        <h5>Bill Stage</h5>
-        <p>Passed House (Senate next) on Jul 17, 2019</p>
+<div class="">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="bill light-gray-body p-4">
+                <h4 class="pb-2 text-center"><b>Overview</b></h4>
+                <h5><b>Bill Summary:</b></h5>
+        
+                {% if bill.summary_short %}
+                <p>{{bill.summary_short}}</p>
+                    
+                {% else %}
+                <p>
+                    To require the Director of the Government Publishing Office to establish and maintain an online portal accessible to the public that allows the public to obtain electronic copies of all congressionally mandated reports in one place, and for other purposes.
+                </p>
+                    {% endif %}
+                
+                <h5><b>Bill Stage:</b></h5>
+                <p>Bill Stage will appear here</p>
+        
+                {% if bill.get_related_bill_numbers %}
+                    <h5><b>Related Bills:</b></h5>
+                    {{bill.get_related_bill_numbers|join:", "}}
+                {% endif %}
+        
+                <h5><b>Recent Actions (in focus):</b></h5>
+                <p>NA</p>
+                <h5><b>Prognosis:</b></h5>
+                <p>Prognosis will appear here</p>
+                <h5><b>Read Bill:</b></h5>
+                <div class="text-center"><button type="button" class="btn btn-primary btn-shadow text-center px-5 rounded-5" style="border: none; background-color:#781A36!important; border-radius: 10px;">Read Bill</button></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="committee-jurisdiction light-gray-body p-4 h-100">
+                <h4 class="text-center"><b>Committees and Sponsors</b></h4>
+                <br>
+                <div class="d-flex justify-content-between">
+                    <h5 style="float: left;"><b>Committees of Jurisdiction:</b></h5>
+                    <a href="#" class="link-secondary">House Administration</a>
+                    <a href="#" class="link-secondary">House Oversight</a>
+                </div>
 
-        {% if bill.get_related_bill_numbers %}
-            <h5>Related Bills</h5>
-            {{bill.get_related_bill_numbers|join:", "}}
-        {% endif %}
-
-        <h5>Committee(s) of Jurisdiction</h5>
-        <p>Information provided by the clerk of the house (senate.gov)</p>
-        <h5>Committee Documents</h5>
-        <p>NA</p>
-        <button type="button" class="btn btn-primary btn-shadow">View Timeline</button>
-    </div>
-    <div class="committee-jurisdiction light-gray-body p-4 mb-2">
-        <h4>Committee(s) of Jurisdiction</h4>
-        <a href="#">House Administration</a>
-        <br>
-        <a href="#">House Oversight</a>
-        <h4 class="mt-2">Most Relevant Sponsors</h4>
-        <div id="committee-jurisdiction-table"></div>
-        <div class="d-flex sponsors-buttons">
-        <button type="button" class="btn btn-primary btn-shadow mr-4">
-            View Full list of sponsors
-        </button>
+                <div class="mt-5">
+                    <table class="table mt-3">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sponsor</th>
+                                <th scope="col">On Assigned Committee(s)</th>
+                                <th scope="col">Party</th>
+                                <th scope="col">Party</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Raúl Grijalva</td>
+                                <td>No</td>
+                                <td>D</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Rodney Davis</td>
+                                <td>House Administration</td>
+                                <td>R</td>
+                                <td>Ranking Member</td>
+                            </tr>
+                            <tr>
+                                <td>Jim Cooper</td>
+                                <td>House Oversight</td>
+                                <td>D</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Virginia Foxx</td>
+                                <td>House Oversight</td>
+                                <td>R</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Virginia Foxx</td>
+                                <td>House Oversight</td>
+                                <td>R</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-5">
+                    <button 
+                    type="button" 
+                    class="btn btn-primary btn-lg btn-shadow text-center mt-3 rounded-5 px-3" 
+                    style="border: none; border-radius: 10px; background-color: #1D4E70">
+                        View full list of sponsors
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+<div class="d-flex flex-wrap mt-3">
+    <div class=" w-100 light-gray-body p-4 mb-2">
+    <div class="row">
+        <div class="col-md-8" style="background-color: white; border-radius: 10px;">
+            <h4><b>Support Bill Track</b></h4>
+            <p>Bill Track is a free and open, hosted by the Wikimedia Foundation. The heart and soul of
+                Wikipedia is our global community of over  200.000+ volunteer contributors. 
+                Bill Track is a free and open, hosted by the Wikimedia Foundation. The heart and soul of
+                Wikipedia is our global community of over  200.000+ volunteer contributors.
+            </p>
+            <div class="text-center">
+                <button 
+                type="button" 
+                class="btn btn-primary btn-lg btn-shadow text-center mt-3 rounded-5" 
+                style="border: none; border-radius: 10px; padding-left:55px; padding-right:55px; background-color: #1D4E70">
+                    Donate Now
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <img src="" alt="Advertising" style="min-height: 250px;">
+        </div>
+    </div>
+    </div>
+
+</div>
 <div class="related-bills mt-4">
-    <h4>Analyze Related Bills</h4>
+    <h4><b>Bills Related to {{ bill.get_type_abbrev }} {{ bill.number }}</b></h4>
     <span class="small">
         Discover related bills to {{ bill.get_type_abbrev }} {{ bill.number }}: Access to Congressionally Mandated Reports Act. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
     </span>
@@ -60,18 +152,16 @@
             aria-controls="current" aria-selected="true">All</a>
         </li>
     </ul>
-    <div class="tab-content light-gray-tabs p-4" id="relatedBillsTableContent">
+    <div class="tab-content light-gray-tabs p-4" id="myTabContent">
         <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">            
-            <table class="table mt-3" id="related-bills-table">
+            <table class="table mt-3 w-100" id="related-bills-table">
                 <thead>
                     <tr>
-                        <th scope="col">Bill</th>
-                        <th scope="col">Reason</th>
-                        <th scope="col">Titles (shared)</th>
-                        <th scope="col">Titles (similar)</th>
-                        <th scope="col">Sponsor (shared)</th>
-                        <th scope="col">Shared cosponsors</th>
-                        <th scope="col">Id By</th>
+                        <th scope="col">Bill Number</th>
+                        <th scope="col">Lead Sponsor</th>
+                        <th scope="col">Chamber</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Compare Bill Text</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,12 +172,15 @@
                                 {{ bill.bill_congress_type_number }}
                             </a>
                         </td>
-                        <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
-                        <td><span title="{{ bill.titles }}">{{ bill.titles|truncatechars:30 }}</span></td>
-                        <td>{{ bill.titles_year_list }}</td>
+                        <!--td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td-->
+                        <!--td><span title="{{ bill.titles }}">{{ bill.titles|truncatechars:30 }}</span></td-->
+                        <!--td>{{ bill.titles_year_list }}</td-->
                         <td>{{ bill.sponsor }}</td>
-                        <td><span title="{{ bill.cosponsor }}">{{ bill.cosponsor|truncatechars:30 }}</span></td>
-                        <td></td>
+                        <!--td><span title="{{ bill.cosponsor }}">{{ bill.cosponsor|truncatechars:30 }}</span></td-->
+
+                        <td>[Chamber]</td>
+                        <td>[Status]</td>
+                        <td>[Compare Button]</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -98,10 +191,11 @@
         </div>
     </div>
 </div>
+
 <div class="similar-bills mt-4">
-    <h4>Analyze Similar Bills</h4>
+    <h4><b>Similar Bills</b></h4>
     <span class="small">
-        Discover similar bills to {{ bill.get_type_abbrev }} {{ bill.number }}
+        Similar bills to {{ bill.get_type_abbrev }} {{ bill.number }}
     </span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -159,7 +253,8 @@
                 </tbody>
             </table>
         </div>
-        <div class="tab-pane fade" id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
+    </div>
+    <div class="tab-pane fade" id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
             <table class="table mt-3" id="similar-bills-table">
                 <thead>
                     <tr>
@@ -183,10 +278,9 @@
                 </tbody>
             </table>
         </div>
-    </div>
 </div>
 <div class="sponsors tab mt-4">
-    <h4>Sponsors</h4>
+    <h4><b>Sponsors of Related Measures</b></h4>
     <span class="small">
         Identify the sponsor and cosponsors of this bill and which related bills they cosponsored. Also shown are the committees to which each cosponsor belongs and their rank in that committee.
     </span>
@@ -195,7 +289,7 @@
             <a class="nav-link active" id="house-tab" data-toggle="tab" href="#house" role="tab" aria-controls="house" aria-selected="true">This Bill ({{ bill.get_type_abbrev }} {{ bill.number }})</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="senate-tab" data-toggle="tab" href="#senate" role="tab" aria-controls="senate" aria-selected="false">This Congress</a>
+            <a class="nav-link" id="senate-tab" data-toggle="tab" href="#senate" role="tab" aria-controls="senate" aria-selected="false">Current Congress</a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="all-congress-tab" data-toggle="tab" href="#all-congress" role="tab" aria-controls="all-congress" aria-selected="false">All Congress</a>
@@ -219,23 +313,27 @@
             <h6 class="pt-3">
                 View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
             </h6>
-            <table class="table mt-3" id="cosponsors-table">
+            <table class="table mt-3" id="cosponsors-table" style="width: 100% !important;">
                 <thead>
                     <tr>
-                        <th scope="col">Co-Sponsor</th>
-                        <th scope="col">Bill</th>
-                        <th scope="col">Committees</th>
+                        <th scope="col">Sponsors</th>
                         <th scope="col">Party</th>
+                        <th scope="col">Date Sponsored</th>
                         <th scope="col">Position</th>
+                        <th scope="col">Committee(s)</th>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Currently in Congress</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for cosponsor in cosponsors %}
                     <tr>
                         <td>{{ cosponsor.name }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
                         <td>{{ cosponsor.bills }}</td>
-                        <td></td>
-                        <td></td>
                         <td></td>
                     </tr>
                     {% endfor %}
@@ -251,7 +349,7 @@
     </div>
 </div>
 <div class="understanding-context mt-4 pb-2">
-    <h4>Understand the Context</h4>
+    <h4><b>Understand the Context</b></h4>
     <span class="small">Reports and other information for this bill</span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -420,7 +518,7 @@
     </div>
 </div>
 <div class="timeline my-4 pb-2">
-    <h4>Timeline</h4>
+    <h4><b>Timeline</b></h4>
     <span class="small">Here goes the body copy explaining what this is about</span>
     <div class="light-gray-body mt-2 p-4">
         <div class="d-flex flex-column">

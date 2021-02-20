@@ -16,6 +16,8 @@ import os
 from kombu import Queue
 from dotenv import load_dotenv
 load_dotenv(verbose=True)
+from psycopg2cffi import compat
+compat.register()
 import subprocess
 import flatgov
 

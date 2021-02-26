@@ -152,46 +152,54 @@
             aria-controls="current" aria-selected="true">All</a>
         </li>
     </ul>
-    <div class="tab-content light-gray-tabs p-4" id="myTabContent">
-        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">            
-            <table class="table mt-3 w-100" id="related-bills-table">
+    <div class="tab-content light-gray-tabs p-4" id="crsReportContent">
+        <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
+            <h6 class="pt-3">
+                View CRS reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
+            </h6>
+
+            <table class="table mt-3" id='statements-tables'>
                 <thead>
                     <tr>
-                        <th scope="col">Bill Number</th>
-                        <th scope="col">Lead Sponsor</th>
-                        <th scope="col">Chamber</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Compare Bill Text</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Link</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for bill in related_bills %}
+                    {% for crs_report in crs_reports %}
+
+                    <tr>
+                        <td style="width: 300px;">{{ crs_report.title|truncatechars:120 }}</td>
+                        <td>{{ crs_report.date }}</td>
+                        <td>
+                        {% if crs_report.link %}
+                        <a href='{{ crs_report.link }}' target="_blank" class='btn btn-primary'>
+                            Full Report
+                        </a>
+                        {% else %}
+                          [No link to report]
+                        {% endif %}
+                        </td>
+                    </tr>
+
+                    {% endfor %}
                     <tr>
                         <td>
-                            <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                {{ bill.bill_congress_type_number }}
-                            </a>
-                        </td>
-                        <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
-                        <td><span title="{{ bill.titles }}">{{ bill.titles|truncatechars:30 }}</span></td>
-                        <td>{{ bill.titles_year_list }}</td>
-                        <td>{{ bill.sponsor }}</td>
-                        <td><span title="{{ bill.cosponsor }}">{{ bill.cosponsor|truncatechars:30 }}</span></td>
 
+                            {% if not crs_reports %}
+                                No data available in table.
+                            {% endif %}
+                        </td>
                     </tr>
-                    {% endfor %}
                 </tbody>
             </table>
-            <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
-            </div>
         </div>
-    </div>
 </div>
 <div class="sponsors tab mt-4">
     <h4><b>Sponsors of Related Measures</b></h4>
     <span class="small">
-        Identify the sponsor and cosponsors of this bill and which related bills they cosponsored. Also shown are the committees to which each cosponsor belongs and their rank in that committee.
+        Identify the sponsor and cosponsors of this bill and which related bills they co-sponsored. Also shown are the committees to which each cosponsor belongs and their rank in that committee.
     </span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -296,7 +304,7 @@
     <div class="tab-content light-gray-tabs p-4" id="myTabContent">
         <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
             <h6 class="pt-3">
-                View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress
+                View all CRS Reports for {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress
             </h6>
             <table class="table mt-3">
                 <thead>
@@ -391,37 +399,32 @@
             <table class="table mt-3" id='cbo-tables'>
                 <thead>
                     <tr>
-                        <th scope="col">Bill Number</th>
-                        <th scope="col">Bill Id</th>
                         <th scope="col">Bill</th>
-                        <th scope="col">Congress</th>
-                        <th scope="col">Date Issued</th>
+                        <th scope="col">Report</th>
+                        <th scope="col">Publication Date</th>
                         <th scope="col">Link</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for cbo_report in cbo_reports %}
+                    {% for cboreport in cbo_reports %}
 
                     <tr>
-                        <td>{{ cbo_report.bill_number }}</td>
-                        <td>{{ cbo_report.bill_id }}</td>
-                        <td style="width: 300px;">{{ cbo_report.title|truncatechars:120 }}</td>
-                        <td>{{ cbo_report.congress }}</td>
-                        <td>{{ cbo_report.pub_date }}</td>
-                        <td><a href='{{ cbo_report.original_pdf_link }}' target="_blank" class='btn btn-primary'>
+                        <td>{{ cboreport.bill_id }}</td>
+                        <td style="width: 300px;">{{ cboreport.title|truncatechars:120 }}</td>
+                        <td>{{ cboreport.pub_date }}</td>
+                        <td><a href='{{ cboreport.original_pdf_link }}' target="_blank" class='btn btn-primary'>
                             Full Report
                         </a></td>
                     </tr>
-
                     {% endfor %}
+                    {% if not cbo_reports %}
                     <tr>
                         <td>
 
-                            {% if not statements %}
                                 No data available in table.
-                            {% endif %}
                         </td>
                     </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>

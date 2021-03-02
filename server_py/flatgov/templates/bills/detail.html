@@ -16,41 +16,133 @@
     <span class="small">{{ bill.congress }}th Congress (2019-2020)</span>
     <hr />
 </div>
-<div class="d-flex flex-wrap">
-    <div class="bill light-gray-body p-4 mb-2">
-        <h4 class="pb-2">Bill Summary</h4>
-        <p>{{bill.summary_short}}</p>
-        <button type="button" class="btn btn-primary btn-shadow mb-2">Read Bill</button>
-        <h5>Bill Stage</h5>
-        <p>Passed House (Senate next) on Jul 17, 2019</p>
+<div class="">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="bill light-gray-body p-4">
+                <h4 class="pb-2 text-center"><b>Overview</b></h4>
+                <h5><b>Bill Summary:</b></h5>
+        
+                {% if bill.summary_short %}
+                <p>{{bill.summary_short}}</p>
+                    
+                {% else %}
+                <p>
+                    To require the Director of the Government Publishing Office to establish and maintain an online portal accessible to the public that allows the public to obtain electronic copies of all congressionally mandated reports in one place, and for other purposes.
+                </p>
+                    {% endif %}
+                
+                <h5><b>Bill Stage:</b></h5>
+                <p>Bill Stage will appear here</p>
+        
+                {% if bill.get_related_bill_numbers %}
+                    <h5><b>Related Bills:</b></h5>
+                    {{bill.get_related_bill_numbers|join:", "}}
+                {% endif %}
+        
+                <h5><b>Recent Actions (in focus):</b></h5>
+                <p>NA</p>
+                <h5><b>Prognosis:</b></h5>
+                <p>Prognosis will appear here</p>
+                <h5><b>Read Bill:</b></h5>
+                <div class="text-center"><button type="button" class="btn btn-primary btn-shadow text-center px-5 rounded-5" style="border: none; background-color:#781A36!important; border-radius: 10px;">Read Bill</button></div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="committee-jurisdiction light-gray-body p-4 h-100">
+                <h4 class="text-center"><b>Committees and Sponsors</b></h4>
+                <br>
+                <div class="d-flex justify-content-between">
+                    <h5 style="float: left;"><b>Committees of Jurisdiction:</b></h5>
+                    <a href="#" class="link-secondary">House Administration</a>
+                    <a href="#" class="link-secondary">House Oversight</a>
+                </div>
 
-        {% if bill.get_related_bill_numbers %}
-            <h5>Related Bills</h5>
-            {{bill.get_related_bill_numbers|join:", "}}
-        {% endif %}
-
-        <h5>Committee(s) of Jurisdiction</h5>
-        <p>Information provided by the clerk of the house (senate.gov)</p>
-        <h5>Committee Documents</h5>
-        <p>NA</p>
-        <button type="button" class="btn btn-primary btn-shadow">View Timeline</button>
-    </div>
-    <div class="committee-jurisdiction light-gray-body p-4 mb-2">
-        <h4>Committee(s) of Jurisdiction</h4>
-        <a href="#">House Administration</a>
-        <br>
-        <a href="#">House Oversight</a>
-        <h4 class="mt-2">Most Relevant Sponsors</h4>
-        <div id="committee-jurisdiction-table"></div>
-        <div class="d-flex sponsors-buttons">
-        <button type="button" class="btn btn-primary btn-shadow mr-4">
-            View Full list of sponsors
-        </button>
+                <div class="mt-5">
+                    <table class="table mt-3">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sponsor</th>
+                                <th scope="col">On Assigned Committee(s)</th>
+                                <th scope="col">Party</th>
+                                <th scope="col">Party</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Raúl Grijalva</td>
+                                <td>No</td>
+                                <td>D</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Rodney Davis</td>
+                                <td>House Administration</td>
+                                <td>R</td>
+                                <td>Ranking Member</td>
+                            </tr>
+                            <tr>
+                                <td>Jim Cooper</td>
+                                <td>House Oversight</td>
+                                <td>D</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Virginia Foxx</td>
+                                <td>House Oversight</td>
+                                <td>R</td>
+                                <td>No</td>
+                            </tr>
+                            <tr>
+                                <td>Virginia Foxx</td>
+                                <td>House Oversight</td>
+                                <td>R</td>
+                                <td>No</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="text-center mt-5">
+                    <button 
+                    type="button" 
+                    class="btn btn-primary btn-lg btn-shadow text-center mt-3 rounded-5 px-3" 
+                    style="border: none; border-radius: 10px; background-color: #1D4E70">
+                        View full list of sponsors
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+<div class="d-flex flex-wrap mt-3">
+    <div class=" w-100 light-gray-body p-4 mb-2">
+    <div class="row">
+        <div class="col-md-8" style="background-color: white; border-radius: 10px;">
+            <h4><b>Support Bill Track</b></h4>
+            <p>Bill Track is a free and open, hosted by the Wikimedia Foundation. The heart and soul of
+                Wikipedia is our global community of over  200.000+ volunteer contributors. 
+                Bill Track is a free and open, hosted by the Wikimedia Foundation. The heart and soul of
+                Wikipedia is our global community of over  200.000+ volunteer contributors.
+            </p>
+            <div class="text-center">
+                <button 
+                type="button" 
+                class="btn btn-primary btn-lg btn-shadow text-center mt-3 rounded-5" 
+                style="border: none; border-radius: 10px; padding-left:55px; padding-right:55px; background-color: #1D4E70">
+                    Donate Now
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <img src="" alt="Advertising" style="min-height: 250px;">
+        </div>
+    </div>
+    </div>
+
+</div>
 <div class="related-bills mt-4">
-    <h4>Analyze Related Bills</h4>
+    <h4>Bills Related to {{ bill.get_type_abbrev }} {{ bill.number }}</h4>
     <span class="small">
         Discover related bills to {{ bill.get_type_abbrev }} {{ bill.number }}: Access to Congressionally Mandated Reports Act. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
     </span>
@@ -186,7 +278,7 @@
     </div>
 </div>
 <div class="sponsors tab mt-4">
-    <h4>Sponsors</h4>
+    <h4>Sponsors of Related Measures</h4>
     <span class="small">
         Identify the sponsor and cosponsors of this bill and which related bills they cosponsored. Also shown are the committees to which each cosponsor belongs and their rank in that committee.
     </span>

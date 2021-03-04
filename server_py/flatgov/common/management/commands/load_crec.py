@@ -5,7 +5,7 @@ from bills.models import CommitteeDocument
 
 
 class Command(BaseCommand):
-    help = 'create cbo data.'
+    help = 'loading committee documents from the scraped data.'
 
     def handle(self, *args, **options):
         CommitteeDocument.objects.all().delete()

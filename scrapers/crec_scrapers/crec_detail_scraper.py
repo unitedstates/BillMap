@@ -19,7 +19,6 @@ def get_detail_data(url):
     response = requests.get(url)
 
     data = json.loads(response.text)
-    #print('-----------', data.keys())
     crec_data['title'] = data['title']
     crec_data['pdf_link'] = data['download']['pdflink']
     for col in data['metadata']['columnnamevalueset']:
@@ -35,7 +34,7 @@ def get_detail_data(url):
         elif col['colname'] == 'Committee':
             crec_data['committee'] = col['colvalue']
         elif col['colname'] == 'Associated Legislation':
-            crec_data['associated_legistation'] = col['colvalue']
+            crec_data['associated_legislation'] = col['colvalue']
     return crec_data 
 
 count = 0

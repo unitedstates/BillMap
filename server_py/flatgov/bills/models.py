@@ -157,3 +157,21 @@ class CboReport(models.Model):
 
     def __str__(self):
         return f'{self.bill_number} - {self.original_pdf_link}'
+
+
+class CommitteeDocument(models.Model):
+    title = models.TextField()
+    bill_number = models.CharField(max_length=127, null=True, blank=True)
+    chamber = models.CharField(max_length=127, null=True, blank=True)
+    category = models.CharField(max_length=127)
+    committee = models.CharField(max_length=500)
+    report_number = models.CharField(max_length=500)
+    associated_legislation = models.CharField(max_length=500)
+    original_pdf_link = models.CharField(max_length=500)
+    report_type = models.CharField(max_length=500)
+    date = models.CharField(max_length=500)
+    congress = models.CharField(max_length=127, null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.original_pdf_link} {self.congress} {self.bill_number}"
+

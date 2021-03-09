@@ -504,7 +504,48 @@
             </table>
         </div>
         <div class="tab-pane fade" id="relevant-committee" role="tabpanel" aria-labelledby="relevant-committee-tab">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
+            <h6 class="pt-3">
+                View all the Committee Documents {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congres }}th Congress
+            </h6>
+
+            <table class="table mt-3" id='statements-tables'>
+                <thead>
+                    <tr>
+                        <th scope="col">Type</th>
+                        <th scope="col">Committee</th>
+                        <th scope="col">Category</th>
+                        <th scope="col">Chamber</th>
+                        <th scope="col">Report Number</th>
+                        <th scope="col">Date Issued</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for committee in committees %}
+
+                    <tr>
+                        <td>{{ committee.report_type }}</td>
+                        <td style="width: auto;">{{ committee.committee }}</td>
+                        <td>{{ committee.category }}</td>
+                        <td>{{ committee.chamber }}</td>
+                        <td>{{ committee.report_number }}</td>
+                        <td>{{ committee.date }}</td>
+                        <td><a href='{{ committee.original_pdf_link }}' target="_blank" class='btn btn-primary'>
+                            Full Report
+                        </a></td>
+                    </tr>
+
+                    {% endfor %}
+                    <tr>
+                        <td>
+
+                            {% if not statements %}
+                                No data available in table.
+                            {% endif %}
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
         <div class="tab-pane fade" id="floor-proceedings" role="tabpanel" aria-labelledby="floor-proceedings-tab">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?

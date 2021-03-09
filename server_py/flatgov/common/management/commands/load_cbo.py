@@ -3,7 +3,7 @@ from common.cbo import cbo
 from bills.models import CboReport
 
 class Command(BaseCommand):
-    help = 'create cbo data.'
+    help = 'loading cbo data.'
 
     def handle(self, *args, **options):
         CboReport.objects.all().delete()

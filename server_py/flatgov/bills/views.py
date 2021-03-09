@@ -15,7 +15,7 @@ from django_tables2 import MultiTableMixin
 
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
-from bills.models import Bill, Cosponsor, Statement, CboReport
+from bills.models import Bill, Cosponsor, Statement, CboReport, CommitteeDocument
 
 from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 
@@ -149,6 +149,7 @@ class BillDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['cosponsors'] = self.get_cosponsors()
         context['statements'] = self.get_related_statements()
+        context['committees'] = self.get_related_committees()
         context['crs_reports'] = self.get_crs_reports()
         context['cbo_reports'] = self.get_related_cbo()
         context['related_bills'] = self.get_related_bills()
@@ -160,6 +161,10 @@ class BillDetailView(DetailView):
     def get_related_statements(self, **kwargs):
         slug = self.kwargs['slug']
         return Statement.objects.filter(bill_number__iexact=slug[3:]).filter(congress__iexact=slug[:3])
+
+    def get_related_committees(self, **kwargs):
+        slug = self.kwargs['slug']
+        return CommitteeDocument.objects.filter(bill_number__iexact=slug[3:]).filter(congress__iexact=slug[:3])
 
     def get_crs_reports(self, **kwargs):
         slug = self.kwargs['slug']

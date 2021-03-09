@@ -213,10 +213,4 @@ NOTE: in most cases, it is not explicit in the report data *which Congress* a bi
 
 TODO: add detail about sources of scraping, setting up and running a Celery task.
 
-If there is not a `crec_all_urls` file, first run `python crec_scrape_urls.py`
-
-Next run `python crec_detail_scraper.py` to collect the data in the `crec_data.json` file
-
-NOTE: initial data is in `crec_data.json.zip` file and stored under django base directory. Unzip this to use.
-
-To load the data to the database:  `python manage.py load_crec`
+The scraper, and its instructions, are described in <<SCRAPING.adoc#relevant_committee_documents, Scraping: Relevant Committee Documents>>.

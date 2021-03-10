@@ -209,5 +209,5 @@ To load Relevant Committee Documents data use the following instructions:
 
 1. After installing the requirements under scrapers directory, run crec_scrape_urls.py file under scrapers directory.
 2. Go to the crec_scrapy folder and run “scrapy crawl crec”  command. It will take about an hour to scrape all the data in crec_scrapy/data/crec_data.json file.
-3. Copy scraped data from crec_scrapy/data/crec_data.json to django base directory. First delete old data under django base directory or replace it.
+3. Copy scraped data from crec_scrapy/data/crec_data.json to django base directory.  First delete old data under django base directory or replace it.
 4. Run django command “./manage.py load_crec” command to populate the data to the database.

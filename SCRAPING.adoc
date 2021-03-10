@@ -117,7 +117,7 @@ pip install cryptography
 
 From the `congress` repository directory, `pip install -r requirements.txt`
 
-#### Run the scraper
+#### Bills 
 
 ```bash
 ./run govinfo --bulkdata=BILLSTATUS
@@ -129,12 +129,22 @@ When running initially, I got an error because the bulk directories had not been
 `find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
 
 
-## Scraping Statements of Administration Policy
+## Statements of Administration Policy
 
 Instructions for loading the database fixture for the Statements of Administration Policy are in the `DATA BACKGROUND` document, here: <<DATA_BACKGROUND#_statement_of_administration_policy, DATA BACKGROUND: Statement of Administration Policy>>.
 
-## Scraping CRS Reports
+## CRS Reports
 
 The scraper for CRS Reports, and its instructions, are described in <<CRS_REPORTS.adoc, CRS_REPORTS_SCRAPER>>.
+
+## Relevant Committee Documents
+
+To load Relevant Committee Documents data use the following instructions:
+
+
+1. After installing the requirements under scrapers directory, run crec_scrape_urls.py file under scrapers directory.
+2. Go to the crec_scrapy folder and run “scrapy crawl crec”  command. It will take about an hour to scrape all the data in crec_scrapy/data/crec_data.json file.
+3. Copy scraped data from crec_scrapy/data/crec_data.json to django base directory. First delete old data under django base directory or replace it.
+4. Run django command “./manage.py load_crec” command to populate the data to the database.
 
 

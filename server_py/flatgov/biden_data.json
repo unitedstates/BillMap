@@ -1,50 +1,58 @@
-{
-    "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
-    "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP-HR842.pdf",
-    "link_text": "H.R. 842 \u2013 Protecting the Right to Organize Act of 2021",
-    "bill_number": "HR842",
-    "date_issued": "March 08, 2021",
-    "congress": 117
-}{
-    "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
-    "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP-HR8-HR1446.pdf",
-    "link_text": "H.R. 8 \u2013 Bipartisan Background Checks Act of 2021 and H.R. 1446 \u2013 Enhanced Background Checks Act of 2021",
-    "bill_number": "HR8",
-    "date_issued": "March 08, 2021",
-    "congress": 117
-}{
-    "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
-    "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP_HR-1280.pdf",
-    "link_text": "H.R. 1280 \u2013 George Floyd Justice in Policing Act of 2021",
-    "bill_number": "HR1280",
-    "date_issued": "March 01, 2021",
-    "congress": 117
-}{
-    "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
-    "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP_HR-1.pdf",
-    "link_text": "H.R. 1 \u2013 For the People Act of 2021",
-    "bill_number": "HR1",
-    "date_issued": "March 01, 2021",
-    "congress": 117
-}{
-    "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
-    "link": "https://www.whitehouse.gov/wp-content/uploads/2021/02/HR1319-SAP-Final.pdf",
-    "link_text": "H.R. 1319 \u2013 American Rescue Plan Act of 2021",
-    "bill_number": "HR1319",
-    "date_issued": "February 26, 2021",
-    "congress": 117
-}{
-    "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
-    "link": "https://www.whitehouse.gov/wp-content/uploads/2021/02/SAP_HR-803.pdf",
-    "link_text": "H.R. 803 \u2013 Protecting America\u2019s Wilderness and Public Lands Act",
-    "bill_number": "HR803",
-    "date_issued": "February 23, 2021",
-    "congress": 117
-}{
-    "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
-    "link": "https://www.whitehouse.gov/wp-content/uploads/2021/02/SAP_HR-5.pdf",
-    "link_text": "H.R. 5 \u2013 Equality Act",
-    "bill_number": "HR5",
-    "date_issued": "February 23, 2021",
-    "congress": 117
-}
+[
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP-HR842.pdf",
+        "link_text": "H.R. 842 \u2013 Protecting the Right to Organize Act of 2021",
+        "bill_number": "HR842",
+        "date_issued": "March 08, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP-HR8-HR1446.pdf",
+        "link_text": "H.R. 8 \u2013 Bipartisan Background Checks Act of 2021 and H.R. 1446 \u2013 Enhanced Background Checks Act of 2021",
+        "bill_number": "HR8",
+        "date_issued": "March 08, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP_HR-1280.pdf",
+        "link_text": "H.R. 1280 \u2013 George Floyd Justice in Policing Act of 2021",
+        "bill_number": "HR1280",
+        "date_issued": "March 01, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP_HR-1.pdf",
+        "link_text": "H.R. 1 \u2013 For the People Act of 2021",
+        "bill_number": "HR1",
+        "date_issued": "March 01, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/02/HR1319-SAP-Final.pdf",
+        "link_text": "H.R. 1319 \u2013 American Rescue Plan Act of 2021",
+        "bill_number": "HR1319",
+        "date_issued": "February 26, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/02/SAP_HR-803.pdf",
+        "link_text": "H.R. 803 \u2013 Protecting America\u2019s Wilderness and Public Lands Act",
+        "bill_number": "HR803",
+        "date_issued": "February 23, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/02/SAP_HR-5.pdf",
+        "link_text": "H.R. 5 \u2013 Equality Act",
+        "bill_number": "HR5",
+        "date_issued": "February 23, 2021",
+        "congress": 117
+    }
+]

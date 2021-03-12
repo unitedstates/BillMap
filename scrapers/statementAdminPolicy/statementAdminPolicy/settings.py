@@ -68,7 +68,7 @@ ITEM_PIPELINES = {
     'statementAdminPolicy.pipelines.StatementadminpolicyPipeline': 300,
 }
 
-FILES_STORE = './pdf'
+#FILES_STORE = './pdf'
 #FILES_URLS_FIELD = 'sap_url_field'
 #FILES_RESULT_FIELD = 'sap_result_field'
 

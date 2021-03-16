@@ -9,11 +9,11 @@ def load_statements():
     os.chdir('../../scrapers/statementAdminPolicy')
     os.system('scrapy crawl sap_download')
     os.chdir(settings.BASE_DIR)
-    statements = Statement.objects.filter(belongs_to='Biden').values('permanent_pdf_link',)
+    statements = Statement.objects.filter(administration='Biden').values('permanent_pdf_link',)
 
     for statement in statements:
         os.remove(statement['permanent_pdf_link'])
-    statements = Statement.objects.filter(belongs_to='Biden').delete()
+    statements = Statement.objects.filter(administration='Biden').delete()
 
     with open('biden_data.json', 'r') as f:
         statements_data =json.loads(f.read())
@@ -25,7 +25,7 @@ def load_statements():
             statement.date_issued = meta_statement['date_issued']
             statement.original_pdf_link = meta_statement['link']
             statement.bill_number = meta_statement['bill_number']
-            statement.belongs_to = 'Biden'
+            statement.administration = 'Biden'
             response = requests.get(meta_statement['link'], stream = True)
             statement.permanent_pdf_link = File(response.raw, name=f"{settings.MEDIA_ROOT}/statements/{statement.congress}/{statement.bill_number}/{meta_statement['link'].split('/')[-1]}")
             statement.save()

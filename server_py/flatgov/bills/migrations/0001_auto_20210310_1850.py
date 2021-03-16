@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     operations = [
         migrations.AddField(
             model_name='statement',
-            name='belongs_to',
+            name='administration',
             field=models.CharField(default='common', max_length=100),
         ),
     ]

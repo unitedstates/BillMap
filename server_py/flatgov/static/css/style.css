@@ -1,3 +1,14 @@
+@font-face {
+	font-family: "Public Sans";
+	font-display: optional;
+	src: url("../fonts/Public_Sans/static/PublicSans-Medium.ttf") format("ttf");
+	font-weight: 400;
+	font-style: normal;
+}
+* {
+    font-family: 'Public Sans', sans-serif;
+}
+
 .bill-btn-primary {
     background-color:#781A36!important;
     border-color: #1d4e70!important;
@@ -14,7 +25,7 @@
 }
 
 .table thead>tr>th {
-    width: 100%
+    width: 100%;
     border: none !important;
 }
 

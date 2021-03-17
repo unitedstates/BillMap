@@ -3,10 +3,14 @@
 
 {% block extra_css %}
 <link href="https://unpkg.com/tabulator-tables@4.8.0/dist/css/bootstrap/tabulator_bootstrap4.min.css" rel="stylesheet">
+<style>
+    html { scroll-behavior: smooth; } 
+</style>
 <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.8.0/dist/js/tabulator.min.js"></script>
 {% endblock %}
 
 {% block content %}
+
 <div class="title">
     <hr />
     <span>Home > Bills > {{ bill.type }} {{ bill.number }} ({{ bill.congress }}th)</span>
@@ -22,7 +26,6 @@
             <div class="bill light-gray-body p-4">
                 <h4 class="pb-2 text-center"><b>Overview</b></h4>
                 <h5><b>Bill Summary:</b></h5>
-        
                 {% if bill.summary_short %}
                 <p>{{bill.summary_short}}</p>
                     
@@ -44,7 +47,6 @@
                 <p>NA</p>
                 <h5><b>Prognosis:</b></h5>
                 <p>Prognosis will appear here</p>
-                <h5><b>Read Bill:</b></h5>
                 <div class="text-center"><button type="button" class="btn btn-primary btn-shadow text-center px-5 rounded-5" style="border: none; background-color:#781A36!important; border-radius: 10px;">Read Bill</button></div>
             </div>
         </div>
@@ -103,12 +105,12 @@
                     </table>
                 </div>
                 <div class="text-center mt-5">
-                    <button 
-                    type="button" 
+                    <a 
+                    href="#list-of-sponsors"
                     class="btn btn-primary btn-lg btn-shadow text-center mt-3 rounded-5 px-3" 
                     style="border: none; border-radius: 10px; background-color: #1D4E70">
                         View full list of sponsors
-                    </button>
+                    </a>
                 </div>
             </div>
         </div>
@@ -148,12 +150,17 @@
     </span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="current-tab" data-toggle="tab" href="#current" role="tab"
-            aria-controls="current" aria-selected="true">All</a>
+        <a class="nav-link active" id="current-congress-tab" data-toggle="tab" href="#current-congress" role="tab"
+            aria-controls="current" aria-selected="true">Current Congress</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link " id="all-tab" data-toggle="tab" href="#all-congress" role="tab"
+                aria-controls="all" aria-selected="false">All Congresses</a>
         </li>
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="relatedBillsTableContent">
-        <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">            
+
+        <div class="tab-pane fade show active" id="current-congress" role="tabpanel" aria-labelledby="current-congress">            
             <table class="table mt-3" id="related-bills-table">
                 <thead>
                     <tr>
@@ -182,6 +189,28 @@
                         <td></td>
                     </tr>
                     {% endfor %}
+                </tbody>
+            </table>
+            <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
+                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
+            </div>
+        </div>
+        <div class="tab-pane fade " id="all-congress" role="tabpanel" aria-labelledby="all-tab">
+            <h6 class="pt-3">
+                View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the Current Congress
+            </h6> 
+            <table class="table mt-3" id="related-bills-tables">
+                <thead>
+                    <tr>
+                        <th scope="col">Bill Number</th>
+                        <th scope="col">Lead Sponsor</th>
+                        <th scope="col">Chamber</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Compare Bill Text</th>
+                    </tr>
+                </thead>
+                <tbody>
+
                 </tbody>
             </table>
             <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
@@ -277,7 +306,7 @@
         </div>
     </div>
 </div>
-<div class="sponsors tab mt-4">
+<div class="sponsors tab mt-4" id='list-of-sponsors'>
     <h4>Sponsors of Related Measures</h4>
     <span class="small">
         Identify the sponsor and cosponsors of this bill and which related bills they cosponsored. Also shown are the committees to which each cosponsor belongs and their rank in that committee.

@@ -136,7 +136,7 @@ class Statement(models.Model):
     date_issued = models.CharField(max_length=35)
     permanent_pdf_link = models.FileField(upload_to='statements/', blank=True, null=True)
     original_pdf_link = models.CharField(max_length=255, null=True, blank=True)
-    belongs_to = models.CharField(max_length=100,default='common')
+    administration = models.CharField(max_length=100,default='common')
 
     date_fetched = models.DateTimeField(auto_now_add=True)
 

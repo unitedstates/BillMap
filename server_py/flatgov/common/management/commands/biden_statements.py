@@ -6,4 +6,4 @@ class Command(BaseCommand):
     help = 'loading Biden statements data from the scraped data.'
 
     def handle(self, *args, **options):
-        #load_statements()
+        load_statements()

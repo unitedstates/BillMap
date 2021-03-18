@@ -1,6 +1,30 @@
 [
     {
         "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/HR-1603-SAP.pdf",
+        "link_text": "H.R. 1603 \u2013 Farm Workforce Modernization Act of 2021",
+        "bill_number": "HR1603",
+        "date_issued": "March 18, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/HR-6-SAP.pdf",
+        "link_text": "H.R. 6 \u2013 American Dream and Promise Act of 2021",
+        "bill_number": "HR6",
+        "date_issued": "March 18, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
+        "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/HR-1620-Final-3.17.pdf",
+        "link_text": "H.R. 1620 \u2013 Violence Against Women Reauthorization Act of 2021",
+        "bill_number": "HR1620",
+        "date_issued": "March 17, 2021",
+        "congress": 117
+    },
+    {
+        "url": "https://www.whitehouse.gov/omb/statements-of-administration-policy/",
         "link": "https://www.whitehouse.gov/wp-content/uploads/2021/03/SAP-HR842.pdf",
         "link_text": "H.R. 842 \u2013 Protecting the Right to Organize Act of 2021",
         "bill_number": "HR842",

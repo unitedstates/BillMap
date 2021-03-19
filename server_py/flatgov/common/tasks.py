@@ -5,6 +5,6 @@ from celery.decorators import periodic_task
 from .biden_statements import load_statements
 
 
-@periodic_task(run_every=(crontab(0, 0, day_of_month='1')), name="scrape-statements-once-a-month", ignore_result=True)
+@periodic_task(run_every=(crontab(minute=0, hour=0), name="scrape-biden-statements-once-a-day", ignore_result=True)
 def scrape_statements_task():
-    load_statements()
+        load_statements()

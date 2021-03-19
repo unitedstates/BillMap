@@ -19,6 +19,10 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=0),
         'options': {'queue': 'bill'}
     },
+    'biden_statements_daily': {
+        'task': 'common.biden_statements',
+        'schedule': crontab(minute=0, hour=1),
+    }
 }
 
 app.conf.timezone = 'UTC'

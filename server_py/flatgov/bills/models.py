@@ -3,6 +3,7 @@ from datetime import datetime
 from operator import itemgetter
 
 from django.db import models
+from django.conf import settings
 from iteration_utilities import flatten, unique_everseen, duplicates
 
 class Bill(models.Model):
@@ -100,6 +101,14 @@ class Bill(models.Model):
                     similar['target_section_number'] = target_section_number
                     res.append(similar)
         return sorted(res, key=lambda k: k['score'], reverse=True)[:10]
+
+    @property
+    def bill_summary(self):
+        if not self.summary:
+            return settings.BILL_SUMMARY_DEFAULT_TEXT
+        return self.summary
+
+
 class Cosponsor(models.Model):
     name = models.CharField(max_length=100)
     bioguide_id = models.CharField(max_length=100, blank=True, null=True)

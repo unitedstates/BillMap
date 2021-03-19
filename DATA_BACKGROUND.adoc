@@ -187,6 +187,34 @@ $ cd flatgov
 
 ```
 
+## Statements of Administration Policy for Trump Administration
+
+1. The pdf files are stored in media directory. We load data to dumped_statements.json file with management command.
+
+2. Run the following command to load data in database.
+
+```bash
+
+./manage.py load_statements
+
+```
+
+
+## Statements of Administration Policy data for Biden Administration
+
+To load Biden statements data with management command, run the following command:
+
+
+```bash
+
+./manage.py biden_statements
+
+```
+
+
+
+
+
 ## CRS Reports 
 
 CRS reports are scraped from the `everycrsreport` website. For each report, an attempt is made to associate it with bills by a combination of: the report title, the report metadata from `everycrsreport`, and the report html from the site. For example, if the report title includes `H. R. 200`, that bill is associated with the report in our database.

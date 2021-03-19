@@ -20,17 +20,30 @@
     box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
 }
 
+.tab-content {
+    background-color: #d4d4d4 !important;
+    border-radius: 0px 15px 15px 15px !important;
+}
+
 .table {
     font-size: small;
+    width: 100% !important;
+    background-color: #ffffff;
 }
 
 .table thead>tr>th {
-    width: 100%;
+    width: auto;
     border: none !important;
 }
 
-.table tbody>tr>td {
 
+
+
+.table tbody>tr>td {
+    width: auto;
+}
+.dataTables_scroll {
+    border-radius: 10px !important;
 }
 
 .dataTables_paginate a {
@@ -51,6 +64,27 @@
 
 .dataTables_filter {
     font-size: small;
+}
+div.dataTables_wrapper div.dataTables_filter input {
+    border-radius: 10px;
+    border-color: #000000;
+    
+}
+
+div.dataTables_wrapper div.dataTables_scroll {
+    border-radius: 10px;
+}
+
+.dropdown-toggle {
+    padding: 2px;
+    border-radius: 10px;
+    width: 160px;
+    border-color: #000000;
+    color: black;
+}
+
+.dropdown-toggle::after {
+    right: 0 !important;
 }
 
 .dataTables_length {
@@ -77,12 +111,15 @@
 }
 
 .nav-link.active {
-    background-color: #f7f7f7 !important;
-    border-color: #f7f7f7 !important;
+    background-color: #D7D7D7 !important;
+    border-color: #D7D7D7 !important;
 }
 
 .nav-tabs {
     border-bottom: #f7f7f7 !important;
+}
+.nav-tabs  .active {
+    border-radius: 40px 40px 0 0 !important;
 }
 
 .dark-gray-body {

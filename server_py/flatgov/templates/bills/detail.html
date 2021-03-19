@@ -23,7 +23,7 @@
 <div class="">
     <div class="row">
         <div class="col-md-6">
-            <div class="bill light-gray-body p-4">
+            <div class="bill light-gray-body p-4 h-100">
                 <h4 class="pb-2 text-center"><b>Overview</b></h4>
                 <h5><b>Bill Summary:</b></h5>
                 {% if bill.summary_short %}
@@ -116,6 +116,7 @@
         </div>
     </div>
 </div>
+<hr>
 <div class="d-flex flex-wrap mt-3">
     <div class=" w-100 light-gray-body p-4 mb-2">
     <div class="row">
@@ -143,6 +144,7 @@
     </div>
 
 </div>
+<hr>
 <div class="related-bills mt-4">
     <h4>Bills Related to {{ bill.get_type_abbrev }} {{ bill.number }}</h4>
     <span class="small">
@@ -160,37 +162,39 @@
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="relatedBillsTableContent">
 
-        <div class="tab-pane fade show active" id="current-congress" role="tabpanel" aria-labelledby="current-congress">            
-            <table class="table mt-3" id="related-bills-table">
-                <thead>
-                    <tr>
-                        <th scope="col">Bill</th>
-                        <th scope="col">Reason</th>
-                        <th scope="col">Titles (shared)</th>
-                        <th scope="col">Titles (similar)</th>
-                        <th scope="col">Sponsor (shared)</th>
-                        <th scope="col">Shared cosponsors</th>
-                        <th scope="col">Id By</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for bill in related_bills %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                {{ bill.bill_congress_type_number }}
-                            </a>
-                        </td>
-                        <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
-                        <td><span title="{{ bill.titles }}">{{ bill.titles|truncatechars:30 }}</span></td>
-                        <td>{{ bill.titles_year_list }}</td>
-                        <td>{{ bill.sponsor }}</td>
-                        <td><span title="{{ bill.cosponsor }}">{{ bill.cosponsor|truncatechars:30 }}</span></td>
-                        <td></td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div class="tab-pane fade show active" id="current-congress" role="tabpanel" aria-labelledby="current-congress">  
+            <div class="table_wrapper">
+                <table class="table mt-3" id="related-bills-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Bill</th>
+                            <th scope="col">Reason</th>
+                            <th scope="col">Titles (shared)</th>
+                            <th scope="col">Titles (similar)</th>
+                            <th scope="col">Sponsor (shared)</th>
+                            <th scope="col">Shared cosponsors</th>
+                            <th scope="col">Id By</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for bill in related_bills %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
+                                    {{ bill.bill_congress_type_number }}
+                                </a>
+                            </td>
+                            <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
+                            <td><span title="{{ bill.titles }}">{{ bill.titles|truncatechars:30 }}</span></td>
+                            <td>{{ bill.titles_year_list }}</td>
+                            <td>{{ bill.sponsor }}</td>
+                            <td><span title="{{ bill.cosponsor }}">{{ bill.cosponsor|truncatechars:30 }}</span></td>
+                            <td></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>          
             <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
             </div>
@@ -199,6 +203,7 @@
             <h6 class="pt-3">
                 View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the Current Congress
             </h6> 
+            <div style="border-radius: 10px;">
             <table class="table mt-3" id="related-bills-tables">
                 <thead>
                     <tr>
@@ -213,12 +218,14 @@
 
                 </tbody>
             </table>
+        </div>
             <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
                 Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
             </div>
         </div>
     </div>
 </div>
+<hr>
 <div class="similar-bills mt-4">
     <h4>Analyze Similar Bills</h4>
     <span class="small">
@@ -306,6 +313,7 @@
         </div>
     </div>
 </div>
+<hr>
 <div class="sponsors tab mt-4" id='list-of-sponsors'>
     <h4>Sponsors of Related Measures</h4>
     <span class="small">
@@ -371,6 +379,7 @@
         </div>
     </div>
 </div>
+<hr>
 <div class="understanding-context mt-4 pb-2">
     <h4>Understand the Context</h4>
     <span class="small">Reports and other information for this bill</span>
@@ -581,6 +590,7 @@
         </div>
     </div>
 </div>
+<hr>
 <div class="timeline my-4 pb-2">
     <h4>Timeline</h4>
     <span class="small">Here goes the body copy explaining what this is about</span>

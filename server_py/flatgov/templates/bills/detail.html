@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bill_filters %}
 {% load static %}
 
 {% block extra_css %}
@@ -26,22 +27,19 @@
             <div class="bill light-gray-body p-4">
                 <h4 class="pb-2 text-center"><b>Overview</b></h4>
                 <h5><b>Bill Summary:</b></h5>
-                <!-- {% if bill.summary_short %}
-                <p>{{bill.summary_short}}</p>
+                {% if bill.summary_short %}
+                <div class="pre-wrapper"><pre>{{bill.summary_short}}</pre><div>
                     
                 {% else %}
-                <p>
-                    To require the Director of the Government Publishing Office to establish and maintain an online portal accessible to the public that allows the public to obtain electronic copies of all congressionally mandated reports in one place, and for other purposes.
-                </p>
-                {% endif %} -->
-                <p>{{ bill.summary }}</p>
+                <div class="pre-wrapper"><pre>{{ bill.summary |truncatewords_html:100 }}</pre></div>
+                {% endif %}
                 
                 <h5><b>Bill Stage:</b></h5>
                 <p>Bill Stage will appear here</p>
         
                 {% if bill.get_related_bill_numbers %}
                     <h5><b>Related Bills:</b></h5>
-                    {{bill.get_related_bill_numbers|join:", "}}
+                    {{bill.get_related_bill_numbers|billnumbers_display|join:", "}}
                 {% endif %}
         
                 <h5><b>Recent Actions (in focus):</b></h5>
@@ -179,7 +177,7 @@
                     <tr>
                         <td>
                             <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                {{ bill.bill_congress_type_number }}
+                                {{ bill.bill_congress_type_number |billnumber_display }}
                             </a>
                         </td>
                         <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
@@ -256,10 +254,10 @@
                         <td>
                             {% if bill.in_db %}
                                 <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                    {{ bill.bill_congress_type_number }}
+                                    {{ bill.bill_congress_type_number|billnumber_display }}
                                 </a>
                             {% else %}
-                                {{ bill.bill_congress_type_number }}
+                                {{ bill.bill_congress_type_number|billnumber_display }}
                             {% endif %}
                         </td>
                         <td>
@@ -355,7 +353,7 @@
                     {% for cosponsor in cosponsors %}
                     <tr>
                         <td>{{ cosponsor.name }}</td>
-                        <td>{{ cosponsor.bills }}</td>
+                        <td>{{ cosponsor.bills|billnumbers_display|join:", "}}</td>
                         <td></td>
                         <td></td>
                         <td></td>

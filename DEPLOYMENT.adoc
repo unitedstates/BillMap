@@ -281,10 +281,21 @@ $ sudo cp /opt/flatgov/FlatGov/server_py/flatgov_nginx.conf /etc/nginx/sites-ava
 
 See https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html
 
+To run from command-line:
 ```bash
 $ cd /opt/flatgov/FlatGov/server_py/flatgov
 $ uwsgi --ini flatgov_uwsgi.ini # the --ini option is used to specify the ini file where uwsgi settings are defined
 ```
+
+Once the Emperor mode directory is created (see https://uwsgi-docs.readthedocs.io/en/latest/tutorials/Django_and_nginx.html#emperor-mode), it is possible to run:
+`nohup uwsgi --emperor /etc/uwsgi/vassals --uid www-data --gid www-data &`
+
+Then whenever there are changes to the Django directory, uwsgi will reload.
+
+
+
+
+
 
 * Restart Nginx
 

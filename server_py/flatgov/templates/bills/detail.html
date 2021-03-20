@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load bill_filters %}
 {% load static %}
 
 {% block extra_css %}
@@ -38,7 +39,7 @@
         
                 {% if bill.get_related_bill_numbers %}
                     <h5><b>Related Bills:</b></h5>
-                    {{bill.get_related_bill_numbers|join:", "}}
+                    {{bill.get_related_bill_numbers|billnumbers_display|join:", "}}
                 {% endif %}
         
                 <h5><b>Recent Actions (in focus):</b></h5>
@@ -176,7 +177,7 @@
                     <tr>
                         <td>
                             <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                {{ bill.bill_congress_type_number }}
+                                {{ bill.bill_congress_type_number |billnumber_display }}
                             </a>
                         </td>
                         <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
@@ -253,10 +254,10 @@
                         <td>
                             {% if bill.in_db %}
                                 <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                    {{ bill.bill_congress_type_number }}
+                                    {{ bill.bill_congress_type_number|billnumber_display }}
                                 </a>
                             {% else %}
-                                {{ bill.bill_congress_type_number }}
+                                {{ bill.bill_congress_type_number|billnumber_display }}
                             {% endif %}
                         </td>
                         <td>
@@ -352,7 +353,7 @@
                     {% for cosponsor in cosponsors %}
                     <tr>
                         <td>{{ cosponsor.name }}</td>
-                        <td>{{ cosponsor.bills }}</td>
+                        <td>{{ cosponsor.bills|billnumbers_display|join:", "}}</td>
                         <td></td>
                         <td></td>
                         <td></td>

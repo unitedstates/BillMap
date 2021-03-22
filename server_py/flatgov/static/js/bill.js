@@ -36,6 +36,14 @@ $(document).ready( function () {
     $('#similar-bills-table').DataTable({
         sDom: "Rlfrtip",
         // order: [[ 3, 'desc' ]],
+        columnDefs: [
+            { "width": "10%", "targets": 0 },
+            { "width": "10%", "targets": 1 },
+            { "width": "10%", "targets": 2 },
+            { "width": "30%", "targets": 3 },
+            { "width": "10%", "targets": 4 },
+            { "width": "10%", "targets": 5 },
+        ],
         bSort: false,
         bFilter: true,
         iDisplayLength: 100,

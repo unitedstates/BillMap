@@ -81,10 +81,15 @@ class Bill(models.Model):
                 bill_dict = similar_bills[similar_bill_numbers.index(bill_congress_type_number)]
                 bill_dict['reason'] = bill.get('reason')
                 bill_dict['identified_by'] = bill.get('identified_by')
+
+                if bill_congress_type_number == self.bill_congress_type_number:
+                    bill_dict['reason'] = 'identical'
             else:
                 bill_dict = bill
                 bill_dict['bill_congress_type_number'] = bill_congress_type_number
                 bill_dict['score'] = 0
+                if bill.get('titles'):
+                    bill_dict['title'] = ", ".join(bill.get('titles'))
             related_bills.append(bill_dict)
 
         sorted_related_bills = sorted(related_bills, key=lambda k: k['score'], reverse=True)

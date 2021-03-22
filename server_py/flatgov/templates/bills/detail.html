@@ -242,6 +242,7 @@
                     <tr>
                         <th scope="col">Bill</th>
                         <th scope="col">Detail</th>
+                        <th scope="col">Reason</th>
                         <th scope="col">Titles</th>
                         <th scope="col">Score</th>
                         <th scope="col">Sections matched</th>
@@ -270,7 +271,12 @@
                                 N/A
                             {% endif %}
                         </td>
-                        <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
+                        <td>{{ bill.reason }}</td>
+                        {% if bill.max_item %}
+                            <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
+                        {% else %}
+                            <td><span title="{{ bill.title }}">{{ bill.title|truncatechars:40 }}</span></td>
+                        {% endif %}
                         <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
                         <td>{{ bill.number_of_sections }}</td>
                         <!--td>{{ bill.info.score|floatformat:2 }}</td-->

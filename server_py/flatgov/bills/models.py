@@ -69,7 +69,8 @@ class Bill(models.Model):
                 'in_db': qs_bill.exists(),
                 'title_list': maxItem.get('title', ''),
                 'bill_congress_type_number': billnumber,
-                'max_item': maxItem 
+                'max_item': maxItem,
+                'reason': 'section match',
             })
 
         similar_bills = sorted(res, key=lambda k: k['score'], reverse=True)
@@ -79,11 +80,11 @@ class Bill(models.Model):
         for bill_congress_type_number, bill in self.related_dict.items():
             if bill_congress_type_number in similar_bill_numbers:
                 bill_dict = similar_bills[similar_bill_numbers.index(bill_congress_type_number)]
-                bill_dict['reason'] = bill.get('reason')
+                bill_dict['reason'] = f"{bill.get('reason')}, section match"
                 bill_dict['identified_by'] = bill.get('identified_by')
 
                 if bill_congress_type_number == self.bill_congress_type_number:
-                    bill_dict['reason'] = 'identical'
+                    bill_dict['reason'] = 'identical, section match'
             else:
                 bill_dict = bill
                 bill_dict['bill_congress_type_number'] = bill_congress_type_number

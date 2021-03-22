@@ -3,6 +3,7 @@ from datetime import datetime
 from operator import itemgetter
 
 from django.db import models
+from django.conf import settings
 from iteration_utilities import flatten, unique_everseen, duplicates
 
 class Bill(models.Model):
@@ -55,23 +56,53 @@ class Bill(models.Model):
 
     @property
     def get_similar_bills(self):
-      res = list()
-      for billnumber, similarBillItem in self.es_similar_bills_dict.items():
-        qs_bill = Bill.objects.filter(
-            bill_congress_type_number=billnumber)
-        if similarBillItem:
-            maxItem = sorted(similarBillItem, key=lambda k: k['score'], reverse=True)[0]
-        else:
-            maxItem = {}
-        res.append({
-          'score': sum([item.get('score', 0) for item in similarBillItem]),
-          'number_of_sections': len(similarBillItem),
-          'in_db': qs_bill.exists(),
-          'title_list': maxItem.get('title', ''),
-          'bill_congress_type_number': billnumber,
-          'max_item': maxItem 
-        })
-      return sorted(res, key=lambda k: k['score'], reverse=True)
+        res = list()
+        for billnumber, similarBillItem in self.es_similar_bills_dict.items():
+            qs_bill = Bill.objects.filter(
+                bill_congress_type_number=billnumber)
+            if similarBillItem:
+                maxItem = sorted(similarBillItem, key=lambda k: k['score'], reverse=True)[0]
+            else:
+                maxItem = {}
+            res.append({
+                'score': sum([item.get('score', 0) for item in similarBillItem]),
+                'number_of_sections': len(similarBillItem),
+                'in_db': qs_bill.exists(),
+                'title_list': maxItem.get('title', ''),
+                'bill_congress_type_number': billnumber,
+                'max_item': maxItem,
+                'reason': 'section match',
+            })
+
+        similar_bills = sorted(res, key=lambda k: k['score'], reverse=True)
+        similar_bill_numbers = [bill.get('bill_congress_type_number') for bill in similar_bills]
+        related_bills = list()
+        
+        for bill_congress_type_number, bill in self.related_dict.items():
+            if bill_congress_type_number in similar_bill_numbers:
+                bill_dict = similar_bills[similar_bill_numbers.index(bill_congress_type_number)]
+                bill_dict['reason'] = f"{bill.get('reason')}, section match"
+                bill_dict['identified_by'] = bill.get('identified_by')
+
+                if bill_congress_type_number == self.bill_congress_type_number:
+                    bill_dict['reason'] = 'identical, section match'
+            else:
+                bill_dict = bill
+                bill_dict['bill_congress_type_number'] = bill_congress_type_number
+                bill_dict['score'] = 0
+                if bill.get('titles'):
+                    bill_dict['title'] = ", ".join(bill.get('titles'))
+            related_bills.append(bill_dict)
+
+        sorted_related_bills = sorted(related_bills, key=lambda k: k['score'], reverse=True)
+        self_index = next((index for (index, d) in enumerate(sorted_related_bills) \
+            if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
+        sorted_related_bills.insert(0, sorted_related_bills.pop(self_index))
+
+        filtered_similar_bills = [bill for bill in similar_bills \
+            if bill.get('bill_congress_type_number') not in self.related_dict.keys()]
+
+        return sorted_related_bills + filtered_similar_bills
 
     def get_second_similar_bills(self, second_bill):
         res = list()
@@ -100,6 +131,14 @@ class Bill(models.Model):
                     similar['target_section_number'] = target_section_number
                     res.append(similar)
         return sorted(res, key=lambda k: k['score'], reverse=True)[:10]
+
+    @property
+    def bill_summary(self):
+        if not self.summary:
+            return settings.BILL_SUMMARY_DEFAULT_TEXT
+        return self.summary
+
+
 class Cosponsor(models.Model):
     name = models.CharField(max_length=100)
     bioguide_id = models.CharField(max_length=100, blank=True, null=True)
@@ -136,6 +175,7 @@ class Statement(models.Model):
     date_issued = models.CharField(max_length=35)
     permanent_pdf_link = models.FileField(upload_to='statements/', blank=True, null=True)
     original_pdf_link = models.CharField(max_length=255, null=True, blank=True)
+    administration = models.CharField(max_length=100,default='common')
 
     date_fetched = models.DateTimeField(auto_now_add=True)
 

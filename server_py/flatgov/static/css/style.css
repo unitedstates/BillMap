@@ -24,6 +24,11 @@
     background-color: #d4d4d4 !important;
     border-radius: 0px 15px 15px 15px !important;
 }
+.pre-wrapper pre {
+  white-space: pre-wrap;
+  word-break: keep-all;
+  font-family: 'Public Sans', sans-serif;
+}
 
 .table {
     font-size: small;
@@ -34,16 +39,6 @@
 .table thead>tr>th {
     width: auto;
     border: none !important;
-}
-
-
-
-
-.table tbody>tr>td {
-    width: auto;
-}
-.dataTables_scroll {
-    border-radius: 10px !important;
 }
 
 .dataTables_paginate a {
@@ -124,9 +119,6 @@ div.dataTables_wrapper div.dataTables_scroll {
 
 .dark-gray-body {
     background-color: 1px solid #d4d4d4 !important;
-}
-
-.title, .search {
 }
 
 #bill-search .tt-menu {
@@ -282,9 +274,6 @@ label textarea{
     vertical-align: middle;
 }
 
-#bill-text-div {
-}
-
 footer {
     color: white;
     background: rgb(120, 26, 54);
@@ -317,16 +306,9 @@ footer {
     width: 43%;
 }
 
-.cbo-score {}
-
 .left-understanding-context-body {
     width: 50%;
     margin-right: 3%;
-}
-
-.right-understanding-context-body {}
-
-.timeline-detail {
 }
 
 /* Circle */

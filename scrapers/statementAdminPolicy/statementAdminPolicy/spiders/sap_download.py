@@ -2,10 +2,11 @@ import os
 import re
 import scrapy
 import json
+from bs4 import BeautifulSoup as bs4
 
 from scrapy.http import Request
 
-PATH_META_DEFAULT = os.path.join('pdf', 'meta.json')
+PATH_META_DEFAULT = '../../server_py/flatgov/biden_data.json'
 
 # See https://stackoverflow.com/a/52989487/628748
 
@@ -19,43 +20,47 @@ class sap_pdf_simple(scrapy.Spider):
     json.dump([], meta_file, indent = 4)
 
   def parse(self, response):
-    base_url = 'https://www.whitehouse.gov'
+    soup = bs4(response.text, 'html.parser')
 
-    for selector in response.xpath('//a[@href]'):
-        link_text = selector.xpath('./text()').get()
-        bill_suffix = ''
-        bill_number = ''
-        if link_text:
-          bill_name = re.sub(r'\s', '', link_text.split('-')[0].strip())
-          bill_number = re.sub(r'\.', '', bill_name.split('–')[0].split('—')[0]).replace('and', '')
-          self.logger.info('Bill Number: %s',  bill_number)
-          bill_suffix = '(' + bill_number + ')'
+    con = soup.find('section', {'class': 'body-content'})
+    con = con.find('div', {'class': 'row'})
+    ps = con.findAllNext('p')[1:]
+    new_meta = {
+        'url': '',
+        'link': '',
+        'link_text': '',
+        'bill_number': '',
+        'date_issued': '',
+        'congress': '',
+    }
 
-        self.logger.info('Text: %s',  link_text)
-        link = selector.xpath('./@href')[0].extract()
+    for i in range(len(ps)):
+        new_meta['date_issued'] = ps[i].text.split('(')[-2].split(')')[0]
+        new_meta['link'] = ps[i].find('a', href=True)['href']
+        year = new_meta['date_issued'][-4:]
+        a_text = ps[i].find('a').text
+        new_meta['link_text'] = a_text
+        q = re.sub(r'\s', '', a_text.split('–')[0])
+        qw = re.sub(r'\.', '', q)
+        new_meta['bill_number'] = qw.split('—')[0]
+        new_meta['congress'] = self.get_congress_number(year)
 
-        if link.endswith('.pdf'):
-
-            self.logger.info('Link: %s',  link )
-            path = os.path.join('pdf', bill_number.replace(',','-') + '.pdf')
-            self.logger.info('Path: %s',  path )
-            yield Request(link, callback=self.save_pdf, cb_kwargs=dict(path=path))
-
-            # update metadata
-            meta_dict = {"url": response.url, "link": link, "link_text": link_text, "path": path, "bill_number": bill_number}
-            self.update_meta(meta_dict)
-
-  def save_pdf(self, response, path):
-      with open(path, 'wb') as f:
-          f.write(response.body)
+        new_meta['url'] = response.request.url
+        self.update_meta(new_meta)
 
   def update_meta(self, meta_dict):
-      meta_path = meta_dict.get('meta_path', PATH_META_DEFAULT)
-      self.logger.debug('Meta_Dict: %s',  str(meta_dict))
-      with open(meta_path, 'r') as meta_read_file:
+      with open(PATH_META_DEFAULT, 'r') as meta_read_file:
           meta_current = json.load(meta_read_file)
           meta_current.append(meta_dict)
 
-      with open(meta_path, 'w') as meta_write_file:
+      with open(PATH_META_DEFAULT, 'w') as meta_write_file:
           json.dump(meta_current, meta_write_file, indent=4)
+
+  def get_congress_number(self, year):
+      congress = 0
+      const_year = 2022
+      const_congress = 117
+      dif = const_year - int(year)
+      congress = const_congress - (dif // 2)
+      return congress
       

@@ -35,7 +35,8 @@ $(document).ready( function () {
     });
     $('#similar-bills-table').DataTable({
         sDom: "Rlfrtip",
-        order: [[ 3, 'desc' ]],
+        // order: [[ 3, 'desc' ]],
+        bSort: false,
         bFilter: true,
         iDisplayLength: 100,
         scrollY: '50vh',

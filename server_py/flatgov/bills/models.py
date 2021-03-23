@@ -3,7 +3,10 @@ from datetime import datetime
 from operator import itemgetter
 
 from django.db import models
-from iteration_utilities import flatten, unique_everseen, duplicates
+from django.conf import settings
+from iteration_utilities import flatten
+
+MAX_RELATED_BILLS = 30
 
 class Bill(models.Model):
     bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
@@ -80,7 +83,10 @@ class Bill(models.Model):
         for bill_congress_type_number, bill in self.related_dict.items():
             if bill_congress_type_number in similar_bill_numbers:
                 bill_dict = similar_bills[similar_bill_numbers.index(bill_congress_type_number)]
-                bill_dict['reason'] = f"{bill.get('reason')}, section match"
+                reason = f"{bill.get('reason')}, section match"
+                
+                # Deduplicate and remove 'None'
+                bill_dict['reason'] = ', '.join(list(set([reasonItem for reasonItem in reason.split(', ') if reasonItem != 'None'])))
                 bill_dict['identified_by'] = bill.get('identified_by')
 
                 if bill_congress_type_number == self.bill_congress_type_number:
@@ -100,6 +106,8 @@ class Bill(models.Model):
 
         filtered_similar_bills = [bill for bill in similar_bills \
             if bill.get('bill_congress_type_number') not in self.related_dict.keys()]
+        
+        sorted_related_bills = sorted_related_bills[:MAX_RELATED_BILLS]
 
         return sorted_related_bills + filtered_similar_bills
 
@@ -130,6 +138,14 @@ class Bill(models.Model):
                     similar['target_section_number'] = target_section_number
                     res.append(similar)
         return sorted(res, key=lambda k: k['score'], reverse=True)[:10]
+
+    @property
+    def bill_summary(self):
+        if not self.summary:
+            return settings.BILL_SUMMARY_DEFAULT_TEXT
+        return self.summary
+
+
 class Cosponsor(models.Model):
     name = models.CharField(max_length=100)
     bioguide_id = models.CharField(max_length=100, blank=True, null=True)
@@ -166,6 +182,7 @@ class Statement(models.Model):
     date_issued = models.CharField(max_length=35)
     permanent_pdf_link = models.FileField(upload_to='statements/', blank=True, null=True)
     original_pdf_link = models.CharField(max_length=255, null=True, blank=True)
+    administration = models.CharField(max_length=100,default='common')
 
     date_fetched = models.DateTimeField(auto_now_add=True)
 

@@ -16,17 +16,17 @@
 
     <!-- font awesome -->
     <script src="https://use.fontawesome.com/4b14720de5.js"></script>
-    <title>gov track demo template</title>
+    <title>BillMap template</title>
     <link rel="shortcut icon" type="image/png" href="{% static 'favicon.ico' %}"/>
     <link rel="stylesheet" href="{% static 'css/dataTables.bootstrap4.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/responsive.bootstrap4.min.css' %}">
     <link href="{% static 'assets/fullcalendar/main.css' %}" rel='stylesheet' />
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Public+Sans&display=swap');
-        </style>
+    </style>
     {% block extra_css %}
     {% endblock %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <header>
     {% include 'navbar.html' %}

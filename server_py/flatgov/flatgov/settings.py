@@ -215,3 +215,5 @@ logging.config.dictConfig({
         },
     },
 })
+
+BILL_SUMMARY_DEFAULT_TEXT = 'Bill Summary Default Text'

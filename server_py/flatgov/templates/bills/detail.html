@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load bill_tags %}
 
 {% block extra_css %}
 <link href="https://unpkg.com/tabulator-tables@4.8.0/dist/css/bootstrap/tabulator_bootstrap4.min.css" rel="stylesheet">
 <style>
     html { scroll-behavior: smooth; } 
 </style>
-<script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.8.0/dist/js/tabulator.min.js"></script>
+<!-- <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.8.0/dist/js/tabulator.min.js"></script> -->
 {% endblock %}
 
 {% block content %}
@@ -154,89 +155,76 @@
             aria-controls="current" aria-selected="true">Current Congress</a>
         </li>
         <li class="nav-item" role="presentation">
-            <a class="nav-link " id="all-tab" data-toggle="tab" href="#all-congress" role="tab"
+            <a class="nav-link " id="all-congress-tab" data-toggle="tab" href="#all-congress" role="tab"
                 aria-controls="all" aria-selected="false">All Congresses</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link " id="similar-sections-tab" data-toggle="tab" href="#similar-sections" role="tab"
+                aria-controls="similar" aria-selected="false">Similar Sections</a>
         </li>
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="relatedBillsTableContent">
 
-        <div class="tab-pane fade show active" id="current-congress" role="tabpanel" aria-labelledby="current-congress">            
-            <table class="table mt-3" id="related-bills-table">
+        <div class="tab-pane fade show active" id="current-congress" role="tabpanel" aria-labelledby="current-congress-tab">
+            <h6 class="pt-3">
+                Filtered by the Current Congress
+            </h6>
+            <table class="table mt-3" id="current-similar-bills-table">
                 <thead>
                     <tr>
                         <th scope="col">Bill</th>
+                        <th scope="col">Detail</th>
                         <th scope="col">Reason</th>
-                        <th scope="col">Titles (shared)</th>
-                        <th scope="col">Titles (similar)</th>
-                        <th scope="col">Sponsor (shared)</th>
-                        <th scope="col">Shared cosponsors</th>
-                        <th scope="col">Id By</th>
+                        <th scope="col">Titles</th>
+                        <th scope="col">Score</th>
+                        <th scope="col">Sections matched</th>
+                        <!--th scope="col">Best match score</th-->
+                        <th scope="col">Best match section</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for bill in related_bills %}
-                    <tr>
-                        <td>
-                            <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                {{ bill.bill_congress_type_number }}
-                            </a>
-                        </td>
-                        <td>{% if bill.reason %}{{ bill.reason }}{% endif %}</td>
-                        <td><span title="{{ bill.titles }}">{{ bill.titles|truncatechars:30 }}</span></td>
-                        <td>{{ bill.titles_year_list }}</td>
-                        <td>{{ bill.sponsor }}</td>
-                        <td><span title="{{ bill.cosponsor }}">{{ bill.cosponsor|truncatechars:30 }}</span></td>
-                        <td></td>
-                    </tr>
+                    {% for bill in similar_bills %}
+                        {% check_bill bill.bill_congress_type_number object.congress as checker %}
+                        {% if checker %}
+                        <tr>
+                            <td>
+                                {% if bill.in_db %}
+                                    <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
+                                        {{ bill.bill_congress_type_number }}
+                                    </a>
+                                {% else %}
+                                    {{ bill.bill_congress_type_number }}
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if bill.in_db %}
+                                    <a href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
+                                        <img src="{% static 'images/share-files.png' %}" alt="">
+                                    </a>
+                                {% else %}
+                                    N/A
+                                {% endif %}
+                            </td>
+                            <td>{{ bill.reason }}</td>
+                            {% if bill.max_item %}
+                                <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
+                            {% else %}
+                                <td><span title="{{ bill.title }}">{{ bill.title|truncatechars:40 }}</span></td>
+                            {% endif %}
+                            <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
+                            <td>{{ bill.number_of_sections }}</td>
+                            <!--td>{{ bill.info.score|floatformat:2 }}</td-->
+                            <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
+                        </tr>
+                        {% endif %}
                     {% endfor %}
                 </tbody>
             </table>
-            <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
-            </div>
         </div>
-        <div class="tab-pane fade " id="all-congress" role="tabpanel" aria-labelledby="all-tab">
+        <div class="tab-pane fade " id="all-congress" role="tabpanel" aria-labelledby="all-congress-tab">
             <h6 class="pt-3">
-                View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the Current Congress
-            </h6> 
-            <table class="table mt-3" id="related-bills-tables">
-                <thead>
-                    <tr>
-                        <th scope="col">Bill Number</th>
-                        <th scope="col">Lead Sponsor</th>
-                        <th scope="col">Chamber</th>
-                        <th scope="col">Status</th>
-                        <th scope="col">Compare Bill Text</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                </tbody>
-            </table>
-            <div class="tab-pane fade" id="all" role="tabpanel" aria-labelledby="all-tab">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasivitae temporibus eaque?
-            </div>
-        </div>
-    </div>
-</div>
-<div class="similar-bills mt-4">
-    <h4>Analyze Similar Bills</h4>
-    <span class="small">
-        Discover similar bills to {{ bill.get_type_abbrev }} {{ bill.number }}
-    </span>
-    <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="current-tab" data-toggle="tab" href="#similar-bills" role="tab"
-            aria-controls="similar-bills" aria-selected="true">All</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" id="sections-tab" data-toggle="tab" href="#similar-sections" role="tab" aria-controls="similar-sections"
-            aria-selected="false">Sections</a>
-        </li>
-    </ul>
-    <div class="tab-content light-gray-tabs p-4" id="similarBillsTableContent">
-        <p><span><strong>Number of sections: {{ es_similarity|length }}</strong></span></p>
-        <div class="tab-pane fade show active" id="similar-bills" role="tabpanel" aria-labelledby="similar-bills">
+                View all {{ bill.get_type_abbrev }} {{ bill.number }}
+            </h6>
             <table class="table mt-3" id="similar-bills-table">
                 <thead>
                     <tr>
@@ -284,10 +272,13 @@
                     </tr>
                     {% endfor %}
                 </tbody>
-            </table>
+            </table>            
         </div>
-        <div class="tab-pane fade" id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
-            <table class="table mt-3" id="similar-bills-table">
+        <div class="tab-pane fade " id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
+            <h6 class="pt-3">
+                View all {{ bill.get_type_abbrev }} {{ bill.number }}
+            </h6>
+            <table class="table mt-3" id="similar-sections-table">
                 <thead>
                     <tr>
                         <th scope="col">Section</th>
@@ -312,6 +303,29 @@
         </div>
     </div>
 </div>
+<!-- <div class="similar-bills mt-4">
+    <h4>Analyze Similar Bills</h4>
+    <span class="small">
+        Discover similar bills to {{ bill.get_type_abbrev }} {{ bill.number }}
+    </span>
+    <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+        <li class="nav-item" role="presentation">
+        <a class="nav-link active" id="current-tab" data-toggle="tab" href="#similar-bills" role="tab"
+            aria-controls="similar-bills" aria-selected="true">All</a>
+        </li>
+        <li class="nav-item" role="presentation">
+          <a class="nav-link" id="sections-tab" data-toggle="tab" href="#similar-sections" role="tab" aria-controls="similar-sections"
+            aria-selected="false">Sections</a>
+        </li>
+    </ul>
+    <div class="tab-content light-gray-tabs p-4" id="similarBillsTableContent">
+        <p><span><strong>Number of sections: {{ es_similarity|length }}</strong></span></p>
+        <div class="tab-pane fade show active" id="similar-bills" role="tabpanel" aria-labelledby="similar-bills">
+        </div>
+        <div class="tab-pane fade" id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
+        </div>
+    </div>
+</div> -->
 <div class="sponsors tab mt-4" id='list-of-sponsors'>
     <h4>Sponsors of Related Measures</h4>
     <span class="small">
@@ -725,8 +739,8 @@
 {% block extra_js %}
 <script src="{% static 'js/bill.js' %}"></script>
 <script>
-    var table = new Tabulator("#committee-jurisdiction-table", {
-        // rowFormatter:function(row){
-    });
+    // var table = new Tabulator("#committee-jurisdiction-table", {
+    //     // rowFormatter:function(row){
+    // });
 </script>
 {% endblock %}

@@ -308,28 +308,6 @@
     </div>
 </div>
 <hr>
-    <h4>Analyze Similar Bills</h4>
-    <span class="small">
-        Discover similar bills to {{ bill.get_type_abbrev }} {{ bill.number }}
-    </span>
-    <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
-        <li class="nav-item" role="presentation">
-        <a class="nav-link active" id="current-tab" data-toggle="tab" href="#similar-bills" role="tab"
-            aria-controls="similar-bills" aria-selected="true">All</a>
-        </li>
-        <li class="nav-item" role="presentation">
-          <a class="nav-link" id="sections-tab" data-toggle="tab" href="#similar-sections" role="tab" aria-controls="similar-sections"
-            aria-selected="false">Sections</a>
-        </li>
-    </ul>
-    <div class="tab-content light-gray-tabs p-4" id="similarBillsTableContent">
-        <p><span><strong>Number of sections: {{ es_similarity|length }}</strong></span></p>
-        <div class="tab-pane fade show active" id="similar-bills" role="tabpanel" aria-labelledby="similar-bills">
-        </div>
-        <div class="tab-pane fade" id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
-        </div>
-    </div>
-</div> -->
 <div class="sponsors tab mt-4" id='list-of-sponsors'>
     <h4>Sponsors of Related Measures</h4>
     <span class="small">

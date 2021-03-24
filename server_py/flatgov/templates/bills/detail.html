@@ -51,7 +51,7 @@
         </div>
         <div class="col-md-6">
             <div class="committee-jurisdiction light-gray-body p-4 h-100">
-                <h4 class="text-center"><b>Committees and Sponsors</b></h4>
+                <h4 class="text-center"><b>Committees and Cosponsors</b></h4>
                 <br>
                 <div class="d-flex justify-content-between">
                     <h5 style="float: left;"><b>Committees of Jurisdiction:</b></h5>
@@ -60,48 +60,27 @@
                 </div>
 
                 <div class="mt-5">
-                    <table class="table mt-3">
+                    <table class="table mt-3" id="cosponsors-table">
                         <thead>
                             <tr>
-                                <th scope="col">Sponsor</th>
+                                <th scope="col">Co-sponsor</th>
                                 <th scope="col">On Assigned Committee(s)</th>
                                 <th scope="col">Party</th>
-                                <th scope="col">Party</th>
+                                <th scope="col">Position</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
                             <tr>
-                                <td>Raúl Grijalva</td>
-                                <td>No</td>
-                                <td>D</td>
-                                <td>No</td>
+                                <td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
-                            <tr>
-                                <td>Rodney Davis</td>
-                                <td>House Administration</td>
-                                <td>R</td>
-                                <td>Ranking Member</td>
-                            </tr>
-                            <tr>
-                                <td>Jim Cooper</td>
-                                <td>House Oversight</td>
-                                <td>D</td>
-                                <td>No</td>
-                            </tr>
-                            <tr>
-                                <td>Virginia Foxx</td>
-                                <td>House Oversight</td>
-                                <td>R</td>
-                                <td>No</td>
-                            </tr>
-                            <tr>
-                                <td>Virginia Foxx</td>
-                                <td>House Oversight</td>
-                                <td>R</td>
-                                <td>No</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
+                    <div><sup>+</sup>&nbsp; Sponsor</div>
+                    <div><sup>*</sup>&nbsp; Original Cosponsor</div>
                 </div>
                 <div class="text-center mt-5">
                     <a 

@@ -44,3 +44,20 @@ def billnumbers_display(billnumbers: list):
     if isinstance(billnumbers, str):
         billnumbers = billnumbers.split(', ')
     return [billnumber_display(billnumber) for billnumber in list(billnumbers)]
+
+@register.filter
+@stringfilter
+def cosponsor_name_display(name: str) -> str:
+    """
+    Converts "Waters, Maxine" to "Maxine Waters"
+    TODO: Handle middle names or other variations
+
+    Args:
+        name (str): Last, First
+
+    Returns:
+        [str]: First Last
+    """
+    firstlast = ' '.join(reversed(name.split(', ')))
+
+    return firstlast

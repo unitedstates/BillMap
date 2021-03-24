@@ -147,6 +147,7 @@ class BillDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['cosponsors_dict'] = self.get_cosponsors_dict()
         context['cosponsors'] = self.get_cosponsors()
         context['statements'] = self.get_related_statements()
         context['committees'] = self.get_related_committees()
@@ -199,6 +200,29 @@ class BillDetailView(DetailView):
         serializer = CosponsorSerializer(
             qs, many=True, context={'bill': self.object})
         return serializer.data
+    
+    def get_cosponsors_dict(self):
+        cosponsors =  self.object.cosponsors_dict
+        print(cosponsors)
+        cosponsors = sorted(cosponsors, key = lambda i: i.get('name'))
+
+        sponsor = self.object.sponsor
+        sponsor['sponsor'] = True
+        sponsor_name = sponsor.get('name', '')
+        print(sponsor_name)
+        if sponsor_name:
+            sponsors = [] 
+            try:
+                sponsors = list(filter(lambda cosponsor: cosponsor.get('name', '') == sponsor_name, cosponsors))
+            except Exception as err:
+                pass
+            if sponsors:
+                print(sponsors[0])
+                cosponsors.remove(sponsors[0])
+                cosponsors.insert(0, sponsors[0])
+            else:
+                cosponsors.insert(0, sponsor)
+        return cosponsors
 
 
 class BillToBillView(DetailView):

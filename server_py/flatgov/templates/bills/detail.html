@@ -295,7 +295,7 @@
                             <td><span>{{ section.section_number }}&nbsp;{{ section.section_header}}</span></td>
                             <td>
                                {% for similar in section.similars %}
-                                  {{ similar.bill_number_version }}{{ forloop.last|yesno:",&#44;"|safe }} 
+                                  {{ similar.bill_number_version|billnumber_display }}{{ forloop.last|yesno:",&#44;"|safe }} 
                                {% endfor %}
                             </td>
                         </tr>

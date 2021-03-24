@@ -217,3 +217,5 @@ logging.config.dictConfig({
 })
 
 BILL_SUMMARY_DEFAULT_TEXT = 'Bill Summary Default Text'
+
+PROPUBLICA_CONGRESS_API_KEY = os.getenv('PROPUBLICA_CONGRESS_API_KEY')

@@ -24,6 +24,9 @@ $.get(billsDataURL).then(function (results) {
     .catch(function (err) {
         console.log(err);
     });
+$('#congressdropdown').on('show.bs.dropdown', function () {
+        // do something…
+      })
 
 var substringMatcher = function(strs) {
     return function findMatches(q, cb) {
@@ -56,6 +59,7 @@ const getSimilarBills = function(e){
 }; 
 
 $(document).ready(function() {
+    $('.dropdown-toggle').dropdown()
 });
 
 document.addEventListener('DOMContentLoaded', function() {

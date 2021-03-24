@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.views import View
 
 from rest_framework.generics import ListAPIView
+from common.constants import START_CONGRESS, CURRENT_CONGRESS
 
 from home.forms import QueryForm
 from bills.models import Bill
@@ -28,7 +29,9 @@ def home_view(request):
         return redirect('/bills/similar')
     else:
         form = QueryForm()
-    return render(request, 'home/home.html', {'form': form})
+    
+    context = {'form': form, 'congressrange': list(reversed(list(range(START_CONGRESS, CURRENT_CONGRESS +1))))}
+    return render(request, 'home/home.html', context)
 
 
 class BillListAPIView(View):

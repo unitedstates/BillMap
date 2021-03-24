@@ -12,7 +12,38 @@
 </div>
 <div class="d-flex flex-nowrap light-gray-body mb-4 flex-column">
   <div class="search p-4">
-      <h2>Search</h2>
+    <div>
+        <h2 style="display: inline;">Search</h2>
+        <!--div class="dropdown pull-right" style="display: inline;" id="congressdropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+          Congress
+          </button>
+          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+              {% for congress in congressrange %}
+                {% if forloop.first %}
+                    <a class="dropdown-item active" href="#">{{congress}}</a>
+                {% else %}
+                    <a class="dropdown-item" href="#">{{congress}}</a>
+                {% endif %}
+              {% endfor %}
+          </div>
+        </div-->
+        <div class="dropdown pull-right" style="display: inline;" id="congressdropdown">
+            <label for="congress">Select Congress</label>
+            <div>
+                <select name="congress"  class="pull-right select" aria-label="Select Congress">
+                {% for congress in congressrange %}
+                    {% if forloop.first %}
+                        <option class="congress-item" value="congress" selected>{{congress}}</option>
+                    {% else %}
+                        <option class="congress-item" value="congress">{{congress}}</option>
+                    {% endif %}
+                {% endfor %}
+                </select>
+            </div>
+        </div>
+      </div>
       <p>Search for Legislation, Committee Materials, Congressional Record, or Members of Congress with basic or advanced search settings.</p>
 
       <div class="search-input-group input-group input-group-lg">

@@ -59,27 +59,6 @@ def billIdToBillNumber(bill_id: str) -> str:
     # TODO test if it has the right form, otherwise throw an exception
     return ''.join(reversed(bill_id.split('-')))
 
-
-def cleanSponsorName(lastfirst: str) -> str:
-    """
-    Takes a name of the form "Last, First" and returns "First Last"
-
-    Args:
-        lastfirst (str): a string of the form "Last, First" 
-
-    Returns:
-        str: a string of the form "First Last" 
-    """
-    if not lastfirst:
-        return ''
-    else:
-        return ' '.join(reversed(lastfirst.split(', ')))
-
-
-def makeTypeAbbrev(bill_type) -> str:
-    return ''.join([letter+'.' for letter in bill_type])
-
-
 def makeSponsorBracket(sponsor: dict, party='X') -> str:
     # TODO: in the future, make party required 
     state = sponsor.get('state', '')
@@ -92,21 +71,14 @@ def makeSponsorBracket(sponsor: dict, party='X') -> str:
 
     return '[' + party + '-' +  state + district + ']'
 
-
 class BillListView(TemplateView):
     template_name = 'bills/list.html'
 
     def get_context_data(self, **kwargs):
-        from uscongress.tasks import bill_similarity_task
-        bill_similarity_task(26)
+        #from uscongress.tasks import bill_similarity_task
+        #bill_similarity_task(26)
         context = super().get_context_data(**kwargs)
         return context
-
-
-def makeName(commaName):
-    if not commaName:
-        return ''
-    return ' '.join(reversed(commaName.split(',')))
 
 
 def similar_bills_view(request):

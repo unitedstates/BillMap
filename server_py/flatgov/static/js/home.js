@@ -4,9 +4,11 @@ var billsDataURL = 'bill-list';
 var allBillData = [];
 var currentBillData = [];
 $.get(billsDataURL).then(function (results) {
-    const billsData = results.bill_list ? results.bill_list.sort() : billsDataSample;
-    allBillData = [...billsData]; 
-    currentBillData = [...billsData]; 
+    allBillData = results.bill_list ? results.bill_list.sort() : billsDataSample;
+    const current_year = new Date().getFullYear();
+    const currentCongress = Math.floor((current_year - 1787) / 2) || 117;
+    const re = new RegExp(`^${currentCongress}`);
+    currentBillData = allBillData.filter(item => item.match(re)) 
 
     $("#bill-search").typeahead({
         hint: true,
@@ -15,8 +17,8 @@ $.get(billsDataURL).then(function (results) {
         autoselect: true
     },
     {
-        name: 'billsData',
-        source: substringMatcher(billsData)
+        name: 'currentBillData',
+        source: substringMatcher(currentBillData)
     })
     .on('typeahead:select', function (e, selection) {
         const billUrl = `/bills/${selection}`; 

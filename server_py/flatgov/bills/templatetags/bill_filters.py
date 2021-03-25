@@ -61,3 +61,44 @@ def cosponsor_name_display(name: str) -> str:
     firstlast = ' '.join(reversed(name.split(', ')))
 
     return firstlast
+
+@register.filter
+@stringfilter
+def congress_to_year(congress: str) -> int:
+    if not congress:
+        return 0 
+
+    congress_num = int(congress)
+    if congress_num and congress_num != 0:
+        return 1787 + int(congress_num)*2
+    else:
+        return 0
+
+@register.filter
+@stringfilter
+def numstring_to_ordinal(numstring: str) -> str:
+    """
+    See https://stackoverflow.com/a/50992575/628748
+    Convert an integer into its ordinal representation::
+
+        make_ordinal(0)   => '0th'
+        make_ordinal(3)   => '3rd'
+        make_ordinal(122) => '122nd'
+        make_ordinal(213) => '213th'
+
+    Args:
+        numstring (str): string to add ordinal to (usu used for congress number) 
+
+    Returns:
+        str: ordinal expression, e.g. 117th 
+    """
+
+
+    if not numstring:
+        return ''
+
+    n = int(numstring)
+    suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
+    if 11 <= (n % 100) <= 13:
+        suffix = 'th'
+    return str(n) + suffix

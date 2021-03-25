@@ -107,9 +107,9 @@ class Bill(models.Model):
         filtered_similar_bills = [bill for bill in similar_bills \
             if bill.get('bill_congress_type_number') not in self.related_dict.keys()]
         
-        sorted_related_bills = sorted_related_bills[:MAX_RELATED_BILLS]
+        combined_related_bills = sorted_related_bills + filtered_similar_bills
 
-        return sorted_related_bills + filtered_similar_bills
+        return combined_related_bills[:MAX_RELATED_BILLS]
 
     def get_second_similar_bills(self, second_bill):
         res = list()

@@ -68,8 +68,12 @@ $(document).ready(function() {
         const value = $option.val(); //returns the value of the selected option.
         const text = $option.text(); //returns the text of the selected option.
         console.log(`Selected Congress: ${value}`)
-        var re = new RegExp(`^${value}`);
-        currentBillData = allBillData.filter(item => item.match(re)) 
+        if (value == 'all'){
+            currentBillData = [...allBillData]
+        }else{
+            var re = new RegExp(`^${value}`);
+            currentBillData = allBillData.filter(item => item.match(re)) 
+        }
         console.log(currentBillData);
         $("#bill-search").typeahead('destroy');
         $("#bill-search").typeahead({

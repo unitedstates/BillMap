@@ -1,5 +1,6 @@
 from django.urls import path
 from django.views.generic.base import TemplateView
+from django.views.decorators.cache import never_cache
 
 from . import views
 
@@ -13,7 +14,7 @@ urlpatterns = [
 ]
 
 api_urlpatterns = [
-    path('bill-list/', views.BillListAPIView.as_view(), name='bill-list'),
+    path('bill-list/', never_cache(views.BillListAPIView.as_view()), name='bill-list'),
 ]
 
 urlpatterns += api_urlpatterns

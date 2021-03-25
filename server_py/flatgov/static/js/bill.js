@@ -1,8 +1,21 @@
 $(document).ready( function () {
+    $('#cosponsors-table-top').DataTable({
+        sDom: "Rlfrtip",
+        bFilter: false,
+        bPaginate: false,
+        iDisplayLength: 5,
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        language: {
+            info: "_START_ to _END_ of _TOTAL_ Cosponsors",
+        }
+    });
     $('#cosponsors-table').DataTable({
         sDom: "Rlfrtip",
-        bFilter: true,
-        iDisplayLength: 100,
+        bFilter: false,
+        bPaginate: true,
+        iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
         scrollCollapse: true,
@@ -14,7 +27,7 @@ $(document).ready( function () {
             info: "_START_ to _END_ of _TOTAL_ Cosponsors",
             lengthMenu: "_MENU_ cosponsors",
         },
-        lengthMenu: [100, 50, 20, 5],
+        lengthMenu: [100, 30, 5],
     });
 
     $('#similar-bills-table').DataTable({
@@ -29,16 +42,13 @@ $(document).ready( function () {
             { "width": "10%", "targets": 5 },
         ],
         bSort: false,
-        bFilter: true,
-        iDisplayLength: 100,
+        bFilter: false,
+        bPaginate: false,
+        iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
         scrollCollapse: true,
         language: {
-            paginate: {
-                "previous": "<",
-                "next": ">",
-            },
             info: "_START_ to _END_ of _TOTAL_ Bills",
             lengthMenu: "_MENU_ bills",
         },
@@ -57,20 +67,15 @@ $(document).ready( function () {
             { "width": "10%", "targets": 5 },
         ],
         bSort: false,
-        bFilter: true,
-        iDisplayLength: 100,
+        bFilter: false,
+        bPaginate: false,
+        iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
         scrollCollapse: true,
         language: {
-            paginate: {
-                "previous": "<",
-                "next": ">",
-            },
             info: "_START_ to _END_ of _TOTAL_ Bills",
-            lengthMenu: "_MENU_ bills",
         },
-        lengthMenu: [100, 50, 20, 5],
     });
     $('#similar-sections-table').DataTable({
         sDom: "Rlfrtip",
@@ -80,8 +85,9 @@ $(document).ready( function () {
             { "width": "50%", "targets": 1 },
         ],
         bSort: false,
-        bFilter: true,
-        iDisplayLength: 100,
+        bFilter: false,
+        bPaginate: false,
+        iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
         scrollCollapse: true,
@@ -93,7 +99,7 @@ $(document).ready( function () {
             info: "_START_ to _END_ of _TOTAL_ sections",
             lengthMenu: "_MENU_ sections",
         },
-        lengthMenu: [100, 50, 20, 5],
+        lengthMenu: [100, 30, 5],
     });
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){

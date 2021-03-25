@@ -15,7 +15,6 @@ from bills.serializers import BillNumberListSerializer
 def index(request):
     return HttpResponse("Hello, world. You're at the home index.")
 
-
 def home_view(request):
     if request.method == "POST":
         form = QueryForm(request.POST)

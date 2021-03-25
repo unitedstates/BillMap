@@ -80,7 +80,6 @@ class BillListView(TemplateView):
         context = super().get_context_data(**kwargs)
         return context
 
-
 def similar_bills_view(request):
     noResults = False
     # after the redirect (in the views.py that handles your redirect)
@@ -106,6 +105,7 @@ def similar_bills_view(request):
         }
     }
     return render(request, 'bills/bill-similar.html', context)
+    
 class BillDetailView(DetailView):
     model = Bill
     template_name = 'bills/detail.html'
@@ -194,7 +194,6 @@ class BillDetailView(DetailView):
             else:
                 cosponsors.insert(0, sponsor)
         return cosponsors
-
 
 class BillToBillView(DetailView):
     model = Bill

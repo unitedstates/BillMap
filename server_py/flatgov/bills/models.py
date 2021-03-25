@@ -102,7 +102,8 @@ class Bill(models.Model):
         sorted_related_bills = sorted(related_bills, key=lambda k: k['score'], reverse=True)
         self_index = next((index for (index, d) in enumerate(sorted_related_bills) \
             if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
-        sorted_related_bills.insert(0, sorted_related_bills.pop(self_index))
+        if self_index:
+            sorted_related_bills.insert(0, sorted_related_bills.pop(self_index))
 
         filtered_similar_bills = [bill for bill in similar_bills \
             if bill.get('bill_congress_type_number') not in self.related_dict.keys()]

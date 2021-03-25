@@ -40,12 +40,12 @@ var substringMatcher = function(strs) {
         matches = [];
 
         // regex used to determine if a string contains the substring `q`
-        substrRegex = new RegExp(q, 'i');
+        substrRegex = new RegExp(q.trim(), 'i');
 
         // iterate through the pool of strings and for any string that
         // contains the substring `q`, add it to the `matches` array
         $.each(strs, function(i, str) {
-            if (substrRegex.test(str.replace(/^\d+/,''))) {
+            if (substrRegex.test(str.trim().replace(/^\d+/,''))) {
                 matches.push(str);
             }
         });

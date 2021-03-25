@@ -32,14 +32,15 @@
         <div class="dropdown pull-right" style="display: inline;" id="congressdropdown">
             <label for="congress">Select Congress</label>
             <div>
-                <select name="congress"  class="pull-right select" aria-label="Select Congress">
+                <select id="selectcongress" name="congress"  class="pull-right select" aria-label="Select Congress">
                 {% for congress in congressrange %}
                     {% if forloop.first %}
-                        <option class="congress-item" value="congress" selected>{{congress}}</option>
+                        <option class="congress-item" value="{{congress}}" selected>{{congress}}</option>
                     {% else %}
-                        <option class="congress-item" value="congress">{{congress}}</option>
+                        <option class="congress-item" value="{{congress}}">{{congress}}</option>
                     {% endif %}
                 {% endfor %}
+                        <option class="congress-item" value="all">Any Congress</option>
                 </select>
             </div>
         </div>

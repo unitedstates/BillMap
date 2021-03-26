@@ -4,17 +4,17 @@
 {% block content %}
 <div class="title">
     <hr />
-    <span>Home > Bills > Compare > {{ bill.type }} {{ bill.number }} ({{ bill.congress }}th) / {{ second_bill.type }} {{ second_bill.number }} ({{ second_bill.congress }}th)</span>
+    <span>Home > Bills > Compare > {{bill.bill_congress_type_number |billnumber_display}} / {{second_bill.bill_congress_type_number |billnumber_display}}</span>
     <h1>
-        Similarity between {{ bill.bill_congress_type_number }} and {{ second_bill.bill_congress_type_number }}
+        Similarity between {{ bill.bill_congress_type_number|billnumber_display }} and {{ second_bill.bill_congress_type_number|billnumber_display }}
     </h1>
-    <span class="small">{{ bill.congress }}th Congress / {{ second_bill.congress }}th congress (2019-2020)</span>
+    <span class="small">{{ bill.congress|numstring_to_ordinal }} Congress ({{bill.congress|congress_to_year}} - {{bill.congress|congress_to_year|add:"1"}}) / {{ second_bill.congress|numstring_to_ordinal }} Congress ({{second_bill.congress|congress_to_year}} - {{secondbill.congress|congress_to_year|add:"1"}})</span>
     <hr />
 </div>
 <div class="mt-4">
     <h4>Titles</h4>
     <span class="small">
-        {{ bill.bill_congress_type_number }} / {{ second_bill.bill_congress_type_number }}: 
+        {{ bill.bill_congress_type_number|billnumber_display }} / {{ second_bill.bill_congress_type_number|billnumber_display }}: 
     </span>
     <div class="tab-content light-gray-tabs p-4">
         <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">

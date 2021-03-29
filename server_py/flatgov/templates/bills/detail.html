@@ -467,6 +467,9 @@
                     <tr>
                         <th scope="col">Bill</th>
                         <th scope="col">Title</th>
+                        <th>Issued By</th>
+                        <th>Chamber</th>
+                        <th>Party</th>
                         <th scope="col">Date</th>
                         <th scope="col">Link</th>
                     </tr>
@@ -476,8 +479,11 @@
 
                     <tr>
                         <td>{{ press_statement.congress }}{{ press_statement.bill_number }}</td>
-                        <td style="width: 700px;">{{ press_statement.title|truncatechars:120 }}</td>
-                        <td style="width: 200px;">{{ press_statement.date }}</td>
+                        <td style="width: 600px;">{{ press_statement.title|truncatechars:120 }}</td>
+                        <td style="width: 100px;">{{ press_statement.name }}</td>
+                        <td>{{ press_statement.chamber }}</td>
+                        <td>{{ press_statement.party }}</td>
+                        <td>{{ press_statement.date }}</td>
                         <td><a href='{{ press_statement.url }}' target="_blank" class='btn btn-primary'>
                             View Press Statement
                         </a></td>

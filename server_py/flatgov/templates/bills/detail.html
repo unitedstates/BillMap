@@ -15,11 +15,11 @@
 
 <div class="title">
     <hr />
-    <span>Home > Bills > {{ bill.type }} {{ bill.number }} ({{ bill.congress }}th)</span>
+    <span>Home > Bills > {{bill.bill_congress_type_number |billnumber_display}}</span>
     <h1>
         {{ bill.get_type_abbrev }} {{ bill.number }}: {{ bill.short_title }}
     </h1>
-    <span class="small">{{ bill.congress }}th Congress (2019-2020)</span>
+    <span class="small">{{ bill.congress|numstring_to_ordinal }} Congress ({{bill.congress|congress_to_year}} - {{bill.congress|congress_to_year|add:"1"}})</span>
     <hr />
 </div>
 <div class="">
@@ -47,12 +47,11 @@
                 <p>NA</p>
                 <h5><b>Prognosis:</b></h5>
                 <p>Prognosis will appear here</p>
-                <div class="text-center"><button type="button" class="btn btn-primary btn-shadow text-center px-5 rounded-5" style="border: none; background-color:#781A36!important; border-radius: 10px;">Read Bill</button></div>
             </div>
         </div>
         <div class="col-md-6">
             <div class="committee-jurisdiction light-gray-body p-4 h-100">
-                <h4 class="text-center"><b>Committees and Sponsors</b></h4>
+                <h4 class="text-center"><b>Committees and Cosponsors</b></h4>
                 <br>
                 <div class="d-flex justify-content-between">
                     <h5 style="float: left;"><b>Committees of Jurisdiction:</b></h5>
@@ -61,48 +60,27 @@
                 </div>
 
                 <div class="mt-5">
-                    <table class="table mt-3">
+                    <table class="table mt-3" id="cosponsors-table-top">
                         <thead>
                             <tr>
-                                <th scope="col">Sponsor</th>
+                                <th scope="col">Co-sponsor</th>
                                 <th scope="col">On Assigned Committee(s)</th>
                                 <th scope="col">Party</th>
-                                <th scope="col">Party</th>
+                                <th scope="col">Position</th>
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
                             <tr>
-                                <td>Raúl Grijalva</td>
-                                <td>No</td>
-                                <td>D</td>
-                                <td>No</td>
+                                <td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
                             </tr>
-                            <tr>
-                                <td>Rodney Davis</td>
-                                <td>House Administration</td>
-                                <td>R</td>
-                                <td>Ranking Member</td>
-                            </tr>
-                            <tr>
-                                <td>Jim Cooper</td>
-                                <td>House Oversight</td>
-                                <td>D</td>
-                                <td>No</td>
-                            </tr>
-                            <tr>
-                                <td>Virginia Foxx</td>
-                                <td>House Oversight</td>
-                                <td>R</td>
-                                <td>No</td>
-                            </tr>
-                            <tr>
-                                <td>Virginia Foxx</td>
-                                <td>House Oversight</td>
-                                <td>R</td>
-                                <td>No</td>
-                            </tr>
+                            {% endfor %}
                         </tbody>
                     </table>
+                    <div><sup>+</sup>&nbsp; Sponsor</div>
+                    <div><sup>*</sup>&nbsp; Original Cosponsor</div>
                 </div>
                 <div class="text-center mt-5">
                     <a 
@@ -296,7 +274,7 @@
                             <td><span>{{ section.section_number }}&nbsp;{{ section.section_header}}</span></td>
                             <td>
                                {% for similar in section.similars %}
-                                  {{ similar.bill_number_version }}{{ forloop.last|yesno:",&#44;"|safe }} 
+                                  {{ similar.bill_number_version|billnumber_display }}{{ forloop.last|yesno:",&#44;"|safe }} 
                                {% endfor %}
                             </td>
                         </tr>
@@ -323,24 +301,11 @@
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="all-congress-tab" data-toggle="tab" href="#all-congress" role="tab" aria-controls="all-congress" aria-selected="false">All Congress</a>
         </li>
-        <div class="spacer"></div>
-        <span class="pt-2 mr-2">Sort By:</span>
-        <div class="dropdown">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Sponsors
-            </button>
-            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                <a class="dropdown-item" href="#">Action</a>
-                <a class="dropdown-item" href="#">Another action</a>
-                <a class="dropdown-item" href="#">Something else here</a>
-            </div>
-        </div>
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="cosponsorsTabContent">
         <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
             <h6 class="pt-3">
-                View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
+                View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
             <table class="table mt-3" id="cosponsors-table">
                 <thead>
@@ -413,7 +378,7 @@
     <div class="tab-content light-gray-tabs p-4" id="crsReportContent">
         <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
             <h6 class="pt-3">
-                View CRS reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
+                View CRS reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -455,7 +420,7 @@
         </div>
         <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="min-height:20vh; max-height: 50vh; overflow: scroll;">
             <h6 class="pt-3">
-                View all the Statements of Administration Policy for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
+                View all the Statements of Administration Policy for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -532,7 +497,7 @@
         </div>
         <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
             <h6 class="pt-3">
-                View all the CBO Reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress }}th Congress
+                View all the CBO Reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='cbo-tables'>
@@ -569,7 +534,7 @@
         </div>
         <div class="tab-pane fade" id="relevant-committee" role="tabpanel" aria-labelledby="relevant-committee-tab">
             <h6 class="pt-3">
-                View all the Committee Documents {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congres }}th Congress
+                View all the Committee Documents {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -603,7 +568,7 @@
                     <tr>
                         <td>
 
-                            {% if not statements %}
+                            {% if not committees %}
                                 No data available in table.
                             {% endif %}
                         </td>

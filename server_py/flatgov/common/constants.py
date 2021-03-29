@@ -60,6 +60,7 @@ BILL_TYPES = {
 }
 
 CURRENT_CONGRESSIONAL_YEAR = datetime.date.today().year if datetime.date.today() > datetime.date(datetime.date.today().year, 1, 3) else (datetime.date.today().year - 1)
+START_CONGRESS = 110 # Earliest Congress with data in our database
 CURRENT_CONGRESS, cs_temp = divmod(round(((datetime.date(CURRENT_CONGRESSIONAL_YEAR, 1, 3) - datetime.date(1788, 1, 3)).days) / 365) + 1, 2)
 CURRENT_SESSION = cs_temp + 1
 

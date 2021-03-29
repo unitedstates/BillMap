@@ -65,27 +65,6 @@ def billIdToBillNumber(bill_id: str) -> str:
     # TODO test if it has the right form, otherwise throw an exception
     return ''.join(reversed(bill_id.split('-')))
 
-
-def cleanSponsorName(lastfirst: str) -> str:
-    """
-    Takes a name of the form "Last, First" and returns "First Last"
-
-    Args:
-        lastfirst (str): a string of the form "Last, First" 
-
-    Returns:
-        str: a string of the form "First Last" 
-    """
-    if not lastfirst:
-        return ''
-    else:
-        return ' '.join(reversed(lastfirst.split(', ')))
-
-
-def makeTypeAbbrev(bill_type) -> str:
-    return ''.join([letter+'.' for letter in bill_type])
-
-
 def makeSponsorBracket(sponsor: dict, party='X') -> str:
     # TODO: in the future, make party required 
     state = sponsor.get('state', '')
@@ -98,22 +77,14 @@ def makeSponsorBracket(sponsor: dict, party='X') -> str:
 
     return '[' + party + '-' +  state + district + ']'
 
-
 class BillListView(TemplateView):
     template_name = 'bills/list.html'
 
     def get_context_data(self, **kwargs):
-        from uscongress.tasks import bill_similarity_task
-        bill_similarity_task(26)
+        #from uscongress.tasks import bill_similarity_task
+        #bill_similarity_task(26)
         context = super().get_context_data(**kwargs)
         return context
-
-
-def makeName(commaName):
-    if not commaName:
-        return ''
-    return ' '.join(reversed(commaName.split(',')))
-
 
 def similar_bills_view(request):
     noResults = False
@@ -140,6 +111,7 @@ def similar_bills_view(request):
         }
     }
     return render(request, 'bills/bill-similar.html', context)
+    
 class BillDetailView(DetailView):
     model = Bill
     template_name = 'bills/detail.html'
@@ -153,6 +125,7 @@ class BillDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['cosponsors_dict'] = self.get_cosponsors_dict()
         context['cosponsors'] = self.get_cosponsors()
         context['statements'] = self.get_related_statements()
         context['committees'] = self.get_related_committees()
@@ -164,7 +137,6 @@ class BillDetailView(DetailView):
         context['press_statements'] = self.get_press_statements()
         return context
 
-    
     def get_related_statements(self, **kwargs):
         slug = self.kwargs['slug']
         return Statement.objects.filter(bill_number__iexact=slug[3:]).filter(congress__iexact=slug[:3])
@@ -238,6 +210,29 @@ class BillDetailView(DetailView):
         else:
             return []
 
+    
+    def get_cosponsors_dict(self):
+        cosponsors =  self.object.cosponsors_dict
+        print(cosponsors)
+        cosponsors = sorted(cosponsors, key = lambda i: i.get('name'))
+
+        sponsor = self.object.sponsor
+        sponsor['sponsor'] = True
+        sponsor_name = sponsor.get('name', '')
+        print(sponsor_name)
+        if sponsor_name:
+            sponsors = [] 
+            try:
+                sponsors = list(filter(lambda cosponsor: cosponsor.get('name', '') == sponsor_name, cosponsors))
+            except Exception as err:
+                pass
+            if sponsors:
+                print(sponsors[0])
+                cosponsors.remove(sponsors[0])
+                cosponsors.insert(0, sponsors[0])
+            else:
+                cosponsors.insert(0, sponsor)
+        return cosponsors
 
 class BillToBillView(DetailView):
     model = Bill

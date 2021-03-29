@@ -233,10 +233,10 @@ class PressStatement(models.Model):
     member_id = models.CharField(max_length=500)
     congress = models.CharField(max_length=127)
     member_uri = models.CharField(max_length=1000)
-    name = models.CharField(max_length=127)
-    chamber = models.CharField(max_length=127)
-    state = models.CharField(max_length=127)
-    party = models.CharField(max_length=127)
+    name = models.CharField(max_length=127, null=True, blank=True)
+    chamber = models.CharField(max_length=127, null=True, blank=True)
+    state = models.CharField(max_length=127, null=True, blank=True)
+    party = models.CharField(max_length=127, null=True, blank=True)
     bill_number = models.CharField(max_length=127)
 
 

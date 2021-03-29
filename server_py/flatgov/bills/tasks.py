@@ -28,22 +28,25 @@ def scrape_press_statements_task(url, press_statement_task_id):
         if not offset_data:
             has_data = False
         for data in offset_data:
-            count += 1
-            print(count, offset_url)
-            press_statement = PressStatement()
-            press_statement.congress = press_statement_task.congress
-            press_statement.bill_number = press_statement_task.bill_number
-            press_statement.title = data['title']
-            press_statement.url = data['url']
-            press_statement.date = data['date']
-            press_statement.statement_type = data['statement_type']
-            press_statement.member_id = data['member_id']
-            press_statement.member_uri = data['member_uri']
-            press_statement.name = data['name']
-            press_statement.chamber = data['chamber']
-            press_statement.state = data['state']
-            press_statement.party = data['party']
-            press_statement.save()
+            try:
+                count += 1
+                print(count, offset_url)
+                press_statement = PressStatement()
+                press_statement.congress = press_statement_task.congress
+                press_statement.bill_number = press_statement_task.bill_number
+                press_statement.title = data['title']
+                press_statement.url = data['url']
+                press_statement.date = data['date']
+                press_statement.statement_type = data['statement_type']
+                press_statement.member_id = data['member_id']
+                press_statement.member_uri = data['member_uri']
+                press_statement.name = data['name']
+                press_statement.chamber = data['chamber']
+                press_statement.state = data['state']
+                press_statement.party = data['party']
+                press_statement.save()
+            except:
+                pass
 
 
         next_offset += 20

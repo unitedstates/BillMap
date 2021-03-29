@@ -1,6 +1,6 @@
 from django.contrib import admin
 from admin_auto_filters.filters import AutocompleteFilter
-from bills.models import Bill, Sponsor, Cosponsor, Statement, CboReport, CommitteeDocument
+from bills.models import Bill, Sponsor, Cosponsor, Statement, CboReport, CommitteeDocument, PressStatement, PressStatementTask
 from crs.models import CrsReport 
 
 
@@ -16,4 +16,7 @@ admin.site.register(Statement)
 admin.site.register(CrsReport)
 admin.site.register(CboReport)
 admin.site.register(CommitteeDocument)
+admin.site.register(PressStatement)
+admin.site.register(PressStatementTask)
+
 

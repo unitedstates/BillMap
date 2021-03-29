@@ -5,6 +5,7 @@ from operator import itemgetter
 from django.db import models
 from django.conf import settings
 from iteration_utilities import flatten
+from django.utils.translation import gettext_lazy as _
 
 MAX_RELATED_BILLS = 30
 
@@ -222,3 +223,46 @@ class CommitteeDocument(models.Model):
     def __str__(self):
         return f"{self.original_pdf_link} {self.congress} {self.bill_number}"
 
+
+class PressStatement(models.Model):
+    url = models.CharField(max_length=1000)
+    date = models.CharField(max_length=500)
+    title = models.TextField()
+    statement_type = models.CharField(max_length=500)
+    member_id = models.CharField(max_length=500)
+    congress = models.CharField(max_length=127)
+    member_uri = models.CharField(max_length=1000)
+    name = models.CharField(max_length=127)
+    chamber = models.CharField(max_length=127)
+    state = models.CharField(max_length=127)
+    party = models.CharField(max_length=127)
+    bill_number = models.CharField(max_length=127)
+
+
+
+
+    def __str__(self):
+        return f'{self.congress} {self.bill_number}, {self.url}'
+
+from celery import states
+
+ALL_STATES = sorted(states.ALL_STATES)
+TASK_STATE_CHOICES = sorted(zip(ALL_STATES, ALL_STATES))
+
+class PressStatementTask(models.Model):
+    congress = models.CharField(max_length = 127)
+    bill_number = models.CharField(max_length=127)
+    status = models.CharField(
+        max_length=50, default=states.PENDING, db_index=True,
+        choices=TASK_STATE_CHOICES,
+        verbose_name=_('Task State'),
+        help_text=_('Current state of the press statement task.')
+    )
+    task_id = models.CharField(max_length=100, unique=True, db_index=True, null=True, blank=True)
+
+    created_at = models.DateTimeField(auto_now=True)
+    updated_at = models.DateTimeField(auto_now_add=True)
+    
+
+    def __str__(self):
+        return f"{self.congress} {self.bill_number} {self.status}"

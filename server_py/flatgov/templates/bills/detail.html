@@ -495,8 +495,40 @@
                 </tbody>
             </table>
     </div>
-        <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
+        <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab" style="min-height:20vh; max-height: 50vh; overflow: scroll;">
+            
+            <table class="table mt-3" id='cbo-tables'>
+                <thead>
+                    <tr>
+                        <th scope="col">Bill</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Link</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for press_statement in press_statements %}
+
+                    <tr>
+                        <td>{{ press_statement.congress }}{{ press_statement.bill_number }}</td>
+                        <td style="width: 700px;">{{ press_statement.title|truncatechars:120 }}</td>
+                        <td style="width: 200px;">{{ press_statement.date }}</td>
+                        <td><a href='{{ press_statement.url }}' target="_blank" class='btn btn-primary'>
+                            View Press Statement
+                        </a></td>
+                    </tr>
+                    {% endfor %}
+                    {% if not press_statements %}
+                    <tr>
+                        <td>
+
+                                The data is in process. Please check after a while.
+                        </td>
+                    </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+
         </div>
         <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
             <h6 class="pt-3">

@@ -21,8 +21,9 @@ $.get(billsDataURL).then(function (results) {
         source: substringMatcher(currentBillData)
     })
     .on('typeahead:select', function (e, selection) {
-        const billUrl = `/bills/${selection}`; 
-        console.log(selection);
+        const billNumber = billUnFormat(selection);
+        const billUrl = `/bills/${billNumber}`; 
+        console.log(billNumber);
         console.log(`Setting Go! button href to ${billUrl}`);
         $('#gobutton').attr("href", billUrl);
         window.location = billUrl;
@@ -31,6 +32,30 @@ $.get(billsDataURL).then(function (results) {
     .catch(function (err) {
         console.log(err);
     });
+var stagesFormat = {
+        'S': 'S.',
+        'HR': 'H.R.',
+        'HRES': 'H.Res.',
+        'HJRES': 'H.J.Res.',
+        'HCONRES': 'H.Con.Res.',
+        'SJRES': 'S.J.Res.',
+        'SCONRES': 'S.Con.Res.',
+        'SRES': 'S.Res.'
+    }
+
+var billFormat = function(str) {
+    const billCongressTypeNumberRegex = new RegExp(/(?<congress>\d+)(?<type>[a-z]+)(?<billnumber>\d+)/, 'gi');
+    const billMatch = billCongressTypeNumberRegex.exec(str);
+    const billType = stagesFormat[billMatch.groups.type.toUpperCase()] || '';
+    return `${billType} ${billMatch.groups.billnumber} (${billMatch.groups.congress})`
+}
+
+// Takes a bill number of the form H.R. 200 (116) and returns 116hr200
+var billUnFormat = function(str) {
+    const parensCongressRegex = new RegExp(/\((?<congress>\d+)\)/, '');
+    const congressMatch = parensCongressRegex.exec(str)
+    return congressMatch.groups.congress + str.replace(/[\. ]/gi, '').replace(/\(.*$/, '').toLowerCase()
+}
 
 var substringMatcher = function(strs) {
     return function findMatches(q, cb) {
@@ -40,13 +65,13 @@ var substringMatcher = function(strs) {
         matches = [];
 
         // regex used to determine if a string contains the substring `q`
-        substrRegex = new RegExp(q.trim(), 'i');
+        substrRegex = new RegExp(q.replace(/[\s\.]/g, '').toLowerCase().trim(), 'i');
 
         // iterate through the pool of strings and for any string that
         // contains the substring `q`, add it to the `matches` array
         $.each(strs, function(i, str) {
             if (substrRegex.test(str.trim().replace(/^\d+/,''))) {
-                matches.push(str);
+                matches.push(billFormat(str));
             }
         });
         cb(matches);
@@ -87,8 +112,9 @@ $(document).ready(function() {
             source: substringMatcher(currentBillData)
         })
         .on('typeahead:select', function (e, selection) {
-            const billUrl = `/bills/${selection}`; 
-            console.log(selection);
+            const billNumber = billUnFormat(selection);
+            const billUrl = `/bills/${billNumber}`; 
+            console.log(billNumber);
             console.log(`Setting Go! button href to ${billUrl}`);
             $('#gobutton').attr("href", billUrl);
             window.location = billUrl;

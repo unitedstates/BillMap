@@ -183,6 +183,7 @@ class Statement(models.Model):
     permanent_pdf_link = models.FileField(upload_to='statements/', blank=True, null=True)
     original_pdf_link = models.CharField(max_length=255, null=True, blank=True)
     administration = models.CharField(max_length=100,default='common')
+    request_url = models.CharField(max_length=255, blank=True, null=True)
 
     date_fetched = models.DateTimeField(auto_now_add=True)
 

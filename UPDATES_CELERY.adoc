@@ -1,73 +1,116 @@
 :toc:
 
-### Scraping bill text and metadata
+## Celery tasks: scraping and processing 
 
-The repository here provides a scraper for bill metadata and xml:
-https://github.com/unitedstates/congress
+Celery runs scheduled tasks, primarily to scrape and process data. To run celery, install Redis (as a taskrunner and db for Celery). The other dependencies are installed with `pip` when initially installing the requirements for the app with `pip install -r requirements.txt`.
 
-Running the scraper creates a directory tree as follows:
-
- data
-    ├── 110
-    │   └── bills
-    │       ├── hconres
-    │       ├── hjres
-    │       ├── hr
-                      ...
-                       |-── hr994
-                          └── text-versions/
-                                    └── eh
-                                        └── data.json
-                                        └── document.xml
-                                        └── mods.xml
-                                        └── package.zip
-                                        └── premis.xml
-                                    └── ih
-                                    └── rfs
-                          └── data-fromfdsys-lastmod.txt
-                          └── data.json
-                          └── data.xml
-                          └── fdsys_billstatus-lastmod.txt
-                          └── fdsys_billstatus.xml
-                      ├── hr995
-                      ├── hr996
-                      ├── hr997
-                      ├── hr998
-                     └── hr999
-    │       ├── hres
-    │       ├── s
-    │       ├── sconres
-    │       ├── sjres
-    │       └── sres
-    ├── 111
-    │   └── bills
-    │       ├── hconres
-    │       ├── hjres
-    │       ├── hr
+### Redis: install and start
 
 
-NOTE: `data.xml` and `document.xml` are very different. The `data.xml` is metadata only and corresponds to the `data.json` at the same level. The xml of the bill itself, used in the bill similarity calculations, is `document.xml`, found in the `text_versions` directory.
+* On Ubuntu:
 
-NOTE: We don't need `pdf` or `text` in downloaded bill data.
+Install
+```bash
+$ sudo apt update
+$ sudo apt install redis-server
+Reading package lists... Done
+Fetched 634 kB in 0s (24.3 MB/s)...
 
-### Initialize data for Congresses until Now
+```
 
-We download all data to-date using the following:
 
-1. Download metadata as described in xref:README.adoc#bulk_downloads:_bill_metadata[README] (Bulk downloads: bill metadata)
+Start
+`sudo systemctl restart redis.service`
 
-2. Use the `unitedstates/congress` scraper to download xml files, and copy the `congress/data` directory to the parent of this repository.
 
-for CONGRESSNUM in {114..116}
-do
-  echo "./run govinfo --collections=BILLS --congress=$CONGRESSNUM --extract=mods,xml,premis --bulkdata=BILLSTATUS"
-  ./run govinfo --collections=BILLS --congress=$CONGRESSNUM --extract=mods,xml,premis --bulkdata=BILLSTATUS
-done
+To confirm that it is running:
+`sudo systemctl status redis`
+
+If necessary, edit `/etc/redis/redis.conf`. Our set-up should not require any special settings
+
+### How to run celery task.
+
+#### Development
+
+For a celery worker, open one terminal, go to the Django project root directory (in our case `.../Flatgov/server_py/flatgov`), then activate the virtual environment.
+
+Run the command below (Run the celery worker).
+
+`celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info`
+
+For celery scheduler, open another terminal, go to the Django project root directory (in our case `.../Flatgov/server_py/flatgov`), then activate the virtual environment.
+
+Run the command below (Run the celery redbeat)
+
+`celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`
+
+Then the background tasks (celery tasks ) run daily at midnight.
+
+
+#### Production: Run Celeryd as a daemon on the Ubuntu server
+
+1. Init-script: celeryd
+
+Before configuring it, go to the `deployment_scripts/conf_celeryd` and update all the paths with the absolute paths
+
+Copy `deployment_scripts/bill_celeryd` file to `/etc/init.d/celeryd`.
+
+Make celeryd executable (Run following commands from the terminal.)
+
+`sudo chmod 755 /etc/init.d/celeryd`
+
+`sudo chown root:root /etc/init.d/celeryd`
+
+For configuration, copy `deployment_scripts/conf_celeryd` file to `/etc/default/celeryd`.
+
+You can check if the worker is active by:
+
+`sudo /etc/init.d/celeryd start`
+
+`sudo /etc/init.d/celeryd status`
+
++
+2. Init-script: celerybeat
+
+Before configuring it, go to the `deployment_scripts/celerybeat` and update all the paths with the absolute paths
+
+Copy `deployment_scripts/celerybeat` file to `/etc/init.d/celerybeat`.
+
+Make celerybeat executable (Run following commands from the terminal.)
+
+`sudo chmod 755 /etc/init.d/celerybeat`
+
+`sudo chown root:root /etc/init.d/celerybeat`
+
+For configuration, copy `deployment_scripts/conf_celerybeat` file to `/etc/default/celerybeat`.
+
+You can check if the beat is active by:
+
+`sudo /etc/init.d/celerybeat start`
+
+`sudo /etc/init.d/celerybeat status`
+
++
+3. Maintenance
+
+As was shown, the following commands control worker and beat:
+
+`/etc/init.d/celeryd {start|stop|restart}`
+
+`/etc/init.d/celerybeat {start|stop|restart}`
 
 ### Celery Tasks - What they do.
-Celery tasks update uscongress bill and metadata at regular intervals (currently, it runs daily at midnight).
+Celery tasks:
 
-There are six celery tasks, that run sequentially:
+uscongress:: update uscongress bill and metadata
+statementAdminPolicy:: updates statements of administration policy from the current White House (OMB) website
+committeereport:: TODO
+cbo:: TODO
+crs:: TODO
+
+#### US Congress Task
+
+Within the US Congress task, there are six celery tasks, that run sequentially:
 `update_bill_task`, `bill_data_task`, `process_bill_meta_task`, `related_bill_task`, `elastic_load_task`, `bill_similarity_task`
 
 1. Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.
@@ -108,6 +151,7 @@ The fields in the `UscongressUpdateJob`:
 
 - created : the date time field represents the time when the record is created. 
 
++
 2. Create `billList.json` and `billsMeta.json`
 
 Once the celery task `update_bill_task` is finished (complete the download bill text and metadata), the other celery task named `bill_data_task` runs.
@@ -146,18 +190,15 @@ The celery task `bill_similarity_task` update the bill similarity.
 
 It only update the new bills since the new bill list is in the `saved` field in the UscongressUpdateJob table record.
 
-The xml for bill similarity is in text_versions that is the bill document itself.
+The xml for bill similarity is in text_versions that is the bill document itself, so we use them.
 
-So we use them.
-
-
-#### In the future.
+##### In the future.
 
 For many bills, there are many more than 2 versions. (see above the data structure)
 
 In the future, we may have to distinguish these. One way to do this is to run bill similarity for each version and store each as an object, e.g. {ih: [similaritydata], eh: [similaritydata], enr: [similaritydata]}. When displaying similarity table in the UI, we will need to choose which of these objects-- or which combination of objects -- to show. 
 
-#### Flat structure
+##### Flat structure
 
 ├── 110
 │   ├── dtd
@@ -184,73 +225,6 @@ In the future, we may have to distinguish these. One way to do this is to run bi
 │   ├── dtd
 │   ├── pdf
 
+#### Statements of Administration Policy 
 
-#### How to run celery task.
-
-#####. On the local.
-
-For celery worker, open one terminal, go to the Django project root directory (in our case `.../Flatgov/server_py/flatgov`), then activate the virtual environment.
-
-Run the command below (Run the celery worker).
-
-`celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info`
-
-For celery scheduler, open another terminal, go to the Django project root directory (in our case `.../Flatgov/server_py/flatgov`), then activate the virtual environment.
-
-Run the command below (Run the celery redbeat)
-
-`celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info`
-
-Then the background tasks (celery tasks ) run daily at midnight.
-
-
-#####. How to run celery as a daemon on the Ubuntu server?
-
-1. Init-script: celeryd
-
-Before configuring it, go to the `deployment_scripts/conf_celeryd` and update all the paths with the absolute paths
-
-Copy `deployment_scripts/bill_celeryd` file to `/etc/init.d/celeryd`.
-
-Make celeryd executable (Run following commands from the terminal.)
-
-`sudo chmod 755 /etc/init.d/celeryd`
-
-`sudo chown root:root /etc/init.d/celeryd`
-
-For configuration, copy `deployment_scripts/conf_celeryd` file to `/etc/default/celeryd`.
-
-You can check if the worker is active by:
-
-`sudo /etc/init.d/celeryd start`
-
-`sudo /etc/init.d/celeryd status`
-
-
-2. Init-script: celerybeat
-
-Before configuring it, go to the `deployment_scripts/celerybeat` and update all the paths with the absolute paths
-
-Copy `deployment_scripts/celerybeat` file to `/etc/init.d/celerybeat`.
-
-Make celerybeat executable (Run following commands from the terminal.)
-
-`sudo chmod 755 /etc/init.d/celerybeat`
-
-`sudo chown root:root /etc/init.d/celerybeat`
-
-For configuration, copy `deployment_scripts/conf_celerybeat` file to `/etc/default/celerybeat`.
-
-You can check if the beat is active by:
-
-`sudo /etc/init.d/celerybeat start`
-
-`sudo /etc/init.d/celerybeat status`
-
-3. Maintenance
-
-As it was show you can control worker and beat with the following commands:
-
-`/etc/init.d/celeryd {start|stop|restart}`
-
-`/etc/init.d/celerybeat {start|stop|restart}`
+Found in `server_py/bills/tasks`, the Statements of Administration Policy task scrapes the links of SAP from the White House website and stores to the database using the `original_pdf_link` as a unique field to avoid duplicates.

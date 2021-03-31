@@ -65,7 +65,47 @@ For configuration, copy `deployment_scripts/conf_celeryd` file to `/etc/default/
 
 You can check if the worker is active by:
 
-`sudo /etc/init.d/celeryd start`
+```bash
+$ sudo /etc/init.d/celeryd start
+celery init v10.1.
+Using config script: /etc/default/celeryd
+- Creating default directory: '/var/log/celery'
+- Changing permissions of '/var/log/celery' to 02755
+- Changing owner of '/var/log/celery' to 'flatgov'
+chown: invalid user: ‘flatgov’
+```
+
+
+NOTE: On Ubuntu, I needed to change the path to the celery executable, and to the Flatgov directory.
+
+```bash
+CELERY_BIN="/home/ubuntu/.pyenv/versions/flatgov/bin/celery"
+CELERY_APP="flatgov.celery:app"
+
+CELERYD_CHDIR="/opt/flatgov/FlatGov"
+CELERYD_OPTS="--time-limit=300 --concurrency=3 -Q link -l INFO"
+CELERYD_LOG_FILE="/var/log/celery/link_%n%I.log"
+CELERYD_PID_FILE="/var/run/celery/link_%n.pid"
+CELERYD_USER="ubuntu"
+CELERYD_GROUP="ubuntu"
+CELERY_CREATE_DIRS=1
+```
+
+Still, when running, I got:
+
+```bash
+(flatgov) ubuntu@ip-172-31-58-205:/opt/flatgov/FlatGov/server_py/flatgov$ sudo /etc/init.d/celeryd start
+celery init v10.1.
+Using config script: /etc/default/celeryd
+celery multi v4.4.2 (cliffs)
+> Starting nodes...
+Error:
+Unable to load celery application.
+The module flatgov was not found.
+
+	> celery@ip-172-31-58-205: * Child terminated with exit code 1
+FAILED
+```
 
 `sudo /etc/init.d/celeryd status`
 

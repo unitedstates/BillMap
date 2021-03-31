@@ -38,7 +38,6 @@ class SapPdfSimple(scrapy.Spider):
 				new_meta['bill_number'] = qw.split('—')[0]
 				new_meta['congress'] = self.get_congress_number(year)
 				new_meta['url'] = response.request.url
-				new_meta['request_url'] = response.request.url
 				yield new_meta
 			except Exception as e:
 				continue

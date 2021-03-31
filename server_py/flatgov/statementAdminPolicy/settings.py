@@ -7,10 +7,20 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import os
+import sys
+
 BOT_NAME = 'statementAdminPolicy'
 
 SPIDER_MODULES = ['statementAdminPolicy.spiders']
 NEWSPIDER_MODULE = 'statementAdminPolicy.spiders'
+
+# Django integration
+sys.path.append(os.path.dirname(os.path.abspath('.')))
+os.environ['DJANGO_SETTINGS_MODULE'] = 'flatgov.dev'
+
+import django
+django.setup()
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -50,9 +60,9 @@ ROBOTSTXT_OBEY = True
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-#DOWNLOADER_MIDDLEWARES = {
-#    'statementAdminPolicy.middlewares.StatementadminpolicyDownloaderMiddleware': 543,
-#}
+# DOWNLOADER_MIDDLEWARES = {
+#    'statementAdminPolicy.middlewares.IgnoreDuplicates': 543,
+# }
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
@@ -62,15 +72,10 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# See also https://docs.scrapy.org/en/latest/topics/media-pipeline.html#usage-example
 ITEM_PIPELINES = {
     'scrapy.pipelines.files.FilesPipeline': 1,
     'statementAdminPolicy.pipelines.StatementadminpolicyPipeline': 300,
 }
-
-#FILES_STORE = './pdf'
-#FILES_URLS_FIELD = 'sap_url_field'
-#FILES_RESULT_FIELD = 'sap_result_field'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

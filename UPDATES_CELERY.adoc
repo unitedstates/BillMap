@@ -92,9 +92,13 @@ CELERYD_GROUP="ubuntu"
 CELERY_CREATE_DIRS=1
 ```
 
-
 To test:
-`sudo /etc/init.d/celeryd status`
+```bash
+(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov/flatgov$ sudo /etc/init.d/celeryd status
+celery init v10.1.
+Using config script: /etc/default/celeryd
+celeryd (node link_celery) (pid 26679) is up...
+```
 
 +
 2. Init-script: celerybeat

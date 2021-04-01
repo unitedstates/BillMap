@@ -1,0 +1,63 @@
+## Bill text and metadata
+
+The `unitedstates/congress` repository provides a scraper for bill metadata and xml (see 
+https://github.com/unitedstates/congress). We have copied its relevant parts to the `server_py/flatgov/uscongress` directory of this repository.
+
+Running the scraper creates a directory tree as follows:
+
+ data
+    ├── 110
+    │   └── bills
+    │       ├── hconres
+    │       ├── hjres
+    │       ├── hr
+                      ...
+                       |-── hr994
+                          └── text-versions/
+                                    └── eh
+                                        └── data.json
+                                        └── document.xml
+                                        └── mods.xml
+                                        └── package.zip
+                                        └── premis.xml
+                                    └── ih
+                                    └── rfs
+                          └── data-fromfdsys-lastmod.txt
+                          └── data.json
+                          └── data.xml
+                          └── fdsys_billstatus-lastmod.txt
+                          └── fdsys_billstatus.xml
+                      ├── hr995
+                      ├── hr996
+                      ├── hr997
+                      ├── hr998
+                     └── hr999
+    │       ├── hres
+    │       ├── s
+    │       ├── sconres
+    │       ├── sjres
+    │       └── sres
+    ├── 111
+    │   └── bills
+    │       ├── hconres
+    │       ├── hjres
+    │       ├── hr
+
+
+NOTE: `data.xml` and `document.xml` are very different. The `data.xml` is metadata only and corresponds to the `data.json` at the same level. The xml of the bill itself, used in the bill similarity calculations, is `document.xml`, found in the `text_versions` directory.
+
+NOTE: We don't need `pdf` or `text` in downloaded bill data.
+
+### Initialize data for Congresses until Now
+
+We download all data to-date using the following:
+
+1. Download metadata as described in xref:README.adoc#bulk_downloads:_bill_metadata[README] (Bulk downloads: bill metadata)
+
+2. Use the `unitedstates/congress` scraper to download xml files, and copy the `congress/data` directory to the parent of this repository.
+
+for CONGRESSNUM in {114..116}
+do
+  echo "./run govinfo --collections=BILLS --congress=$CONGRESSNUM --extract=mods,xml,premis --bulkdata=BILLSTATUS"
+  ./run govinfo --collections=BILLS --congress=$CONGRESSNUM --extract=mods,xml,premis --bulkdata=BILLSTATUS
+done

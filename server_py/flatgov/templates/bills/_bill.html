@@ -232,7 +232,7 @@
     <div class="container">
       <div class="title">
         <hr />
-        <span>Home > Bills > {{ bill.type }} {{ bill.meta.number }} ({{ bill.meta.congress }}th)</span>
+        <span>Home > Bills > {{bill.bill_congress_type_number |billnumber_display}}</span>
         <h1>
           {{ bill.type_abbrev }} {{ bill.meta.number }}: {{ bill.meta.short_title }}
         </h1>

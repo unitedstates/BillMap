@@ -130,6 +130,36 @@ As was shown, the following commands control worker and beat:
 
 `/etc/init.d/celerybeat {start|stop|restart}`
 
++
+4. Run a task manually
+
+If you need to run a task manually (e.g. to test, or to get data off schedule), run a separate Celery worker:
+
+```bash
+(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov$ celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info
+
+ -------------- celery@flatgov.%ip-... v4.4.2 (cliffs)
+--- ***** -----
+-- ******* ---- Linux-5.4.0-1041-aws-x86_64-with-glibc2.27 2021-04-01 18:18:04
+- *** --- * ---
+- ** ---------- [config]
+```
+
+Then in a separate terminal run `pyenv activate flatgov`. Then:
+
+```python
+(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov$ python manage.py shell
+Python 3.8.3 (default, Sep 24 2020, 22:52:34)
+[GCC 7.5.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from bills.tasks import sap_scrapy_task
+>>> from celery import current_app
+>>> current_app.send_task('bills.tasks.sap_scrapy_task', queue='bill')
+<AsyncResult: a5d7d336-0125-4bdf-8819-5628b2341081>
+```
+Then you can track the task on the celery terminal.
+
 ### Celery Tasks - What they do.
 Celery tasks:
 

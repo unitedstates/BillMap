@@ -188,6 +188,20 @@ Then you can track the task by looking in the celery logs, or on the original ce
 [2021-04-01 18:27:47,069: INFO/ForkPoolWorker-1] Spider closed (finished)
 ```
 
+
+For a different task, e.g. CommitteeDocument, the commands are:
+`celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info`
+
+- Open another shell and run django shell -> 
+```bash
+python manage.py shell
+from celery import current_app
+current_app.send_task("bills.tasks.committee_report_scrapy_task", queue="bill")
+```
+
+Then you can keep track of the task status on the terminal that celery is running on or you can see the CommitteeDocument records in the django admin dashboard.
+The initial data loading will take a long time; there are about 17,000 records.
+
 ### Celery Tasks - What they do.
 Celery tasks:
 

@@ -66,7 +66,8 @@ INSTALLED_APPS = [
     'admin_auto_filters',
 
     'crs',  # by Dmitry
-    'statementAdminPolicy.apps.StatementadminpolicyConfig',
+    'statementAdminPolicy',
+    'committeeReport',
 ]
 
 MIDDLEWARE = [

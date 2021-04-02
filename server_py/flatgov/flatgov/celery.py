@@ -27,7 +27,12 @@ app.conf.beat_schedule = {
         'task': 'bills.tasks.sap_scrapy_task',
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
-    }
+    },
+    'committee_report_scraper_daily': {
+        'task': 'bills.tasks.committee_report_scrapy_task',
+        'schedule': crontab(minute=0, hour=1),
+        'options': {'queue': 'bill'}
+    },
 }
 
 app.conf.timezone = 'UTC'

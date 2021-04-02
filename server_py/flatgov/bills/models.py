@@ -219,6 +219,7 @@ class CommitteeDocument(models.Model):
     report_type = models.CharField(max_length=500)
     date = models.CharField(max_length=500)
     congress = models.CharField(max_length=127, null=True, blank=True)
+    request_url = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.original_pdf_link} {self.congress} {self.bill_number}"

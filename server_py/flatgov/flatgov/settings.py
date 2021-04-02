@@ -65,9 +65,7 @@ INSTALLED_APPS = [
     'django_tables2',
     'admin_auto_filters',
 
-    'crs',  # by Dmitry
-    'statementAdminPolicy',
-    'committeeReport',
+    'crs'  # by Dmitry
 ]
 
 MIDDLEWARE = [

@@ -436,7 +436,7 @@
                 </thead>
                 <tbody>
                     {% for statement in statements %}
-
+                    
                     <tr>
                         <td>{{ statement.bill_number }}</td>
                         <td>{{ statement.bill_id }}</td>
@@ -447,68 +447,71 @@
                             Full Report
                         </a></td>
                     </tr>
-
+                    
                     {% endfor %}
                     <tr>
                         <td>
-
+                            
                             {% if not statements %}
-                                No data available in table.
+                            No data available in table.
                             {% endif %}
                         </td>
                     </tr>
                 </tbody>
             </table>
-    </div>
-        <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab" style="min-height:40vh; max-height: 50vh; overflow: scroll;">
+        </div>
+        <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
+            <div class="">
+                <table class="table mt-3" id='press-statements-tables' style="height: 50vh !important;">
+                
+                    <thead>
+                        <tr>
+                            <th scope="col">Title</th>
+                            <th>Issued By</th>
+                            <th>Chamber</th>
+                            <th>Party</th>
+                            <th scope="col">Date</th>
+                            <th scope="col">Link</th>
+                        </tr>
+                    </thead>
+                    
+                    <tbody>
+                        
+                        <tr v-for='(pressStatement, index) in pressStatements' :key="index">
+                            <td style="width: 550px;">$[ pressStatement.title ]</td>
+                            <td style="width: 200px;">$[ pressStatement.name ]</td>
+                            <td>$[ pressStatement.chamber ]</td>
+                            <td>$[ pressStatement.party ]</td>
+                            <td>$[ pressStatement.date ]</td>
+                            <td><a v-bind:href="pressStatement.url" target="_blank" class='btn btn-primary'>
+                                View Press Statement
+                            </a></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <nav aria-label="..." class="d-flex justify-content-end dataTables_paginate">
+                    <ul class="pagination">
+                      <li @click="changePage(false)" class="page-item ">
+                        <button class="page-link "><</button>
+                      </li>
+                      <li v-for="(page, index) in getPages" 
+                      :key="index" 
+                      @click="getPressStatements(page)"
+                      v-bind:class="[(offset == page)? 'active page-item':'page-item']"><button class="page-link">$[ index+1 ]</button></li>
+                      <li @click="changePage(true)" class="page-item">
+                        <button class="page-link">></button>
+                      </li>
+                    </ul>
+                  </nav>
+            </div>
             
-            <table class="table mt-3" id='press-statements-tables'>
-                <thead>
-                    <tr>
-                        <th scope="col">Title</th>
-                        <th>Issued By</th>
-                        <th>Chamber</th>
-                        <th>Party</th>
-                        <th scope="col">Date</th>
-                        <th scope="col">Link</th>
-                    </tr>
-                </thead>
-
-                <tbody>
-
-                    <tr v-for='(pressStatement, index) in pressStatements' :key="index">
-                        <td style="width: 550px;">$[ pressStatement.title ]</td>
-                        <td style="width: 200px;">$[ pressStatement.name ]</td>
-                        <td>$[ pressStatement.chamber ]</td>
-                        <td>$[ pressStatement.party ]</td>
-                        <td>$[ pressStatement.date ]</td>
-                        <td><a v-bind:href="pressStatement.url" target="_blank" class='btn btn-primary'>
-                            View Press Statement
-                        </a></td>
-                    </tr>
-                </tbody>
-            </table>
             
-            <nav aria-label="..." class="d-flex justify-content-end dataTables_paginate">
-                <ul class="pagination">
-                  <li @click="changePage(false)" class="page-item ">
-                    <button class="page-link "><</button>
-                  </li>
-                  <li v-for="(page, index) in getPages" 
-                  :key="index" 
-                  @click="getPressStatements(page)"
-                  v-bind:class="[(offset == page)? 'active page-item':'page-item']"><button class="page-link">$[ index+1 ]</button></li>
-                  <li @click="changePage(true)" class="page-item">
-                    <button class="page-link">></button>
-                  </li>
-                </ul>
-              </nav>
         </div>
         <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
             <h6 class="pt-3">
                 View all the CBO Reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
-
+            
             <table class="table mt-3" id='cbo-tables'>
                 <thead>
                     <tr>
@@ -520,7 +523,7 @@
                 </thead>
                 <tbody>
                     {% for cboreport in cbo_reports %}
-
+                    
                     <tr>
                         <td>{{ cboreport.bill_id }}</td>
                         <td style="width: 300px;">{{ cboreport.title|truncatechars:120 }}</td>

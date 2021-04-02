@@ -64,6 +64,8 @@ $ pip install -r requirements.txt
 
 Copy `server_py/flatgov/.env-sample` to `server_py/flatgov/.env`, and change the `SECRET_KEY` defined in that file.
 
+Also, obtain an API key from ProPublica and add it as PROPUBLICA_CONGRESS_API_KEY. This is used to get Press Statement data from the ProPublica API.
+
 ### Database set-up
 
 Use Django manage.py commands to download the data and populate the database (see <<DATABASE.adoc#,DATABASE>>).

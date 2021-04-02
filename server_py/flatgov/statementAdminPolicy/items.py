@@ -4,10 +4,10 @@
 # https://docs.scrapy.org/en/latest/topics/items.html
 
 import scrapy
+from scrapy_djangoitem import DjangoItem
+from bills.models import Statement
 
 
-class StatementadminpolicyItem(scrapy.Item):
+class StatementadminpolicyItem(DjangoItem):
     # define the fields for your item here like:
-    name = scrapy.Field()
-    file_urls = scrapy.Field()
-    files = scrapy.Field()
+    django_model = Statement

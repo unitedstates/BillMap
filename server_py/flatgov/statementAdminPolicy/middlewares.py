@@ -4,12 +4,14 @@
 # https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
 from scrapy import signals
+from scrapy.exceptions import IgnoreRequest
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+from bills.models import Statement
 
 
-class CrecScrapySpiderMiddleware:
+class StatementadminpolicySpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the spider middleware does not modify the
     # passed objects.
@@ -56,7 +58,7 @@ class CrecScrapySpiderMiddleware:
         spider.logger.info('Spider opened: %s' % spider.name)
 
 
-class CrecScrapyDownloaderMiddleware:
+class StatementadminpolicyDownloaderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
     # scrapy acts as if the downloader middleware does not modify the
     # passed objects.
@@ -101,3 +103,15 @@ class CrecScrapyDownloaderMiddleware:
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+
+
+class IgnoreDuplicates():
+
+    def __init__(self):
+        self.crawled_urls = Statement.objects.values_list('request_url', flat=True).distinct()
+
+    def process_request(self, request, spider):
+        if request.url in self.crawled_urls:
+            raise IgnoreRequest()
+        else:
+            return None

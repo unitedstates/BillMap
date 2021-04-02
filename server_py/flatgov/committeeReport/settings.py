@@ -1,4 +1,4 @@
-# Scrapy settings for statementAdminPolicy project
+# Scrapy settings for committeeReport project
 #
 # For simplicity, this file contains only settings considered important or
 # commonly used. You can find more settings consulting the documentation:
@@ -7,20 +7,30 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'statementAdminPolicy'
+import os
+import sys
 
-SPIDER_MODULES = ['statementAdminPolicy.spiders']
-NEWSPIDER_MODULE = 'statementAdminPolicy.spiders'
+BOT_NAME = 'committeeReport'
+
+SPIDER_MODULES = ['committeeReport.spiders']
+NEWSPIDER_MODULE = 'committeeReport.spiders'
+
+# Django integration
+sys.path.append(os.path.dirname(os.path.abspath('.')))
+os.environ['DJANGO_SETTINGS_MODULE'] = 'flatgov.dev'
+
+import django
+django.setup()
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
-#USER_AGENT = 'statementAdminPolicy (+http://www.yourdomain.com)'
+#USER_AGENT = 'committeeReport (+http://www.yourdomain.com)'
 
 # Obey robots.txt rules
 ROBOTSTXT_OBEY = True
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-#CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 32
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -45,13 +55,13 @@ ROBOTSTXT_OBEY = True
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 #SPIDER_MIDDLEWARES = {
-#    'statementAdminPolicy.middlewares.StatementadminpolicySpiderMiddleware': 543,
+#    'committeeReport.middlewares.CommitteereportSpiderMiddleware': 543,
 #}
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #DOWNLOADER_MIDDLEWARES = {
-#    'statementAdminPolicy.middlewares.StatementadminpolicyDownloaderMiddleware': 543,
+#    'committeeReport.middlewares.CommitteereportDownloaderMiddleware': 543,
 #}
 
 # Enable or disable extensions
@@ -62,15 +72,9 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
-# See also https://docs.scrapy.org/en/latest/topics/media-pipeline.html#usage-example
 ITEM_PIPELINES = {
-    'scrapy.pipelines.files.FilesPipeline': 1,
-    'statementAdminPolicy.pipelines.StatementadminpolicyPipeline': 300,
+   'committeeReport.pipelines.CommitteereportPipeline': 300,
 }
-
-#FILES_STORE = './pdf'
-#FILES_URLS_FIELD = 'sap_url_field'
-#FILES_RESULT_FIELD = 'sap_result_field'
 
 # Enable and configure the AutoThrottle extension (disabled by default)
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html

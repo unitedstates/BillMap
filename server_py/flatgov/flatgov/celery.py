@@ -2,7 +2,7 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'flatgov.settings.dev')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'flatgov.dev')
 
 app = Celery('flatgov')
 app.config_from_object('django.conf:settings', namespace='CELERY')
@@ -22,7 +22,17 @@ app.conf.beat_schedule = {
     'biden_statements_daily': {
         'task': 'common.biden_statements',
         'schedule': crontab(minute=0, hour=1),
-    }
+    },
+    'sap_scraper_daily': {
+        'task': 'bills.tasks.sap_scrapy_task',
+        'schedule': crontab(minute=0, hour=1),
+        'options': {'queue': 'bill'}
+    },
+    'committee_report_scraper_daily': {
+        'task': 'bills.tasks.committee_report_scrapy_task',
+        'schedule': crontab(minute=0, hour=1),
+        'options': {'queue': 'bill'}
+    },
 }
 
 app.conf.timezone = 'UTC'

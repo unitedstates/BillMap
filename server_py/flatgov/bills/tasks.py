@@ -1,55 +1,38 @@
-from celery import shared_task, states
-import requests
-import json
-from django.conf import settings
-from .models import PressStatement, PressStatementTask
+import os
+from typing import Mapping
+from celery import shared_task
+
+from scrapy.crawler import CrawlerProcess
+from scrapy.utils.project import get_project_settings
+
+from committeeReport.models import CommitteeReportScrapyTask
+
+from statementAdminPolicy.spiders.sap_download import SapPdfSimple
+from committeeReport.spiders.committeereport import CommitteeReportSpider
+from committeeReport.committee_report_scrape_urls import get_detail_urls
+
+@shared_task(bind=True)
+def sap_scrapy_task(self):
+    os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'statementAdminPolicy.settings')
+    process = CrawlerProcess(get_project_settings())
+    process.crawl(SapPdfSimple)
+    process.start(stop_after_crawl=False)
 
 
+@shared_task(bind=True)
+def committee_report_scrapy_task(self):
+    # Create Committee Report Detail Urls to committee_report_detail_urls.json file
+    last_task_log = CommitteeReportScrapyTask.objects.first()
 
-@shared_task
-def scrape_press_statements_task(url, press_statement_task_id):
-    self = scrape_press_statements_task
-    press_statement_task = PressStatementTask.objects.get(id=press_statement_task_id)
-    press_statement_task.task_id = self.AsyncResult(self.request.id).task_id
-    press_statement_task.save()
-    
-    headers = {
-        'x-api-key': settings.PROPUBLICA_CONGRESS_API_KEY
-    }
+    if last_task_log:
+        last_congress = last_task_log.congress
+    else:
+        last_congress = None
+    last_congress = get_detail_urls(last_congress)
+    task_log = CommitteeReportScrapyTask.objects.create(congress=last_congress)
 
-    has_data = True
-    next_offset = 0
-    count = 0
-
-    while has_data:
-        offset_url = url + str(next_offset)
-        response = requests.request("GET", offset_url, headers=headers)
-        offset_data = json.loads(response.text)['results']
-        if not offset_data:
-            has_data = False
-        for data in offset_data:
-            try:
-                count += 1
-                print(count, offset_url)
-                press_statement = PressStatement()
-                press_statement.congress = press_statement_task.congress
-                press_statement.bill_number = press_statement_task.bill_number
-                press_statement.title = data['title']
-                press_statement.url = data['url']
-                press_statement.date = data['date']
-                press_statement.statement_type = data['statement_type']
-                press_statement.member_id = data['member_id']
-                press_statement.member_uri = data['member_uri']
-                press_statement.name = data['name']
-                press_statement.chamber = data['chamber']
-                press_statement.state = data['state']
-                press_statement.party = data['party']
-                press_statement.save()
-            except:
-                pass
-
-
-        next_offset += 20
-    
-    press_statement_task.status = states.SUCCESS
-    press_statement_task.save()
+    # Start Crawling and store data into database
+    os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'committeeReport.settings')
+    process = CrawlerProcess(get_project_settings())
+    process.crawl(CommitteeReportSpider)
+    process.start(stop_after_crawl=False)

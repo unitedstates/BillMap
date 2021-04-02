@@ -25,7 +25,6 @@ from bills.models import (
 from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 
 from crs.models import CrsReport
-from .tasks import scrape_press_statements_task
 
 def deep_get(dictionary: Dict, *keys):
   """
@@ -135,7 +134,6 @@ class BillDetailView(DetailView):
         context['similar_bills'] = self.object.get_similar_bills
         context['es_similarity'] = self.object.es_similarity
         context['propublica_api_key'] = settings.PROPUBLICA_CONGRESS_API_KEY
-        #context['press_statements'] = self.get_press_statements()
         return context
 
     def get_related_statements(self, **kwargs):
@@ -179,37 +177,6 @@ class BillDetailView(DetailView):
         serializer = CosponsorSerializer(
             qs, many=True, context={'bill': self.object})
         return serializer.data
-
-    def get_press_statements(self):
-        press_data = {}
-        slug = self.kwargs['slug']
-        congress = slug[:3]
-        bill_number = slug[3:]
-        headers = {
-            'x-api-key': settings.PROPUBLICA_CONGRESS_API_KEY
-        }
-        url = f"https://api.propublica.org/congress/v1/{congress}/bills/{bill_number}/statements.json?offset="
-        response = requests.request("GET", url, headers=headers)
-        print('-------', json.loads(response.text)['num_results'])
-        if json.loads(response.text)['num_results'] == 0:
-            return []
-        press_data['data'] = json.loads(response.text)
-
-        press_statement_task, created = PressStatementTask.objects.get_or_create(congress=congress, bill_number=bill_number)
-
-        if created:
-            scraper_task = scrape_press_statements_task.delay(url, press_statement_task.id)
-            press_statement_task.status = scraper_task.status
-            print('---', press_statement_task.status)
-            press_statement_task.save()
-
-        if press_statement_task.status == states.SUCCESS:
-            print('-------')
-            press_statements = PressStatement.objects.filter(bill_number__iexact=bill_number).filter(congress__iexact=congress)
-            print('----', press_statements.count())
-            return press_statements
-        else:
-            return []
 
     
     def get_cosponsors_dict(self):

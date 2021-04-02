@@ -67,6 +67,7 @@ INSTALLED_APPS = [
 
     'crs',  # by Dmitry
     'statementAdminPolicy.apps.StatementadminpolicyConfig',
+    'committeeReport.apps.CommitteereportConfig',
 ]
 
 MIDDLEWARE = [

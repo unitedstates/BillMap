@@ -100,7 +100,9 @@ $ cd /opt/flatgov
 $ git clone https://github.com/aih/FlatGov.git
 ```
 
-Copy environment file and **edit the value of  SECRET_Key**:
+Copy environment file. **Edit the value of  SECRET_Key and add a value for the PROPUBLICA_CONGRESS_API_KEY**
+
+:
 
 ```
 $ cp /opt/flatgov/FlatGov/server_py/flatgov/.env-sample /opt/flatgov/FlatGov/server_py/flatgov/.env

@@ -394,7 +394,7 @@
 
                     <tr>
                         <td style="width: 300px;">{{ crs_report.title|truncatechars:120 }}</td>
-                        <td>{{ crs_report.date }}</td>
+                        <td>{{ crs_report.date|date }}</td>
                         <td>
                         {% if crs_report.link %}
                         <a href='{{ crs_report.link }}' target="_blank" class='btn btn-primary'>
@@ -482,7 +482,7 @@
                             <td style="width: 200px;">$[ pressStatement.name ]</td>
                             <td>$[ pressStatement.chamber ]</td>
                             <td>$[ pressStatement.party ]</td>
-                            <td>$[ pressStatement.date ]</td>
+                            <td>$[ pressStatement.date|formatDate ]</td>
                             <td><a v-bind:href="pressStatement.url" target="_blank" class='btn btn-primary'>
                                 View Press Statement
                             </a></td>
@@ -803,6 +803,13 @@
 
     }
   });
+
+  Vue.filter('formatDate', function(value) {
+            if (value) {
+                return moment(String(value)).format('MMM DD, YYYY');
+            }
+    }
+    )
 </script>
 
 {% endblock %}

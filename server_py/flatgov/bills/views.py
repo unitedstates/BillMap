@@ -1,5 +1,6 @@
 import os
 import json
+import requests
 from functools import reduce
 from typing import Dict
 from operator import itemgetter
@@ -12,10 +13,14 @@ from django.shortcuts import render
 from django.views.generic import TemplateView, DetailView
 
 from django_tables2 import MultiTableMixin
+from celery import states
 
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
-from bills.models import Bill, Cosponsor, Statement, CboReport, CommitteeDocument
+from bills.models import (
+    Bill, Cosponsor, Statement, CboReport, CommitteeDocument,
+    PressStatementTask, PressStatement
+)
 
 from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 
@@ -128,6 +133,7 @@ class BillDetailView(DetailView):
         context['related_bills'] = self.get_related_bills()
         context['similar_bills'] = self.object.get_similar_bills
         context['es_similarity'] = self.object.es_similarity
+        context['propublica_api_key'] = settings.PROPUBLICA_CONGRESS_API_KEY
         return context
 
     def get_related_statements(self, **kwargs):
@@ -171,6 +177,7 @@ class BillDetailView(DetailView):
         serializer = CosponsorSerializer(
             qs, many=True, context={'bill': self.object})
         return serializer.data
+
     
     def get_cosponsors_dict(self):
         cosponsors =  self.object.cosponsors_dict

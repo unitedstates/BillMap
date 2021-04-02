@@ -65,9 +65,7 @@ INSTALLED_APPS = [
     'django_tables2',
     'admin_auto_filters',
 
-    'crs',  # by Dmitry
-    'statementAdminPolicy',
-    'committeeReport',
+    'crs'  # by Dmitry
 ]
 
 MIDDLEWARE = [
@@ -219,3 +217,5 @@ logging.config.dictConfig({
 })
 
 BILL_SUMMARY_DEFAULT_TEXT = 'Bill Summary Default Text'
+
+PROPUBLICA_CONGRESS_API_KEY = os.getenv('PROPUBLICA_CONGRESS_API_KEY', "")

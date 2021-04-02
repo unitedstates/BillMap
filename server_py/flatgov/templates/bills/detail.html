@@ -339,7 +339,7 @@
     </div>
 </div>
 <hr>
-<div class="understanding-context mt-4 pb-2">
+<div class="understanding-context mt-4 pb-2" id="app">
     <h4>Understand the Context</h4>
     <span class="small">Reports and other information for this bill</span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
@@ -460,12 +460,11 @@
                 </tbody>
             </table>
     </div>
-        <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab" style="min-height:20vh; max-height: 50vh; overflow: scroll;">
+        <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab" style="min-height:40vh; max-height: 50vh; overflow: scroll;">
             
-            <table class="table mt-3" id='cbo-tables'>
+            <table class="table mt-3" id='press-statements-tables'>
                 <thead>
                     <tr>
-                        <th scope="col">Bill</th>
                         <th scope="col">Title</th>
                         <th>Issued By</th>
                         <th>Chamber</th>
@@ -474,32 +473,36 @@
                         <th scope="col">Link</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for press_statement in press_statements %}
 
-                    <tr>
-                        <td>{{ press_statement.congress }}{{ press_statement.bill_number }}</td>
-                        <td style="width: 600px;">{{ press_statement.title|truncatechars:120 }}</td>
-                        <td style="width: 100px;">{{ press_statement.name }}</td>
-                        <td>{{ press_statement.chamber }}</td>
-                        <td>{{ press_statement.party }}</td>
-                        <td>{{ press_statement.date }}</td>
-                        <td><a href='{{ press_statement.url }}' target="_blank" class='btn btn-primary'>
+                <tbody>
+
+                    <tr v-for='(pressStatement, index) in pressStatements' :key="index">
+                        <td style="width: 550px;">$[ pressStatement.title ]</td>
+                        <td style="width: 200px;">$[ pressStatement.name ]</td>
+                        <td>$[ pressStatement.chamber ]</td>
+                        <td>$[ pressStatement.party ]</td>
+                        <td>$[ pressStatement.date ]</td>
+                        <td><a v-bind:href="pressStatement.url" target="_blank" class='btn btn-primary'>
                             View Press Statement
                         </a></td>
                     </tr>
-                    {% endfor %}
-                    {% if not press_statements %}
-                    <tr>
-                        <td>
-
-                                The data is in process. Please check after a while.
-                        </td>
-                    </tr>
-                    {% endif %}
                 </tbody>
             </table>
-
+            
+            <nav aria-label="..." class="d-flex justify-content-end dataTables_paginate">
+                <ul class="pagination">
+                  <li @click="changePage(false)" class="page-item ">
+                    <button class="page-link "><</button>
+                  </li>
+                  <li v-for="(page, index) in getPages" 
+                  :key="index" 
+                  @click="getPressStatements(page)"
+                  v-bind:class="[(offset == page)? 'active page-item':'page-item']"><button class="page-link">$[ index+1 ]</button></li>
+                  <li @click="changePage(true)" class="page-item">
+                    <button class="page-link">></button>
+                  </li>
+                </ul>
+              </nav>
         </div>
         <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
             <h6 class="pt-3">
@@ -730,4 +733,73 @@
     //     // rowFormatter:function(row){
     // });
 </script>
+
+<!-- vue.js files -->
+<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.5"></script>
+
+
+
+<script type="text/javascript">
+  Vue.http.headers.common['x-api-key'] = "{{propublica_api_key}}";
+  new Vue({
+    el: '#app',
+    components: {
+    },
+    delimiters: ['$[', ']'],
+    data: {
+      pressStatements: [],
+      errors: [],
+      offset: 0,
+      numResults: 0,
+      status: null,
+      height:0,
+      pages: [],
+
+      showModal: false,
+    },
+    created: function () {
+      this.getPressStatements(0)
+    },
+    computed: {
+        getPages() {
+            this.pages = []
+            var current_offset = 0
+            while (current_offset < this.numResults) {
+                this.pages.push(current_offset)
+                current_offset += 20
+            }
+            return this.pages;
+
+        }
+    },
+    methods: {
+      getPressStatements: async function (offset) {
+          this.offset = offset;
+        await this.$http.get(`https://api.propublica.org/congress/v1/{{bill.congress}}/bills/{{bill.type}}{{bill.number}}/statements.json?offset=${offset}`)
+          .then((response) => {
+            this.pressStatements = response.data.results;
+            this.numResults = response.data.num_results;
+            this.status = response.data.status;
+          })
+          .catch((err) => {
+              console.warn(err)
+          });
+      },
+      changePage(isIncrease) {
+          if (isIncrease) {
+              if (this.offset + 20 <= this.numResults) {
+                  this.getPressStatements(this.offset+20)
+              }
+          } else {
+              if (this.offset - 20 >= 0) {
+                  this.getPressStatements(this.offset-20)
+              }
+          }
+      }
+
+    }
+  });
+</script>
+
 {% endblock %}

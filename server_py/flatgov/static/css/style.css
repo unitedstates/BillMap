@@ -41,6 +41,12 @@
     border: none !important;
 }
 
+.pagination button {
+    border-radius: 50% !important;
+    width: 40px !important;
+    height: 40px !important;
+}
+
 .dataTables_paginate a {
     border-radius: 100% !important;
     width: 40px;

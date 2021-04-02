@@ -134,7 +134,8 @@ class BillDetailView(DetailView):
         context['related_bills'] = self.get_related_bills()
         context['similar_bills'] = self.object.get_similar_bills
         context['es_similarity'] = self.object.es_similarity
-        context['press_statements'] = self.get_press_statements()
+        context['propublica_api_key'] = settings.PROPUBLICA_CONGRESS_API_KEY
+        #context['press_statements'] = self.get_press_statements()
         return context
 
     def get_related_statements(self, **kwargs):

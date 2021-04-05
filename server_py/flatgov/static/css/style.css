@@ -260,6 +260,8 @@ span.twitter-typeahead .tt-suggestion:focus {
 
 #bill-search {
     padding-right: 40px;
+    border:1px solid var(--select-border);
+    border-radius: 5px;
 }
 
 #search-icon {

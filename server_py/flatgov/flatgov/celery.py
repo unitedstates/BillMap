@@ -33,6 +33,16 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
     },
+    'cbo_scraper_daily': {
+        'task': 'bills.tasks.cbo_task',
+        'schedule': crontab(minute=0, hour=1),
+        'options': {'queue': 'bill'}
+    },
+    'crs_scraper_daily': {
+        'task': 'bills.tasks.crs_task',
+        'schedule': crontab(minute=0, hour=1),
+        'options': {'queue': 'bill'}
+    },
 }
 
 app.conf.timezone = 'UTC'

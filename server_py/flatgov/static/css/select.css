@@ -13,12 +13,9 @@ EDIT ON
 }
 
 select {
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
   background-color: transparent;
   border: none;
-  padding: 0 1em 0 0;
+  padding: 0 1.5em 0 0;
   margin: 0;
   width: 100%;
   font-family: inherit;
@@ -29,24 +26,20 @@ select {
   outline: none;
 }
 select::-ms-expand {
-  display: none;
+  display: block;
 }
 
 .select {
-  display: grid;
-  grid-template-areas: "select";
   align-items: center;
   position: relative;
-  min-width: 15ch;
-  max-width: 30ch;
   border: 1px solid var(--select-border);
   border-radius: 0.25em;
-  padding: 0.25em 0.5em;
+  padding-left: 15px;
   font-size: 1.25rem;
   cursor: pointer;
-  line-height: 1.1;
   background-color: #fff;
   background-image: linear-gradient(to top, #f9f9f9, #fff 33%);
+  height: 46px;
 }
 .select select, .select::after {
   grid-area: select;

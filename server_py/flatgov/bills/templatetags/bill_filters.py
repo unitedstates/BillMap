@@ -1,6 +1,5 @@
 from django import template
 from django.template.defaultfilters import stringfilter
-from datetime import date, timedelta
 from common import constants
 
 
@@ -26,7 +25,7 @@ def billnumber_display(billnumber: str):
     billMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billnumber) 
     if billMatch and billMatch.groupdict():
         billMatchGroups = billMatch.groupdict()
-        congress = billMatchGroups.get('congress', '')
+        congress = numstring_to_ordinal(billMatchGroups.get('congress', ''))
         stage = billMatchGroups.get('stage', '')
         number = billMatchGroups.get('number', '')
         stage_fmt = stagesFormat.get(stage.upper(), stage)

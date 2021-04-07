@@ -43,16 +43,28 @@ var stagesFormat = {
         'SRES': 'S.Res.'
     }
 
+// See https://stackoverflow.com/a/39466341/628748
+var numstringToOrdinal = function(numstring){
+
+    if (!numstring) {
+        return '';
+    }
+
+    const n = parseInt(numstring, 10);
+    const suffix = [,'st','nd','rd'][n/10%10^1&&n%10]||'th'
+    return n.toString() + suffix;
+}
+
 var billFormat = function(str) {
     const billCongressTypeNumberRegex = new RegExp(/(?<congress>\d+)(?<type>[a-z]+)(?<billnumber>\d+)/, 'gi');
     const billMatch = billCongressTypeNumberRegex.exec(str);
     const billType = stagesFormat[billMatch.groups.type.toUpperCase()] || '';
-    return `${billType} ${billMatch.groups.billnumber} (${billMatch.groups.congress})`
+    return `${billType} ${billMatch.groups.billnumber} (${numstringToOrdinal(billMatch.groups.congress)})`
 }
 
 // Takes a bill number of the form H.R. 200 (116) and returns 116hr200
 var billUnFormat = function(str) {
-    const parensCongressRegex = new RegExp(/\((?<congress>\d+)\)/, '');
+    const parensCongressRegex = new RegExp(/\((?<congress>\d+)[thstrd]*\)/, '');
     const congressMatch = parensCongressRegex.exec(str)
     return congressMatch.groups.congress + str.replace(/[\. ]/gi, '').replace(/\(.*$/, '').toLowerCase()
 }

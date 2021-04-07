@@ -44,4 +44,5 @@ class BillListTitleAPIView(View):
         bills_titles=Bill.objects.filter(congress=congressnumber).values_list(
                              'bill_congress_type_number', 'short_title').order_by(
                                  'bill_congress_type_number')
-        return JsonResponse({"bill_st_list": list(reversed(bills_titles))})
+        bill_titles_index = {item[0]:item[1] for item in reversed(bills_titles)}
+        return JsonResponse(bill_titles_index)

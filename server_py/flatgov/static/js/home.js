@@ -3,12 +3,21 @@ var billsDataSample = ['116hr5', '116hr532', '116hr1500', '116hjres31', '116hr12
 var billsDataURL = 'bill-list';
 var allBillData = [];
 var currentBillData = [];
+var current_year = new Date().getFullYear();
+var currentCongress = Math.floor((current_year - 1787) / 2) || 117;
+var currentCongressRegex = new RegExp(`^${currentCongress}`);
+var selectedBillTitlesData = {};
+var getBillsTitles = function(congressnumber) {
+    const billsTitlesURL = `bill-titles/${congressnumber}`;
+    $.get(billsTitlesURL).then(function (results) {
+        selectedBillTitlesData = results;
+    });
+}
+getBillsTitles(currentCongress.toString());
+
 $.get(billsDataURL).then(function (results) {
     allBillData = results.bill_list ? results.bill_list.sort() : billsDataSample;
-    const current_year = new Date().getFullYear();
-    const currentCongress = Math.floor((current_year - 1787) / 2) || 117;
-    const re = new RegExp(`^${currentCongress}`);
-    currentBillData = allBillData.filter(item => item.match(re)) 
+    currentBillData = allBillData.filter(item => item.match(currentCongressRegex)) 
 
     $("#bill-search").typeahead({
         hint: true,
@@ -59,7 +68,8 @@ var billFormat = function(str) {
     const billCongressTypeNumberRegex = new RegExp(/(?<congress>\d+)(?<type>[a-z]+)(?<billnumber>\d+)/, 'gi');
     const billMatch = billCongressTypeNumberRegex.exec(str);
     const billType = stagesFormat[billMatch.groups.type.toUpperCase()] || '';
-    return `${billType} ${billMatch.groups.billnumber} (${numstringToOrdinal(billMatch.groups.congress)})`
+    const short_title = selectedBillTitlesData[str] ? ':  ' + selectedBillTitlesData[str] : '';
+    return `${billType} ${billMatch.groups.billnumber} (${numstringToOrdinal(billMatch.groups.congress)})${short_title}`
 }
 
 // Takes a bill number of the form H.R. 200 (116) and returns 116hr200
@@ -108,10 +118,11 @@ $(document).ready(function() {
         if (value == 'all'){
             currentBillData = [...allBillData]
         }else{
-            var re = new RegExp(`^${value}`);
-            currentBillData = allBillData.filter(item => item.match(re)) 
+            getBillsTitles(value);
+            const congressRegex = new RegExp(`^${value}`);
+            currentBillData = allBillData.filter(item => item.match(congressRegex)) 
         }
-        console.log(currentBillData);
+        //console.log(currentBillData);
         $("#bill-search").typeahead('destroy');
         $("#bill-search").typeahead({
             hint: true,

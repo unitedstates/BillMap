@@ -61,18 +61,19 @@ def updateLegislators():
         if not name_last:
             name_last = ""
         name = ", ".join([name_last, name_first])
-        legislator_model = Cosponsor(name=name, 
-                                    name_first=name_first, 
-                                    name_last=name_last,
+        Cosponsor.objects.update_or_create(name=name, 
                                     name_full_official=legislator.get("name"),
-                                    bioguide_id = legislator.get("bioguide", ""),
-                                    thomas = legislator.get("thomas", ""),
-                                    party = legislatorid.get("party", ""),
-                                    state = legislatorid.get("state", ""),
-                                    type = legislatorid.get("type", ""),
-                                    terms = legislatorid.get("terms", []),
+                                    defaults={
+                                        'name_first': name_first, 
+                                        'name_last': name_last,
+                                        'bioguide_id': legislator.get("bioguide", ""),
+                                        'thomas': legislator.get("thomas", ""),
+                                        'party': legislatorid.get("party", ""),
+                                        'state': legislatorid.get("state", ""),
+                                        'type': legislatorid.get("type", ""),
+                                        'terms': legislatorid.get("terms", []),
+                                    }
                             )
-        legislator_model.save()
 
 def updateCommittees():
     """
@@ -117,16 +118,22 @@ def updateCommittees():
     committees = getAndParseYAML(COMMITTEES_URL)
     # TODO add committee data to db
     for committee in committees:
-        committee_model = Committee(
-        thomas_id = committee.get('thomas_id'), 
-        type = committee.get('type', ''),
-        name= committee.get('name', ''),
-        url = committee.get('url', ''),
-        minority_url = committee.get('minority_url', ''),
-        house_committee_id = committee.get('house_committee_id', ''),
-        jurisdiction = committee.get('jusrisdiction')
+        thomas_id = committee.get('thomas_id', '')
+        jurisdiction = committee.get('jurisdiction', '')
+        if len(jurisdiction) > 250:
+            jurisdiction = jurisdiction[:249]
+        if not thomas_id:
+            continue
+        Committee.objects.update_or_create(
+        thomas_id = committee.get('thomas_id'), defaults={
+            'type': committee.get('type', ''),
+            'name': committee.get('name', ''),
+            'url': committee.get('url', ''),
+            'minority_url': committee.get('minority_url', ''),
+            'house_committee_id': committee.get('house_committee_id', ''),
+            'jurisdiction': jurisdiction 
+        }
         )
-        committee_model.save()
 
 #TODO define relationship of historical legislators
 # in database

@@ -1,16 +1,15 @@
 import os
+from django.db.models.expressions import Value
 
 from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
+from django.db.models.functions import Concat
 from django.views import View
 
-from rest_framework.generics import ListAPIView
 from common.constants import START_CONGRESS, CURRENT_CONGRESS
 
 from home.forms import QueryForm
 from bills.models import Bill
-from bills.serializers import BillNumberListSerializer
-
 
 def index(request):
     return HttpResponse("Hello, world. You're at the home index.")
@@ -39,3 +38,11 @@ class BillListAPIView(View):
         bills = Bill.objects.values_list('bill_congress_type_number', flat=True) \
             .order_by('bill_congress_type_number')
         return JsonResponse({"bill_list": list(reversed(bills))})
+class BillListTitleAPIView(View):
+    
+    def get(self, request, congressnumber):
+        bills_titles=Bill.objects.filter(congress=congressnumber).values_list(
+                             'bill_congress_type_number', 'short_title').order_by(
+                                 'bill_congress_type_number')
+        bill_titles_index = {item[0]:item[1] for item in reversed(bills_titles)}
+        return JsonResponse(bill_titles_index)

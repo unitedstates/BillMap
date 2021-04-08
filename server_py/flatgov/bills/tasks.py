@@ -40,7 +40,6 @@ def committee_report_scrapy_task(self):
     process.crawl(CommitteeReportSpider)
     process.start(stop_after_crawl=False)
 
-
 @shared_task(bind=True)
 def cbo_task(self):
     cbo()

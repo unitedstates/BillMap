@@ -159,3 +159,28 @@ $python manage.py createsuperuser
 ```
 
 Locally, I've used `cool1dude` as the pw
+
+## Review data from the Django shell
+
+It may be useful to review data from the Django shell. For example, to find a sample of a Committee Document from the 117th Congress, enter the shell and run queries on the model:
+
+```bash
+(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov$ python manage.py shell
+Python 3.8.3 (default, Sep 24 2020, 22:52:34)
+[GCC 7.5.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+>>> from bills.models import CommitteeDocument
+>>> queryset = CommitteeDocument.objects.filter(congress=117)
+>>> queryset.count()
+14
+>>> record.queryset.first()
+Traceback (most recent call last):
+  File "<console>", line 1, in <module>
+NameError: name 'record' is not defined
+>>> record = queryset.first()
+>>> record.original_pdf_link
+'//www.govinfo.gov/content/pkg/CRPT-117hrpt3/pdf/CRPT-117hrpt3.pdf'
+>>> record.associated_legislation
+'H. Res.85'
+```

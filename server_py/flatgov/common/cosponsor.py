@@ -1,6 +1,9 @@
 import requests
 from requests.api import get
 import yaml
+
+from bills.models import Cosponsor
+from bills.views import deep_get 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -16,10 +19,46 @@ def getAndParseYAML(url):
     response = requests.get(url, allow_redirects=True)
     return yaml.load(response.content, Loader=Loader)
 
-legislators = getAndParseYAML(LEGISLATORS_URL)
-legislators_hist = getAndParseYAML(LEGISLATORS_HIST_URL)
-committee_membership = getAndParseYAML(COMMITTEE_MEMBERSHIP_URL)
-committees = getAndParseYAML(COMMITTEES_URL)
+def updateLegislators():
+    """
+    Add legislator data to database. 
+    Download and parse YAML for legislators, then add or update fields.
+    """
+    legislatorids = getAndParseYAML(LEGISLATORS_URL)
+    for legislatorid in legislatorids:
+        legislator = legislatorid.get("id")
+        name_first = deep_get(legislatorid, "name", "first")
+        name_last = deep_get(legislatorid, "name", "last")
+        if not name_first:
+            name_first = ""
+        if not name_last:
+            name_last = ""
+        name = ", ".join([name_last, name_first])
+        legislator_model = Cosponsor(name=name, 
+                                    name_first=name_first, 
+                                    name_last=name_last,
+                                    name_full_official=legislator.get("name"),
+                                    bioguide_id = legislator.get("bioguide", ""),
+                                    thomas = legislator.get("thomas", ""),
+                                    party = legislatorid.get("party", ""),
+                                    state = legislatorid.get("state", ""),
+                                    type = legislatorid.get("type", ""),
+                                    terms = legislatorid.get("terms", []),
+                            )
+        legislator_model.save()
+
+def updateCommittees():
+    committees = getAndParseYAML(COMMITTEES_URL)
+    # TODO add committee data to db
+
+#TODO define relationship of historical legislators
+# in database
+def updateLegislatorsHist():
+    legislators_hist = getAndParseYAML(LEGISLATORS_HIST_URL)
+
+# TODO create join table and associate members with committees
+def updateCommitteeMembers():
+    committee_membership = getAndParseYAML(COMMITTEE_MEMBERSHIP_URL)
 
 """
 SAMPLES

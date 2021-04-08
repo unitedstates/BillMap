@@ -1,6 +1,7 @@
 import os
 from typing import Mapping
 from celery import shared_task
+from django.db.models.fields import BinaryField
 
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
@@ -10,6 +11,8 @@ from committeeReport.models import CommitteeReportScrapyTask
 from statementAdminPolicy.spiders.sap_download import SapPdfSimple
 from committeeReport.spiders.committeereport import CommitteeReportSpider
 from committeeReport.committee_report_scrape_urls import get_detail_urls
+from common.cbo import cbo
+from crs.populate_crs_table import CrsFromApi
 
 @shared_task(bind=True)
 def sap_scrapy_task(self):
@@ -36,3 +39,13 @@ def committee_report_scrapy_task(self):
     process = CrawlerProcess(get_project_settings())
     process.crawl(CommitteeReportSpider)
     process.start(stop_after_crawl=False)
+
+@shared_task(bind=True)
+def cbo_task(self):
+    cbo()
+
+
+@shared_task(bind=True)
+def crs_task(self):
+    crs_api = CrsFromApi()
+    crs_api.populate()

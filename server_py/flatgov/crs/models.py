@@ -16,6 +16,9 @@ class CrsReport(models.Model):
         null=True, help_text='Report raw text extracted from HTML. '
                              'It does not include report summary, look to metadata for it.')
 
+    meta_url = models.URLField()
+    html_url = models.URLField()
+
     def get_report_file_path(self):
         return '{}/files/{}'.format(settings.BASE_DIR, self.file)
 

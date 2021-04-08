@@ -18,8 +18,6 @@ class Bill(models.Model):
     summary = models.TextField(null=True, blank=True)
     titles_whole_bill = models.JSONField(default=list)
     short_title = models.TextField(null=True, blank=True)
-    # sponsor = models.ForeignKey(
-    #     'bills.Sponsor', on_delete=models.CASCADE, blank=True, null=True)
     sponsor = models.JSONField(default=dict)
     cosponsors = models.ManyToManyField(
         'bills.Cosponsor', blank=True, related_name='cosponsors')
@@ -149,8 +147,16 @@ class Bill(models.Model):
 
 
 class Cosponsor(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100) # Last, First 
+    name_first = models.CharField(max_length=100, blank=True, null=True)
+    name_last = models.CharField(max_length=100, blank=True, null=True)
+    name_full_official = models.CharField(max_length=100, blank=True, null=True)
     bioguide_id = models.CharField(max_length=100, blank=True, null=True)
+    thomas = models.CharField(max_length=100, blank=True, null=True)
+    party = models.CharField(max_length=100, blank=True, null=True)
+    state = models.CharField(max_length=2, blank=True, null=True)
+    type = models.CharField(max_length=3, blank=True, null=True)
+    terms = models.JSONField(default=list)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -160,21 +166,14 @@ class Cosponsor(models.Model):
 
     class Meta:
         unique_together = ('name', 'bioguide_id')
-
-
-class Sponsor(models.Model):
-    name = models.CharField(max_length=100)
-    district = models.CharField(max_length=300, blank=True, null=True)
-    state = models.CharField(max_length=50, blank=True, null=True)
-    title = models.CharField(max_length=50, blank=True, null=True)
-    titles = models.JSONField(default=list)
-    type = models.CharField(max_length=50, blank=True, null=True)
-    thomas_id = models.CharField(max_length=50, blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-
-
+class Committee(models.Model):
+    thomas_id = models.CharField(max_length=10, unique=True, db_index=True)
+    type = models.CharField(max_length=10)
+    name = models.CharField(max_length=250)
+    url = models.URLField(blank=True, null=True)
+    minority_url = models.URLField(blank=True, null=True)
+    house_committee_id = models.CharField(max_length=10, blank=True, null=True)
+    jurisdiction = models.CharField(max_length=250, blank=True, null=True)
 
 class Statement(models.Model):
     bill_number = models.CharField(max_length=127)

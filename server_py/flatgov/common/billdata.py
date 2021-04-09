@@ -216,7 +216,9 @@ def updateBillsMeta(billsMeta= {}):
     billsMeta[billCongressTypeNumber]['titles'] = [title.get('title') for title in titles]
     billsMeta[billCongressTypeNumber]['titles_whole_bill'] = [title.get('title') for title in titles if not title.get('is_for_portion')]
     cosponsors = getCosponsors(fileDict=billDict, includeFields=['name', 'bioguide_id'])
+    committees = billDict.get('committees', [])
     billsMeta[billCongressTypeNumber]['cosponsors'] = cosponsors
+    billsMeta[billCongressTypeNumber]['committees'] = committees
 
     # TODO convert bill_id to billnumber
     billsMeta[billCongressTypeNumber]['related_bills'] = billDict.get('related_bills')

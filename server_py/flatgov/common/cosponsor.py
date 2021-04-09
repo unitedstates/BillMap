@@ -52,26 +52,37 @@ def updateLegislators():
   ...]}
     """
     legislatorids = getAndParseYAML(LEGISLATORS_URL)
-    for legislatorid in legislatorids:
-        legislator = legislatorid.get("id")
-        name_first = deep_get(legislatorid, "name", "first")
-        name_last = deep_get(legislatorid, "name", "last")
+    for legislator in legislatorids:
+        legislatorid = legislator.get("id")
+        name_first = deep_get(legislator, "name", "first")
+        name_last = deep_get(legislator, "name", "last")
         if not name_first:
             name_first = ""
         if not name_last:
             name_last = ""
         name = ", ".join([name_last, name_first])
+        full_official = deep_get(legislator, "name", "official_full")
+        terms = legislator.get("terms", [])
+        reversed(terms)
+        if terms and len(terms) > 0:
+            type = terms[0].get('type', '')
+            party = terms[0].get('party', '')
+            state = terms[0].get('state', '')
+        else:
+            type = ""
+            party = ""
+            state = ""
         Cosponsor.objects.update_or_create(name=name, 
-                                    name_full_official=legislator.get("name"),
+                                    name_full_official=full_official,
                                     defaults={
                                         'name_first': name_first, 
                                         'name_last': name_last,
-                                        'bioguide_id': legislator.get("bioguide", ""),
-                                        'thomas': legislator.get("thomas", ""),
-                                        'party': legislatorid.get("party", ""),
-                                        'state': legislatorid.get("state", ""),
-                                        'type': legislatorid.get("type", ""),
-                                        'terms': legislatorid.get("terms", []),
+                                        'bioguide_id': legislatorid.get("bioguide", ""),
+                                        'thomas': legislatorid.get("thomas", ""),
+                                        'party': party, 
+                                        'state': state,
+                                        'type': type, 
+                                        'terms': terms,
                                     }
                             )
 
@@ -138,36 +149,67 @@ def updateCommittees():
 #TODO define relationship of historical legislators
 # in database
 def updateLegislatorsHist():
+    """
+    legislators_hist[0] 
+    {'id': {'bioguide': 'B000226',
+      'govtrack': 401222,
+      'icpsr': 507,
+      'wikipedia': 'Richard Bassett (Delaware politician)',
+      'wikidata': 'Q518823',
+      'google_entity_id': 'kg:/m/02pz46'},
+     'name': {'first': 'Richard', 'last': 'Bassett'},
+     'bio': {'birthday': '1745-04-02', 'gender': 'M'},
+     'terms': [{'type': 'sen',
+       'start': '1789-03-04',
+       'end': '1793-03-03',
+       'state': 'DE',
+       'class': 2,
+       'party': 'Anti-Administration'}]}
+    """
     legislators_hist = getAndParseYAML(LEGISLATORS_HIST_URL)
 
-# TODO create join table and associate members with committees
 def updateCommitteeMembers():
+    """
+     c.get('HSGO')
+[{'name': 'Carolyn B. Maloney',
+  'party': 'majority',
+  'rank': 1,
+  'title': 'Chairman',
+  'bioguide': 'M000087'},
+ {'name': 'James Comer',
+  'party': 'minority',
+  'rank': 1,
+  'title': 'Ranking Member',
+  'bioguide': 'C001108'},
+ {'name': 'Eleanor Holmes Norton',
+  'party': 'majority',
+  'rank': 2,
+  'bioguide': 'N000147'},
+ {'name': 'Jim Jordan', 'party': 'minority', 'rank': 2, 'bioguide': 'J000289'},
+ {'name': 'Stephen F. Lynch',
+  'party': 'majority',
+  'rank': 3,
+  'bioguide': 'L000562'},...
+  ]
+    """
     committee_membership = getAndParseYAML(COMMITTEE_MEMBERSHIP_URL)
-    return committee_membership
-
-"""
-SAMPLES
-
-legislators_hist[0] 
-{'id': {'bioguide': 'B000226',
-  'govtrack': 401222,
-  'icpsr': 507,
-  'wikipedia': 'Richard Bassett (Delaware politician)',
-  'wikidata': 'Q518823',
-  'google_entity_id': 'kg:/m/02pz46'},
- 'name': {'first': 'Richard', 'last': 'Bassett'},
- 'bio': {'birthday': '1745-04-02', 'gender': 'M'},
- 'terms': [{'type': 'sen',
-   'start': '1789-03-04',
-   'end': '1793-03-03',
-   'state': 'DE',
-   'class': 2,
-   'party': 'Anti-Administration'}]}
-
-   ===
-committee_membership.keys()
-dict_keys(['SSAF', 'SSAF13', 'SSAF14', 'SSAF17', 'SSAF16', 'SSAF15', 'SSAP', 'SSAP01', 'SSAP16', 'SSAP02', 'SSAP14', 'SSAP17', 'SSAP18', 'SSAP22', 'SSAP23', 'SSAP08', 'SSAP19', 'SSAP20', 'SSAP24', 'SSAS', 'SSAS14', 'SSAS21', 'SSAS20', 'SSAS17', 'SSAS15', 'SSAS13', 'SSAS16', 'SSBK', 'SSBK12', 'SSBK08', 'SSBK09', 'SSBK05', 'SSBK04', 'SSCM', 'SSCM28', 'SSCM26', 'SSCM29', 'SSCM30', 'SSCM31', 'SSCM32', 'SSEG', 'SSEG01', 'SSEG04', 'SSEG03', 'SSEG07', 'SSEV', 'SSEV10', 'SSEV15', 'SSEV09', 'SSEV08', 'SSFI', 'SSFI12', 'SSFI14', 'SSFI10', 'SSFI13', 'SSFI02', 'SSFI11', 'SSFR', 'SSFR09', 'SSFR02', 'SSFR01', 'SSFR15', 'SSFR07', 'SSFR14', 'SSFR06', 'SSHR', 'SSHR09', 'SSHR11', 'SSHR12', 'SSGA', 'SSGA20', 'SSGA22', 'SSGA01', 'SLIA', 'SSRA', 'SSSB', 'SSBU', 'SSJU', 'SSJU01', 'SSJU04', 'SSJU22', 'SSJU26', 'SSJU25', 'SSJU21', 'SSVA', 'JSPR', 'JSTX', 'JSLC', 'JSEC', 'SLET', 'SLIN', 'SPAG', 'SCNC', 'JCSE', 'HSAG', 'HSAP', 'HSAS', 'HSBA', 'HSBU', 'HSCN', 'HSED', 'HSFA', 'HSGO', 'HSHA', 'HSHM', 'HSIF', 'HLIG', 'HSII', 'HSJU', 'HSMH', 'HSPW', 'HSRU', 'HSSM', 'HSSO', 'HSSY', 'HSVR', 'HSWM'])
-   ===
-
-
-"""
+    for committee_thomas_id, cosponsor_items in committee_membership.items():
+        print(committee_thomas_id)
+        try:
+            committee_item = Committee.objects.get(thomas_id=committee_thomas_id)
+        except Exception as err:
+            print(err)
+            continue
+        if committee_item:
+            for cosponsor_item in cosponsor_items:
+                bioguide = cosponsor_item.get('bioguide', '')
+                if bioguide:
+                    cosponsor = Cosponsor.objects.filter(bioguide_id=bioguide).first()
+                    if cosponsor:
+                        committee_item.cosponsors.add(cosponsor)
+                        cosponsor_item['committee'] = committee_thomas_id
+                        if not cosponsor.committees:
+                            cosponsor.committees = [cosponsor_item] 
+                        else:
+                            cosponsor.committees = cosponsor.committees.append(cosponsor_item) 
+                            cosponsor.committees.save()

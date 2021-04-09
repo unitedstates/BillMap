@@ -147,10 +147,10 @@ class Bill(models.Model):
 
 
 class Cosponsor(models.Model):
-    name = models.CharField(max_length=100) # Last, First 
-    name_first = models.CharField(max_length=100, blank=True, null=True)
-    name_last = models.CharField(max_length=100, blank=True, null=True)
-    name_full_official = models.CharField(max_length=100, blank=True, null=True)
+    name = models.CharField(max_length=250) # Last, First 
+    name_first = models.CharField(max_length=250, blank=True, null=True)
+    name_last = models.CharField(max_length=250, blank=True, null=True)
+    name_full_official = models.CharField(max_length=250, blank=True, null=True)
     bioguide_id = models.CharField(max_length=100, blank=True, null=True)
     thomas = models.CharField(max_length=100, blank=True, null=True)
     party = models.CharField(max_length=100, blank=True, null=True)

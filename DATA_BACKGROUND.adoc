@@ -134,7 +134,12 @@ OR
 It does this by creating a billnumber index with the bill metadata, and any similarity measures will subsequently be attributed to its corresponding number in the index. For example, after the index is created,a “getSameTitles” function is run, which loops through the index and creates a list of titles for that billNumber. A bill number with more than one title would then indicate that the bill has more than one version of itself. Identical titles would indicate identical bills, with different bill numbers.
 
 #### Cosponsors
-(to do)
+
+Legislator information is downloaded from YAML files maintained in the `unitedstates/congress-legislators` repository:
+'https://raw.githubusercontent.com/unitedstates/congress-legislators/master/legislators-current.yaml'
+
+This data is downloaded and updated in the database in `flatgov/common/cosponsor.py`. The Committee data is also updated and associations between Committees and their members are created.
+
 
 #### Similar Title
 (to )do

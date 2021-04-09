@@ -39,7 +39,8 @@ PATH_BILL_FULL_JSON = os.path.join(
     BASE_DIR, 'elasticsearch/bill_full_mapping.json')
 
 
-PATH_TO_BILLS_META = os.path.join(BASE_DIR, 'billsMeta.json')
+# PATH_TO_BILLS_META = os.path.join(BASE_DIR, 'billsMeta.json')
+PATH_TO_BILLS_META = os.path.join(BASE_DIR, 'billMetaGo.json')
 PATH_TO_CONGRESSDATA_DIR = CONGRESS_DATA_PATH
 PATH_TO_DATA_DIR = os.getenv('PATH_TO_DATA_DIR', os.path.join('/', *"/usr/local/share/xcential/public/data".split('/')))
 PATH_TO_CONGRESSDATA_XML_DIR = os.getenv('PATH_TO_CONGRESSDATA_XML_DIR', os.path.join('/', *"/usr/local/share/xcential/public/data/116/dtd".split('/')))

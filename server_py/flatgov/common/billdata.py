@@ -191,7 +191,7 @@ def loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META, zip = True):
   
   return billsMeta
 
-def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip = True):
+def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip = False):
   with open(metaPath, 'w') as f:
     json.dump(billsMeta, f)
     if zip:

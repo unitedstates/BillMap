@@ -76,7 +76,7 @@
                             <tr>
                                 <td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
                                 <td></td>
-                                <td></td>
+                                <td>{{ cosponsor.party|slice:":1" }}</td>
                                 <td></td>
                             </tr>
                             {% endfor %}

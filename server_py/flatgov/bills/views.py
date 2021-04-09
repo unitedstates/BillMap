@@ -171,8 +171,10 @@ class BillDetailView(DetailView):
         cosponsor_ids = list(self.object.cosponsors.values_list('pk', flat=True))
         sponsor_name = self.object.sponsor.get('name')
         if sponsor_name:
-            sponsor_id = Cosponsor.objects.filter(name=sponsor_name).first().pk
-            cosponsor_ids.append(sponsor_id)
+            sponsor = Cosponsor.objects.filter(name=sponsor_name).first()
+            if sponsor:
+                sponsor_id = sponsor.pk
+                cosponsor_ids.append(sponsor_id)
         qs = Cosponsor.objects.filter(pk__in=cosponsor_ids)
         serializer = CosponsorSerializer(
             qs, many=True, context={'bill': self.object})
@@ -181,13 +183,11 @@ class BillDetailView(DetailView):
     
     def get_cosponsors_dict(self):
         cosponsors =  self.object.cosponsors_dict
-        print(cosponsors)
         cosponsors = sorted(cosponsors, key = lambda i: i.get('name'))
 
         sponsor = self.object.sponsor
         sponsor['sponsor'] = True
         sponsor_name = sponsor.get('name', '')
-        print(sponsor_name)
         if sponsor_name:
             sponsors = [] 
             try:
@@ -200,6 +200,16 @@ class BillDetailView(DetailView):
                 cosponsors.insert(0, sponsors[0])
             else:
                 cosponsors.insert(0, sponsor)
+        # Add party from Cosponsors table
+        for cosponsor in cosponsors:
+            bioguide_id = cosponsor.get("bioguide_id", "")
+            if bioguide_id:
+                try:
+                    cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id) 
+                except Exception as err:
+                    continue
+                cosponsor['party'] = cosponsor_item.party
+
         return cosponsors
 
 class BillToBillView(DetailView):

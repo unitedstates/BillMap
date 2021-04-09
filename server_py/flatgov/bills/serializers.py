@@ -61,6 +61,9 @@ class CosponsorSerializer(serializers.ModelSerializer):
     def get_party(self, obj):
         return obj.party
 
+    def get_title(self, obj):
+        return obj.title
+
     def get_name(self, obj):
         return obj.name_full_official
 

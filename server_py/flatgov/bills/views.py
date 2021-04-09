@@ -168,7 +168,8 @@ class BillDetailView(DetailView):
         return serializer.data
 
     def get_cosponsors(self):
-        cosponsor_ids = list(self.object.cosponsors.values_list('pk', flat=True))
+        cosponsor_bioguides = [item.get('bioguide_id') for item in self.object.cosponsors_dict]
+        cosponsor_ids = [item.get('id') for item in list(Cosponsor.objects.filter(bioguide_id__in=cosponsor_bioguides).values('id'))]
         sponsor_name = self.object.sponsor.get('name')
         if sponsor_name:
             sponsor = Cosponsor.objects.filter(name=sponsor_name).first()

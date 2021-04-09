@@ -74,7 +74,8 @@
                         </thead>
                         <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
                             <tr>
-                                <td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                                <td>{{ cosponsor.title }}. {{ cosponsor.name_full_official }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                                <!--td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td-->
                                 <td></td>
                                 <td>{{ cosponsor.party|slice:":1" }}</td>
                                 <td></td>
@@ -323,10 +324,10 @@
                 <tbody>
                     {% for cosponsor in cosponsors %}
                     <tr>
-                        <td>{{ cosponsor.name }}</td>
+                        <td>{{ cosponsor.title }} {{ cosponsor.name }}</td>
                         <td>{{ cosponsor.bills|billnumbers_display|join:", "}}</td>
                         <td></td>
-                        <td></td>
+                        <td>{{ cosponsor.party|slice:":1"}}</td>
                         <td></td>
                     </tr>
                     {% endfor %}

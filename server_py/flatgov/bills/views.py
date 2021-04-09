@@ -209,6 +209,7 @@ class BillDetailView(DetailView):
                 except Exception as err:
                     continue
                 cosponsor['party'] = cosponsor_item.party
+                cosponsor['name_full_official'] = cosponsor_item.name_full_official
 
         return cosponsors
 

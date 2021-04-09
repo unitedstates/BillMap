@@ -52,14 +52,17 @@ class CosponsorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Cosponsor
-        fields = ['name', 'bills']
+        fields = ['name', 'bills', 'party']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.bill = self.context.get('bill')
 
+    def get_party(self, obj):
+        return obj.party
+
     def get_name(self, obj):
-        return self.make_name_clean(obj.name)
+        return obj.name_full_official
 
     def get_bills(self, obj):
         bills = self.bill.get_cosponsor_bill(obj.name)

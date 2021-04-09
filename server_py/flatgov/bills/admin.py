@@ -1,6 +1,6 @@
 from django.contrib import admin
 from admin_auto_filters.filters import AutocompleteFilter
-from bills.models import Bill, Sponsor, Cosponsor, Statement, CboReport, CommitteeDocument, PressStatement, PressStatementTask
+from bills.models import Bill, Committee, Cosponsor, Statement, CboReport, CommitteeDocument, PressStatement, PressStatementTask
 from crs.models import CrsReport 
 
 
@@ -10,7 +10,7 @@ class BillAdmin(admin.ModelAdmin):
     search_fields = ['bill_congress_type_number']
 
 
-admin.site.register(Sponsor)
+admin.site.register(Committee)
 admin.site.register(Cosponsor)
 admin.site.register(Statement)
 admin.site.register(CrsReport)

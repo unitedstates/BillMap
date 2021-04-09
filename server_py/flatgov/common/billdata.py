@@ -7,7 +7,6 @@ from typing import Dict
 from functools import reduce
 
 from common import constants, utils
-from bills.models import Bill, Sponsor
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)

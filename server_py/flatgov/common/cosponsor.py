@@ -143,6 +143,7 @@ def updateLegislatorsHist():
 # TODO create join table and associate members with committees
 def updateCommitteeMembers():
     committee_membership = getAndParseYAML(COMMITTEE_MEMBERSHIP_URL)
+    return committee_membership
 
 """
 SAMPLES

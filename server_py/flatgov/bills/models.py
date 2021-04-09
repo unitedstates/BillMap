@@ -20,7 +20,7 @@ class Bill(models.Model):
     short_title = models.TextField(null=True, blank=True)
     sponsor = models.JSONField(default=dict)
     cosponsors = models.ManyToManyField(
-        'bills.Cosponsor', blank=True, related_name='cosponsors')
+        'bills.Cosponsor', blank=True)
     related_bills = models.JSONField(default=list)
     related_dict = models.JSONField(default=dict)
     cosponsors_dict = models.JSONField(default=list)
@@ -157,6 +157,8 @@ class Cosponsor(models.Model):
     state = models.CharField(max_length=2, blank=True, null=True)
     type = models.CharField(max_length=3, blank=True, null=True)
     terms = models.JSONField(default=list)
+    committees = models.JSONField(default=list) #list of objects of the form {'thomas_id':x, 'rank':x, 'party': x}
+
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -174,6 +176,8 @@ class Committee(models.Model):
     minority_url = models.URLField(blank=True, null=True)
     house_committee_id = models.CharField(max_length=10, blank=True, null=True)
     jurisdiction = models.CharField(max_length=250, blank=True, null=True)
+    cosponsors = models.ManyToManyField(
+        'bills.Cosponsor', blank=True)
 
 class Statement(models.Model):
     bill_number = models.CharField(max_length=127)

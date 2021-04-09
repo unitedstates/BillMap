@@ -157,7 +157,7 @@ class Cosponsor(models.Model):
     state = models.CharField(max_length=2, blank=True, null=True)
     type = models.CharField(max_length=3, blank=True, null=True)
     terms = models.JSONField(default=list)
-    committees = models.JSONField(default=list) #list of objects of the form {'thomas_id':x, 'rank':x, 'party': x}
+    committees = models.JSONField(default=list, blank=True, null=True) #list of objects of the form {'thomas_id':x, 'rank':x, 'party': x}
 
 
     created = models.DateTimeField(auto_now_add=True)

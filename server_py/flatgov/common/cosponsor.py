@@ -127,7 +127,6 @@ def updateCommittees():
  'jurisdiction': 'The House Committee on Agriculture has legislative jurisdiction over agriculture, food, rural development, and forestry.'}
     """
     committees = getAndParseYAML(COMMITTEES_URL)
-    # TODO add committee data to db
     for committee in committees:
         thomas_id = committee.get('thomas_id', '')
         jurisdiction = committee.get('jurisdiction', '')
@@ -212,4 +211,11 @@ def updateCommitteeMembers():
                             cosponsor.committees = [cosponsor_item] 
                         else:
                             cosponsor.committees = cosponsor.committees.append(cosponsor_item) 
-                            cosponsor.committees.save()
+                        cosponsor.save()
+
+def updateCosponsorAndCommittees():
+    Committee.objects.all().delete()
+    Cosponsor.objects.all().delete()
+    updateLegislators()
+    updateCommittees()
+    updateCommitteeMembers()

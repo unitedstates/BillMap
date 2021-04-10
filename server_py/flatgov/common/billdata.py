@@ -5,6 +5,7 @@
 import sys, os, argparse, logging, re, json, gzip
 from typing import Dict
 from functools import reduce
+from bills.models import Bill
 
 from common import constants, utils
 
@@ -197,6 +198,43 @@ def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip 
     if zip:
       with gzip.open(metaPath + '.gz', 'wt', encoding="utf-8") as zipfile:
         json.dump(billsMeta, zipfile)
+
+def saveBillsMetaToDb():
+  billsMeta = loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META_GO, zip = False)
+  for billnumber, billdata in billsMeta.items():
+    billCongressTypeNumber = billdata.get('BillCongressTypeNumber','') 
+    if not billCongressTypeNumber:
+      continue
+    billNumberMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billCongressTypeNumber)
+    [congress, billType, numberOfBill, billVersion, billTypeNumber] = ["" for x in range(5)]
+    if billNumberMatch and billNumberMatch.groups():
+      [congress, billType, numberOfBill, billVersion] = billNumberMatch.groups()
+    else:
+      continue
+    billTypeNumber = billType + numberOfBill
+    print('Loading: ' + billCongressTypeNumber)
+    billdatastore = {
+      'type': billType,
+      'congress': int(congress),
+      'number': numberOfBill, 
+    }
+    moredata =  {
+      'titles': billdata.get('Titles', ''),
+      'summary': billdata.get('Summary', ''),
+      'titles_whole_bill': billdata.get('TitlesWholeBill', ''),
+      'short_title': billdata.get('ShortTitle', ''),
+      'sponsor': billdata.get('Sponsor', ''),
+      'related_bills': billdata.get('RelatedBills', []),
+      'related_dict': billdata.get('RelatedBillsByBillnumber', {}),
+      'cosponsors_dict': billdata.get('Cosponsors', []),
+      'committees_dict': billdata.get('Committees', [])
+    }
+
+    for key, value in moredata.items():
+      if value:
+        billdatastore[key] = value 
+
+    Bill.objects.get_or_create(bill_congress_type_number=billnumber, defaults=billdatastore)
 
 def updateBillsMeta(billsMeta= {}):
   def addToBillsMeta(dirName: str, fileName: str):

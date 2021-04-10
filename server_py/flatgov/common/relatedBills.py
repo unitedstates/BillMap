@@ -177,11 +177,11 @@ def addSponsors():
 def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake = False):
     if not os.path.isdir(PATH_TO_RELATEDBILLS_DIR):
         os.mkdir(PATH_TO_RELATEDBILLS_DIR)
-    logger.info('Adding same titles')
+    logger.info('Adding same titles (in stored json)')
     addSameTitles(titlesIndex=titlesIndex)
-    logger.info('Adding similar titles')
+    logger.info('Adding similar titles (in stored json)')
     addSimilarTitles(noYearTitlesIndex=loadTitlesIndex(titleIndexPath=PATH_TO_NOYEAR_TITLES_INDEX))
-    logger.info('Adding related bills from GPO data')
+    logger.info('Adding related bills from GPO data (in stored json)')
     addGPORelatedBills()
-    logger.info('Adding sponsor info')
+    logger.info('Adding sponsor info (in Bill model of db)')
     addSponsors()

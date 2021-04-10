@@ -24,6 +24,7 @@ class Bill(models.Model):
     related_bills = models.JSONField(default=list)
     related_dict = models.JSONField(default=dict)
     cosponsors_dict = models.JSONField(default=list)
+    committees_dict = models.JSONField(default=list)
     es_similarity = models.JSONField(default=list)
     es_similar_bills_dict = models.JSONField(default=dict)
 

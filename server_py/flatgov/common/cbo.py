@@ -140,15 +140,23 @@ def save_cbo_data_to_db(cbo_data):
     cbo['bill_number'] = bill_number
     cbo['congress'] = congress
     #print(cbo)
-    cboreport = CboReport()
-    cboreport.pub_date = cbo['pub_date']
-    cboreport.title = cbo['title']
-    cboreport.original_pdf_link = cbo['original_pdf_link']
-    cboreport.bill_id = str(cbo['congress']) + str(cbo['bill_number']).lower()
-    cboreport.bill_number = cbo['bill_number']
-    cboreport.congress = cbo['congress']
-    print(str(congress) + ': ' + str(cbo['title']))
-    cboreport.save()
+
+    queryset_cbo = CboReport.objects.filter(
+      bill_number=cbo['bill_number'],
+      bill_id=str(cbo['congress']) + str(cbo['bill_number']).lower(),
+      congress=cbo['congress']
+    )
+
+    if not queryset_cbo.exists():
+      cboreport = CboReport()
+      cboreport.pub_date = cbo['pub_date']
+      cboreport.title = cbo['title']
+      cboreport.original_pdf_link = cbo['original_pdf_link']
+      cboreport.bill_id = str(cbo['congress']) + str(cbo['bill_number']).lower()
+      cboreport.bill_number = cbo['bill_number']
+      cboreport.congress = cbo['congress']
+      print(str(congress) + ': ' + str(cbo['title']))
+      cboreport.save()
 
 
   except Exception as e:

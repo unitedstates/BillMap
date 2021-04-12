@@ -5,9 +5,9 @@
 import sys, os, argparse, logging, re, json, gzip
 from typing import Dict
 from functools import reduce
+from bills.models import Bill
 
 from common import constants, utils
-from bills.models import Bill, Sponsor
 
 logging.basicConfig(filename='billdata.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
@@ -192,12 +192,55 @@ def loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META, zip = True):
   
   return billsMeta
 
-def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip = True):
+def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip = False):
   with open(metaPath, 'w') as f:
     json.dump(billsMeta, f)
     if zip:
       with gzip.open(metaPath + '.gz', 'wt', encoding="utf-8") as zipfile:
         json.dump(billsMeta, zipfile)
+
+def saveBillsMetaToDb():
+  billsMeta = loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META_GO, zip = False)
+  for billnumber, billdata in billsMeta.items():
+    billCongressTypeNumber = billdata.get('bill_congress_type_number','') 
+    if not billCongressTypeNumber:
+      continue
+    billNumberMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billCongressTypeNumber)
+    [congress, billType, numberOfBill, billVersion, billTypeNumber] = ["" for x in range(5)]
+    if billNumberMatch and billNumberMatch.groups():
+      [congress, billType, numberOfBill, billVersion] = billNumberMatch.groups()
+    else:
+      continue
+    print('Loading: ' + billCongressTypeNumber)
+    metadata = {
+      'type': billType,
+      'congress': int(congress),
+      'number': numberOfBill, 
+    }
+
+    for key, value in metadata.items():
+      if value:
+        billdata[key] = value 
+    
+    billdata['cosponsors_dict'] = billdata.get('cosponsors', [])
+    billdata['committees_dict'] = billdata.get('committees', [])
+    keys = billdata.keys()
+    if 'cosponsors' in keys:
+      del billdata['cosponsors']
+    if 'committees' in keys:
+      del billdata['committees']
+    
+    # Avoid not null constraint
+    if not billdata.get('related_bills'):
+      billdata['related_bills'] = []
+
+    if not billdata.get('cosponsors_dict'):
+      billdata['cosponsors_dict'] = []
+
+    if not billdata.get('committees_dict'):
+      billdata['committees_dict'] = []
+
+    Bill.objects.update_or_create(bill_congress_type_number=billnumber, defaults=billdata)
 
 def updateBillsMeta(billsMeta= {}):
   def addToBillsMeta(dirName: str, fileName: str):
@@ -217,7 +260,9 @@ def updateBillsMeta(billsMeta= {}):
     billsMeta[billCongressTypeNumber]['titles'] = [title.get('title') for title in titles]
     billsMeta[billCongressTypeNumber]['titles_whole_bill'] = [title.get('title') for title in titles if not title.get('is_for_portion')]
     cosponsors = getCosponsors(fileDict=billDict, includeFields=['name', 'bioguide_id'])
+    committees = billDict.get('committees', [])
     billsMeta[billCongressTypeNumber]['cosponsors'] = cosponsors
+    billsMeta[billCongressTypeNumber]['committees'] = committees
 
     # TODO convert bill_id to billnumber
     billsMeta[billCongressTypeNumber]['related_bills'] = billDict.get('related_bills')

@@ -207,9 +207,9 @@ Celery tasks:
 
 uscongress:: update uscongress bill and metadata
 statementAdminPolicy:: updates statements of administration policy from the current White House (OMB) website
-committeereport:: TODO
-cbo:: TODO
-crs:: TODO
+committeereport:: update committee reports associated with bills 
+cbo:: update cbo reports associated with bills 
+crs:: update crs reports associated with bills 
 
 #### US Congress Task
 

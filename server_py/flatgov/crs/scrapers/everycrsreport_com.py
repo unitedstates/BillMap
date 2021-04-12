@@ -20,14 +20,24 @@ class EveryCrsReport:
         if not r:
             raise RuntimeError("Can't get reports from everycrsreport.com")
         reader = csv.DictReader(r.text.splitlines())
+
+        meta_url_dups = CrsReport.objects.values_list('meta_url', flat=True).distinct()
+        html_url_dups = CrsReport.objects.values_list('html_url', flat=True).distinct()
+
         for row in reader:
             try:
+                if urljoin(EveryCrsReport.SITE_URL, row['url']) in meta_url_dups:
+                    continue
+
                 r_meta = requests.get(urljoin(EveryCrsReport.SITE_URL, row['url']))
                 meta = r_meta.json()
             except requests.exceptions.RequestException:
                 meta = None
 
             try:
+                if urljoin(EveryCrsReport.SITE_URL, row['latestHTML']) in html_url_dups:
+                    continue
+
                 r_report_html = requests.get(urljoin(EveryCrsReport.SITE_URL, row['latestHTML']))
                 report_content_raw = r_report_html.text
                 # TODO consider finding the bills here and only storing snippets that can be shown
@@ -41,7 +51,9 @@ class EveryCrsReport:
                 file=row['latestPDF'].split('/')[-1],
                 date=row['latestPubDate'],
                 metadata=json.dumps(meta),
-                report_content_raw=report_content_raw
+                report_content_raw=report_content_raw,
+                meta_url=urljoin(EveryCrsReport.SITE_URL, row['url']),
+                html_url=urljoin(EveryCrsReport.SITE_URL, row['latestHTML']),
             )
 
     @staticmethod

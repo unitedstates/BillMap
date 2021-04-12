@@ -125,6 +125,7 @@ class BillDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['cosponsors_dict'] = self.get_cosponsors_dict()
+        context['committees_dict'] = self.object.committees_dict
         context['cosponsors'] = self.get_cosponsors()
         context['statements'] = self.get_related_statements()
         context['committees'] = self.get_related_committees()

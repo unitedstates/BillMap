@@ -58,8 +58,9 @@
                 <br>
                 <div class="d-flex justify-content-between">
                     <h5 style="float: left;"><b>Committees of Jurisdiction:</b></h5>
-                    <a href="#" class="link-secondary">House Administration</a>
-                    <a href="#" class="link-secondary">House Oversight</a>
+                    {% for committeeItem in committees_dict %}
+                    <a href="#" class="link-secondary">{{committeeItem.committee}}</a>
+                    {% endfor %}
                 </div>
 
                 <div class="mt-5">

@@ -38,13 +38,8 @@ class BillDataHandler(object):
             'sponsor': sponsor,
             'cosponsors_dict': cosponsors_dict,
         }
-        # bill = Bill.objects.get_or_create(
-        #     bill_congress_type_number=self.congress,
-        #     default=bill_data
-        # )
         return bill_data
 
     def get_cosponsors(self, *args, **kwargs):
-        bill = kwargs.get('bill')
         cosponsors = self.data.get('cosponsors')
         return cosponsors

@@ -264,6 +264,49 @@ span.twitter-typeahead .tt-suggestion:focus {
     border-radius: 5px;
 }
 
+.bill-tooltip {
+    display: none;
+    background-color:gray;
+    max-width: 600px;
+    min-width: 300px;
+    position: absolute;
+    top: 30px;
+    right: 0px;
+    z-index: 1000;
+    color: black;
+    border-radius: 3px;
+    padding: 5px;
+    text-decoration: none;
+    
+}
+
+.toolt {
+    position: relative;
+    display: inline-block;
+  }
+  
+  /* Tooltip text */
+  .toolt .tooltiptext {
+    visibility: hidden;
+    width: 500px;
+    background-color: rgb(165, 165, 165);
+    color: black;
+    text-align: center;
+    padding: 3px;
+    border-radius: 6px;
+   
+    /* Position the tooltip text - see examples below! */
+    position: absolute;
+    z-index: 1;
+  }
+  
+  /* Show the tooltip text when you mouse over the tooltip container */
+  .toolt:hover .tooltiptext {
+    visibility: visible;
+    top: 30px;
+  }
+
+
 #search-icon {
     position: absolute;
     right: 20px;

@@ -39,10 +39,10 @@ def billnumber_display(billnumber: str):
         return billnumber
 
 @register.filter
-def billnumbers_display(billnumbers: list):
+def billnumbers_display(billnumbers: list, current_bill: str):
     if isinstance(billnumbers, str):
         billnumbers = billnumbers.split(', ')
-    return [billnumber_display(billnumber) for billnumber in list(billnumbers)]
+    return [billnumber_display(billnumber) for billnumber in list(billnumbers) if str(current_bill) in billnumber.split('(')[-1]]
 
 @register.filter
 @stringfilter

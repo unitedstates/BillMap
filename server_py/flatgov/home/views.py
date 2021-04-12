@@ -46,3 +46,12 @@ class BillListTitleAPIView(View):
                                  'bill_congress_type_number')
         bill_titles_index = {item[0]:item[1] for item in reversed(bills_titles)}
         return JsonResponse(bill_titles_index)
+
+
+class GetBillTitleAPIView(View):
+    def get(self, request, bill):
+        print(bill)
+        bill = Bill.objects.filter(bill_congress_type_number=bill).first()
+        if not bill:
+            return JsonResponse({"status": 404})
+        return JsonResponse({'short_title': bill.short_title, 'first_title': bill.titles[0], "status": 200})

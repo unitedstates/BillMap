@@ -202,7 +202,7 @@ def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip 
 def saveBillsMetaToDb():
   billsMeta = loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META_GO, zip = False)
   for billnumber, billdata in billsMeta.items():
-    billCongressTypeNumber = billdata.get('BillCongressTypeNumber','') 
+    billCongressTypeNumber = billdata.get('bill_congress_type_number','') 
     if not billCongressTypeNumber:
       continue
     billNumberMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billCongressTypeNumber)
@@ -211,30 +211,36 @@ def saveBillsMetaToDb():
       [congress, billType, numberOfBill, billVersion] = billNumberMatch.groups()
     else:
       continue
-    billTypeNumber = billType + numberOfBill
     print('Loading: ' + billCongressTypeNumber)
-    billdatastore = {
+    metadata = {
       'type': billType,
       'congress': int(congress),
       'number': numberOfBill, 
     }
-    moredata =  {
-      'titles': billdata.get('Titles', ''),
-      'summary': billdata.get('Summary', ''),
-      'titles_whole_bill': billdata.get('TitlesWholeBill', ''),
-      'short_title': billdata.get('ShortTitle', ''),
-      'sponsor': billdata.get('Sponsor', ''),
-      'related_bills': billdata.get('RelatedBills', []),
-      'related_dict': billdata.get('RelatedBillsByBillnumber', {}),
-      'cosponsors_dict': billdata.get('Cosponsors', []),
-      'committees_dict': billdata.get('Committees', [])
-    }
 
-    for key, value in moredata.items():
+    for key, value in metadata.items():
       if value:
-        billdatastore[key] = value 
+        billdata[key] = value 
+    
+    billdata['cosponsors_dict'] = billdata.get('cosponsors', [])
+    billdata['committees_dict'] = billdata.get('committees', [])
+    keys = billdata.keys()
+    if 'cosponsors' in keys:
+      del billdata['cosponsors']
+    if 'committees' in keys:
+      del billdata['committees']
+    
+    # Avoid not null constraint
+    if not billdata.get('related_bills'):
+      billdata['related_bills'] = []
 
-    Bill.objects.update_or_create(bill_congress_type_number=billnumber, defaults=billdatastore)
+    if not billdata.get('cosponsors_dict'):
+      billdata['cosponsors_dict'] = []
+
+    if not billdata.get('committees_dict'):
+      billdata['committees_dict'] = []
+
+    Bill.objects.update_or_create(bill_congress_type_number=billnumber, defaults=billdata)
 
 def updateBillsMeta(billsMeta= {}):
   def addToBillsMeta(dirName: str, fileName: str):

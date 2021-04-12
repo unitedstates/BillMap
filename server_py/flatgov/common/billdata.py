@@ -234,7 +234,7 @@ def saveBillsMetaToDb():
       if value:
         billdatastore[key] = value 
 
-    Bill.objects.get_or_create(bill_congress_type_number=billnumber, defaults=billdatastore)
+    Bill.objects.update_or_create(bill_congress_type_number=billnumber, defaults=billdatastore)
 
 def updateBillsMeta(billsMeta= {}):
   def addToBillsMeta(dirName: str, fileName: str):

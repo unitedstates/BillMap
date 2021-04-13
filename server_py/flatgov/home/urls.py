@@ -16,6 +16,7 @@ urlpatterns = [
 api_urlpatterns = [
     path('bill-list/', never_cache(views.BillListAPIView.as_view()), name='bill-list'),
     path('bill-titles/<congressnumber>', never_cache(views.BillListTitleAPIView.as_view()), name='bill-titles'),
+    path('bill-title/<bill>/', never_cache(views.GetBillTitleAPIView.as_view()), name='bill-title'),
 ]
 
 urlpatterns += api_urlpatterns

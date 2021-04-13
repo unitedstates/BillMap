@@ -40,8 +40,13 @@
         
                 {% if bill.get_related_bill_numbers %}
                     <h5><b>Related Bills:</b></h5>
-                    {{bill.get_related_bill_numbers|billnumbers_display|join:", "}}
+                    
+                    {% for rel_bill in bill.get_related_bill_numbers|billnumbers_by_congress:bill.congress|billnumbers_display %}
+                    <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span id="rel-bill">{{rel_bill}}</span></a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
                 {% endif %}
+
+
         
                 <h5><b>Recent Actions (in focus):</b></h5>
                 <p>NA</p>
@@ -819,6 +824,48 @@
             }
     }
     )
+</script>
+
+<script>
+    function truncateString(str, num) {
+        if (str.length <= num) {
+          return str
+        }
+        return str.slice(0, num) + '...'
+      }
+    var timeOut
+    $('.toolt').mouseover((event) => {
+        timeOut = setTimeout((r) => {
+
+            
+            const relatedBill = $(event.currentTarget).find('#rel-bill').text()
+            const congress = relatedBill.split('(').pop().substring(0,3)
+            const billId = relatedBill.split('(')[0].replace(/[^a-z0-9]/gi,'').toLowerCase();
+            if ($(event.currentTarget).find('#tool').text() === '...') {
+                $.ajax({
+                    type: "GET",
+                    url: "/home/bill-title/"+congress+billId,
+                    method: "GET",
+                    contentType: "application/json",
+                    success: function (response) {
+                        if(response.short_title) {
+                            $(event.currentTarget).find('#tool').text(truncateString(response.short_title, 60)).css('display', 'inline-block')
+                        } else {
+                            $(event.currentTarget).find('#tool').text(truncateString(response.first_title, 60)).css('display', 'inline-block')
+                        }
+                    },
+                }); 
+            }
+            
+            //console.log(relatedBill)
+        }, 0)
+    })
+
+    $('.related-bill').mouseleave((event) => {
+
+        clearTimeout(timeOut)
+        $(event.currentTarget).find('#tool').css('display', 'none')
+    })
 </script>
 
 {% endblock %}

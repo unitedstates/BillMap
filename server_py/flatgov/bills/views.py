@@ -126,6 +126,7 @@ class BillDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['cosponsors_dict'] = self.get_cosponsors_dict()
         context['committees_dict'] = self.object.committees_dict
+        context['committees_dict_deduped'] = self.get_committees_dict_deduped()
         context['cosponsors'] = self.get_cosponsors()
         context['statements'] = self.get_related_statements()
         context['committees'] = self.get_related_committees()
@@ -167,6 +168,23 @@ class BillDetailView(DetailView):
         serializer = RelatedBillSerializer(
             qs, many=True, context={'bill': self.object})
         return serializer.data
+
+    def get_committees_dict_deduped(self, **kwargs):
+        committees_dict = self.object.committees_dict
+        if not committees_dict:
+            return []
+        deduped = [] 
+        # list of committees
+        seen = []
+        k = ''
+        for committeeItem in committees_dict:
+            k = committeeItem.get('committee', '') 
+            if not k or k in seen:
+                continue
+
+            seen.append(k)
+            deduped.append(committeeItem)
+        return deduped
 
     def get_cosponsors(self):
         cosponsor_bioguides = [item.get('bioguide_id') for item in self.object.cosponsors_dict]

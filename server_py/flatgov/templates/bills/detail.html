@@ -63,7 +63,7 @@
                 <br>
                 <div class="d-flex justify-content-between">
                     <h5 style="float: left;"><b>Committees of Jurisdiction:</b></h5>
-                    {% for committeeItem in committees_dict %}
+                    {% for committeeItem in committees_dict_deduped %}
                     <a href="#" class="link-secondary">{{committeeItem.committee}}</a>
                     {% endfor %}
                 </div>

@@ -41,8 +41,8 @@
                 {% if bill.get_related_bill_numbers %}
                     <h5><b>Related Bills:</b></h5>
                     
-                    {% for rel_bill in bill.get_related_bill_numbers|billnumbers_display:bill.congress %}
-                    <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span id="rel-bill">{{rel_bill}}</span></a>
+                    {% for rel_bill in bill.get_related_bill_numbers|billnumbers_by_congress:bill.congress|billnumbers_display %}
+                    <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span id="rel-bill">{{rel_bill}}</span></a>{% if not forloop.last %}, {% endif %}
                     {% endfor %}
                 {% endif %}
 

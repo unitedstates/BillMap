@@ -13,7 +13,7 @@ class Bill(models.Model):
     bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
     type = models.CharField(max_length=40, null=True, blank=True)
     congress = models.IntegerField(null=True, blank=True)
-    number = models.PositiveIntegerField(null=True, blank=True)
+    number = models.CharField(max_length=5, null=True, blank=True)
     titles = models.JSONField(default=list)
     summary = models.TextField(null=True, blank=True)
     titles_whole_bill = models.JSONField(default=list)

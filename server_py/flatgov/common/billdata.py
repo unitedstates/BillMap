@@ -205,25 +205,15 @@ def saveBillsMetaToDb():
     billCongressTypeNumber = billdata.get('bill_congress_type_number','') 
     if not billCongressTypeNumber:
       continue
-    billNumberMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billCongressTypeNumber)
-    [congress, billType, numberOfBill, billVersion, billTypeNumber] = ["" for x in range(5)]
-    if billNumberMatch and billNumberMatch.groups():
-      [congress, billType, numberOfBill, billVersion] = billNumberMatch.groups()
-    else:
-      continue
     print('Loading: ' + billCongressTypeNumber)
-    metadata = {
-      'type': billType,
-      'congress': int(congress),
-      'number': numberOfBill, 
-    }
 
-    for key, value in metadata.items():
-      if value:
-        billdata[key] = value 
-    
     billdata['cosponsors_dict'] = billdata.get('cosponsors', [])
-    billdata['committees_dict'] = billdata.get('committees', [])
+    congress = billdata.get('congress', '')
+    if congress and len(congress) > 0:
+      billdata['congress'] = int(congress)
+    else:
+      billdata['congress'] = None
+    
     keys = billdata.keys()
     if 'cosponsors' in keys:
       del billdata['cosponsors']

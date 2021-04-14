@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="generator" content="Asciidoctor 2.0.10">
-<title>Scraping bill text and metadata</title>
+<meta name="generator" content="Asciidoctor 2.0.12">
+<title>Celery tasks: scraping and processing</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -47,7 +47,7 @@ textarea{overflow:auto;vertical-align:top}
 table{border-collapse:collapse;border-spacing:0}
 *,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
 html,body{font-size:100%}
-body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;word-wrap:anywhere;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
 a:hover{cursor:pointer}
 img,object,embed{max-width:100%;height:auto}
 object,embed{height:100%}
@@ -62,10 +62,8 @@ img{-ms-interpolation-mode:bicubic}
 img,object,svg{display:inline-block;vertical-align:middle}
 textarea{height:auto;min-height:50px}
 select{width:100%}
-.center{margin-left:auto;margin-right:auto}
-.stretch{width:100%}
 .subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
-div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0}
 a{color:#2156a5;text-decoration:underline;line-height:inherit}
 a:hover,a:focus{color:#1d4b8f}
 a img{border:0}
@@ -105,19 +103,22 @@ h1{font-size:2.75em}
 h2{font-size:2.3125em}
 h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
 h4{font-size:1.4375em}}
-table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede;word-wrap:normal}
 table thead,table tfoot{background:#f7f8f7}
 table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
 table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
 table tr.even,table tr.alt{background:#f8f8f7}
-table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{line-height:1.6}
 h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
 h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
 .clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
 .clearfix::after,.float-group::after{clear:both}
-:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
-:not(pre)>code.nobreak{word-wrap:normal}
-:not(pre)>code.nowrap{white-space:nowrap}
+:not(pre).nobreak{word-wrap:normal}
+:not(pre).nowrap{white-space:nowrap}
+:not(pre).pre-wrap{white-space:pre-wrap}
+:not(pre):not([class^=L])>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed}
 pre{color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;line-height:1.45;text-rendering:optimizeSpeed}
 pre code,pre pre{color:inherit;font-size:inherit;line-height:inherit}
 pre>code{display:block}
@@ -182,7 +183,7 @@ body.toc2.toc-right{padding-left:0;padding-right:20em}}
 #content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
 #content #toc>:first-child{margin-top:0}
 #content #toc>:last-child{margin-bottom:0}
-#footer{max-width:100%;background:rgba(0,0,0,.8);padding:1.25em}
+#footer{max-width:none;background:rgba(0,0,0,.8);padding:1.25em}
 #footer-text{color:rgba(255,255,255,.8);line-height:1.44}
 #content{margin-bottom:.625em}
 .sect1{padding-bottom:.625em}
@@ -205,7 +206,7 @@ table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font
 .admonitionblock>table td.icon{text-align:center;width:80px}
 .admonitionblock>table td.icon img{max-width:none}
 .admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
-.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #dddddf;color:rgba(0,0,0,.6);word-wrap:anywhere}
 .admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
 .exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
 .exampleblock>.content>:first-child{margin-top:0}
@@ -215,7 +216,7 @@ table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font
 .sidebarblock>:last-child{margin-bottom:0}
 .sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
 .exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
-.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;overflow-x:auto;padding:1em;font-size:.8125em}
+.literalblock pre,.listingblock>.content>pre{-webkit-border-radius:4px;border-radius:4px;overflow-x:auto;padding:1em;font-size:.8125em}
 @media screen and (min-width:768px){.literalblock pre,.listingblock>.content>pre{font-size:.90625em}}
 @media screen and (min-width:1280px){.literalblock pre,.listingblock>.content>pre{font-size:1em}}
 .literalblock pre,.listingblock>.content>pre:not(.highlight),.listingblock>.content>pre[class="highlight"],.listingblock>.content>pre[class^="highlight "]{background:#f7f7f8}
@@ -261,21 +262,20 @@ pre.pygments .lineno::before{content:"";margin-right:-.125em}
 .quoteblock.excerpt,.quoteblock .quoteblock{margin-left:0}
 .quoteblock.excerpt blockquote,.quoteblock.excerpt p,.quoteblock .quoteblock blockquote,.quoteblock .quoteblock p{color:inherit;font-size:1.0625rem}
 .quoteblock.excerpt .attribution,.quoteblock .quoteblock .attribution{color:inherit;text-align:left;margin-right:0}
-table.tableblock{max-width:100%;border-collapse:separate}
 p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:1.25em;word-wrap:anywhere}
 td.tableblock>.content>:last-child{margin-bottom:-1.25em}
-td.tableblock>.content>:last-child.sidebarblock{margin-bottom:0}
 table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
-table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
-table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
-table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
-table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
-table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
-table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
-table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.grid-all>*>tr>*{border-width:1px}
+table.grid-cols>*>tr>*{border-width:0 1px}
+table.grid-rows>*>tr>*{border-width:1px 0}
 table.frame-all{border-width:1px}
+table.frame-ends{border-width:1px 0}
 table.frame-sides{border-width:0 1px}
-table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.frame-none>colgroup+*>:first-child>*,table.frame-sides>colgroup+*>:first-child>*{border-top-width:0}
+table.frame-none>:last-child>:last-child>*,table.frame-sides>:last-child>:last-child>*{border-bottom-width:0}
+table.frame-none>*>tr>:first-child,table.frame-ends>*>tr>:first-child{border-left-width:0}
+table.frame-none>*>tr>:last-child,table.frame-ends>*>tr>:last-child{border-right-width:0}
 table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd),table.stripes-even tr:nth-of-type(even),table.stripes-hover tr:hover{background:#f8f8f7}
 th.halign-left,td.halign-left{text-align:left}
 th.halign-right,td.halign-right{text-align:right}
@@ -284,7 +284,7 @@ th.valign-top,td.valign-top{vertical-align:top}
 th.valign-bottom,td.valign-bottom{vertical-align:bottom}
 th.valign-middle,td.valign-middle{vertical-align:middle}
 table thead th,table tfoot th{font-weight:bold}
-tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th{background:#f7f8f7}
 tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
 p.tableblock>code:only-child{background:none;padding:0}
 p.tableblock{font-size:1em}
@@ -313,6 +313,7 @@ ol.lowergreek{list-style-type:lower-greek}
 .hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
 td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
 td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+td.hdlist2{word-wrap:anywhere}
 .literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
 .colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
 .colist td:not([class]):first-child img{max-width:none}
@@ -385,7 +386,7 @@ a span.icon>.fa{cursor:inherit}
 .admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
 .admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
 .admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
-.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value]{display:inline-block;color:#fff!important;background:rgba(0,0,0,.8);-webkit-border-radius:50%;border-radius:50%;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
 .conum[data-value] *{color:#fff!important}
 .conum[data-value]+b{display:none}
 .conum[data-value]::after{content:attr(data-value)}
@@ -412,6 +413,7 @@ thead{display:table-header-group}
 svg{max-width:100%}
 p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
 h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#header,#content,#footnotes,#footer{max-width:none}
 #toc,.sidebarblock,.exampleblock>.content{background:none!important}
 #toc{border-bottom:1px solid #dddddf!important;padding-bottom:0!important}
 body.book #header{text-align:center}
@@ -440,119 +442,329 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="header">
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_celery_tasks_scraping_and_processing">Celery tasks: scraping and processing</a>
 <ul class="sectlevel2">
-<li><a href="#_scraping_bill_text_and_metadata">Scraping bill text and metadata</a></li>
-<li><a href="#_initialize_data_for_congresses_until_now">Initialize data for Congresses until Now</a></li>
+<li><a href="#_redis_install_and_start">Redis: install and start</a></li>
+<li><a href="#_how_to_run_celery_task">How to run celery task.</a></li>
 <li><a href="#_celery_tasks_what_they_do">Celery Tasks - What they do.</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div id="content">
+<div class="sect1">
+<h2 id="_celery_tasks_scraping_and_processing">Celery tasks: scraping and processing</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Celery runs scheduled tasks, primarily to scrape and process data. To run celery, install Redis (as a taskrunner and db for Celery). The other dependencies are installed with <code>pip</code> when initially installing the requirements for the app with <code>pip install -r requirements.txt</code>.</p>
+</div>
 <div class="sect2">
-<h3 id="_scraping_bill_text_and_metadata">Scraping bill text and metadata</h3>
-<div class="paragraph">
-<p>The repository here provides a scraper for bill metadata and xml:
-<a href="https://github.com/unitedstates/congress" class="bare">https://github.com/unitedstates/congress</a></p>
+<h3 id="_redis_install_and_start">Redis: install and start</h3>
+<div class="ulist">
+<ul>
+<li>
+<p>On Ubuntu:</p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>Running the scraper creates a directory tree as follows:</p>
+<p>Install</p>
 </div>
-<div class="literalblock">
+<div class="listingblock">
 <div class="content">
-<pre>data
-   ├── 110
-   │   └── bills
-   │       ├── hconres
-   │       ├── hjres
-   │       ├── hr
-                     ...
-                      |-── hr994
-                         └── text-versions/
-                                   └── eh
-                                       └── data.json
-                                       └── document.xml
-                                       └── mods.xml
-                                       └── package.zip
-                                       └── premis.xml
-                                   └── ih
-                                   └── rfs
-                         └── data-fromfdsys-lastmod.txt
-                         └── data.json
-                         └── data.xml
-                         └── fdsys_billstatus-lastmod.txt
-                         └── fdsys_billstatus.xml
-                     ├── hr995
-                     ├── hr996
-                     ├── hr997
-                     ├── hr998
-                    └── hr999
-   │       ├── hres
-   │       ├── s
-   │       ├── sconres
-   │       ├── sjres
-   │       └── sres
-   ├── 111
-   │   └── bills
-   │       ├── hconres
-   │       ├── hjres
-   │       ├── hr</pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ sudo apt update
+$ sudo apt install redis-server
+Reading package lists... Done
+Fetched 634 kB in 0s (24.3 MB/s)...</code></pre>
 </div>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<code>data.xml</code> and <code>document.xml</code> are very different. The <code>data.xml</code> is metadata only and corresponds to the <code>data.json</code> at the same level. The xml of the bill itself, used in the bill similarity calculations, is <code>document.xml</code>, found in the <code>text_versions</code> directory.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>Start
+<code>sudo systemctl restart redis.service</code></p>
 </div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-We don&#8217;t need <code>pdf</code> or <code>text</code> in downloaded bill data.
-</td>
-</tr>
-</table>
+<div class="paragraph">
+<p>To confirm that it is running:
+<code>sudo systemctl status redis</code></p>
+</div>
+<div class="paragraph">
+<p>If necessary, edit <code>/etc/redis/redis.conf</code>. Our set-up should not require any special settings</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_initialize_data_for_congresses_until_now">Initialize data for Congresses until Now</h3>
+<h3 id="_how_to_run_celery_task">How to run celery task.</h3>
+<div class="sect3">
+<h4 id="_development">Development</h4>
 <div class="paragraph">
-<p>We download all data to-date using the following:</p>
+<p>For a celery worker, open one terminal, go to the Django project root directory (in our case <code>&#8230;&#8203;/Flatgov/server_py/flatgov</code>), then activate the virtual environment.</p>
 </div>
+<div class="paragraph">
+<p>Run the command below (Run the celery worker).</p>
+</div>
+<div class="paragraph">
+<p><code>celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info</code></p>
+</div>
+<div class="paragraph">
+<p>For celery scheduler, open another terminal, go to the Django project root directory (in our case <code>&#8230;&#8203;/Flatgov/server_py/flatgov</code>), then activate the virtual environment.</p>
+</div>
+<div class="paragraph">
+<p>Run the command below (Run the celery redbeat)</p>
+</div>
+<div class="paragraph">
+<p><code>celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info</code></p>
+</div>
+<div class="paragraph">
+<p>Then the background tasks (celery tasks ) run daily at midnight.</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_production_run_celeryd_as_a_daemon_on_the_ubuntu_server">Production: Run Celeryd as a daemon on the Ubuntu server</h4>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Download metadata as described in <a href="README.html#bulk_downloads:_bill_metadata">README</a> (Bulk downloads: bill metadata)</p>
-</li>
-<li>
-<p>Use the <code>unitedstates/congress</code> scraper to download xml files, and copy the <code>congress/data</code> directory to the parent of this repository.</p>
+<p>Init-script: celeryd</p>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p>for CONGRESSNUM in {114..116}
-do
-  echo "./run govinfo --collections=BILLS --congress=$CONGRESSNUM --extract=mods,xml,premis --bulkdata=BILLSTATUS"
-  ./run govinfo --collections=BILLS --congress=$CONGRESSNUM --extract=mods,xml,premis --bulkdata=BILLSTATUS
-done</p>
+<p>Before configuring it, go to the <code>deployment_scripts/conf_celeryd</code> and update all the paths with the absolute paths</p>
+</div>
+<div class="paragraph">
+<p>Copy <code>deployment_scripts/bill_celeryd</code> file to <code>/etc/init.d/celeryd</code>.</p>
+</div>
+<div class="paragraph">
+<p>Make celeryd executable (Run following commands from the terminal.)</p>
+</div>
+<div class="paragraph">
+<p><code>sudo chmod 755 /etc/init.d/celeryd</code></p>
+</div>
+<div class="paragraph">
+<p><code>sudo chown root:root /etc/init.d/celeryd</code></p>
+</div>
+<div class="paragraph">
+<p>For configuration, copy <code>deployment_scripts/conf_celeryd</code> file to <code>/etc/default/celeryd</code>.</p>
+</div>
+<div class="paragraph">
+<p>You can check if the worker is active by:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov/flatgov$  sudo chown -R ubuntu:root /var/run/celery/
+(flatgov) ubuntu/opt/flatgov/FlatGov/server_py/flatgov/flatgov$ sudo chown -R ubuntu:root /var/log/celery/
+(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov/flatgov$ sudo /etc/init.d/celeryd start
+celery init v10.1.
+Using config script: /etc/default/celeryd
+celery multi v4.4.2 (cliffs)
+&gt; Starting nodes...
+	&gt; celery@ip-172-31-58-205: OK</code></pre>
+</div>
+</div>
+<div class="admonitionblock note">
+<table>
+<tr>
+<td class="icon">
+<div class="title">Note</div>
+</td>
+<td class="content">
+On Ubuntu, using the default <code>ubuntu</code> user, the settings are as follows.
+</td>
+</tr>
+</table>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">CELERY_BIN="/home/ubuntu/.pyenv/versions/flatgov/bin/celery"
+CELERY_APP="flatgov.celery:app"
+
+CELERYD_CHDIR="/opt/flatgov/FlatGov/server_py/flatgov/"
+CELERYD_OPTS="--time-limit=300 --concurrency=3 -Q bill -l INFO"
+CELERYD_LOG_FILE="/var/log/celery/link_%n%I.log"
+CELERYD_PID_FILE="/var/run/celery/link_%n.pid"
+CELERYD_USER="ubuntu"
+CELERYD_GROUP="ubuntu"
+CELERY_CREATE_DIRS=1</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>To test:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov/flatgov$ sudo /etc/init.d/celeryd status
+celery init v10.1.
+Using config script: /etc/default/celeryd
+celeryd (node link_celery) (pid 26679) is up...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>+
+2. Init-script: celerybeat</p>
+</div>
+<div class="paragraph">
+<p>Before configuring it, go to the <code>deployment_scripts/celerybeat</code> and update all the paths with the absolute paths</p>
+</div>
+<div class="paragraph">
+<p>Copy <code>deployment_scripts/celerybeat</code> file to <code>/etc/init.d/celerybeat</code>.</p>
+</div>
+<div class="paragraph">
+<p>Make celerybeat executable (Run following commands from the terminal.)</p>
+</div>
+<div class="paragraph">
+<p><code>sudo chmod 755 /etc/init.d/celerybeat</code></p>
+</div>
+<div class="paragraph">
+<p><code>sudo chown root:root /etc/init.d/celerybeat</code></p>
+</div>
+<div class="paragraph">
+<p>For configuration, copy <code>deployment_scripts/conf_celerybeat</code> file to <code>/etc/default/celerybeat</code>.</p>
+</div>
+<div class="paragraph">
+<p>You can check if the beat is active by:</p>
+</div>
+<div class="paragraph">
+<p><code>sudo /etc/init.d/celerybeat start</code></p>
+</div>
+<div class="paragraph">
+<p><code>sudo /etc/init.d/celerybeat status</code></p>
+</div>
+<div class="paragraph">
+<p>+
+3. Maintenance</p>
+</div>
+<div class="paragraph">
+<p>As was shown, the following commands control worker and beat:</p>
+</div>
+<div class="paragraph">
+<p><code>/etc/init.d/celeryd {start|stop|restart}</code></p>
+</div>
+<div class="paragraph">
+<p><code>/etc/init.d/celerybeat {start|stop|restart}</code></p>
+</div>
+<div class="paragraph">
+<p>+
+4. Run a task manually</p>
+</div>
+<div class="paragraph">
+<p>If you need to run a task manually (e.g. to test, or to get data off schedule), run a separate Celery worker:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov$ celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info
+
+ -------------- celery@flatgov.%ip-... v4.4.2 (cliffs)
+--- ***** -----
+-- ******* ---- Linux-5.4.0-1041-aws-x86_64-with-glibc2.27 2021-04-01 18:18:04
+- *** --- * ---
+- ** ---------- [config]</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then in a separate terminal run <code>pyenv activate flatgov</code>. Then:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov$ python manage.py shell
+Python 3.8.3 (default, Sep 24 2020, 22:52:34)
+[GCC 7.5.0] on linux
+Type "help", "copyright", "credits" or "license" for more information.
+(InteractiveConsole)
+&gt;&gt;&gt; from bills.tasks import sap_scrapy_task
+&gt;&gt;&gt; from celery import current_app
+&gt;&gt;&gt; current_app.send_task('bills.tasks.sap_scrapy_task', queue='bill')
+&lt;AsyncResult: a5d7d336-0125-4bdf-8819-5628b2341081&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then you can track the task by looking in the celery logs, or on the original celery terminal, e.g.:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>2021-04-01 18:27:47,069: WARNING/ForkPoolWorker-1] 2021-04-01 18:27:47 [scrapy.statscollectors] INFO: Dumping Scrapy stats:
+{'downloader/request_bytes': 486,
+ 'downloader/request_count': 2,
+ 'downloader/request_method_count/GET': 2,
+ 'downloader/response_bytes': 27570,
+ 'downloader/response_count': 2,
+ 'downloader/response_status_count/200': 2,
+ 'elapsed_time_seconds': 0.393221,
+ 'finish_reason': 'finished',
+ 'finish_time': datetime.datetime(2021, 4, 1, 18, 27, 47, 68878),
+ 'item_scraped_count': 10,
+ 'log_count/DEBUG': 12,
+ 'log_count/INFO': 10,
+ 'log_count/WARNING': 22,
+ 'memusage/max': 83107840,
+ 'memusage/startup': 83107840,
+ 'response_received_count': 2,
+ 'robotstxt/request_count': 1,
+ 'robotstxt/response_count': 1,
+ 'robotstxt/response_status_count/200': 1,
+ 'scheduler/dequeued': 1,
+ 'scheduler/dequeued/memory': 1,
+ 'scheduler/enqueued': 1,
+ 'scheduler/enqueued/memory': 1,
+ 'start_time': datetime.datetime(2021, 4, 1, 18, 27, 46, 675657)}
+[2021-04-01 18:27:47,069: INFO/ForkPoolWorker-1] Spider closed (finished)</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>For a different task, e.g. CommitteeDocument, the commands are:
+<code>celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info</code></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Open another shell and run django shell &#8594;</p>
+</li>
+</ul>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">python manage.py shell
+from celery import current_app
+current_app.send_task("bills.tasks.committee_report_scrapy_task", queue="bill")</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Then you can keep track of the task status on the terminal that celery is running on or you can see the CommitteeDocument records in the django admin dashboard.
+The initial data loading will take a long time; there are about 17,000 records.</p>
+</div>
 </div>
 </div>
 <div class="sect2">
 <h3 id="_celery_tasks_what_they_do">Celery Tasks - What they do.</h3>
 <div class="paragraph">
-<p>Celery tasks update uscongress bill and metadata at regular intervals (currently, it runs daily at midnight).</p>
+<p>Celery tasks:</p>
 </div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">uscongress</dt>
+<dd>
+<p>update uscongress bill and metadata</p>
+</dd>
+<dt class="hdlist1">statementAdminPolicy</dt>
+<dd>
+<p>updates statements of administration policy from the current White House (OMB) website</p>
+</dd>
+<dt class="hdlist1">committeereport</dt>
+<dd>
+<p>update committee reports associated with bills</p>
+</dd>
+<dt class="hdlist1">cbo</dt>
+<dd>
+<p>update cbo reports associated with bills</p>
+</dd>
+<dt class="hdlist1">crs</dt>
+<dd>
+<p>update crs reports associated with bills</p>
+</dd>
+</dl>
+</div>
+<div class="sect3">
+<h4 id="_us_congress_task">US Congress Task</h4>
 <div class="paragraph">
-<p>There are six celery tasks, that run sequentially:
+<p>Within the US Congress task, there are six celery tasks, that run sequentially:
 <code>update_bill_task</code>, <code>bill_data_task</code>, <code>process_bill_meta_task</code>, <code>related_bill_task</code>, <code>elastic_load_task</code>, <code>bill_similarity_task</code></p>
 </div>
 <div class="olist arabic">
@@ -698,22 +910,10 @@ done</p>
 <p>It only update the new bills since the new bill list is in the <code>saved</code> field in the UscongressUpdateJob table record.</p>
 </div>
 <div class="paragraph">
-<p>The xml for bill similarity is in text_versions that is the bill document itself.</p>
+<p>The xml for bill similarity is in text_versions that is the bill document itself, so we use them.</p>
 </div>
-<div class="paragraph">
-<p>So we use them.</p>
-</div>
-<div class="sect3">
-<h4 id="_in_the_future">In the future.</h4>
-<div class="paragraph">
-<p>For many bills, there are many more than 2 versions. (see above the data structure)</p>
-</div>
-<div class="paragraph">
-<p>In the future, we may have to distinguish these. One way to do this is to run bill similarity for each version and store each as an object, e.g. {ih: [similaritydata], eh: [similaritydata], enr: [similaritydata]}. When displaying similarity table in the UI, we will need to choose which of these objects-- or which combination of objects&#8201;&#8212;&#8201;to show.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_flat_structure">Flat structure</h4>
+<div class="sect4">
+<h5 id="_flat_structure">Flat structure</h5>
 <div class="paragraph">
 <p>├── 110
 │   ├── dtd
@@ -741,125 +941,20 @@ done</p>
 │   ├── pdf</p>
 </div>
 </div>
+</div>
 <div class="sect3">
-<h4 id="_how_to_run_celery_task">How to run celery task.</h4>
+<h4 id="_statements_of_administration_policy">Statements of Administration Policy</h4>
 <div class="paragraph">
-<p><mark>#</mark>. On the local.</p>
+<p>Found in <code>server_py/bills/tasks</code>, the Statements of Administration Policy task scrapes the links of SAP from the White House website and stores to the database using the <code>original_pdf_link</code> as a unique field to avoid duplicates.</p>
 </div>
-<div class="paragraph">
-<p>For celery worker, open one terminal, go to the Django project root directory (in our case <code>&#8230;&#8203;/Flatgov/server_py/flatgov</code>), then activate the virtual environment.</p>
 </div>
-<div class="paragraph">
-<p>Run the command below (Run the celery worker).</p>
-</div>
-<div class="paragraph">
-<p><code>celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info</code></p>
-</div>
-<div class="paragraph">
-<p>For celery scheduler, open another terminal, go to the Django project root directory (in our case <code>&#8230;&#8203;/Flatgov/server_py/flatgov</code>), then activate the virtual environment.</p>
-</div>
-<div class="paragraph">
-<p>Run the command below (Run the celery redbeat)</p>
-</div>
-<div class="paragraph">
-<p><code>celery beat -S redbeat.RedBeatScheduler -A flatgov.celery:app --loglevel=info</code></p>
-</div>
-<div class="paragraph">
-<p>Then the background tasks (celery tasks ) run daily at midnight.</p>
-</div>
-<div class="paragraph">
-<p><mark>#</mark>. How to run celery as a daemon on the Ubuntu server?</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Init-script: celeryd</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Before configuring it, go to the <code>deployment_scripts/conf_celeryd</code> and update all the paths with the absolute paths</p>
-</div>
-<div class="paragraph">
-<p>Copy <code>deployment_scripts/bill_celeryd</code> file to <code>/etc/init.d/celeryd</code>.</p>
-</div>
-<div class="paragraph">
-<p>Make celeryd executable (Run following commands from the terminal.)</p>
-</div>
-<div class="paragraph">
-<p><code>sudo chmod 755 /etc/init.d/celeryd</code></p>
-</div>
-<div class="paragraph">
-<p><code>sudo chown root:root /etc/init.d/celeryd</code></p>
-</div>
-<div class="paragraph">
-<p>For configuration, copy <code>deployment_scripts/conf_celeryd</code> file to <code>/etc/default/celeryd</code>.</p>
-</div>
-<div class="paragraph">
-<p>You can check if the worker is active by:</p>
-</div>
-<div class="paragraph">
-<p><code>sudo /etc/init.d/celeryd start</code></p>
-</div>
-<div class="paragraph">
-<p><code>sudo /etc/init.d/celeryd status</code></p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Init-script: celerybeat</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Before configuring it, go to the <code>deployment_scripts/celerybeat</code> and update all the paths with the absolute paths</p>
-</div>
-<div class="paragraph">
-<p>Copy <code>deployment_scripts/celerybeat</code> file to <code>/etc/init.d/celerybeat</code>.</p>
-</div>
-<div class="paragraph">
-<p>Make celerybeat executable (Run following commands from the terminal.)</p>
-</div>
-<div class="paragraph">
-<p><code>sudo chmod 755 /etc/init.d/celerybeat</code></p>
-</div>
-<div class="paragraph">
-<p><code>sudo chown root:root /etc/init.d/celerybeat</code></p>
-</div>
-<div class="paragraph">
-<p>For configuration, copy <code>deployment_scripts/conf_celerybeat</code> file to <code>/etc/default/celerybeat</code>.</p>
-</div>
-<div class="paragraph">
-<p>You can check if the beat is active by:</p>
-</div>
-<div class="paragraph">
-<p><code>sudo /etc/init.d/celerybeat start</code></p>
-</div>
-<div class="paragraph">
-<p><code>sudo /etc/init.d/celerybeat status</code></p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Maintenance</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>As it was show you can control worker and beat with the following commands:</p>
-</div>
-<div class="paragraph">
-<p><code>/etc/init.d/celeryd {start|stop|restart}</code></p>
-</div>
-<div class="paragraph">
-<p><code>/etc/init.d/celerybeat {start|stop|restart}</code></p>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-03-01 08:50:41 -0800
+Last updated 2021-04-14 10:23:10 -0700
 </div>
 </div>
 </body>

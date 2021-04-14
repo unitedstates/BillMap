@@ -17,7 +17,7 @@
     <hr />
     <span>Home > Bills > {{bill.bill_congress_type_number |billnumber_display}}</span>
     <h1>
-        {{ bill.get_type_abbrev }} {{ bill.number }}: {{ bill.short_title }}
+        {{ type_abbrev }} {{ bill.number }}: {{ bill.short_title }}
     </h1>
     <span class="small">{{ bill.congress|numstring_to_ordinal }} Congress ({{bill.congress|congress_to_year}} - {{bill.congress|congress_to_year|add:"1"}})</span>
     <hr />
@@ -138,9 +138,9 @@
 </div>
 <hr>
 <div class="related-bills mt-4">
-    <h4>Bills Related to {{ bill.get_type_abbrev }} {{ bill.number }}</h4>
+    <h4>Bills Related to {{ type_abbrev }} {{ bill.number }}</h4>
     <span class="small">
-        Discover related bills to {{ bill.get_type_abbrev }} {{ bill.number }}: Access to Congressionally Mandated Reports Act. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
+        Discover related bills to {{ type_abbrev }} {{ bill.number }}: Access to Congressionally Mandated Reports Act. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
     </span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -216,7 +216,7 @@
         </div>
         <div class="tab-pane fade " id="all-congress" role="tabpanel" aria-labelledby="all-congress-tab">
             <h6 class="pt-3">
-                View all {{ bill.get_type_abbrev }} {{ bill.number }}
+                View all {{ type_abbrev }} {{ bill.number }}
             </h6>
             <div style="border-radius: 10px;">
         </div>
@@ -272,7 +272,7 @@
         </div>
         <div class="tab-pane fade " id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
             <h6 class="pt-3">
-                View all {{ bill.get_type_abbrev }} {{ bill.number }}
+                View all {{ type_abbrev }} {{ bill.number }}
             </h6>
             <table class="table mt-3" id="similar-sections-table">
                 <thead>
@@ -307,7 +307,7 @@
     </span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="house-tab" data-toggle="tab" href="#house" role="tab" aria-controls="house" aria-selected="true">This Bill ({{ bill.get_type_abbrev }} {{ bill.number }})</a>
+            <a class="nav-link active" id="house-tab" data-toggle="tab" href="#house" role="tab" aria-controls="house" aria-selected="true">This Bill ({{ type_abbrev }} {{ bill.number }})</a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="senate-tab" data-toggle="tab" href="#senate" role="tab" aria-controls="senate" aria-selected="false">This Congress</a>
@@ -319,7 +319,7 @@
     <div class="tab-content light-gray-tabs p-4" id="cosponsorsTabContent">
         <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
             <h6 class="pt-3">
-                View all current sponsors of {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                View all current sponsors of {{ type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
             <table class="table mt-3" id="cosponsors-table">
                 <thead>
@@ -392,7 +392,7 @@
     <div class="tab-content light-gray-tabs p-4" id="crsReportContent">
         <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
             <h6 class="pt-3">
-                View CRS reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                View CRS reports for {{ type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -434,7 +434,7 @@
         </div>
         <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="min-height:20vh; max-height: 50vh; overflow: scroll;">
             <h6 class="pt-3">
-                View all the Statements of Administration Policy for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                View all the Statements of Administration Policy for {{ type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -523,7 +523,7 @@
         </div>
         <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
             <h6 class="pt-3">
-                View all the CBO Reports for {{ bill.get_type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                View all the CBO Reports for {{ type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
             
             <table class="table mt-3" id='cbo-tables'>
@@ -560,7 +560,7 @@
         </div>
         <div class="tab-pane fade" id="relevant-committee" role="tabpanel" aria-labelledby="relevant-committee-tab">
             <h6 class="pt-3">
-                View all the Committee Documents {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress|numstring_to_ordinal }} Congress
+                View all the Committee Documents {{ type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>

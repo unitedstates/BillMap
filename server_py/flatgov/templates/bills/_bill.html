@@ -234,7 +234,7 @@
         <hr />
         <span>Home > Bills > {{bill.bill_congress_type_number |billnumber_display}}</span>
         <h1>
-          {{ bill.type_abbrev }} {{ bill.meta.number }}: {{ bill.meta.short_title }}
+          {{ type_abbrev }} {{ bill.meta.number }}: {{ bill.meta.short_title }}
         </h1>
         <span class="small">{{ bill.meta.congress }}th Congress (2019-2020)</span>
         <hr />
@@ -273,7 +273,7 @@
       <div class="similar-bills mt-4">
         <h4>Analyze Related Bills</h4>
         <span class="small">
-          Discover related bills to {{ bill.type_abbrev }} {{ bill.meta.number }}: Access to Congressionally
+          Discover related bills to {{ type_abbrev }} {{ bill.meta.number }}: Access to Congressionally
           Mandated Reports Act. A related bill may be a companion measure, an
           identical bill, a procedurally-related measure, or one with text
           similarities.</span>
@@ -303,7 +303,7 @@
         <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
           <li class="nav-item" role="presentation">
             <a class="nav-link active" id="house-tab" data-toggle="tab" href="#house" role="tab" aria-controls="house"
-              aria-selected="true">This Bill ({{ bill.type_abbrev }} {{ bill.meta.number }})</a>
+              aria-selected="true">This Bill ({{ type_abbrev }} {{ bill.meta.number }})</a>
           </li>
           <li class="nav-item" role="presentation">
             <a class="nav-link" id="senate-tab" data-toggle="tab" href="#senate" role="tab" aria-controls="senate"
@@ -329,7 +329,7 @@
         </ul>
         <div class="tab-content light-gray-tabs p-4" id="myTabContent">
           <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
-            <h6 class="pt-3">View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress</h6>
+            <h6 class="pt-3">View all current sponsors of {{ type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress</h6>
             <div id="cosponsors-table"></div>
             <!--
               <table class="table mt-3">
@@ -422,7 +422,7 @@
         </ul>
         <div class="tab-content light-gray-tabs p-4" id="myTabContent">
           <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
-            <h6 class="pt-3">View all current sponsors of {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress</h6>
+            <h6 class="pt-3">View all current sponsors of {{ type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress }}th Congress</h6>
             <table class="table mt-3">
               <thead>
                 <tr>

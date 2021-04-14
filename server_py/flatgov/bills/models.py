@@ -7,6 +7,8 @@ from django.conf import settings
 from iteration_utilities import flatten
 from django.utils.translation import gettext_lazy as _
 
+from bills.templatetags.bill_filters import stagesFormat
+
 MAX_RELATED_BILLS = 30
 
 class Bill(models.Model):
@@ -35,7 +37,10 @@ class Bill(models.Model):
         return self.bill_congress_type_number
 
     def get_type_abbrev(self) -> str:
-        return ''.join([letter.upper() + '.' for letter in self.type])
+        if self.type:
+            return stagesFormat.get(self.type.upper(), '')
+        else:
+            return ''
 
     def get_related_bill_numbers(self):
         return self.related_dict.keys()

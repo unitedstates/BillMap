@@ -37,7 +37,17 @@ class Bill(models.Model):
         return self.bill_congress_type_number
 
     @property
-    def get_type_abbrev(self) -> str:
+    def title(self) -> str:
+        if self.short_title:
+            return self.short_title 
+        else:
+            if self.titles_whole_bill and len(self.titles_whole_bill) > 0:
+                return self.titles_whole_bill[0] 
+        return ''
+
+
+    @property
+    def type_abbrev(self) -> str:
         if self.type:
             return stagesFormat.get(self.type.upper(), '')
         else:

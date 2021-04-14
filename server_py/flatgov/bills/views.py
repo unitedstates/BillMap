@@ -133,7 +133,6 @@ class BillDetailView(DetailView):
         context['crs_reports'] = self.get_crs_reports()
         context['cbo_reports'] = self.get_related_cbo()
         context['related_bills'] = self.get_related_bills()
-        context['type_abbrev'] = self.object.get_type_abbrev
         context['similar_bills'] = self.object.get_similar_bills
         context['es_similarity'] = self.object.es_similarity
         context['propublica_api_key'] = settings.PROPUBLICA_CONGRESS_API_KEY

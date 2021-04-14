@@ -17,7 +17,7 @@
     <hr />
     <span>Home > Bills > {{bill.bill_congress_type_number |billnumber_display}}</span>
     <h1>
-        {{ type_abbrev }} {{ bill.number }}: {{ bill.short_title }}
+        {{ bill.type_abbrev }} {{ bill.number }}: {{ bill.title }}
     </h1>
     <span class="small">{{ bill.congress|numstring_to_ordinal }} Congress ({{bill.congress|congress_to_year}} - {{bill.congress|congress_to_year|add:"1"}})</span>
     <hr />
@@ -52,7 +52,6 @@
                 <p>NA</p>
                 <h5><b>Prognosis:</b></h5>
                 <p>Prognosis will appear here</p>
-                <h5><b>Read Bill:</b></h5>
                 <div class="text-center"><a href="https://www.govtrack.us/congress/bills/{{bill.congress}}/{{bill.type}}{{bill.number}}/text" target="_blank" class="btn btn-primary btn-shadow text-center px-5 rounded-5" style="border: none; background-color:#781A36!important; border-radius: 10px;">Read Bill</a></div>
 
             </div>
@@ -138,9 +137,9 @@
 </div>
 <hr>
 <div class="related-bills mt-4">
-    <h4>Bills Related to {{ type_abbrev }} {{ bill.number }}</h4>
+    <h4>Bills Related to {{ bill.type_abbrev }} {{ bill.number }}</h4>
     <span class="small">
-        Discover related bills to {{ type_abbrev }} {{ bill.number }}: Access to Congressionally Mandated Reports Act. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
+        Discover related bills to {{ bill.type_abbrev }} {{ bill.number }}: Access to Congressionally Mandated Reports Act. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
     </span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
@@ -216,7 +215,7 @@
         </div>
         <div class="tab-pane fade " id="all-congress" role="tabpanel" aria-labelledby="all-congress-tab">
             <h6 class="pt-3">
-                View all {{ type_abbrev }} {{ bill.number }}
+                View all {{ bill.type_abbrev }} {{ bill.number }}
             </h6>
             <div style="border-radius: 10px;">
         </div>
@@ -235,34 +234,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for bill in similar_bills %}
+                    {% for billitem in bill.similar_bills %}
                     <tr>
                         <td>
-                            {% if bill.in_db %}
-                                <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                    {{ bill.bill_congress_type_number|billnumber_display }}
+                            {% if billitem.in_db %}
+                                <a href="{% url 'bill-detail' slug=billitem.bill_congress_type_number  %}">
+                                    {{ billitem.bill_congress_type_number|billnumber_display }}
                                 </a>
                             {% else %}
-                                {{ bill.bill_congress_type_number|billnumber_display }}
+                                {{ billitem.bill_congress_type_number|billnumber_display }}
                             {% endif %}
                         </td>
                         <td>
-                            {% if bill.in_db %}
-                                <a href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
+                            {% if billitem.in_db %}
+                                <a href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=billitem.bill_congress_type_number %}">
                                     <img src="{% static 'images/share-files.png' %}" alt="">
                                 </a>
                             {% else %}
                                 N/A
                             {% endif %}
                         </td>
-                        <td>{{ bill.reason }}</td>
+                        <td>{{ billitem.reason }}</td>
                         {% if bill.max_item %}
-                            <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
+                            <td><span title="{{ billitem.max_item.title }}">{{ billitem.max_item.title|truncatechars:40 }}</span></td>
                         {% else %}
-                            <td><span title="{{ bill.title }}">{{ bill.title|truncatechars:40 }}</span></td>
+                            <td><span title="{{ billitem.title }}">{{ billitem.title|truncatechars:40 }}</span></td>
                         {% endif %}
-                        <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
-                        <td>{{ bill.number_of_sections }}</td>
+                        <td>{% if billitem.score %}{{ billitem.score|floatformat:2 }}{% endif %}</td>
+                        <td>{{ billitem.number_of_sections }}</td>
                         <!--td>{{ bill.info.score|floatformat:2 }}</td-->
                         <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
                     </tr>
@@ -272,7 +271,7 @@
         </div>
         <div class="tab-pane fade " id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
             <h6 class="pt-3">
-                View all {{ type_abbrev }} {{ bill.number }}
+                View all {{ bill.type_abbrev }} {{ bill.number }}
             </h6>
             <table class="table mt-3" id="similar-sections-table">
                 <thead>
@@ -282,7 +281,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for section in es_similarity %}
+                    {% for section in bill.es_similarity %}
                       {% if section.similars %}
                         <tr>
                             <td><span>{{ section.section_number }}&nbsp;{{ section.section_header}}</span></td>
@@ -307,7 +306,7 @@
     </span>
     <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="house-tab" data-toggle="tab" href="#house" role="tab" aria-controls="house" aria-selected="true">This Bill ({{ type_abbrev }} {{ bill.number }})</a>
+            <a class="nav-link active" id="house-tab" data-toggle="tab" href="#house" role="tab" aria-controls="house" aria-selected="true">This Bill ({{ bill.type_abbrev }} {{ bill.number }})</a>
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="senate-tab" data-toggle="tab" href="#senate" role="tab" aria-controls="senate" aria-selected="false">This Congress</a>
@@ -319,7 +318,7 @@
     <div class="tab-content light-gray-tabs p-4" id="cosponsorsTabContent">
         <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
             <h6 class="pt-3">
-                View all current sponsors of {{ type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                View all current sponsors of {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
             <table class="table mt-3" id="cosponsors-table">
                 <thead>
@@ -392,7 +391,7 @@
     <div class="tab-content light-gray-tabs p-4" id="crsReportContent">
         <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
             <h6 class="pt-3">
-                View CRS reports for {{ type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                View CRS reports for {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -434,7 +433,7 @@
         </div>
         <div class="tab-pane fade" id="statement-admin" role="tabpanel" aria-labelledby="statement-admin-tab" style="min-height:20vh; max-height: 50vh; overflow: scroll;">
             <h6 class="pt-3">
-                View all the Statements of Administration Policy for {{ type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                View all the Statements of Administration Policy for {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>
@@ -523,7 +522,7 @@
         </div>
         <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
             <h6 class="pt-3">
-                View all the CBO Reports for {{ type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                View all the CBO Reports for {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
             
             <table class="table mt-3" id='cbo-tables'>
@@ -560,7 +559,7 @@
         </div>
         <div class="tab-pane fade" id="relevant-committee" role="tabpanel" aria-labelledby="relevant-committee-tab">
             <h6 class="pt-3">
-                View all the Committee Documents {{ type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress|numstring_to_ordinal }} Congress
+                View all the Committee Documents {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress|numstring_to_ordinal }} Congress
             </h6>
 
             <table class="table mt-3" id='statements-tables'>

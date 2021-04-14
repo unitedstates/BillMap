@@ -36,6 +36,7 @@ class Bill(models.Model):
     def __str__(self):
         return self.bill_congress_type_number
 
+    @property
     def get_type_abbrev(self) -> str:
         if self.type:
             return stagesFormat.get(self.type.upper(), '')

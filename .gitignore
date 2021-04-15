@@ -7,6 +7,10 @@ cache
 data
 us_congress
 
+staticfiles
+nohup.out
+server_py/flatgov/media/statements
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

@@ -208,6 +208,7 @@ def saveBillsMetaToDb():
     print('Loading: ' + billCongressTypeNumber)
 
     billdata['cosponsors_dict'] = billdata.get('cosponsors', [])
+    billdata['committees_dict'] = billdata.get('committees', [])
     congress = billdata.get('congress', '')
     if congress and len(congress) > 0:
       billdata['congress'] = int(congress)

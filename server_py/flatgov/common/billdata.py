@@ -199,6 +199,21 @@ def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip 
       with gzip.open(metaPath + '.gz', 'wt', encoding="utf-8") as zipfile:
         json.dump(billsMeta, zipfile)
 
+BILLMODEL_FIELDS = ["bill_congress_type_number", 
+"type", 
+"congress", 
+"number", 
+"titles", 
+"summary", 
+"titles_whole_bill", 
+"short_title",
+"sponsor",
+"cosponsors",
+"related_bills",
+"related_dict",
+"cosponsors_dict",
+"committees_dict"]
+
 def saveBillsMetaToDb():
   billsMeta = loadBillsMeta(billMetaPath = constants.PATH_TO_BILLS_META_GO, zip = False)
   for billnumber, billdata in billsMeta.items():
@@ -215,11 +230,9 @@ def saveBillsMetaToDb():
     else:
       billdata['congress'] = None
     
-    keys = billdata.keys()
-    if 'cosponsors' in keys:
-      del billdata['cosponsors']
-    if 'committees' in keys:
-      del billdata['committees']
+    extrakeys = [key for key in billdata.keys() if not (key in BILLMODEL_FIELDS)]
+    for key in extrakeys:
+      del billdata[key]
     
     # Avoid not null constraint
     if not billdata.get('related_bills'):
@@ -231,7 +244,11 @@ def saveBillsMetaToDb():
     if not billdata.get('committees_dict'):
       billdata['committees_dict'] = []
 
-    Bill.objects.update_or_create(bill_congress_type_number=billnumber, defaults=billdata)
+    try:
+      Bill.objects.update_or_create(bill_congress_type_number=billnumber, defaults=billdata)
+    except Exception as err:
+      print(err)
+      continue
 
 def updateBillsMeta(billsMeta= {}):
   def addToBillsMeta(dirName: str, fileName: str):

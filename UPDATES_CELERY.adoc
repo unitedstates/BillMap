@@ -158,6 +158,14 @@ Type "help", "copyright", "credits" or "license" for more information.
 >>> current_app.send_task('bills.tasks.sap_scrapy_task', queue='bill')
 <AsyncResult: a5d7d336-0125-4bdf-8819-5628b2341081>
 ```
+OR for the uscongress update task:
+```
+>>> from uscongress.tasks import update_bill_task
+>>> from celery import current_app
+>>> current_app.send_task('uscongress.tasks.update_bill_task', queue='bill')
+<AsyncResult: f05d3449-d473-498f-b6f0-87f663cd20e3>
+```
+
 Then you can track the task by looking in the celery logs, or on the original celery terminal, e.g.:
 ```
 2021-04-01 18:27:47,069: WARNING/ForkPoolWorker-1] 2021-04-01 18:27:47 [scrapy.statscollectors] INFO: Dumping Scrapy stats:

@@ -199,6 +199,9 @@ def saveBillsMeta(billsMeta: Dict, metaPath = constants.PATH_TO_BILLS_META, zip 
       with gzip.open(metaPath + '.gz', 'wt', encoding="utf-8") as zipfile:
         json.dump(billsMeta, zipfile)
 
+
+# fields to be loaded from metadata
+# removed 'cosponsors' which is loaded separately as a fk
 BILLMODEL_FIELDS = ["bill_congress_type_number", 
 "type", 
 "congress", 
@@ -208,7 +211,6 @@ BILLMODEL_FIELDS = ["bill_congress_type_number",
 "titles_whole_bill", 
 "short_title",
 "sponsor",
-"cosponsors",
 "related_bills",
 "related_dict",
 "cosponsors_dict",

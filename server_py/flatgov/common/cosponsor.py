@@ -193,7 +193,7 @@ def updateCommitteeMembers():
     """
     committee_membership = getAndParseYAML(COMMITTEE_MEMBERSHIP_URL)
     for committee_thomas_id, cosponsor_items in committee_membership.items():
-        print(committee_thomas_id)
+        #print(committee_thomas_id)
         try:
             committee_item = Committee.objects.get(thomas_id=committee_thomas_id)
         except Exception as err:
@@ -210,7 +210,7 @@ def updateCommitteeMembers():
                         if not cosponsor.committees:
                             cosponsor.committees = [cosponsor_item] 
                         else:
-                            cosponsor.committees = cosponsor.committees.append(cosponsor_item) 
+                            cosponsor.committees.append(cosponsor_item) 
                         cosponsor.save()
 
 def updateCosponsorAndCommittees():

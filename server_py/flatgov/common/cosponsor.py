@@ -112,7 +112,7 @@ def updateLegislators():
         name = ", ".join([name_last, name_first])
         full_official = deep_get(legislator, "name", "official_full")
         terms = legislator.get("terms", [])
-        reversed(terms)
+        terms.reverse()
         if terms and len(terms) > 0:
             type = terms[0].get('type', '')
             party = terms[0].get('party', '')
@@ -135,7 +135,7 @@ def updateLegislators():
             #print('{0}\n'.format(full_official))
             #print(leadership)
             # Reorder so that most current is first
-            reversed(leadership)
+            leadership.reverse()
             updateData['leadership'] = leadership
         #else:
         #    print('No leadership roles for: {0}\n'.format(full_official))

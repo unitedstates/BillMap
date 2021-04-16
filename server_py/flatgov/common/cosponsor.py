@@ -50,6 +50,55 @@ def updateLegislators():
    'district': 13,
    'party': 'Democrat'},
   ...]}
+
+  LEADERSHIP SAMPLE:
+  - id:
+    bioguide: P000197
+    thomas: '00905'
+    govtrack: 400314
+    opensecrets: N00007360
+    votesmart: 26732
+    icpsr: 15448
+    fec:
+    - H8CA05035
+    cspan: 6153
+    wikipedia: Nancy Pelosi
+    house_history: 19519
+    ballotpedia: Nancy Pelosi
+    maplight: 408
+    wikidata: Q170581
+    google_entity_id: kg:/m/012v1t
+  name:
+    first: Nancy
+    last: Pelosi
+    official_full: Nancy Pelosi
+  bio:
+    birthday: '1940-03-26'
+    gender: F
+  leadership_roles:
+  - title: House Minority Leader
+    chamber: house
+    start: '2011-01-05'
+    end: '2013-01-03'
+  - title: House Minority Leader
+    chamber: house
+    start: '2013-01-03'
+    end: '2015-01-03'
+  - title: House Minority Leader
+    chamber: house
+    start: '2015-01-06'
+    end: '2017-01-03'
+  - title: House Minority Leader
+    chamber: house
+    start: '2017-01-03'
+    end: '2019-01-03'
+  - title: Speaker of the House
+    chamber: house
+    start: '2019-01-03'
+    end: '2021-01-03'
+  - title: Speaker of the House
+    chamber: house
+    start: '2021-01-03'
     """
     legislatorids = getAndParseYAML(LEGISLATORS_URL)
     for legislator in legislatorids:
@@ -72,27 +121,39 @@ def updateLegislators():
             type = ""
             party = ""
             state = ""
+        leadership = legislator.get('leadership_roles', [])
+        updateData = {'name_first': name_first, 
+                      'name_last': name_last,
+                      'bioguide_id': legislatorid.get("bioguide", ""),
+                      'thomas': legislatorid.get("thomas", ""),
+                      'party': party, 
+                      'state': state,
+                      'type': type, 
+                      'terms': terms,
+                                    }
+        if leadership:
+            #print('{0}\n'.format(full_official))
+            #print(leadership)
+            # Reorder so that most current is first
+            reversed(leadership)
+            updateData['leadership'] = leadership
+        #else:
+        #    print('No leadership roles for: {0}\n'.format(full_official))
+        
+
+        print('Updating legislator: {0}'.format(full_official))
         Cosponsor.objects.update_or_create(name=name, 
                                     name_full_official=full_official,
-                                    defaults={
-                                        'name_first': name_first, 
-                                        'name_last': name_last,
-                                        'bioguide_id': legislatorid.get("bioguide", ""),
-                                        'thomas': legislatorid.get("thomas", ""),
-                                        'party': party, 
-                                        'state': state,
-                                        'type': type, 
-                                        'terms': terms,
-                                    }
+                                    defaults=updateData
                             )
 
 def updateCommittees():
     """
-    Add committee data to database. 
-    Download and parse YAML for committees, then add or update fields.
-    *** SAMPLE ***
+    add committee data to database. 
+    download and parse yaml for committees, then add or update fields.
+    *** sample ***
 {'type': 'house',
- 'name': 'House Committee on Agriculture',
+ 'name': 'house committee on agriculture',
  'url': 'https://agriculture.house.gov/',
  'minority_url': 'https://republicans-agriculture.house.gov',
  'thomas_id': 'HSAG',
@@ -193,7 +254,7 @@ def updateCommitteeMembers():
     """
     committee_membership = getAndParseYAML(COMMITTEE_MEMBERSHIP_URL)
     for committee_thomas_id, cosponsor_items in committee_membership.items():
-        #print(committee_thomas_id)
+        print('Committee id: {0}'.format(committee_thomas_id))
         try:
             committee_item = Committee.objects.get(thomas_id=committee_thomas_id)
         except Exception as err:

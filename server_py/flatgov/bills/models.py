@@ -173,6 +173,7 @@ class Cosponsor(models.Model):
     party = models.CharField(max_length=100, blank=True, null=True)
     state = models.CharField(max_length=2, blank=True, null=True)
     type = models.CharField(max_length=3, blank=True, null=True)
+    leadership = models.JSONField(default=list, blank=True, null=True) #list of terms in Leadership, with position; not everyone will have this item
     terms = models.JSONField(default=list)
     committees = models.JSONField(default=list, blank=True, null=True) #list of objects of the form {'thomas_id':x, 'rank':x, 'party': x}
 

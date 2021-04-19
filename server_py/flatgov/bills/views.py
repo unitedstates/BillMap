@@ -223,6 +223,7 @@ class BillDetailView(DetailView):
         # Add party from Cosponsors table
         for cosponsor in cosponsors:
             bioguide_id = cosponsor.get("bioguide_id", "")
+            committee_id = cosponsor.get('committee_id')
             if bioguide_id:
                 try:
                     cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id) 
@@ -230,6 +231,15 @@ class BillDetailView(DetailView):
                     continue
                 cosponsor['party'] = cosponsor_item.party
                 cosponsor['name_full_official'] = cosponsor_item.name_full_official
+                for committee in cosponsor_item.committees:
+                    
+                    if bioguide_id == committee.get('bioguide'):
+                        committee_id = committee.get('committee')
+                        for committee_dict in self.object.committees_dict:
+                            if committee_id == committee_dict.get('committee_id'):
+                                cosponsor['committee_id'] = committee_id
+                                cosponsor['rank'] = committee.get('rank')
+
 
         return cosponsors
 

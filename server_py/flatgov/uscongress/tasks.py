@@ -30,6 +30,8 @@ BILLS_OPTIONS = {}
 def update_bill_task(self):
     history = UscongressUpdateJob.objects.create(job_id=self.request.id)
     try:
+        # Downloads files from Govinfo
+        # The govinfo.py file is copied from the uscongress repository
         govinfo.run(GOVINFO_OPTIONS)
         history.fdsys_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['fdsys_status'])
@@ -37,6 +39,8 @@ def update_bill_task(self):
         history.fdsys_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['fdsys_status'])
     try:
+        # Creates data.json from the downloaded files 
+        # The bills.py file is copied from the uscongress repository
         processed = bills.run(BILLS_OPTIONS)
         history.data_status = UscongressUpdateJob.SUCCESS
         history.saved = processed.get('saved')

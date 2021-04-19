@@ -265,7 +265,25 @@ The fields in the `UscongressUpdateJob`:
 +
 2. Create `billList.json` and `billsMeta.json`
 
-Once the celery task `update_bill_task` is finished (complete the download bill text and metadata), the other celery task named `bill_data_task` runs.
+Once the celery task `update_bill_task` is finished (complete the download bill text and metadata), the other celery task named `bill_data_task` runs. This is triggered in the `save` function of the `uscongress.models.py`:
+
+```python
+ def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.bill_data_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.process_bill_meta_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+			...
+```
 
 As mentioned above, whenever the `update_bill_task` runs, it creates `UscongressUpdateJob` table record in the database.
 
@@ -275,7 +293,7 @@ The task `bill_data_task` creates billList.json and `billsMeta.json` file with t
 
 data.json files at the top level (not the data.json in the text versions) are used to create metadata.
 
-We will proivde an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)
+We will provide an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)
 
 3. Process bill meta data.
 

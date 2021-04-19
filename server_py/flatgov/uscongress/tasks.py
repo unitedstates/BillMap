@@ -53,14 +53,19 @@ def update_bill_task(self):
 
 
 @shared_task(bind=True)
-def bill_data_task(self, pk):
+def bill_data_task(self, pk, goVersion=True):
     bills_meta = dict()
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
-        for bill_id in history.saved:
-            bill_congress_type_number, related_dict = update_bills_meta(bill_id)
-            bills_meta[bill_congress_type_number] = related_dict
-        saveBillsMeta(bills_meta)
+        if not goVersion:
+            for bill_id in history.saved:
+                bill_congress_type_number, related_dict, err = update_bills_meta(bill_id)
+                if err:
+                    continue
+                bills_meta[bill_congress_type_number] = related_dict
+            saveBillsMeta(bills_meta)
+        else:
+            update_bills_meta_go()
         history.bill_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['bill_status'])
     except Exception as e:
@@ -69,10 +74,14 @@ def bill_data_task(self, pk):
 
 
 @shared_task(bind=True)
-def process_bill_meta_task(self, pk):
+def process_bill_meta_task(self, pk, goVersion=True):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
-        makeAndSaveTitlesIndex()
+        # The Go version of update_bills_meta includes this task
+        if not goVersion:
+            makeAndSaveTitlesIndex()
+        else:
+            pass
         history.meta_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['meta_status'])
     except Exception as e:
@@ -81,11 +90,15 @@ def process_bill_meta_task(self, pk):
 
 
 @shared_task(bind=True)
-def related_bill_task(self, pk):
+def related_bill_task(self, pk, goVersion=True):
     from common.relatedBills import makeAndSaveRelatedBills
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
-        makeAndSaveRelatedBills()
+        # The Go version of update_bills_meta includes this task
+        if not goVersion:
+            makeAndSaveRelatedBills()
+        else:
+            pass
         history.related_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['related_status'])
     except Exception as e:
@@ -95,8 +108,8 @@ def related_bill_task(self, pk):
 
 @shared_task(bind=True)
 def elastic_load_task(self, pk):
+    history = UscongressUpdateJob.objects.get(pk=pk)
     try:
-        history = UscongressUpdateJob.objects.get(pk=pk)
         created = create_es_index()
         for bill_id in history.saved:
             res = es_index_bill(bill_id)
@@ -113,8 +126,8 @@ def elastic_load_task(self, pk):
 
 @shared_task(bind=True)
 def bill_similarity_task(self, pk):
+    history = UscongressUpdateJob.objects.get(pk=pk)
     try:
-        history = UscongressUpdateJob.objects.get(pk=pk)
         for bill_id in history.saved:
             res = es_similarity_bill(bill_id)
         history.similarity_status = UscongressUpdateJob.SUCCESS

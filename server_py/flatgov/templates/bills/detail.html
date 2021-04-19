@@ -323,20 +323,22 @@
             <table class="table mt-3" id="cosponsors-table">
                 <thead>
                     <tr>
-                        <th scope="col">Co-Sponsor</th>
-                        <th scope="col">Bill</th>
-                        <th scope="col">Committees</th>
+                        <th scope="col">Co-sponsor</th>
+                        <th scope="col">On Assigned Committee(s)</th>
                         <th scope="col">Party</th>
                         <th scope="col">Rank</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for cosponsor in cosponsors %}
+                <tbody> {% for cosponsor in cosponsors_dict %}
                     <tr>
-                        <td>{{ cosponsor.title }} {{ cosponsor.name }}</td>
-                        <td>{{ cosponsor.bills|billnumbers_display|join:", "}}</td>
-                        <td></td>
-                        <td>{{ cosponsor.party|slice:":1"}}</td>
+                         {% if cosponsor.name_full_official %}
+                        <td>{{ cosponsor.name_full_official }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                        {% else %}
+                        <!--td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td-->
+                        <td>{{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                        {% endif %}
+                        <td>{{ cosponsor.committee_id }}</td>
+                        <td>{{ cosponsor.party|slice:":1" }}</td>
                         <td>{{ cosponsor.rank }}</td>
                     </tr>
                     {% endfor %}

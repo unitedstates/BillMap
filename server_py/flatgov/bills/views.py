@@ -239,6 +239,7 @@ class BillDetailView(DetailView):
                             if committee_id == committee_dict.get('committee_id'):
                                 cosponsor['committee_id'] = committee_id
                                 cosponsor['rank'] = committee.get('rank')
+                                cosponsor['committee_name'] = committee_dict.get('committee') 
 
 
         return cosponsors

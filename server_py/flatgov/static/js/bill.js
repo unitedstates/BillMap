@@ -13,7 +13,7 @@ $(document).ready( function () {
     });
     $('#cosponsors-table').DataTable({
         sDom: "Rlfrtip",
-        bFilter: false,
+        bFilter: true,
         bPaginate: true,
         iDisplayLength: 30,
         scrollY: '50vh',

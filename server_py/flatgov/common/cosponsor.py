@@ -2,7 +2,7 @@ import requests
 from requests.api import get
 import yaml
 
-from bills.models import Committee, Cosponsor
+from bills.models import Committee, Cosponsor, Bill
 from bills.views import deep_get 
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
@@ -141,6 +141,8 @@ def updateLegislators():
         #    print('No leadership roles for: {0}\n'.format(full_official))
         
 
+        if not full_official:
+          continue
         print('Updating legislator: {0}'.format(full_official))
         Cosponsor.objects.update_or_create(name=name, 
                                     name_full_official=full_official,
@@ -274,9 +276,32 @@ def updateCommitteeMembers():
                             cosponsor.committees.append(cosponsor_item) 
                         cosponsor.save()
 
+
+# Add cosponsors from cosponsors dict to join table for each bill 
+def updateBillCosponsorJoinTable():
+  bills_query_set = Bill.objects.all().exclude(cosponsors_dict__exact=[]).only('bill_congress_type_number', 'cosponsors_dict')
+  for bill in bills_query_set:
+    bCTN =  bill.bill_congress_type_number
+    if not bCTN:
+      continue
+    print('Adding cosponsors for ', bCTN)
+    cosponsors_dict = bill.cosponsors_dict
+    sponsor = bill.sponsor
+    if sponsor and cosponsors_dict:
+      cosponsors_dict.append(sponsor)
+    for cosponsor_item in cosponsors_dict:
+      bioguide_id = cosponsor_item.get('bioguide_id', '')
+      if bioguide_id != '':
+        cosponsor = Cosponsor.objects.filter(bioguide_id=bioguide_id).first()
+        if cosponsor:
+          bill.cosponsors.add(cosponsor)
+        else:
+          pass
+
 def updateCosponsorAndCommittees():
     Committee.objects.all().delete()
     Cosponsor.objects.all().delete()
     updateLegislators()
     updateCommittees()
     updateCommitteeMembers()
+    updateBillCosponsorJoinTable()

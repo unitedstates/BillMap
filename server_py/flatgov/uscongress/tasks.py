@@ -10,7 +10,7 @@ from uscongress.helper import (
     update_bills_meta,
     es_similarity_bill,
 )
-from common.billdata import saveBillsMeta
+from common.billdata import saveBillsMeta, saveBillsMetaToDb
 from common.process_bill_meta import makeAndSaveTitlesIndex
 from common.elastic_load import ( 
     refreshIndices,
@@ -83,14 +83,14 @@ def bill_data_task(self, pk):
 
 
 @shared_task(bind=True)
-def process_bill_meta_task(self, pk, goVersion=True):
+def process_bill_meta_task(self, pk):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
         # The Go version of update_bills_meta includes this task
-        if not os.path.exists(PATH_TO_BILLS_META_GO):
-            makeAndSaveTitlesIndex()
-        else:
+        if shutil.which(BILLMETA_GO_CMD) is not None:
             pass
+        else:
+            makeAndSaveTitlesIndex()
         history.meta_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['meta_status'])
     except Exception as e:

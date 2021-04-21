@@ -1,3 +1,6 @@
+import os
+import subprocess
+import shutil
 from celery import shared_task, current_app
 from uscongress.models import UscongressUpdateJob
 from uscongress.handlers import govinfo, bills
@@ -15,6 +18,9 @@ from common.elastic_load import (
     getResultBillnumbers,
     getInnerResults,
 )
+
+from django.conf import settings
+from common.constants import BILLMETA_GO_CMD, PATH_TO_BILLS_META_GO
 
 GOVINFO_OPTIONS = {
     'collections': 'BILLS',
@@ -51,21 +57,24 @@ def update_bill_task(self):
         history.save(update_fields=['data_status'])
     return history.id
 
+def update_bills_meta_go():
+    subprocess.run([BILLMETA_GO_CMD, '-p', settings.BASE_DIR])
+    saveBillsMetaToDb()
 
 @shared_task(bind=True)
-def bill_data_task(self, pk, goVersion=True):
+def bill_data_task(self, pk):
     bills_meta = dict()
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
-        if not goVersion:
+        if shutil.which(BILLMETA_GO_CMD) is not None:
+            update_bills_meta_go()
+        else:
             for bill_id in history.saved:
                 bill_congress_type_number, related_dict, err = update_bills_meta(bill_id)
                 if err:
                     continue
                 bills_meta[bill_congress_type_number] = related_dict
             saveBillsMeta(bills_meta)
-        else:
-            update_bills_meta_go()
         history.bill_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['bill_status'])
     except Exception as e:
@@ -78,7 +87,7 @@ def process_bill_meta_task(self, pk, goVersion=True):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
         # The Go version of update_bills_meta includes this task
-        if not goVersion:
+        if not os.path.exists(PATH_TO_BILLS_META_GO):
             makeAndSaveTitlesIndex()
         else:
             pass
@@ -90,12 +99,12 @@ def process_bill_meta_task(self, pk, goVersion=True):
 
 
 @shared_task(bind=True)
-def related_bill_task(self, pk, goVersion=True):
+def related_bill_task(self, pk):
     from common.relatedBills import makeAndSaveRelatedBills
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
         # The Go version of update_bills_meta includes this task
-        if not goVersion:
+        if not os.path.exists(PATH_TO_BILLS_META_GO):
             makeAndSaveRelatedBills()
         else:
             pass

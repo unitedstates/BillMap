@@ -92,8 +92,8 @@ def indexBill(bill_path: str=PATH_BILL, index_types: list=['sections']):
   billnumber = ''
   if billMatch:
     billMatchGroup = billMatch.groupdict()
-    billnumber = billMatchGroup.get('congress') + billMatchGroup.get('stage') + billMatchGroup.get('number')
-    billversion = billMatchGroup.get('version') 
+    billnumber = billMatchGroup.get('congress', '') + billMatchGroup.get('stage', '') + billMatchGroup.get('number', '')
+    billversion = billMatchGroup.get('version', '') 
   sections = billTree.xpath('//section')
   headers = billTree.xpath('//header')
   from collections import OrderedDict
@@ -163,14 +163,14 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
 
   xml_files = list()
   USCONGRESS_XML_FILE = settings.USCONGRESS_XML_FILE
-  for root, dirs, files in os.walk(congressDir):
+  for root, _, files in os.walk(congressDir):
     if USCONGRESS_XML_FILE in files:
       xml_path = os.path.join(root, USCONGRESS_XML_FILE)
       xml_files.append(xml_path)
   return xml_files
 
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(115, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(constants.CURRENT_CONGRESS, (constants.CURRENT_CONGRESS-2), -1)]
 def indexBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False, index_types: list=['sections']):
   number_of_bills_total = 0
   for congress in congresses:

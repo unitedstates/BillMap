@@ -101,8 +101,8 @@ def getBillPath(billnumber: str) -> str:
   billMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billnumber) 
   if billMatch and billMatch.groupdict():
       billMatchGroups = billMatch.groupdict()
-      xmlDir = getXMLDirByCongress(congress=billMatchGroups.get('congress'))
-      bill_path = os.path.join(xmlDir, billMatchGroups.get('stage'), billMatchGroups.get('stage') + billMatchGroups.get('number'))
+      xmlDir = getXMLDirByCongress(congress=billMatchGroups.get('congress', ''))
+      bill_path = os.path.join(xmlDir, billMatchGroups.get('stage', ''), billMatchGroups.get('stage', '') + billMatchGroups.get('number', ''))
   else:
     raise Exception(billnumber + ': billnumber is not of the expected form')
   return bill_path
@@ -318,7 +318,7 @@ def filterLatestVersionOnly(billFiles: List[str]):
 
   return billFilesFiltered
 
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(115, 118)]
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(constants.CURRENT_CONGRESS, (constants.CURRENT_CONGRESS-2), -1)]
 def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
   number_of_bills_total = 0
   for congress in congresses:

@@ -60,6 +60,34 @@ $ cd /path/to/FlatGov/server_py
 $ pip install -r requirements.txt
 ```
 
+#### Installing pypy as virtualenv
+
+The application has been tested and works with pypy on ubuntu:
+
+1. Install pypy as a pyenv virtualenv, for example
+
+```
+pyenv install pypy3.7-7.3.4
+pyenv virtualenv pypy3.7-7.3.4 pypy37flat
+pyenv activate pypy37flat
+```
+
+2. Upgrade pip, if appropriate
+
+`/home/ubuntu/.pyenv/versions/pypy3.7-7.3.4/envs/pypy37flat/bin/pypy3 -m pip install --upgrade pip`
+
+3. It may be necessary to install C libraries to build lxml
+
+`sudo apt-get install libxml2-dev libxslt-dev python-dev`
+
+
+4. Install requirements
+
+```
+cd /path/to/FlatGov/server_py
+pip install -r requirements.txt
+```
+
 ### Create .env file 
 
 Copy `server_py/flatgov/.env-sample` to `server_py/flatgov/.env`, and change the `SECRET_KEY` defined in that file.

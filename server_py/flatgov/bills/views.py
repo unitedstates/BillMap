@@ -221,6 +221,11 @@ class BillDetailView(DetailView):
             else:
                 cosponsors.insert(0, sponsor)
         # Add party from Cosponsors table
+        sorted_cosponsors = []
+        original_cosponsor_counter = 0
+        sorted_original_cosponsors = []
+        original_cosponsor_parties = set()
+        insert_count = 0
         for cosponsor in cosponsors:
             bioguide_id = cosponsor.get("bioguide_id", "")
             committee_id = cosponsor.get('committee_id')
@@ -239,10 +244,24 @@ class BillDetailView(DetailView):
                             if committee_id == committee_dict.get('committee_id'):
                                 cosponsor['committee_id'] = committee_id
                                 cosponsor['rank'] = committee.get('rank')
-                                cosponsor['committee_name'] = committee_dict.get('committee') 
+                                cosponsor['committee_name'] = committee_dict.get('committee')
+
+            if cosponsor.get('original_cosponsor'):
+                if cosponsor.get('party') in original_cosponsor_parties:
+                    sorted_original_cosponsors.insert(original_cosponsor_counter, cosponsor)
+                else:
+                    original_cosponsor_parties.add(cosponsor.get('party'))
+                    original_cosponsor_counter+=1
+                    sorted_original_cosponsors.insert(0, cosponsor)
+                    
+            elif cosponsor.get('rank') == 1:
+                sorted_cosponsors.insert(0, cosponsor)
+            else:
+                sorted_cosponsors.append(cosponsor)
 
 
-        return cosponsors
+        sorted_original_cosponsors.extend(sorted_cosponsors)
+        return sorted_original_cosponsors
 
 class BillToBillView(DetailView):
     model = Bill

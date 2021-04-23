@@ -69,18 +69,18 @@
                         {% endfor %}
                     </div>
                 </div>
-
                 <div class="mt-5">
                     <table class="table mt-3" id="cosponsors-table-top">
                         <thead>
                             <tr>
                                 <th scope="col">Co-sponsor</th>
-                                <th scope="col">On Assigned Committee(s)</th>
+                                <th scope="col">Current Assigned Committee(s)</th>
                                 <th scope="col">Party</th>
                                 <th scope="col">Rank</th>
                             </tr>
                         </thead>
                         <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
+                           
                             <tr>
                                  {% if cosponsor.name_full_official %}
                                 <td>{{ cosponsor.name_full_official }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
@@ -88,7 +88,7 @@
                                 <!--td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td-->
                                 <td>{{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
                                 {% endif %}
-                                <td>{{ cosponsor.committee_name }} {% if cosponsor.committee_id %}({{ cosponsor.committee_id }}){% endif %}</td>
+                                <td>{{ cosponsor.committee_name }}</td>
                                 <td>{{ cosponsor.party|slice:":1" }}</td>
                                 <td>{{ cosponsor.rank }}</td>
                             </tr>
@@ -336,7 +336,7 @@
                 <thead>
                     <tr>
                         <th scope="col">Co-sponsor</th>
-                        <th scope="col">On Assigned Committee(s)</th>
+                        <th scope="col">Current Assigned Committee(s)</th>
                         <th scope="col">Party</th>
                         <th scope="col">Rank</th>
                     </tr>
@@ -349,7 +349,7 @@
                         <!--td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td-->
                         <td>{{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
                         {% endif %}
-                        <td>{{ cosponsor.committee_name }} {% if cosponsor.committee_id %}({{ cosponsor.committee_id }}){% endif %}</td>
+                        <td>{{ cosponsor.committee_name }}</td>
                         <td>{{ cosponsor.party|slice:":1" }}</td>
                         <td>{{ cosponsor.rank }}</td>
                     </tr>
@@ -880,5 +880,18 @@
         $(event.currentTarget).find('#tool').css('display', 'none')
     })
 </script>
+
+<style>
+    div.dt-buttons {
+        float: none;
+    }
+    .related-bills .buttons-html5{
+        background-color: red !important;
+    }
+    .unique-dt {
+        background-color: red;
+
+    }
+</style>
 
 {% endblock %}

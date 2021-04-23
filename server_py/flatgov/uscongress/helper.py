@@ -1,4 +1,5 @@
 import os
+from typing import Tuple
 from django.conf import settings
 from elasticsearch import exceptions, Elasticsearch
 from common import constants
@@ -65,12 +66,12 @@ def add_bill_meta(dirName: str, fileName: str):
     return bill_congress_type_number, related_dict
 
 
-def update_bills_meta(bill):
+def update_bills_meta(bill: str) -> Tuple[str, dict, bool]:
     bill_dir = get_bill_dir(bill)
     if not validate_bill_dir(bill_dir, BILL_JSON):
-        return False
+        return '', {}, True 
     bill_congress_type_number, related_dict = add_bill_meta(bill_dir, BILL_JSON)
-    return bill_congress_type_number, related_dict
+    return bill_congress_type_number, related_dict, False 
 
 
 def create_es_index(index: str='billsections', body: dict=constants.BILLSECTION_MAPPING):

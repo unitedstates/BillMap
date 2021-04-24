@@ -16,10 +16,14 @@
 <div class="title">
     <hr />
     <span>Home > Bills > {{bill.bill_congress_type_number |billnumber_display}}</span>
+    {% if bill.number and bill.number != 'None'%}
     <h1>
         {{ bill.type_abbrev }} {{ bill.number }}: {{ bill.title }}
     </h1>
+    {% endif %}
+    {% if bill.congress and bill.congress != 'None'%}
     <span class="small">{{ bill.congress|numstring_to_ordinal }} Congress ({{bill.congress|congress_to_year}} - {{bill.congress|congress_to_year|add:"1"}})</span>
+    {% endif %}
     <hr />
 </div>
 <div class="">

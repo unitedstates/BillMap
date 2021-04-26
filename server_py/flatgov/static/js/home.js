@@ -44,6 +44,7 @@ $.get(billsDataURL).then(function (results) {
 var stagesFormat = {
         'S': 'S.',
         'HR': 'H.R.',
+        'HAMDT': 'H.Amdt.',
         'HRES': 'H.Res.',
         'HJRES': 'H.J.Res.',
         'HCONRES': 'H.Con.Res.',
@@ -92,7 +93,7 @@ var substringMatcher = function(strs) {
         // iterate through the pool of strings and for any string that
         // contains the substring `q`, add it to the `matches` array
         $.each(strs, function(i, str) {
-            if (substrRegex.test(str.trim().replace(/^\d+/,''))) {
+            if (substrRegex.test(str.trim().replace(/^\d+/,'')) && !str.match('amdt')) {
                 matches.push(billFormat(str));
             }
         });

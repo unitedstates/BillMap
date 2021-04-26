@@ -71,7 +71,11 @@ def congress_to_year(congress: str) -> int:
     if not congress:
         return 0 
 
-    congress_num = int(congress)
+    try:
+        congress_num = int(congress)
+    except ValueError:
+        return 0
+
     if congress_num and congress_num != 0:
         return 1787 + int(congress_num)*2
     else:
@@ -96,11 +100,14 @@ def numstring_to_ordinal(numstring: str) -> str:
         str: ordinal expression, e.g. 117th 
     """
 
-
     if not numstring:
         return ''
 
-    n = int(numstring)
+    try:
+        n = int(numstring)
+    except ValueError as err:
+        return numstring 
+
     suffix = ['th', 'st', 'nd', 'rd', 'th'][min(n % 10, 4)]
     if 11 <= (n % 100) <= 13:
         suffix = 'th'

@@ -221,12 +221,16 @@ class BillDetailView(DetailView):
             else:
                 cosponsors.insert(0, sponsor)
         # Add party from Cosponsors table
-        sorted_cosponsors = []
-        original_cosponsor_counter = 0
-        sorted_original_cosponsors = []
-        original_cosponsor_parties = set()
+        unoriginal_cosponsors = []
+        sorted_unoriginal_ranked_cosponsors = []
+        sorted_unoriginal_unranked_cosponsors = []
+        unoriginal_unranked_cosponsors = []
+        original_cosponsors = []
+        sorted_original_cosponsors = []#
+        sorted_original_ranked_cosponsors = []#
+        original_unranked_cosponsors = []#
         insert_count = 0
-        for cosponsor in cosponsors:
+        for i, cosponsor in enumerate(cosponsors):
             bioguide_id = cosponsor.get("bioguide_id", "")
             committee_id = cosponsor.get('committee_id')
             if bioguide_id:
@@ -246,22 +250,29 @@ class BillDetailView(DetailView):
                                 cosponsor['rank'] = committee.get('rank')
                                 cosponsor['committee_name'] = committee_dict.get('committee')
 
+        for cosponsor in cosponsors[1:]:
             if cosponsor.get('original_cosponsor'):
-                if cosponsor.get('party') in original_cosponsor_parties:
-                    sorted_original_cosponsors.insert(original_cosponsor_counter, cosponsor)
-                else:
-                    original_cosponsor_parties.add(cosponsor.get('party'))
-                    original_cosponsor_counter+=1
-                    sorted_original_cosponsors.insert(0, cosponsor)
-                    
-            elif cosponsor.get('rank') == 1:
-                sorted_cosponsors.insert(0, cosponsor)
+                original_cosponsors.append(cosponsor)
             else:
-                sorted_cosponsors.append(cosponsor)
+                unoriginal_cosponsors.append(cosponsor)
 
+        for original_cosponsor in original_cosponsors:
+            if type(original_cosponsor.get('rank')) == int:
+                sorted_original_ranked_cosponsors.append(original_cosponsor)
+            else:
+                original_unranked_cosponsors.append(original_cosponsor)
 
-        sorted_original_cosponsors.extend(sorted_cosponsors)
-        return sorted_original_cosponsors
+        for unoriginal_cosponsor in unoriginal_cosponsors:
+            if type(unoriginal_cosponsor.get('rank')) == int:
+                sorted_unoriginal_ranked_cosponsors.append(unoriginal_cosponsor)
+            else:
+                unoriginal_unranked_cosponsors.append(unoriginal_cosponsor)
+            
+
+        sorted_original_ranked_cosponsors = sorted(sorted_original_ranked_cosponsors, key = lambda i: i.get('rank'))
+        sorted_unoriginal_ranked_cosponsors = sorted(sorted_unoriginal_ranked_cosponsors, key = lambda i: i.get('rank'))
+
+        return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
 
 class BillToBillView(DetailView):
     model = Bill

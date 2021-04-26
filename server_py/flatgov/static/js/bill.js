@@ -2,6 +2,7 @@ $(document).ready( function () {
     $('#cosponsors-table-top').DataTable({
         sDom: "Rlfrtip",
         bFilter: false,
+        ordering: false,
         bPaginate: false,
         iDisplayLength: 5,
         scrollY: '50vh',
@@ -12,8 +13,20 @@ $(document).ready( function () {
         }
     });
     $('#cosponsors-table').DataTable({
-        sDom: "Rlfrtip",
-        bFilter: false,
+        dom: 'Bflrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Copy to clipboard'
+            },
+            {
+                extend: 'csv',
+                text: 'Export to CSV'
+            },
+            'excelHtml5'
+        ],
+        bFilter: true,
+        ordering: false,
         bPaginate: true,
         iDisplayLength: 30,
         scrollY: '50vh',
@@ -55,9 +68,21 @@ $(document).ready( function () {
         lengthMenu: [100, 50, 20, 5],
     });
 
-    $('#current-similar-bills-table').DataTable({
-        sDom: "Rlfrtip",
+    var currentBillsTable = $('#current-similar-bills-table').DataTable({
+        sDom: "Bflrtip",
         autoWidth: false,
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Copy to clipboard',
+            },
+            
+            {
+                extend: 'csv',
+                text: 'Export to CSV'
+            },
+            'excelHtml5'
+        ],
         columnDefs: [
             { "width": "10%", "targets": 0 },
             { "width": "10%", "targets": 1 },
@@ -76,7 +101,7 @@ $(document).ready( function () {
         language: {
             info: "_START_ to _END_ of _TOTAL_ Bills",
         },
-    });
+    })
     $('#similar-sections-table').DataTable({
         sDom: "Rlfrtip",
         autoWidth: false,
@@ -85,7 +110,9 @@ $(document).ready( function () {
             { "width": "50%", "targets": 1 },
         ],
         bSort: false,
-        bFilter: false,
+        bFilter: true,
+        
+
         bPaginate: false,
         iDisplayLength: 30,
         scrollY: '50vh',

@@ -65,23 +65,26 @@
                 <h4 class="text-center"><b>Committees and Cosponsors</b></h4>
                 <br>
                 <div class="d-flex justify-content-between">
-                    <h5 style="float: left;"><b>Committees of Jurisdiction:</b></h5>
-                    {% for committeeItem in committees_dict_deduped %}
-                    <a href="#" class="link-secondary">{{committeeItem.committee}}</a>
-                    {% endfor %}
+                    <div class="">
+                        
+                        <h5 style="float: left;" class="pr-3"><b>Committees of Jurisdiction:</b></h5>
+                        {% for committeeItem in committees_dict_deduped %}
+                        <a href="#" class="link-secondary">{{committeeItem.committee}}</a>{% if not forloop.last %}<span class="mr-0">, </span>  {% endif %}
+                        {% endfor %}
+                    </div>
                 </div>
-
                 <div class="mt-5">
                     <table class="table mt-3" id="cosponsors-table-top">
                         <thead>
                             <tr>
                                 <th scope="col">Co-sponsor</th>
-                                <th scope="col">On Assigned Committee(s)</th>
+                                <th scope="col">Current Assigned Committee(s)</th>
                                 <th scope="col">Party</th>
-                                <th scope="col">Position</th>
+                                <th scope="col">Rank</th>
                             </tr>
                         </thead>
                         <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
+                           
                             <tr>
                                  {% if cosponsor.name_full_official %}
                                 <td>{{ cosponsor.name_full_official }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
@@ -89,9 +92,9 @@
                                 <!--td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td-->
                                 <td>{{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
                                 {% endif %}
-                                <td></td>
+                                <td>{{ cosponsor.committee_name }}</td>
                                 <td>{{ cosponsor.party|slice:":1" }}</td>
-                                <td></td>
+                                <td>{{ cosponsor.rank }}</td>
                             </tr>
                             {% endfor %}
                         </tbody>
@@ -317,31 +320,42 @@
         </li>
         <li class="nav-item" role="presentation">
             <a class="nav-link" id="all-congress-tab" data-toggle="tab" href="#all-congress" role="tab" aria-controls="all-congress" aria-selected="false">All Congress</a>
-        </li>
+        </li> 
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="cosponsorsTabContent">
         <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
             <h6 class="pt-3">
-                View all current sponsors of {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
+                <div class="d-flex justify-content-between">
+                    <p style="min-width: 40%;">View all current sponsors of {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress</p>
+                    <div class="">
+                        
+                        <h5 style="float: left;" class="pr-3"><b>Committees of Jurisdiction:</b></h5>
+                        {% for committeeItem in committees_dict_deduped %}
+                        <a class="link-secondary">{{committeeItem.committee}}</a>{% if not forloop.last %}<span class="mr-0">, </span>  {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
             </h6>
             <table class="table mt-3" id="cosponsors-table">
                 <thead>
                     <tr>
-                        <th scope="col">Co-Sponsor</th>
-                        <th scope="col">Bill</th>
-                        <th scope="col">Committees</th>
+                        <th scope="col">Co-sponsor</th>
+                        <th scope="col">Current Assigned Committee(s)</th>
                         <th scope="col">Party</th>
-                        <th scope="col">Position</th>
+                        <th scope="col">Rank</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for cosponsor in cosponsors %}
+                <tbody> {% for cosponsor in cosponsors_dict %}
                     <tr>
-                        <td>{{ cosponsor.title }} {{ cosponsor.name }}</td>
-                        <td>{{ cosponsor.bills|billnumbers_display|join:", "}}</td>
-                        <td></td>
-                        <td>{{ cosponsor.party|slice:":1"}}</td>
-                        <td></td>
+                         {% if cosponsor.name_full_official %}
+                        <td>{{ cosponsor.name_full_official }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                        {% else %}
+                        <!--td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td-->
+                        <td>{{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                        {% endif %}
+                        <td>{{ cosponsor.committee_name }}</td>
+                        <td>{{ cosponsor.party|slice:":1" }}</td>
+                        <td>{{ cosponsor.rank }}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -870,5 +884,18 @@
         $(event.currentTarget).find('#tool').css('display', 'none')
     })
 </script>
+
+<style>
+    div.dt-buttons {
+        float: none;
+    }
+    .related-bills .buttons-html5{
+        background-color: red !important;
+    }
+    .unique-dt {
+        background-color: red;
+
+    }
+</style>
 
 {% endblock %}

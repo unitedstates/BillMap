@@ -54,4 +54,4 @@ class GetBillTitleAPIView(View):
         bill = Bill.objects.filter(bill_congress_type_number=bill).first()
         if not bill:
             return JsonResponse({"status": 404})
-        return JsonResponse({'short_title': bill.short_title, 'first_title': bill.titles[0], "status": 200})
+        return JsonResponse({'short_title': bill.short_title, 'first_title': bill.titles[0] if len(bill.titles) !=0 else 'No short title available', "status": 200})

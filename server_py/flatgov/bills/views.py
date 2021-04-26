@@ -253,19 +253,54 @@ class BillDetailView(DetailView):
             else:
                 cosponsors.insert(0, sponsor)
         # Add party from Cosponsors table
-        for cosponsor in cosponsors:
+        unoriginal_cosponsors = []
+        sorted_unoriginal_ranked_cosponsors = []
+        unoriginal_unranked_cosponsors = []
+        original_cosponsors = []
+        sorted_original_ranked_cosponsors = []
+        original_unranked_cosponsors = []
+        for i, cosponsor in enumerate(cosponsors):
             bioguide_id = cosponsor.get("bioguide_id", "")
+            committee_id = cosponsor.get('committee_id')
             if bioguide_id:
                 try:
-                    cosponsor_item = Cosponsor.objects.get(
-                        bioguide_id=bioguide_id)
+                    cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id) 
                 except Exception as err:
                     continue
                 cosponsor['party'] = cosponsor_item.party
-                cosponsor[
-                    'name_full_official'] = cosponsor_item.name_full_official
+                cosponsor['name_full_official'] = cosponsor_item.name_full_official
+                for committee in cosponsor_item.committees:
+                    
+                    if bioguide_id == committee.get('bioguide'):
+                        committee_id = committee.get('committee')
+                        for committee_dict in self.object.committees_dict:
+                            if committee_id == committee_dict.get('committee_id'):
+                                cosponsor['committee_id'] = committee_id
+                                cosponsor['rank'] = committee.get('rank')
+                                cosponsor['committee_name'] = committee_dict.get('committee')
 
-        return cosponsors
+        for cosponsor in cosponsors[1:]:
+            if cosponsor.get('original_cosponsor'):
+                original_cosponsors.append(cosponsor)
+            else:
+                unoriginal_cosponsors.append(cosponsor)
+
+        for original_cosponsor in original_cosponsors:
+            if type(original_cosponsor.get('rank')) == int:
+                sorted_original_ranked_cosponsors.append(original_cosponsor)
+            else:
+                original_unranked_cosponsors.append(original_cosponsor)
+
+        for unoriginal_cosponsor in unoriginal_cosponsors:
+            if type(unoriginal_cosponsor.get('rank')) == int:
+                sorted_unoriginal_ranked_cosponsors.append(unoriginal_cosponsor)
+            else:
+                unoriginal_unranked_cosponsors.append(unoriginal_cosponsor)
+
+        sorted_original_ranked_cosponsors = sorted(sorted_original_ranked_cosponsors, key = lambda i: i.get('rank'))
+        sorted_unoriginal_ranked_cosponsors = sorted(sorted_unoriginal_ranked_cosponsors, key = lambda i: i.get('rank'))
+
+        return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
 
     # Fraction difference in score that will still be considered identical
     def get_cosponsors_for_same_bills(self):

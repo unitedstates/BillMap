@@ -72,7 +72,6 @@
                         {% endfor %}
                    </div>
                 </div>
-
                 <div class="mt-5">
                     <table class="table mt-3" id="cosponsors-table-top">
                         <thead>
@@ -84,6 +83,7 @@
                             </tr>
                         </thead>
                         <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
+                           
                             <tr>
                                  {% if cosponsor.name_full_official %}
                                 <td>{{ cosponsor.name_full_official }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
@@ -323,9 +323,8 @@
             <table class="table mt-3" id="cosponsors-table">
                 <thead>
                     <tr>
-                        <th scope="col">Co-Sponsor</th>
-                        <th scope="col">Bill</th>
-                        <th scope="col">Committees</th>
+                        <th scope="col">Co-sponsor</th>
+                        <th scope="col">Current Assigned Committee(s)</th>
                         <th scope="col">Party</th>
                         <th scope="col">Rank</th>
                     </tr>
@@ -864,6 +863,19 @@
         $(event.currentTarget).find('#tool').css('display', 'none')
     })
 </script>
+<style>
+    div.dt-buttons {
+        float: none;
+    }
+    .related-bills .buttons-html5{
+        background-color: red !important;
+    }
+    .unique-dt {
+        background-color: red;
+
+    }
+</style>
+
 <style>
     div.dt-buttons {
         float: none;

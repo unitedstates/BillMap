@@ -14,55 +14,16 @@ $(document).ready( function () {
         ],
         bFilter: true,
         ordering: false,
-        bPaginate: true,
-        iDisplayLength: 30,
+        bPaginate: false,
+        iDisplayLength: 5,
         scrollY: '50vh',
         scrollX: true,
-        scrollCollapse: true,
-        language: {
-            paginate: {
-                "previous": "<",
-                "next": ">",
-            },
-            info: "_START_ to _END_ of _TOTAL_ Cosponsors",
-            lengthMenu: "_MENU_ cosponsors",
-        },
-        lengthMenu: [100, 30, 5],
+        scrollCollapse: true
     });
 
-    $('#cosponsors-table').DataTable({
-        dom: 'Bflrtip',
-        buttons: [
-            {
-                extend: 'copy',
-                text: 'Copy to clipboard'
-            },
-            {
-                extend: 'csv',
-                text: 'Export to CSV'
-            },
-            'excelHtml5'
-        ],
-        bFilter: true,
-        ordering: true,
-        bPaginate: true,
-        iDisplayLength: 30,
-        scrollY: '50vh',
-        scrollX: true,
-        scrollCollapse: true,
-        language: {
-            paginate: {
-                "previous": "<",
-                "next": ">",
-            },
-            info: "_START_ to _END_ of _TOTAL_ Cosponsors",
-            lengthMenu: "_MENU_ cosponsors",
-        },
-        lengthMenu: [100, 30, 5],
-    });
-
+    
     $('#current-similar-bills-table').DataTable({
-        sDom: "Bflrtip",
+        dom: "Bflrtip",
         autoWidth: false,
         buttons: [
             {
@@ -97,7 +58,7 @@ $(document).ready( function () {
     })
 
     $('#similar-bills-table').DataTable({
-        sDom: "Bflrtip",
+        dom: "Bflrtip",
         autoWidth: false,
         buttons: [
             {
@@ -132,7 +93,7 @@ $(document).ready( function () {
     })
 
     $('#similar-sections-table').DataTable({
-        sDom: "Rlfrtip",
+        dom: "Rlfrtip",
         autoWidth: false,
         buttons: [
             {
@@ -152,8 +113,6 @@ $(document).ready( function () {
         ],
         bSort: false,
         bFilter: true,
-        
-
         bPaginate: false,
         iDisplayLength: 30,
         scrollY: '50vh',
@@ -166,6 +125,37 @@ $(document).ready( function () {
             },
             info: "_START_ to _END_ of _TOTAL_ sections",
             lengthMenu: "_MENU_ sections",
+        },
+        lengthMenu: [100, 30, 5],
+    });
+
+    $('#cosponsors-table').DataTable({
+        dom: 'Bflrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Copy to clipboard'
+            },
+            {
+                extend: 'csv',
+                text: 'Export to CSV'
+            },
+            'excelHtml5'
+        ],
+        bFilter: true,
+        ordering: false,
+        bPaginate: false,
+        iDisplayLength: 30,
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        language: {
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
+            info: "_START_ to _END_ of _TOTAL_ cosponsors",
+            lengthMenu: "_MENU_ cosponsors",
         },
         lengthMenu: [100, 30, 5],
     });

@@ -145,9 +145,9 @@
 <div class="related-bills mt-4">
     <h4>Bills Related to {{ bill.type_abbrev }} {{ bill.number }}</h4>
     <span class="small">
-        Discover related bills to {{ bill.type_abbrev }} {{ bill.number }}: Access to Congressionally Mandated Reports Act. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
+        Bills related to <i>{{ bill.type_abbrev }} {{ bill.number }}: {{ bill.short_title }}</i>. A related bill may be a companion measure, an identical bill, a procedurally-related measure, or one with text similarities.
     </span>
-    <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+    <ul class="nav nav-tabs mt-2" id="tablistRelated" role="tablist">
         <li class="nav-item" role="presentation">
         <a class="nav-link active" id="current-congress-tab" data-toggle="tab" href="#current-congress" role="tab"
             aria-controls="current" aria-selected="true">Current Congress</a>
@@ -164,9 +164,6 @@
     <div class="tab-content light-gray-tabs p-4" id="relatedBillsTableContent">
 
         <div class="tab-pane fade show active" id="current-congress" role="tabpanel" aria-labelledby="current-congress-tab">
-            <h6 class="pt-3">
-                Filtered by the Current Congress
-            </h6>
             <table class="table mt-3" id="current-similar-bills-table">
                 <thead>
                     <tr>
@@ -210,7 +207,6 @@
                             {% endif %}
                             <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
                             <td>{{ bill.number_of_sections }}</td>
-                            <!--td>{{ bill.info.score|floatformat:2 }}</td-->
                             <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
                         </tr>
                         {% endif %}
@@ -218,13 +214,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="tab-pane fade " id="all-congress" role="tabpanel" aria-labelledby="all-congress-tab">
-            <h6 class="pt-3">
-                View all {{ bill.type_abbrev }} {{ bill.number }}
-            </h6>
-            <div style="border-radius: 10px;">
-        </div>
-<hr>
+        <div class="tab-pane fade" id="all-congress" role="tabpanel" aria-labelledby="all-congress-tab">
             <table class="table mt-3" id="similar-bills-table">
                 <thead>
                     <tr>
@@ -266,17 +256,13 @@
                             {% endif %}
                             <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
                             <td>{{ bill.number_of_sections }}</td>
-                            <!--td>{{ bill.info.score|floatformat:2 }}</td-->
                             <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
                         </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
-        <div class="tab-pane fade " id="similar-sections-table" role="tabpanel" aria-labelledby="similar-sections-tab">
-            <h6 class="pt-3">
-                View all {{ bill.type_abbrev }} {{ bill.number }}
-            </h6>
+        <div class="tab-pane fade " id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
             <table class="table mt-3" id="similar-sections-table">
                 <thead>
                     <tr>
@@ -308,13 +294,13 @@
     <span class="small">
         Identify the sponsor and cosponsors of this bill and other identical or nearly identical bills. Also shown is any committee of jurisdiction to which a cosponsor may belong and their rank in that committee.
     </span>
-    <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+    <ul class="nav nav-tabs mt-2" id="tablistCosponsors" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link" id="all-congress-tab" data-toggle="tab" href="#all-congress" role="tab" aria-controls="all-congress" aria-selected="false">All Congresses</a>
+            <a class="nav-link active" id="all-congress-sponsor-tab" data-toggle="tab" href="#all-congress-sponsor" role="tab" aria-controls="all-congress-sponsor" aria-selected="true">All Congresses</a>
         </li>
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="cosponsorsTabContent">
-        <div class="tab-pane fade show active" id="house" role="tabpanel" aria-labelledby="house-tab">
+        <div class="tab-pane fade show active" id="all-congress-sponsor" role="tabpanel" aria-labelledby="all-congress-sponsor-tab">
             <h6 class="pt-3">
                 View all current sponsors of {{ bill.type_abbrev }} {{ bill.number }} and identical bills in any recent Congress
             </h6>
@@ -350,7 +336,7 @@
 <div class="understanding-context mt-4 pb-2" id="app">
     <h4>Understand the Context</h4>
     <span class="small">Reports and other information for this bill</span>
-    <ul class="nav nav-tabs mt-2" id="myTab" role="tablist">
+    <ul class="nav nav-tabs mt-2" id="tablistReports" role="tablist">
         <li class="nav-item" role="presentation">
         <a class="nav-link active" id="crs-report-tab" data-toggle="tab" href="#crs-report" role="tab" aria-controls="house"
             aria-selected="true">CRS Report</a>
@@ -861,19 +847,6 @@
         $(event.currentTarget).find('#tool').css('display', 'none')
     })
 </script>
-<style>
-    div.dt-buttons {
-        float: none;
-    }
-    .related-bills .buttons-html5{
-        background-color: red !important;
-    }
-    .unique-dt {
-        background-color: red;
-
-    }
-</style>
-
 <style>
     div.dt-buttons {
         float: none;

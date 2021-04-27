@@ -229,79 +229,80 @@ class BillDetailView(DetailView):
                                          many=True,
                                          context={'bill': self.object})
         return serializer.data
-
+    
     def get_cosponsors_dict(self):
-        cosponsors = self.object.cosponsors_dict
-        cosponsors = sorted(cosponsors, key=lambda i: i.get('name'))
+       cosponsors =  self.object.cosponsors_dict
+       cosponsors = sorted(cosponsors, key = lambda i: i.get('name'))
 
-        sponsor = self.object.sponsor
-        sponsor['sponsor'] = True
-        sponsor_name = sponsor.get('name', '')
-        if sponsor_name:
-            sponsors = []
-            try:
-                sponsors = list(
-                    filter(
-                        lambda cosponsor: cosponsor.get('name', '') ==
-                        sponsor_name, cosponsors))
-            except Exception as err:
-                pass
-            if sponsors:
-                print(sponsors[0])
-                cosponsors.remove(sponsors[0])
-                cosponsors.insert(0, sponsors[0])
-            else:
-                cosponsors.insert(0, sponsor)
-        # Add party from Cosponsors table
-        unoriginal_cosponsors = []
-        sorted_unoriginal_ranked_cosponsors = []
-        unoriginal_unranked_cosponsors = []
-        original_cosponsors = []
-        sorted_original_ranked_cosponsors = []
-        original_unranked_cosponsors = []
-        for i, cosponsor in enumerate(cosponsors):
-            bioguide_id = cosponsor.get("bioguide_id", "")
-            committee_id = cosponsor.get('committee_id')
-            if bioguide_id:
-                try:
-                    cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id) 
-                except Exception as err:
-                    continue
-                cosponsor['party'] = cosponsor_item.party
-                cosponsor['name_full_official'] = cosponsor_item.name_full_official
-                for committee in cosponsor_item.committees:
-                    
-                    if bioguide_id == committee.get('bioguide'):
-                        committee_id = committee.get('committee')
-                        for committee_dict in self.object.committees_dict:
-                            if committee_id == committee_dict.get('committee_id'):
-                                cosponsor['committee_id'] = committee_id
-                                cosponsor['rank'] = committee.get('rank')
-                                cosponsor['committee_name'] = committee_dict.get('committee')
+       sponsor = self.object.sponsor
+       sponsor['sponsor'] = True
+       sponsor_name = sponsor.get('name', '')
+       if sponsor_name:
+           sponsors = [] 
+           try:
+               sponsors = list(filter(lambda cosponsor: cosponsor.get('name', '') == sponsor_name, cosponsors))
+           except Exception as err:
+               pass
+           if sponsors:
+               print(sponsors[0])
+               cosponsors.remove(sponsors[0])
+               cosponsors.insert(0, sponsors[0])
+           else:
+               cosponsors.insert(0, sponsor)
+       # Add party from Cosponsors table
+       unoriginal_cosponsors = []
+       sorted_unoriginal_ranked_cosponsors = []
+       sorted_unoriginal_unranked_cosponsors = []
+       unoriginal_unranked_cosponsors = []
+       original_cosponsors = []
+       sorted_original_cosponsors = []#
+       sorted_original_ranked_cosponsors = []#
+       original_unranked_cosponsors = []#
+       insert_count = 0
+       for i, cosponsor in enumerate(cosponsors):
+           bioguide_id = cosponsor.get("bioguide_id", "")
+           committee_id = cosponsor.get('committee_id')
+           if bioguide_id:
+               try:
+                   cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id) 
+               except Exception as err:
+                   continue
+               cosponsor['party'] = cosponsor_item.party
+               cosponsor['name_full_official'] = cosponsor_item.name_full_official
+               for committee in cosponsor_item.committees:
+                   
+                   if bioguide_id == committee.get('bioguide'):
+                       committee_id = committee.get('committee')
+                       for committee_dict in self.object.committees_dict:
+                           if committee_id == committee_dict.get('committee_id'):
+                               cosponsor['committee_id'] = committee_id
+                               cosponsor['rank'] = committee.get('rank')
+                               cosponsor['committee_name'] = committee_dict.get('committee')
 
-        for cosponsor in cosponsors[1:]:
-            if cosponsor.get('original_cosponsor'):
-                original_cosponsors.append(cosponsor)
-            else:
-                unoriginal_cosponsors.append(cosponsor)
+       for cosponsor in cosponsors[1:]:
+           if cosponsor.get('original_cosponsor'):
+               original_cosponsors.append(cosponsor)
+           else:
+               unoriginal_cosponsors.append(cosponsor)
 
-        for original_cosponsor in original_cosponsors:
-            if type(original_cosponsor.get('rank')) == int:
-                sorted_original_ranked_cosponsors.append(original_cosponsor)
-            else:
-                original_unranked_cosponsors.append(original_cosponsor)
+       for original_cosponsor in original_cosponsors:
+           if type(original_cosponsor.get('rank')) == int:
+               sorted_original_ranked_cosponsors.append(original_cosponsor)
+           else:
+               original_unranked_cosponsors.append(original_cosponsor)
 
-        for unoriginal_cosponsor in unoriginal_cosponsors:
-            if type(unoriginal_cosponsor.get('rank')) == int:
-                sorted_unoriginal_ranked_cosponsors.append(unoriginal_cosponsor)
-            else:
-                unoriginal_unranked_cosponsors.append(unoriginal_cosponsor)
+       for unoriginal_cosponsor in unoriginal_cosponsors:
+           if type(unoriginal_cosponsor.get('rank')) == int:
+               sorted_unoriginal_ranked_cosponsors.append(unoriginal_cosponsor)
+           else:
+               unoriginal_unranked_cosponsors.append(unoriginal_cosponsor)
+           
 
-        sorted_original_ranked_cosponsors = sorted(sorted_original_ranked_cosponsors, key = lambda i: i.get('rank'))
-        sorted_unoriginal_ranked_cosponsors = sorted(sorted_unoriginal_ranked_cosponsors, key = lambda i: i.get('rank'))
+       sorted_original_ranked_cosponsors = sorted(sorted_original_ranked_cosponsors, key = lambda i: i.get('rank'))
+       sorted_unoriginal_ranked_cosponsors = sorted(sorted_unoriginal_ranked_cosponsors, key = lambda i: i.get('rank'))
 
-        return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
-
+       return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
+    
     # Fraction difference in score that will still be considered identical
     def get_cosponsors_for_same_bills(self):
         committees_map = self.get_committees_map()

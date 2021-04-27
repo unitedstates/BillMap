@@ -44,7 +44,7 @@ $(document).ready( function () {
             'excelHtml5'
         ],
         bFilter: true,
-        ordering: false,
+        ordering: true,
         bPaginate: true,
         iDisplayLength: 30,
         scrollY: '50vh',
@@ -61,7 +61,7 @@ $(document).ready( function () {
         lengthMenu: [100, 30, 5],
     });
 
-   $('#current-similar-bills-table').DataTable({
+    $('#current-similar-bills-table').DataTable({
         sDom: "Bflrtip",
         autoWidth: false,
         buttons: [
@@ -95,6 +95,7 @@ $(document).ready( function () {
             info: "_START_ to _END_ of _TOTAL_ Bills",
         },
     })
+
     $('#similar-bills-table').DataTable({
         sDom: "Bflrtip",
         autoWidth: false,
@@ -129,9 +130,22 @@ $(document).ready( function () {
             info: "_START_ to _END_ of _TOTAL_ Bills",
         },
     })
+
     $('#similar-sections-table').DataTable({
         sDom: "Rlfrtip",
         autoWidth: false,
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Copy to clipboard',
+            },
+            
+            {
+                extend: 'csv',
+                text: 'Export to CSV'
+            },
+            'excelHtml5'
+        ],
         columnDefs: [
             { "width": "50%", "targets": 0 },
             { "width": "50%", "targets": 1 },

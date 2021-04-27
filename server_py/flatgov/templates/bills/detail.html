@@ -176,7 +176,6 @@
                         <th scope="col">Titles</th>
                         <th scope="col">Score</th>
                         <th scope="col">Sections matched</th>
-                        <!--th scope="col">Best match score</th-->
                         <th scope="col">Best match section</th>
                     </tr>
                 </thead>
@@ -235,7 +234,6 @@
                         <th scope="col">Titles</th>
                         <th scope="col">Score</th>
                         <th scope="col">Sections matched</th>
-                        <!--th scope="col">Best match score</th-->
                         <th scope="col">Best match section</th>
                     </tr>
                 </thead>
@@ -391,7 +389,7 @@
                 View CRS reports for {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
-            <table class="table mt-3" id='statements-tables'>
+            <table class="table mt-3" id='crs-table'>
                 <thead>
                     <tr>
                         <th scope="col">Title</th>
@@ -433,7 +431,7 @@
                 View all the Statements of Administration Policy for {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
-            <table class="table mt-3" id='statements-tables'>
+            <table class="table mt-3" id='statements-table'>
                 <thead>
                     <tr>
                         <th scope="col">Bill Number</th>
@@ -472,7 +470,7 @@
         </div>
         <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
             <div class="">
-                <table class="table mt-3" id='press-statements-tables' style="height: 50vh !important;">
+                <table class="table mt-3" id='press-statements-table' style="height: 50vh !important;">
                 
                     <thead>
                         <tr>
@@ -559,7 +557,7 @@
                 View all the Committee Documents {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress|numstring_to_ordinal }} Congress
             </h6>
 
-            <table class="table mt-3" id='statements-tables'>
+            <table class="table mt-3" id='committee-documents-table'>
                 <thead>
                     <tr>
                         <th scope="col">Type</th>

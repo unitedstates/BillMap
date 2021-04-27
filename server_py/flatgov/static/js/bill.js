@@ -1,17 +1,35 @@
 $(document).ready( function () {
     $('#cosponsors-table-top').DataTable({
-        sDom: "Rlfrtip",
-        bFilter: false,
+        dom: 'Bflrtip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Copy to clipboard'
+            },
+            {
+                extend: 'csv',
+                text: 'Export to CSV'
+            },
+            'excelHtml5'
+        ],
+        bFilter: true,
         ordering: false,
-        bPaginate: false,
-        iDisplayLength: 5,
+        bPaginate: true,
+        iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
         scrollCollapse: true,
         language: {
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
             info: "_START_ to _END_ of _TOTAL_ Cosponsors",
-        }
+            lengthMenu: "_MENU_ cosponsors",
+        },
+        lengthMenu: [100, 30, 5],
     });
+
     $('#cosponsors-table').DataTable({
         dom: 'Bflrtip',
         buttons: [
@@ -43,9 +61,21 @@ $(document).ready( function () {
         lengthMenu: [100, 30, 5],
     });
 
-    $('#similar-bills-table').DataTable({
-        sDom: "Rlfrtip",
-        // order: [[ 3, 'desc' ]],
+   $('#current-similar-bills-table').DataTable({
+        sDom: "Bflrtip",
+        autoWidth: false,
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Copy to clipboard',
+            },
+            
+            {
+                extend: 'csv',
+                text: 'Export to CSV'
+            },
+            'excelHtml5'
+        ],
         columnDefs: [
             { "width": "10%", "targets": 0 },
             { "width": "10%", "targets": 1 },
@@ -63,12 +93,9 @@ $(document).ready( function () {
         scrollCollapse: true,
         language: {
             info: "_START_ to _END_ of _TOTAL_ Bills",
-            lengthMenu: "_MENU_ bills",
         },
-        lengthMenu: [100, 50, 20, 5],
-    });
-
-    var currentBillsTable = $('#current-similar-bills-table').DataTable({
+    })
+    $('#similar-bills-table').DataTable({
         sDom: "Bflrtip",
         autoWidth: false,
         buttons: [

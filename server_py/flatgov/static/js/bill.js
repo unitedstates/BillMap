@@ -12,7 +12,7 @@ $(document).ready( function () {
             },
             'excelHtml5'
         ],
-        bFilter: true,
+        bFilter: false,
         ordering: false,
         bPaginate: false,
         iDisplayLength: 5,
@@ -46,8 +46,9 @@ $(document).ready( function () {
             { "width": "10%", "targets": 5 },
         ],
         bSort: false,
-        bFilter: false,
-        bPaginate: false,
+        bFilter: true,
+        bPaginate: true,
+        bLengthChange: false,
         iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
@@ -81,8 +82,9 @@ $(document).ready( function () {
             { "width": "10%", "targets": 5 },
         ],
         bSort: false,
-        bFilter: false,
-        bPaginate: false,
+        bFilter: true,
+        bPaginate: true,
+        bLengthChange: false,
         iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
@@ -114,6 +116,7 @@ $(document).ready( function () {
         bSort: false,
         bFilter: true,
         bPaginate: false,
+        bLengthChange: false,
         iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
@@ -123,10 +126,8 @@ $(document).ready( function () {
                 "previous": "<",
                 "next": ">",
             },
-            info: "_START_ to _END_ of _TOTAL_ sections",
-            lengthMenu: "_MENU_ sections",
+            info: "_START_ to _END_ of _TOTAL_ sections"
         },
-        lengthMenu: [100, 30, 5],
     });
 
     $('#cosponsors-table').DataTable({
@@ -144,7 +145,8 @@ $(document).ready( function () {
         ],
         bFilter: true,
         ordering: false,
-        bPaginate: false,
+        bPaginate: true,
+        bLengthChange: false,
         iDisplayLength: 30,
         scrollY: '50vh',
         scrollX: true,
@@ -154,10 +156,8 @@ $(document).ready( function () {
                 "previous": "<",
                 "next": ">",
             },
-            info: "_START_ to _END_ of _TOTAL_ cosponsors",
-            lengthMenu: "_MENU_ cosponsors",
+            info: "_START_ to _END_ of _TOTAL_ cosponsors"
         },
-        lengthMenu: [100, 30, 5],
     });
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){

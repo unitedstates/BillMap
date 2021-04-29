@@ -5,6 +5,8 @@ Utilities and applications for the FlatGov project by Demand Progress
 
 A live demo of the application is https://flatgov.linkedlegislation.com[here]. These application documentation are also available there, at https://flatgov.linkedlegislation.com/static/docs/README.html When the documentation has been updated, it can be converted to html and copied to the application directory with the script `scripts/docs_generator has been updated, it can be converted to html and copied to the application directory with the script `scripts/docs_generator.sh` (requires installation of asciidoctor).
 
+The application version is shown in the top right of the page; it is set by the project's latest git tag or, if that is not available, by the `__version__` string set in `_version.py`.
+
 This repository contains:
 
 * A web application showing information for a given bill (Django/Python)

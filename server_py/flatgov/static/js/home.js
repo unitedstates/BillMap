@@ -151,28 +151,23 @@ document.addEventListener('DOMContentLoaded', function() {
     var eventSources = [
         {
             name: 'US Holidays',
+            label: '* Federal Holidays',
             googleCalendarId: 'en.usa#holiday@group.v.calendar.google.com',
             className: 'event-us-holiday'
         },
         {
             // https://www.majorityleader.gov/calendar/ical
             name: 'Majority Leader Events',
+            label: '',
             googleCalendarId: '39dfmaqro0ubr9cbr6q6l0sb6ptggfpp@import.calendar.google.com',
             className: 'event-majority-leader'
-        },
-        {
-            // https://www.opm.gov/about-us/open-government/Data/Apps/Holidays/holidays.ical
-            name: 'Federal Holidays',
-            googleCalendarId: 'fda3ke70gkvd1igbt5p4omtpk6dnng6t@import.calendar.google.com',
-            className: 'event-opm'
         }
     ];
     var calendarKeyEl = document.getElementById('calendar-key');
 
     $.each(eventSources, function(index, eventSource) {
         $(calendarKeyEl)
-          .append("<ul><li><div class=\"event-source-color-key " + eventSource.className+ "\"></div>")
-          .append(eventSource.name+ "</li></ul>");
+          .append("<div style='line-height:16px;' class=\"event-source-color-key p-1 px-3 mx-3 text-white " + eventSource.className+ "\">"+"<div class='d-flex flex-column justify-content-center text-center'>"+"<div>"+eventSource.name+"</div>"+"<small style='line-height:16px; font-size: 10px;'>"+eventSource.label+"</small></div>"+"</div>")
     });
 
     var calendarEl = document.getElementById('calendar');
@@ -182,7 +177,7 @@ document.addEventListener('DOMContentLoaded', function() {
         headerToolbar: {
             left: 'prev,next today',
             center: 'title',
-            right: 'timeGridWeek,dayGridMonth'
+            right: 'timeGridWeek,dayGridMonth,timeGridDay'
         },
 
         initialView: 'timeGridWeek',
@@ -224,4 +219,11 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     calendar.render();
+    $('.fc-today-button').prop("disabled", false);
+
+    $(".fc-button").click(function(event){
+        event.preventDefault();
+        $('.fc-today-button').removeAttr("disabled");
+    });
+    
 });

@@ -424,8 +424,12 @@ tbody td img:hover {
 }
 
 .event-source-color-key {
-    width: 20px;
-    height: 20px;
+    min-width: 200px;
+    text-align: center;
+    height: 35px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .event-us-holiday {

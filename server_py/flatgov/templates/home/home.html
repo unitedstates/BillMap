@@ -34,36 +34,36 @@
       </div>
       <p>Search for Legislation</p>
       <div class="row">
-          <div class="col-md-8 col-sm-12 mt-2">
-            <div class="search-input-group input-group input-group-lg">
-                <input id="bill-search" type="text" class="form-control typeahead" placeholder="Examples: s5, hr5, hres5, hjres5, hconres5, sjres5, sconres5, sres5">
-        
-                <span id="search-icon">
-                    <span>
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                    </span>
-                </span>
-        
-                  <!--<a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>-->
-              </div>
-          </div>
           <div class="col-md-4 col-sm-12 mt-2">
-            <div class="dropdown style="display: inline;" id="congressdropdown">
-                <div>
-                    <select id="selectcongress" name="congress"  class=" select" aria-label="Select Congress">
-                    {% for congress in congressrange %}
-                        {% if forloop.first %}
-                            <option class="congress-item" value="{{congress}}" selected>{{congress|numstring_to_ordinal}}</option>
-                        {% else %}
-                            <option class="congress-item" value="{{congress}}">{{congress|numstring_to_ordinal}}</option>
-                        {% endif %}
-                    {% endfor %}
-                            <!--option class="congress-item" value="all">Any Congress</option-->
-                    </select>
+              <div class="dropdown style="display: inline;" id="congressdropdown">
+                  <div>
+                      <select id="selectcongress" name="congress"  class=" select" aria-label="Select Congress">
+                          {% for congress in congressrange %}
+                          {% if forloop.first %}
+                          <option class="congress-item" value="{{congress}}" selected>{{congress|numstring_to_ordinal}}</option>
+                          {% else %}
+                          <option class="congress-item" value="{{congress}}">{{congress|numstring_to_ordinal}}</option>
+                          {% endif %}
+                          {% endfor %}
+                          <!--option class="congress-item" value="all">Any Congress</option-->
+                        </select>
+                    </div>
                 </div>
             </div>
-          </div>
-      </div>
+            <div class="col-md-8 col-sm-12 mt-2">
+              <div class="search-input-group input-group input-group-lg">
+                  <input id="bill-search" type="text" class="form-control typeahead" placeholder="Examples: s5, hr5, hres5, hjres5, hconres5, sjres5, sconres5, sres5">
+          
+                  <span id="search-icon">
+                      <span>
+                          <i class="fa fa-search" aria-hidden="true"></i>
+                      </span>
+                  </span>
+          
+                    <!--<a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>-->
+                </div>
+            </div>
+        </div>
 
   </div>
 
@@ -91,13 +91,9 @@
     <div id="calendar"></div>
     <div style="clear:both"></div>
 
-    <div class="mt-2">
-    <a class="btn btn-primary" data-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-    Show Calendar Key
-    </a>
-    </div>
-    <div class="collapse" id="collapseExample">
-    <div class="card card-body" id="calendar-key">
+    <div class="" id="">
+    <div class="card card-body d-flex flex-row" id="calendar-key">
+        <div class="mr-5">Calendar key</div>
     </div>
     </div>
 </div>

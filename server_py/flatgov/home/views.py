@@ -5,11 +5,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.db.models.functions import Concat
 from django.views import View
+from django.views.generic import TemplateView
 
 from common.constants import START_CONGRESS, CURRENT_CONGRESS
 
 from home.forms import QueryForm
 from bills.models import Bill
+from .models import AboutPage
 
 def index(request):
     return HttpResponse("Hello, world. You're at the home index.")
@@ -30,6 +32,14 @@ def home_view(request):
     
     context = {'form': form, 'congressrange': list(reversed(list(range(START_CONGRESS, CURRENT_CONGRESS +1))))}
     return render(request, 'home/home.html', context)
+
+class AboutView(TemplateView):
+    template_name = 'home/about.html'
+
+    def get_context_data(self, **kwargs):
+        context = super(AboutView, self).get_context_data(**kwargs)
+        context['about'] = AboutPage.objects.first()
+        return context
 
 
 class BillListAPIView(View):

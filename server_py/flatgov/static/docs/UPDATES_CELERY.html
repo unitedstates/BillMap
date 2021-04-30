@@ -676,6 +676,17 @@ Type "help", "copyright", "credits" or "license" for more information.
 </div>
 </div>
 <div class="paragraph">
+<p>OR for the uscongress update task:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>&gt;&gt;&gt; from uscongress.tasks import update_bill_task
+&gt;&gt;&gt; from celery import current_app
+&gt;&gt;&gt; current_app.send_task('uscongress.tasks.update_bill_task', queue='bill')
+&lt;AsyncResult: f05d3449-d473-498f-b6f0-87f663cd20e3&gt;</code></pre>
+</div>
+</div>
+<div class="paragraph">
 <p>Then you can track the task by looking in the celery logs, or on the original celery terminal, e.g.:</p>
 </div>
 <div class="listingblock">
@@ -840,7 +851,26 @@ The initial data loading will take a long time; there are about 17,000 records.<
 </ul>
 </div>
 <div class="paragraph">
-<p>Once the celery task <code>update_bill_task</code> is finished (complete the download bill text and metadata), the other celery task named <code>bill_data_task</code> runs.</p>
+<p>Once the celery task <code>update_bill_task</code> is finished (complete the download bill text and metadata), the other celery task named <code>bill_data_task</code> runs. This is triggered in the <code>save</code> function of the <code>uscongress.models.py</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python"> def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.bill_data_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.process_bill_meta_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+			...</code></pre>
+</div>
 </div>
 <div class="paragraph">
 <p>As mentioned above, whenever the <code>update_bill_task</code> runs, it creates <code>UscongressUpdateJob</code> table record in the database.</p>
@@ -855,7 +885,7 @@ The initial data loading will take a long time; there are about 17,000 records.<
 <p>data.json files at the top level (not the data.json in the text versions) are used to create metadata.</p>
 </div>
 <div class="paragraph">
-<p>We will proivde an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)</p>
+<p>We will provide an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)</p>
 </div>
 <div class="olist arabic">
 <ol class="arabic">
@@ -954,7 +984,7 @@ The initial data loading will take a long time; there are about 17,000 records.<
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-04-14 10:23:10 -0700
+Last updated 2021-04-30 15:04:03 -0700
 </div>
 </div>
 </body>

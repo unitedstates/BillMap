@@ -289,6 +289,7 @@ span.twitter-typeahead .tt-suggestion:focus {
   /* Tooltip text */
   /* See https://www.w3schools.com/css/css_tooltip.asp */
   .toolt .tooltiptext {
+    font-size: 14px;
     visibility: hidden;
     width: 500px;
     background-color: rgb(165, 165, 165);

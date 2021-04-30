@@ -2,6 +2,9 @@
 {% load rest_framework %}
 {% load render_attrs %}
 
+{% url '/home' as home_path %}
+{% url '/about' as about_path %}
+
 <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand" href="/home"><img src="{% static '/images/billmap_logo.png' %}" style="height: 50px;" alt=""></a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
@@ -12,7 +15,7 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" title="home" href="/home">Home</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home:home' %}">Home</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'bill-list' or request.resolver_match.url_name == 'bill-detail' or request.resolver_match.url_name  == 'bill-to-bill'  %}active{% endif %}" title="bills" href="/bills">Bills</a>
@@ -21,7 +24,7 @@
                 <a class="nav-link" title="documentation" href="/static/docs/index.html">Documentation</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" title="about us" href="#">About us</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="/about">About us</a>
             </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">

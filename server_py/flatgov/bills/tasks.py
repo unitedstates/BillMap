@@ -12,6 +12,7 @@ from statementAdminPolicy.spiders.sap_download import SapPdfSimple
 from committeeReport.spiders.committeereport import CommitteeReportSpider
 from committeeReport.committee_report_scrape_urls import get_detail_urls
 from common.cbo import cbo
+from common.cosponsor import updateCosponsorAndCommittees
 from crs.populate_crs_table import CrsFromApi
 
 @shared_task(bind=True)
@@ -49,3 +50,8 @@ def cbo_task(self):
 def crs_task(self):
     crs_api = CrsFromApi()
     crs_api.populate()
+
+
+@shared_task(bind=True)
+def update_cosponsor_comm_task(self):
+    updateCosponsorAndCommittees()

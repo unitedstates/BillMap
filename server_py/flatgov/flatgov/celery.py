@@ -43,6 +43,11 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
     },
+    'update_cosponsor': {
+        'task': 'bills.tasks.update_cosponsor_comm_task',
+        'schedule': crontab(minute=0, hour=0),
+        'options': {'queue': 'bill'}
+    },
 }
 
 app.conf.timezone = 'UTC'

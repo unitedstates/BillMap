@@ -12,10 +12,10 @@
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link active" title="home" href="/home">Home</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" title="home" href="/home">Home</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" title="bills" href="/bills">Bills</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'bill-list' or request.resolver_match.url_name == 'bill-detail' or request.resolver_match.url_name  == 'bill-to-bill'  %}active{% endif %}" title="bills" href="/bills">Bills</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" title="documentation" href="/static/docs/index.html">Documentation</a>

@@ -364,7 +364,7 @@ def getResultBillnumbers(res):
 def getInnerResults(res):
    return [hit.get('inner_hits') for hit in getInnerHits(res)]
 
-def getSimilarBills(es_similarity: List[dict]) -> dict:
+def getSimilarBills(es_similarity: List[dict] ) -> dict:
   """
   Get a dict of similar bills and matching sections
   Remove items from the 'similars' object which refer to the same bill section.

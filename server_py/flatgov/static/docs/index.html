@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
-<title>Using Elasticsearch for Similarity and Search</title>
+<title>About BillMap</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -440,225 +440,205 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
+<h1>About BillMap</h1>
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
+<ul class="sectlevel1">
+<li><a href="#_website_at_billmap_govtrack_us">Website at billmap.govtrack.us</a></li>
+<li><a href="#_bill_metadata_and_text">Bill metadata and text</a></li>
+<li><a href="#_contextual_data">Contextual data</a>
 <ul class="sectlevel2">
-<li><a href="#_using_elasticsearch_for_similarity_and_search">Using Elasticsearch for Similarity and Search</a></li>
-<li><a href="#_backup_and_restore_with_elasticdump">Backup and restore with elasticdump</a></li>
-<li><a href="#_install_logstash">Install Logstash</a></li>
+<li><a href="#_statements_of_administration_policy">Statements of Administration Policy</a></li>
+<li><a href="#_crs_reports">CRS Reports</a></li>
+<li><a href="#_press_statements_using_an_api_from_propublica">Press Statements, using an API from ProPublica</a></li>
+<li><a href="#_congressional_budget_office_reports_cbo">Congressional Budget Office reports (CBO)</a></li>
+<li><a href="#_committee_documents">Committee Documents</a></li>
+</ul>
+</li>
+<li><a href="#_cosponsor_data">Cosponsor data</a></li>
+<li><a href="#_legislative_calendar">Legislative Calendar</a></li>
 </ul>
 </div>
 </div>
 <div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>BillMap (originally 'FlatGov') is a project of <a href="https://demandprogress.org">Demand Progress</a>. It provides context for federal legislation by combining a number of public data sets in innovative ways. The project includes a <a href="https://billmap.govtrack.us">standalone website</a> at billmap.govtrack.us, as well as reusable open-source components, currently hosted at <a href="https://github.com/aih/FlatGov" class="bare">https://github.com/aih/FlatGov</a>.</p>
+</div>
+<div class="paragraph">
+<p>The project consists of modular components that provide contextual information for bills. The components include:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Website at <a href="https://billmap.govtrack.us" class="bare">https://billmap.govtrack.us</a></p>
+</li>
+<li>
+<p>Bill metadata and text based on <a href="https://github.com/unitedstates/congress" class="bare">https://github.com/unitedstates/congress</a></p>
+</li>
+<li>
+<p>Contextual data</p>
+<div class="olist loweralpha">
+<ol class="loweralpha">
+<li>
+<p>Statements of Administration Policy</p>
+</li>
+<li>
+<p>CRS Reports</p>
+</li>
+<li>
+<p>Press Statements, using an API from ProPublica</p>
+</li>
+<li>
+<p>Congressional Budget Office score (CBO)</p>
+</li>
+</ol>
+</div>
+</li>
+<li>
+<p>Cosponsor data, using data from <a href="https://github.com/unitedstates/congress-legislators" class="bare">https://github.com/unitedstates/congress-legislators</a></p>
+</li>
+<li>
+<p>Legislative Calendar</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_website_at_billmap_govtrack_us">Website at billmap.govtrack.us</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The website allows users to:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Search for a bill by congress and billnumber (e.g Congress: 117, Billnumber: hr100)</p>
+</li>
+<li>
+<p>Enter text of a bill section and find bills that have similar sections</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>The features of the website will be further described in a user guide.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_bill_metadata_and_text">Bill metadata and text</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The core of the application is bill text and metadata, downloaded with a scraper based on <a href="https://github.com/unitedstates/congress" class="bare">https://github.com/unitedstates/congress</a>. The scraping and structure of the scraped data is described in <a href="DATA_BACKGROUND.html">DATA_BACKGROUND</a>.</p>
+</div>
+<div class="paragraph">
+<p>The bill text and metadata is downloaded to a <code>congress</code> directory and then processed to collect the following information:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>An index of all bill titles, normalized to remove the year. This allows a matching of bills that share a title except for the year.</p>
+</li>
+<li>
+<p>The bills that are considered 'related' according to data from the Congressional Research Service</p>
+</li>
+<li>
+<p>Cosponsors for each bill</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p>Based on this new json metadata files are created. One of these, the <code>billMeta.json</code> or <code>billMetaGo.json</code> is a key-value object that is indexed by bill number. The value for each object includes: titles for the bill, bills that are related to it and the reason for the relatedness, cosponsors of the bill.</p>
+</div>
+<div class="paragraph">
+<p>The json files may be created directly in Python or in a (~ 60x) faster Go implementation called from Python. The Go metadata are stored in <code>titleNoYearIndexGo.json</code>, <code>billsGo.json</code> and <code>billMetaGo.json</code>.</p>
+</div>
+<div class="paragraph">
+<p>The Python implementation is in <code>flatgov/common/relatedBills.py</code>, 'makeAndSaveRelatedBills') see <a href="https://github.com/aih/FlatGov/blob/main/server_py/flatgov/common/relatedBills.py#L177" class="bare">https://github.com/aih/FlatGov/blob/main/server_py/flatgov/common/relatedBills.py#L177</a>).</p>
+</div>
+<div class="paragraph">
+<p>The Go implementation is an executable that is built on the local OS, see <a href="https://github.com/aih/bills" class="bare">https://github.com/aih/bills</a>. It is run on the through the shared tasks in Celery:</p>
+</div>
+<div class="paragraph">
+<p><code>flatgov/uscongress/tasks.py bill_data_task</code></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python">@shared_task(bind=True)
+def bill_data_task(self, pk):
+    bills_meta = dict()
+    history = UscongressUpdateJob.objects.get(pk=pk)
+    try:
+        if shutil.which(BILLMETA_GO_CMD) is not None:
+            update_bills_meta_go()
+			...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>Once the metadata is processed into json files, the final json file (e.g. <code>billMetaGo.json</code>) is loaded and the data is saved to a SQL database with one of the following functions in <code>common.billdata</code>: <code>saveBillsMeta</code>, <code>saveBillsMetaToDb</code>.</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_contextual_data">Contextual data</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Contextual data is scraped with <code>scrapy</code>-based scrapers that may be run as Celery tasks. These scrapers are described below, as well as in <a href="SCRAPING.html">SCRAPING</a>.</p>
+</div>
 <div class="sect2">
-<h3 id="_using_elasticsearch_for_similarity_and_search">Using Elasticsearch for Similarity and Search</h3>
+<h3 id="_statements_of_administration_policy">Statements of Administration Policy</h3>
 <div class="paragraph">
-<p>We use Elasticsearch (&#x2265; v7.9.2)
-to index bills. With the index, we can calculate similarity between documents or parts of documents using <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/similarity.html">built-in</a> or <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/index-modules-similarity.html#_available_similarities">custom</a> similarity metrics, and provide for full-text search in the app.</p>
-</div>
-<div class="sect3">
-<h4 id="_install_elasticsearch">Install Elasticsearch</h4>
-<div class="paragraph">
-<p>See <a href="https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html" class="bare">https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html</a></p>
+<p>Statements of Administration Policy are scraped for two prior administrations (Trump and Obama) and for the current (Biden) administration. The data for Trump and Obama can be loaded as static data dump or fixtures. See <a href="DATA_BACKGROUND.html#_statement_of_administration_policy">DATA BACKGROUND: Statement of Administration Policy</a>.</p>
 </div>
 <div class="paragraph">
-<p>For MacOS, for example:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Install</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.9.2-darwin-x86_64.tar.gz
-$ tar -xvf elasticsearch-7.9.2-darwin-x86_64.tar.gz</code></pre>
-</div>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Run</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ cd elasticsearch-7.9.2/bin
-$ ./elasticsearch</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_update_memory_settings">Update memory settings</h4>
-<div class="paragraph">
-<p>Elasticsearch may be `kill`ed by the jvm process when running bill similarity calculations. To try to avoid this, we set vm parameters:</p>
-</div>
-<div class="paragraph">
-<p>See <a href="https://www.elastic.co/guide/en/elasticsearch/reference/5.5/setup-configuration-memory.html" class="bare">https://www.elastic.co/guide/en/elasticsearch/reference/5.5/setup-configuration-memory.html</a>
-and <a href="https://discuss.elastic.co/t/elasticsearch-process-getting-killed/205691/6" class="bare">https://discuss.elastic.co/t/elasticsearch-process-getting-killed/205691/6</a></p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>flatgov$ sudo sh -c 'echo 0 &gt; /proc/sys/vm/swappiness'
-flatgov$ sudo sh -c 'echo 1 &gt; /proc/sys/vm/overcommit_memory'</code></pre>
-</div>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_logs">Logs</h4>
-<div class="paragraph">
-<p>Elasticsearch logs may be found in <code>/var/log/elasticsearch</code>. To see recent activity:
-<code>journalctl -u elasticsearch.service -xe</code></p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_indexing_with_python">Indexing with Python</h4>
-<div class="paragraph">
-<p>See, e.g., <a href="https://kb.objectrocket.com/elasticsearch/use-python-to-index-files-into-elasticsearch-index-all-files-in-a-directory-part-2-852" class="bare">https://kb.objectrocket.com/elasticsearch/use-python-to-index-files-into-elasticsearch-index-all-files-in-a-directory-part-2-852</a></p>
-</div>
-<div class="paragraph">
-<p>The functions in <code>scripts/elastic_load.py</code> load a bill file into the Elasticsearch index and provide a sample query. XML files are loaded with <code>nested</code> indexing and <code>nested</code> query, to account for the hierarchical levels. Initially, we are indexing only at the section level, as follows:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python">{
-    'headers': list(OrderedDict.fromkeys(headers_text)),
-     'sections': [{
-     'section_number': section.find('enum').text,
-     'section_text': etree.tostring(section, method="text", encoding="unicode"),
-     'section_xml': etree.tostring(section, method="xml", encoding="unicode"),
-     'section_header':  section.find('header').text
-     ]
-     }</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Once a bill is converted into the form above, it is indexed. Both as a whole document, and with the sections indexed separatetly (as 'nested' documents).</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-When an inner mapping field is set with a 'similarity' key   (e.g. <code>`"section_text": {"type": "text", "similarity": "classic"}</code>), it appears to break the nesting; the nested query no longer works and an Exception is thrown, indicating that 'sections' is not a nested field.
-</td>
-</tr>
-</table>
-</div>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_backup_and_restore_with_elasticdump">Backup and restore with elasticdump</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Install <code>elasticdump</code> command-line application with npm</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p><code>npm install -g elasticdump</code></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Store <code>billsections</code> index to a .gz file</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p><code>elasticdump --input=http://localhost:9200/billsections --output=$   | gzip &gt; ./elasticdump.billsections.json.gz</code></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Import data from <code>.json</code></p>
-<div class="ulist">
-<ul>
-<li>
-<p>Unzip the <code>.json.gz</code></p>
-</li>
-</ul>
-</div>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p><code>gzip -d elasticdump.billsections.json.gz</code></p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Restore data to Elasticsearch</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code># Import data from .json into ES
-elasticdump \
-  --input "${file_name}.json" \
-  --output=http://localhost:9200/billsections</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Or import from S3</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code># Import data from S3 into ES (using s3urls)
-elasticdump \
-  --s3AccessKeyId "${access_key_id}" \
-  --s3SecretAccessKey "${access_key_secret}" \
-  --input "s3://${bucket_name}/${file_name}.json" \
-  --output=http://localhost:9200/billsections</code></pre>
-</div>
+<p>The scraper for the current Administration is a <code>scrapy</code> spider in <code>server_py/flatgov/statementAdminPolicy</code>. It is run as an admin task from <code>server_py/flatgov/common/biden_statements.py</code>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_install_logstash">Install Logstash</h3>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-we are not using Logstash to index; the logstash-filter.conf we built in the <code>elasticsearch</code> directory does not (yet) work.
-</td>
-</tr>
-</table>
+<h3 id="_crs_reports">CRS Reports</h3>
+<div class="paragraph">
+<p>The scraper for the CRS Reports is described in <a href="DATA_BACKGROUND.html#<em>crs_reports</em>">DATA BACKGROUND: CRS Reports</a> and in more detail in <a href="CRS_REPORTS.html">CRS_REPORTS</a></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_press_statements_using_an_api_from_propublica">Press Statements, using an API from ProPublica</h3>
+<div class="paragraph">
+<p>Press statements are queried dynamically per-bill, using the ProPublica API (and an API key provided by ProPublica).</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_congressional_budget_office_reports_cbo">Congressional Budget Office reports (CBO)</h3>
+<div class="paragraph">
+<p>The scraper for Congressional Budget Office reports is found in <code>server_py/flatgov/common/cbo.py</code>. It is run as an admin and Celery task from <code>bills.tasks</code> <code>cbo_task</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_committee_documents">Committee Documents</h3>
+<div class="paragraph">
+<p>The Committee Documents scraper, and its instructions, are described in <a href="SCRAPING.html#relevant_committee_documents">Scraping: Relevant Committee Documents</a>.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_cosponsor_data">Cosponsor data</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>Cosponsor data is downloaded from <a href="https://github.com/unitedstates/congress-legislators" class="bare">https://github.com/unitedstates/congress-legislators</a>. The YAML files there are parsed, and the data is stored to the database. A <code>Sponsors</code> table is created with current legislators, and a many-to-many relation is generated to associate current sponsors with bills; another many-to-many relation associates cosponsors with committees.  Additional information (e.g. the sponsor&#8217;s party, rank and position) are stored in the <code>cosponsors_dict</code> object in the Bill table.</p>
 </div>
 <div class="paragraph">
-<p>For MacOs, for example:</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Install</p>
-</li>
-</ul>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl -L -O https://artifacts.elastic.co/downloads/logstash/logstash-7.9.2.tar.gz
-$ tar -xvf logstash-7.9.2.tar.gz</code></pre>
+<p>All processing for cosponsor data is done in <code>server/flatgov/common/cosponsor.py</code>. The <code>updateCosponsorAndCommittees</code> function in that file deletes the data from the Cosponsor and Committee tables and remakes it with fresh data.</p>
 </div>
 </div>
-<div class="ulist">
-<ul>
-<li>
-<p>Set up a logstash config file</p>
-</li>
-</ul>
 </div>
+<div class="sect1">
+<h2 id="_legislative_calendar">Legislative Calendar</h2>
+<div class="sectionbody">
 <div class="paragraph">
-<p>See <a href="https://www.elastic.co/guide/en/logstash/current/configuration.html" class="bare">https://www.elastic.co/guide/en/logstash/current/configuration.html</a></p>
+<p>TODO: describe API usage for Calendar and use of Google Calendar API.</p>
+</div>
 </div>
 </div>
 </div>

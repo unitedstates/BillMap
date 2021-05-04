@@ -478,7 +478,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="preamble">
 <div class="sectionbody">
 <div class="paragraph">
-<p>A live demo of the application is <a href="https://flatgov.linkedlegislation.com">here</a>. These application documentation are also available there, at <a href="https://flatgov.linkedlegislation.com/static/docs/README.html" class="bare">https://flatgov.linkedlegislation.com/static/docs/README.html</a> When the documentation has been updated, it can be converted to html and copied to the application directory with the script <code>scripts/docs_generator has been updated, it can be converted to html and copied to the application directory with the script `scripts/docs_generator.sh</code> (requires installation of asciidoctor).</p>
+<p>A live demo of the application is <a href="https://flatgov.linkedlegislation.com">here</a>. These application documentation are also available there, at <a href="https://flatgov.linkedlegislation.com/static/docs/README.html" class="bare">https://flatgov.linkedlegislation.com/static/docs/README.html</a> When the documentation has been updated in the git repository, it can be converted to html and copied to the application directory with the script <code>scripts/docs_generator.sh</code> (requires installation of asciidoctor).</p>
+</div>
+<div class="paragraph">
+<p>The application version is shown in the top right of the page; it is set by the project&#8217;s latest git tag or, if that is not available, by the <code><em>version</em></code> string set in <code>_version.py</code>.</p>
 </div>
 <div class="paragraph">
 <p>This repository contains:</p>
@@ -568,6 +571,59 @@ $ pyenv virtualenv 3.7 flatgov</code></pre>
 <div class="content">
 <pre class="highlight"><code class="language-bash" data-lang="bash">$ cd /path/to/FlatGov/server_py
 $ pip install -r requirements.txt</code></pre>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_installing_pypy_as_virtualenv">Installing pypy as virtualenv</h4>
+<div class="paragraph">
+<p>The application has been tested and works with pypy on ubuntu:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Install pypy as a pyenv virtualenv, for example</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>pyenv install pypy3.7-7.3.4
+pyenv virtualenv pypy3.7-7.3.4 pypy37flat
+pyenv activate pypy37flat</code></pre>
+</div>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Upgrade pip, if appropriate</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><code>/home/ubuntu/.pyenv/versions/pypy3.7-7.3.4/envs/pypy37flat/bin/pypy3 -m pip install --upgrade pip</code></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>It may be necessary to install C libraries to build lxml</p>
+</li>
+</ol>
+</div>
+<div class="paragraph">
+<p><code>sudo apt-get install libxml2-dev libxslt-dev python-dev</code></p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>Install requirements</p>
+</li>
+</ol>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>cd /path/to/FlatGov/server_py
+pip install -r requirements.txt</code></pre>
+</div>
 </div>
 </div>
 </div>
@@ -852,7 +908,7 @@ $ python manage.py runserver</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-04-14 10:23:10 -0700
+Last updated 2021-04-30 15:04:03 -0700
 </div>
 </div>
 </body>

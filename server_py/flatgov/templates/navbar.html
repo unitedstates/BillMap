@@ -17,9 +17,12 @@
             <li class="nav-item">
                 <a class="nav-link {% if request.path == home_path %}  active{% endif %}" href="{% url 'home:home' %}">Home</a>
             </li>
-            <!--<li class="nav-item">
-                <a class="nav-link" href="/bills">Bills</a>
-            </li> -->
+            <li class="nav-item">
+                <a class="nav-link {% if request.path == '/bills/' %}  active{% endif %}" title="bills" href="/bills">Bills</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" title="documentation" href="/static/docs/index.html">Documentation</a>
+            </li>
             <li class="nav-item">
                 <a class="nav-link {% if request.path == about_path %}  active{% endif %}" href="{% url 'home:about' %}">About us</a>
             </li>

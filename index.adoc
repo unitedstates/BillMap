@@ -1,0 +1,93 @@
+:toc: auto
+# About BillMap
+
+BillMap (originally 'FlatGov') is a project of https://demandprogress.org[Demand Progress]. It provides context for federal legislation by combining a number of public data sets in innovative ways. The project includes a https://billmap.govtrack.us[standalone website] at billmap.govtrack.us, as well as reusable open-source components, currently hosted at https://github.com/aih/FlatGov.
+
+The project consists of modular components that provide contextual information for bills. The components include:
+
+1. Website at https://billmap.govtrack.us
+2. Bill metadata and text based on https://github.com/unitedstates/congress
+3. Contextual data
+  a. Statements of Administration Policy
+  b. CRS Reports
+  c. Press Statements, using an API from ProPublica
+  d. Congressional Budget Office score (CBO)
+4. Cosponsor data, using data from https://github.com/unitedstates/congress-legislators
+5. Legislative Calendar
+
+## Website at billmap.govtrack.us
+
+The website allows users to:
+
+1. Search for a bill by congress and billnumber (e.g Congress: 117, Billnumber: hr100)
+2. Enter text of a bill section and find bills that have similar sections
+
+The features of the website will be further described in a user guide.
+
+## Bill metadata and text
+
+The core of the application is bill text and metadata, downloaded with a scraper based on https://github.com/unitedstates/congress. The scraping and structure of the scraped data is described in <<DATA_BACKGROUND.adoc#,DATA_BACKGROUND>>.
+
+The bill text and metadata is downloaded to a `congress` directory and then processed to collect the following information:
+
+	1. An index of all bill titles, normalized to remove the year. This allows a matching of bills that share a title except for the year.
+	2. The bills that are considered 'related' according to data from the Congressional Research Service
+	3. Cosponsors for each bill
+
+Based on this new json metadata files are created. One of these, the `billMeta.json` or `billMetaGo.json` is a key-value object that is indexed by bill number. The value for each object includes: titles for the bill, bills that are related to it and the reason for the relatedness, cosponsors of the bill.
+
+The json files may be created directly in Python or in a (~ 60x) faster Go implementation called from Python. The Go metadata are stored in `titleNoYearIndexGo.json`, `billsGo.json` and `billMetaGo.json`.
+
+The Python implementation is in `flatgov/common/relatedBills.py`, 'makeAndSaveRelatedBills') see https://github.com/aih/FlatGov/blob/main/server_py/flatgov/common/relatedBills.py#L177).
+
+The Go implementation is an executable that is built on the local OS, see https://github.com/aih/bills. It is run on the through the shared tasks in Celery:
+
+`flatgov/uscongress/tasks.py bill_data_task`
+```python
+@shared_task(bind=True)
+def bill_data_task(self, pk):
+    bills_meta = dict()
+    history = UscongressUpdateJob.objects.get(pk=pk)
+    try:
+        if shutil.which(BILLMETA_GO_CMD) is not None:
+            update_bills_meta_go()
+			...
+```
+
+Once the metadata is processed into json files, the final json file (e.g. `billMetaGo.json`) is loaded and the data is saved to a SQL database with one of the following functions in `common.billdata`: `saveBillsMeta`, `saveBillsMetaToDb`.
+
+## Contextual data
+
+Contextual data is scraped with `scrapy`-based scrapers that may be run as Celery tasks. These scrapers are described below, as well as in <<SCRAPING.adoc#,SCRAPING>>.
+
+### Statements of Administration Policy
+
+Statements of Administration Policy are scraped for two prior administrations (Trump and Obama) and for the current (Biden) administration. The data for Trump and Obama can be loaded as static data dump or fixtures. See <<DATA_BACKGROUND#_statement_of_administration_policy, DATA BACKGROUND: Statement of Administration Policy>>.
+
+The scraper for the current Administration is a `scrapy` spider in `server_py/flatgov/statementAdminPolicy`. It is run as an admin task from `server_py/flatgov/common/biden_statements.py`.
+
+### CRS Reports
+
+The scraper for the CRS Reports is described in <<DATA_BACKGROUND#_crs_reports_, DATA BACKGROUND: CRS Reports>> and in more detail in <<CRS_REPORTS.adoc#, CRS_REPORTS>>
+
+### Press Statements, using an API from ProPublica
+
+Press statements are queried dynamically per-bill, using the ProPublica API (and an API key provided by ProPublica).
+
+### Congressional Budget Office reports (CBO)
+
+The scraper for Congressional Budget Office reports is found in `server_py/flatgov/common/cbo.py`. It is run as an admin and Celery task from `bills.tasks` `cbo_task`.
+
+### Committee Documents
+
+The Committee Documents scraper, and its instructions, are described in <<SCRAPING.adoc#relevant_committee_documents, Scraping: Relevant Committee Documents>>.
+
+## Cosponsor data
+
+Cosponsor data is downloaded from https://github.com/unitedstates/congress-legislators. The YAML files there are parsed, and the data is stored to the database. A `Sponsors` table is created with current legislators, and a many-to-many relation is generated to associate current sponsors with bills; another many-to-many relation associates cosponsors with committees.  Additional information (e.g. the sponsor's party, rank and position) are stored in the `cosponsors_dict` object in the Bill table.
+
+All processing for cosponsor data is done in `server/flatgov/common/cosponsor.py`. The `updateCosponsorAndCommittees` function in that file deletes the data from the Cosponsor and Committee tables and remakes it with fresh data.
+
+## Legislative Calendar
+
+TODO: describe API usage for Calendar and use of Google Calendar API.

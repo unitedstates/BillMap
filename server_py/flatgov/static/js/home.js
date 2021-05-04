@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
         {
             // https://www.majorityleader.gov/calendar/ical
-            name: 'Majority Leader Events',
+            name: 'Committee events',
             label: '',
             googleCalendarId: '39dfmaqro0ubr9cbr6q6l0sb6ptggfpp@import.calendar.google.com',
             className: 'event-majority-leader'
@@ -167,7 +167,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     $.each(eventSources, function(index, eventSource) {
         $(calendarKeyEl)
-          .append("<div style='line-height:16px;' class=\"event-source-color-key p-1 px-3 mx-3 text-white " + eventSource.className+ "\">"+"<div class='d-flex flex-column justify-content-center text-center'>"+"<div>"+eventSource.name+"</div>"+"<small style='line-height:16px; font-size: 10px;'>"+eventSource.label+"</small></div>"+"</div>")
+          .append("<div style='line-height:16px;' class=\"event-source-color-key p-1 px-3 mx-3 text-white " + eventSource.className+ "\">"+"<div class='d-flex flex-column justify-content-center text-center event-text'>"+"<div>"+eventSource.name+"</div>"+"<small style='line-height:16px; font-size: 10px;'>"+eventSource.label+"</small></div>"+"</div>")
     });
 
     var calendarEl = document.getElementById('calendar');

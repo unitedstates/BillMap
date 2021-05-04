@@ -432,16 +432,27 @@ tbody td img:hover {
     justify-content: center;
 }
 
-.event-us-holiday {
-    background-color: green;
+.event-us-holiday *{
+    background-color: #dcd0ff;
+    color: black;
+    border: none;
+}
+.event-text {
+    max-height: 35px;
+    min-height: 35px;
+    height: 35px;
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .event-opm {
     background-color: pink;
 }
 
-.event-majority-leader {
-    background-color: red;
+.event-majority-leader *{
+    background-color: lightgray;
+    color: darkblue;
+    border: none;
 }
 .advanced-search-toggle {
     display: block;

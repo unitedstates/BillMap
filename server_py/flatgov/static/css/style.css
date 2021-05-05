@@ -41,6 +41,11 @@
     border: none !important;
 }
 
+.empty_table {
+    border-top: none; 
+    text-align: center;
+}
+
 .pagination button {
     border-radius: 50% !important;
     width: 40px !important;

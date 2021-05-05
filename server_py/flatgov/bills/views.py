@@ -147,7 +147,8 @@ class BillDetailView(DetailView):
         context['es_similarity'] = self.object.es_similarity
         context['cosponsors_for_bills'] = self.get_cosponsors_for_same_bills()
         context['propublica_api_key'] = settings.PROPUBLICA_CONGRESS_API_KEY
-        context['no_data_message'] = "No data available for this table"
+        context['no_data_message_start'] = "No relevant"
+        context['no_data_message_end'] = "are available"
         return context
 
     def get_related_statements(self, **kwargs):

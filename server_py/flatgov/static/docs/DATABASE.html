@@ -454,6 +454,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </ul>
 </li>
 <li><a href="#_create_db_migration">Create db migration</a></li>
+<li><a href="#_load_fixtures">Load fixtures</a></li>
 <li><a href="#_create_billsmeta_json_file_via_django_command">Create billsMeta.json file via Django command.</a></li>
 <li><a href="#_review_models_with_django_admin">Review Models with Django Admin</a></li>
 <li><a href="#_review_data_from_the_django_shell">Review data from the Django shell</a></li>
@@ -647,6 +648,20 @@ pip install -r requirements.txt</code></pre>
 </div>
 </div>
 <div class="sect1">
+<h2 id="_load_fixtures">Load fixtures</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>The About page is created as a fixture. To load it, run</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>cd server_py/flatgov
+python manage.py loaddata about_us.json</code></pre>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
 <h2 id="_create_billsmeta_json_file_via_django_command">Create billsMeta.json file via Django command.</h2>
 <div class="sectionbody">
 <div class="ulist">
@@ -748,7 +763,7 @@ NameError: name 'record' is not defined
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-04-30 15:04:03 -0700
+Last updated 2021-05-04 17:11:54 -0700
 </div>
 </div>
 </body>

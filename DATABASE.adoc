@@ -124,6 +124,14 @@ cd /path/to/FlatGov/server_py
 pip install -r requirements.txt
 ```
 
+## Load fixtures
+
+The About page is created as a fixture. To load it, run
+```
+cd server_py/flatgov
+python manage.py loaddata about_us.json
+```
+
 ## Create billsMeta.json file via Django command.
 
 * Add data to database

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    strong {
+        font-weight: bolder;
+    }
+</style>
+<div class="d-flex justify-content-center">
+    <div class=" my-5 container ml-4 mr-4">
+        <article class="mx-3 px-5">
+            <h3>About us</h3>
+            <hr>
+            {{ about.content|safe }}
+        </article>
+    </div>
+    
+    </div>
+
+{% endblock content %}

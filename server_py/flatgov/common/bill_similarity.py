@@ -2,6 +2,8 @@ from datetime import datetime
 import os
 import json
 import re
+import shutil
+import subprocess
 from typing import List
 from lxml import etree
 from operator import itemgetter
@@ -129,7 +131,6 @@ def getBillStatus(billnumber: str):
     pass
   return None
 
-
 BILL_VERSIONS = {
   'Referred in Senate': 'rfs',
   'Enrolled Bill': 'enr'
@@ -217,75 +218,6 @@ def getCleanSimilars(similarBills: dict) -> dict:
 
   return similarsDict
 
-def processBill(bill_path: str=PATH_BILL):
-  try:
-    billTree = etree.parse(bill_path)
-  except:
-    raise Exception('Could not parse bill')
-  dublinCores = billTree.xpath('//dublinCore')
-  if (dublinCores is not None) and (dublinCores[0] is not None):
-    dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
-  else:
-    dublinCore = ''
-  congress = billTree.xpath('//form/congress')
-  congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
-  # session = billTree.xpath('//form/session')
-  # session_text = re.sub(r'[a-zA-Z ]+$', '', getText(session))
-  legisnum = billTree.xpath('//legis-num')
-  legisnum_text = getText(legisnum)
-  billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path) 
-  if billnumber_version == '':
-    billnumber_version = getBillNumberFromBillPath(bill_path)
-  billnumber = ''
-  if billnumber_version:
-    billnumber = re.sub(r'[a-z]*$', '', billnumber_version)
-  else:
-    raise Exception('Could not get billnumber and version')
-  sections = billTree.xpath('//section[not(ancestor::section)]')
-
-  #print('Bill number: {0}'.format(billnumber))
-  #print('Bill number + version: {0}'.format(billnumber_version))
-
-  qs_bill = Bill.objects.filter(bill_congress_type_number=billnumber)
-  if qs_bill.exists():
-    bill = qs_bill.first()
-    es_similarity = list()
-
-    for section in sections:
-      if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0):
-        section_item = {
-          'billnumber': billnumber,
-          'billnumber_version': billnumber_version,
-          'section_number': section.xpath('enum')[0].text,
-          'section_header':  section.xpath('header')[0].text,
-        }
-      else:
-        section_item = {
-          'billnumber': billnumber,
-          'billnumber_version': billnumber_version,
-          'section_number': '',
-          'section_header': '',
-        }
-      section_text = etree.tostring(section, method="text", encoding="unicode")
-
-      similarity = moreLikeThis(queryText=section_text)
-      similar_sections = sorted(getSimilarSections(similarity), key=itemgetter('score'), reverse=True)
-      section_item['similars'] = similar_sections
-      es_similarity.append(section_item)
-
-    similarBills = getSimilarBills(es_similarity)
-    bill.es_similar_bills_dict = similarBills
-    cleanedSimilars = getCleanSimilars(similarBills)
-    for sectionIndex, sectionItem in enumerate(es_similarity):
-      es_similarity[sectionIndex]["similars"] = cleanedSimilars.get(str(sectionIndex), [])
-
-    bill.es_similarity = es_similarity
-    try:
-      bill.save(update_fields=['es_similarity', 'es_similar_bills_dict'])
-    except Exception as err:
-      print('Could not save similarity: ' + str(err))
-      raise err
-    return bill
 
 
 def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
@@ -317,33 +249,6 @@ def filterLatestVersionOnly(billFiles: List[str]):
   print('Number of bills (latest versions): ' + str(len(billFilesFiltered)))
 
   return billFilesFiltered
-
-CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(constants.CURRENT_CONGRESS, (constants.CURRENT_CONGRESS-2), -1)]
-def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
-  number_of_bills_total = 0
-  for congress in congresses:
-    number_of_bills = 0
-    print(str(datetime.now()) + ' - Finding Similarity congress: {0}'.format(congress))
-    congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
-    billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
-    if uscongress:
-      billFiles = filterLatestVersionOnly(billFiles)
-    for billFile in billFiles:
-      if uscongress:
-        billFilePath = billFile
-      else:
-        billFilePath = os.path.join(congressDir, billFile)
-      print('Finding Similiarity {0}'.format(billFilePath))
-      try:
-        processBill(billFilePath)
-        number_of_bills += 1
-      except Exception as err:
-        print('Could not process for similarity: {0}'.format(str(err)))
-        pass
-    print(str(datetime.now()) + ' - Finished Similarity for congress: {0}'.format(congress))
-    print(str(datetime.now()) + 'Processed {0} bills'.format(str(number_of_bills)))
-  print(str(datetime.now()) + ' - Finished Similarity for all congresses: {0}'.format(', '.join(congresses)))
-  print(str(datetime.now()) + 'Processed {0} bills'.format(str(number_of_bills_total)))
 
 
 def moreLikeThis(queryText: str, index: str='billsections'):
@@ -448,3 +353,143 @@ def getSimilarSections(res):
   except Exception as err:
     print(err)
     return []
+
+def processBill(bill_path: str=PATH_BILL):
+  """
+  [summary]
+
+  Args:
+      bill_path (str, optional): [description]. Defaults to PATH_BILL.
+
+  Raises:
+      Exception: [description]
+      Exception: [description]
+      err: [description]
+
+  Returns:
+    None
+  
+  Saves bill to db with two new fields: es_similarity and es_similarity_dict. The es_similarity
+  field is a list of objects; each item in the list corresponds to a section in the bill (in order), and each object corresponds to another bill that has a similar section.
+  The es_similarity_dict is a dict of key:object pairs with the key as the bill number and the object
+  as a list of objects, each of which is a matching section. So two bills that have a lot of similarity will have
+  many sections in common, and a large total value.
+  A quick way to get a list of similar bills is the keys of the es_similarity_dict dictionary.
+  """
+  try:
+    billTree = etree.parse(bill_path)
+  except:
+    raise Exception('Could not parse bill')
+  dublinCores = billTree.xpath('//dublinCore')
+  if (dublinCores is not None) and (dublinCores[0] is not None):
+    dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
+  else:
+    dublinCore = ''
+  congress = billTree.xpath('//form/congress')
+  congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
+  # session = billTree.xpath('//form/session')
+  # session_text = re.sub(r'[a-zA-Z ]+$', '', getText(session))
+  legisnum = billTree.xpath('//legis-num')
+  legisnum_text = getText(legisnum)
+  billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path) 
+  if billnumber_version == '':
+    billnumber_version = getBillNumberFromBillPath(bill_path)
+  billnumber = ''
+  if billnumber_version:
+    billnumber = re.sub(r'[a-z]*$', '', billnumber_version)
+  else:
+    raise Exception('Could not get billnumber and version')
+  sections = billTree.xpath('//section[not(ancestor::section)]')
+
+  #print('Bill number: {0}'.format(billnumber))
+  #print('Bill number + version: {0}'.format(billnumber_version))
+
+  qs_bill = Bill.objects.filter(bill_congress_type_number=billnumber)
+  if qs_bill.exists():
+    bill = qs_bill.first()
+    es_similarity = list()
+
+    for section in sections:
+      if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0):
+        section_item = {
+          'billnumber': billnumber,
+          'billnumber_version': billnumber_version,
+          'section_number': section.xpath('enum')[0].text,
+          'section_header':  section.xpath('header')[0].text,
+        }
+      else:
+        section_item = {
+          'billnumber': billnumber,
+          'billnumber_version': billnumber_version,
+          'section_number': '',
+          'section_header': '',
+        }
+      section_text = etree.tostring(section, method="text", encoding="unicode")
+
+      similarity = moreLikeThis(queryText=section_text)
+      similar_sections = sorted(getSimilarSections(similarity), key=itemgetter('score'), reverse=True)
+      section_item['similars'] = similar_sections
+      es_similarity.append(section_item)
+
+    similarBills = getSimilarBills(es_similarity)
+    bill.es_similar_bills_dict = similarBills
+    cleanedSimilars = getCleanSimilars(similarBills)
+    for sectionIndex, sectionItem in enumerate(es_similarity):
+      es_similarity[sectionIndex]["similars"] = cleanedSimilars.get(str(sectionIndex), [])
+
+    bill.es_similarity = es_similarity
+
+    similarBillNumbers = [value[0].get('bill_number_version') for value in similarBills.values()]
+    #print(similarBillNumbers)
+    if shutil.which(constants.COMPAREMATRIX_GO_CMD):
+      similarBillsString = ','.join(similarBillNumbers)
+      #print(constants.PATH_TO_CONGRESSDATA_DIR)
+      #print(similarBillsString)
+      #similarBillsString = ','.join(['116hr1500rh','115hr6972ih'])
+      compareMatrixResults = subprocess.run([constants.COMPAREMATRIX_GO_CMD, '-p', constants.PATH_TO_CONGRESSDATA_DIR, '-b', similarBillsString], capture_output=True)
+      #compareMatrixString = str(compareMatrixResults.stdout).replace(" ", ",").replace('{','(').replace('}',')')
+      compareMatrixString = str(compareMatrixResults.stdout)
+
+      try:
+        compareMatrixString = compareMatrixString.split(':compareMatrix:')[-2]
+        compareMatrixString = compareMatrixString.strip()
+        #print(compareMatrixString)
+        compareMatrix = json.loads(compareMatrixString.strip())
+        print('-'.join([similarBillNumbers[0], similarBillNumbers[1]]))
+        print(compareMatrix[0][1])
+      except Exception as err:
+        print('Could not parse comparison matrix: {0}'.format(str(err)))
+
+    try:
+      bill.save(update_fields=['es_similarity', 'es_similar_bills_dict'])
+    except Exception as err:
+      print('Could not save similarity: {0}'.format(str(err)))
+      raise err
+    return bill
+
+CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in range(constants.CURRENT_CONGRESS, (constants.CURRENT_CONGRESS-2), -1)]
+def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', uscongress: bool=False):
+  number_of_bills_total = 0
+  for congress in congresses:
+    number_of_bills = 0
+    print(str(datetime.now()) + ' - Finding Similarity congress: {0}'.format(congress))
+    congressDir = getXMLDirByCongress(congress=congress, docType=docType, uscongress=uscongress)
+    billFiles = get_bill_xml(congressDir=congressDir, uscongress=uscongress)
+    if uscongress:
+      billFiles = filterLatestVersionOnly(billFiles)
+    for billFile in billFiles:
+      if uscongress:
+        billFilePath = billFile
+      else:
+        billFilePath = os.path.join(congressDir, billFile)
+      print('Finding Similiarity {0}'.format(billFilePath))
+      try:
+        processBill(billFilePath)
+        number_of_bills += 1
+      except Exception as err:
+        print('Could not process for similarity: {0}'.format(str(err)))
+        pass
+    print(str(datetime.now()) + ' - Finished Similarity for congress: {0}'.format(congress))
+    print(str(datetime.now()) + 'Processed {0} bills'.format(str(number_of_bills)))
+  print(str(datetime.now()) + ' - Finished Similarity for all congresses: {0}'.format(', '.join(congresses)))
+  print(str(datetime.now()) + 'Processed {0} bills'.format(str(number_of_bills_total)))

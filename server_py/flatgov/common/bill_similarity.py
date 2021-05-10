@@ -416,17 +416,17 @@ def processBill(bill_path: str=PATH_BILL):
     billTree = etree.parse(bill_path)
   except:
     raise Exception('Could not parse bill')
-  dublinCores = billTree.xpath('//dublinCore')
-  if (dublinCores is not None) and (dublinCores[0] is not None):
-    dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
-  else:
-    dublinCore = ''
-  congress = billTree.xpath('//form/congress')
-  congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
+  # dublinCores = billTree.xpath('//dublinCore')
+  # if (dublinCores is not None) and (dublinCores[0] is not None):
+  #   dublinCore = etree.tostring(dublinCores[0], method="xml", encoding="unicode"),
+  # else:
+  #   dublinCore = ''
+  # congress = billTree.xpath('//form/congress')
+  # congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))
   # session = billTree.xpath('//form/session')
   # session_text = re.sub(r'[a-zA-Z ]+$', '', getText(session))
-  legisnum = billTree.xpath('//legis-num')
-  legisnum_text = getText(legisnum)
+  # legisnum = billTree.xpath('//legis-num')
+  # legisnum_text = getText(legisnum)
   billnumber_version = getBillNumberFromCongressScraperBillPath(bill_path) 
   if billnumber_version == '':
     billnumber_version = getBillNumberFromBillPath(bill_path)
@@ -476,8 +476,9 @@ def processBill(bill_path: str=PATH_BILL):
 
     bill.es_similarity = es_similarity
 
-    similarBillNumbers = [item.get('bill_number_version') for item in topBillScores(similarBills)]
+    similarBillNumbers = [ billnumber_version, *[item.get('bill_number_version') for item in topBillScores(similarBills) if re.sub(r'/[a-z]*$/', '', item.get('bill_number_version')) != re.sub(r'/[a-z]*$/', '', billnumber_version)]]
     #print(similarBillNumbers)
+
     if shutil.which(constants.COMPAREMATRIX_GO_CMD):
       similarBillsString = ','.join(similarBillNumbers)
       #print(constants.PATH_TO_CONGRESSDATA_DIR)

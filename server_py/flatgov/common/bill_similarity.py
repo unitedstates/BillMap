@@ -390,9 +390,22 @@ def topBillScores(similarBills: dict):
   else:
     return topBills
 
+def stripBillVersion(billnumber_version: str):
+    return re.sub(r'[a-z]*$', '', billnumber_version)
+
 def processBill(bill_path: str=PATH_BILL):
   """
-  [summary]
+  A quick way to get a list of similar bills is the keys of the es_similarity_dict dictionary.
+  Do a section-by-section search for similar bills. Then take the top bills among those and use the Golang `bills`
+  library to find identical/nearly_identical/incorporated by/incorporates bills.
+
+  Saves bill to db with three new fields: es_similarity, es_similarity_dict and top_similar. The es_similarity
+  field is a list of objects; each item in the list corresponds to a section in the bill (in order), and each object corresponds to another bill that has a similar section.
+  The es_similarity_dict is a dict of key:object pairs with the key as the bill number and the object
+  as a list of objects, each of which is a matching section. So two bills that have a lot of similarity will have
+  many sections in common, and a large total value. The top_similar are bills that are identical/nearly_identical/incorporated by/incorporates
+
+  TODO: consider pre-processing get_similar_bills from bills.models
 
   Args:
       bill_path (str, optional): [description]. Defaults to PATH_BILL.
@@ -405,12 +418,6 @@ def processBill(bill_path: str=PATH_BILL):
   Returns:
     None
   
-  Saves bill to db with two new fields: es_similarity and es_similarity_dict. The es_similarity
-  field is a list of objects; each item in the list corresponds to a section in the bill (in order), and each object corresponds to another bill that has a similar section.
-  The es_similarity_dict is a dict of key:object pairs with the key as the bill number and the object
-  as a list of objects, each of which is a matching section. So two bills that have a lot of similarity will have
-  many sections in common, and a large total value.
-  A quick way to get a list of similar bills is the keys of the es_similarity_dict dictionary.
   """
   try:
     billTree = etree.parse(bill_path)
@@ -432,7 +439,7 @@ def processBill(bill_path: str=PATH_BILL):
     billnumber_version = getBillNumberFromBillPath(bill_path)
   billnumber = ''
   if billnumber_version:
-    billnumber = re.sub(r'[a-z]*$', '', billnumber_version)
+    billnumber = stripBillVersion(billnumber_version)
   else:
     raise Exception('Could not get billnumber and version')
   sections = billTree.xpath('//section[not(ancestor::section)]')
@@ -476,7 +483,7 @@ def processBill(bill_path: str=PATH_BILL):
 
     bill.es_similarity = es_similarity
 
-    similarBillNumbers = [ billnumber_version, *[item.get('bill_number_version') for item in topBillScores(similarBills) if re.sub(r'/[a-z]*$/', '', item.get('bill_number_version')) != re.sub(r'/[a-z]*$/', '', billnumber_version)]]
+    similarBillNumbers = [ billnumber_version, *[item.get('bill_number_version') for item in topBillScores(similarBills) if stripBillVersion(item.get('bill_number_version')) != billnumber ]]
     #print(similarBillNumbers)
 
     if shutil.which(constants.COMPAREMATRIX_GO_CMD):
@@ -497,21 +504,40 @@ def processBill(bill_path: str=PATH_BILL):
         for i, similarBillNumber in enumerate(similarBillNumbers):
           # Only get the first row of the matrix
           if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
-            compareMatrix[0][i]['billnumber'] = similarBillNumber
+            compareMatrix[0][i]['billnumber_version'] = similarBillNumber
+            compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
             similarsMax.append(compareMatrix[0][i])
         print(similarsMax)
-        bill.similar_top = similarsMax 
+        # Add similarsMax information to related_dict
+        related_dict = bill.related_dict
+        for similarBill in similarsMax:
+          if related_dict.get(similarBill.get('billnumber')):
+            related_dict[similarBill.get('billnumber')]['reason'] = related_dict[similarBill.get('billnumber')]['reason'] + ", " + similarBill.get('Explanation')
+            # TODO fix sort order of 'reason'
+            if related_dict.get('identified_by', ''): 
+              if 'BillMap' not in related_dict.get('identified_by', '').split(', '): 
+                related_dict['identified_by'] = related_dict.get('identified_by', '') + ", BillMap" 
+            else:
+              related_dict['identified_by'] = "BillMap"
+
+          else:
+            related_dict[similarBill.get('billnumber')] = {
+              "bill_congress_type_number": similarBill.get('billnumber'),
+              "bill_congress_type_number_version": similarBill.get('billnumber_version'),
+              "reason": similarBill.get('Explanation'),
+              "identified_by": "BillMap"
+            }
+
         # Keep comparisons that are: _incorporates_, _incorporated_by_, _nearly_identical_ and _identical_
           #for j, sB2 in enumerate(similarBillNumbers):
             #print('-'.join([similarBillNumber, sB2]))
             #print(compareMatrix[i][j])
       except Exception as err:
         print('Could not parse comparison matrix: {0}'.format(str(err)))
-        bill.similar_top = []
 
     try:
       print('Saving bill: {0}'.format(billnumber))
-      bill.save(update_fields=['es_similarity', 'es_similar_bills_dict', 'similar_top'])
+      bill.save(update_fields=['related_dict', 'es_similarity', 'es_similar_bills_dict'])
     except Exception as err:
       print('Could not save similarity: {0}'.format(str(err)))
       raise err

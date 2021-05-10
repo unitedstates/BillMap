@@ -31,6 +31,11 @@
   font-family: 'Public Sans', sans-serif;
 }
 
+.section-container {
+    background-color: #1D4E70;
+    border-radius: 10px;
+}
+
 .table {
     font-size: small;
     width: 100% !important;
@@ -101,7 +106,6 @@ div.dataTables_wrapper div.dataTables_scroll {
 .light-gray-body {
     background-color: #f7f7f7;
     border-radius: 10px;
-    box-shadow: 3px 4px 4px #d4d4d4;
 }
 
 .light-gray-tabs {

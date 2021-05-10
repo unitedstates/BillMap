@@ -30,7 +30,7 @@ def billnumber_display(billnumber: str):
         number = billMatchGroups.get('number', '')
         stage_fmt = stagesFormat.get(stage.upper(), stage)
         if congress != constants.CURRENT_CONGRESS:
-           billnumber_fmt = f' {stage_fmt} {number}'
+           billnumber_fmt = f' {stage_fmt} {number} ({congress})'
         else:
            billnumber_fmt = f' {stage_fmt} {number}'
         return billnumber_fmt

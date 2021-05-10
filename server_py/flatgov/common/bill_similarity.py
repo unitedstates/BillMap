@@ -354,6 +354,42 @@ def getSimilarSections(res):
     print(err)
     return []
 
+SIMILARITY_THRESHOLD = .1
+def topSimilarBills(billnumber: str, similarBills: List[dict] ):
+  billnumbers_similar = [ bill.get('bill_congress_type_number', '')
+            for bill in similarBills]
+  if billnumber in billnumbers_similar:
+    current_bill = next(filter(
+      lambda bill: bill.get('bill_congress_type_number') == billnumber,
+      similarBills))
+    current_bill_score = current_bill.get('score')
+  else:
+    current_bill_score = 0
+  billnumbers = [
+    bill.get('bill_congress_type_number', '')
+    for bill in similarBills
+    if ('identical' in bill.get('reason', '')
+    or 'title match' in bill.get('reason', '')
+    or (current_bill_score > 0 and
+                              (abs(bill.get('score') - current_bill_score) /
+                               current_bill_score < SIMILARITY_THRESHOLD)))
+        ]
+  billnumbers = [billnumber for billnumber in billnumbers if billnumber]
+  if billnumber not in billnumbers:
+    billnumbers = [billnumber, *billnumbers]
+
+def topBillScores(similarBills: dict):
+  topBills = []
+  z = len(topBills)
+  for billnumber, similarsections in similarBills.items():
+    billitem = {'bill_number_version':similarsections[0].get('bill_number_version'), 'score': sum([item.get('score') for item in similarsections])}
+    topBills.append(billitem)
+  topBills.sort(key=lambda x: x.get('score', 0))
+  if len(topBills) > 30:
+    return topBills[0:29]
+  else:
+    return topBills
+
 def processBill(bill_path: str=PATH_BILL):
   """
   [summary]
@@ -433,18 +469,19 @@ def processBill(bill_path: str=PATH_BILL):
 
     similarBills = getSimilarBills(es_similarity)
     bill.es_similar_bills_dict = similarBills
+    
     cleanedSimilars = getCleanSimilars(similarBills)
     for sectionIndex, sectionItem in enumerate(es_similarity):
       es_similarity[sectionIndex]["similars"] = cleanedSimilars.get(str(sectionIndex), [])
 
     bill.es_similarity = es_similarity
 
-    similarBillNumbers = [value[0].get('bill_number_version') for value in similarBills.values()]
+    similarBillNumbers = [item.get('bill_number_version') for item in topBillScores(similarBills)]
     #print(similarBillNumbers)
     if shutil.which(constants.COMPAREMATRIX_GO_CMD):
       similarBillsString = ','.join(similarBillNumbers)
       #print(constants.PATH_TO_CONGRESSDATA_DIR)
-      #print(similarBillsString)
+      print(similarBillsString)
       #similarBillsString = ','.join(['116hr1500rh','115hr6972ih'])
       compareMatrixResults = subprocess.run([constants.COMPAREMATRIX_GO_CMD, '-p', constants.PATH_TO_CONGRESSDATA_DIR, '-b', similarBillsString], capture_output=True)
       #compareMatrixString = str(compareMatrixResults.stdout).replace(" ", ",").replace('{','(').replace('}',')')
@@ -454,14 +491,26 @@ def processBill(bill_path: str=PATH_BILL):
         compareMatrixString = compareMatrixString.split(':compareMatrix:')[-2]
         compareMatrixString = compareMatrixString.strip()
         #print(compareMatrixString)
+        similarsMax = []
         compareMatrix = json.loads(compareMatrixString.strip())
-        print('-'.join([similarBillNumbers[0], similarBillNumbers[1]]))
-        print(compareMatrix[0][1])
+        for i, similarBillNumber in enumerate(similarBillNumbers):
+          # Only get the first row of the matrix
+          if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
+            compareMatrix[0][i]['billnumber'] = similarBillNumber
+            print(compareMatrix[0][i])
+            similarsMax.append(compareMatrix[0][i])
+        bill.similar_top = similarsMax 
+        # Keep comparisons that are: _incorporates_, _incorporated_by_, _nearly_identical_ and _identical_
+          #for j, sB2 in enumerate(similarBillNumbers):
+            #print('-'.join([similarBillNumber, sB2]))
+            #print(compareMatrix[i][j])
       except Exception as err:
+
         print('Could not parse comparison matrix: {0}'.format(str(err)))
+        bill.similar_top = []
 
     try:
-      bill.save(update_fields=['es_similarity', 'es_similar_bills_dict'])
+      bill.save(update_fields=['es_similarity', 'es_similar_bills_dict', 'similar_top'])
     except Exception as err:
       print('Could not save similarity: {0}'.format(str(err)))
       raise err

@@ -304,7 +304,7 @@ class BillDetailView(DetailView):
 
        return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
     
-    # Fraction difference in score that will still be considered identical
+    # SIMILARITY_THRESHOLD: Fraction difference in score that will still be considered identical
     def get_cosponsors_for_same_bills(self):
         committees_map = self.get_committees_map()
         billnumbers_similar = [ bill.get('bill_congress_type_number', '')

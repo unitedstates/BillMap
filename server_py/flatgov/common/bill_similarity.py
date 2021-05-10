@@ -497,19 +497,19 @@ def processBill(bill_path: str=PATH_BILL):
           # Only get the first row of the matrix
           if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
             compareMatrix[0][i]['billnumber'] = similarBillNumber
-            print(compareMatrix[0][i])
             similarsMax.append(compareMatrix[0][i])
+        print(similarsMax)
         bill.similar_top = similarsMax 
         # Keep comparisons that are: _incorporates_, _incorporated_by_, _nearly_identical_ and _identical_
           #for j, sB2 in enumerate(similarBillNumbers):
             #print('-'.join([similarBillNumber, sB2]))
             #print(compareMatrix[i][j])
       except Exception as err:
-
         print('Could not parse comparison matrix: {0}'.format(str(err)))
         bill.similar_top = []
 
     try:
+      print('Saving bill: {0}'.format(billnumber))
       bill.save(update_fields=['es_similarity', 'es_similar_bills_dict', 'similar_top'])
     except Exception as err:
       print('Could not save similarity: {0}'.format(str(err)))

@@ -502,6 +502,7 @@ def processBill(bill_path: str=PATH_BILL):
         similarsMax = []
         compareMatrix = json.loads(compareMatrixString.strip())
         for i, similarBillNumber in enumerate(similarBillNumbers):
+          print(compareMatrix[0][i])
           # Only get the first row of the matrix
           if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
             compareMatrix[0][i]['billnumber_version'] = similarBillNumber

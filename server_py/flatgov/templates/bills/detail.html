@@ -50,11 +50,10 @@
                     {% endfor %}
                 {% endif %}
 
-        
                 <h5 class="mt-3"><b>Recent Actions (in focus):</b></h5>
-                <p>No info available</p>
+                <p style="font-size: 14px;">No info available</p>
                 <h5><b>Prognosis:</b></h5>
-                <p>Prognosis will appear here</p>
+                <p style="font-size: 14px;">Prognosis will appear here</p>
                 <div class="text-center"><a href="https://www.govtrack.us/congress/bills/{{bill.congress}}/{{bill.type}}{{bill.number}}/text" target="_blank" class="btn btn-primary btn-shadow text-center px-5 rounded-5" style="border: none; background-color:#781A36!important; border-radius: 10px;">Read the bill</a></div>
 
             </div>
@@ -65,9 +64,9 @@
                 <br>
                 <div class="d-flex justify-content-between">
                     <div class="">
-                        <h5 style="float: left;" class="pr-3"><b>Committees <br> of Jurisdiction:</b></h5>
+                        <h5 class="pr-3"><b>Committees of Jurisdiction:</b></h5>
                         {% for committeeItem in committees_dict_deduped %}
-                        <a href="#" class="link-secondary">{{committeeItem.committee}}</a>{% if not forloop.last %}<span class="mr-0">, </span>  {% endif %}
+                        <a href="#" class="link-secondary" >{{committeeItem.committee}}</a>{% if not forloop.last %}<span class="mr-0">, </span>  {% endif %}
                         {% endfor %}
                    </div>
                 </div>

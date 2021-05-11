@@ -27,6 +27,7 @@
 .pre-wrapper pre {
   white-space: pre-wrap;
   word-break: keep-all;
+  font-size: 16px;
   font-family: 'Public Sans', sans-serif;
 }
 

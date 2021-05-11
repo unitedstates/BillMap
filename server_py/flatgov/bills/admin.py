@@ -13,10 +13,12 @@ class BillAdmin(admin.ModelAdmin):
 admin.site.register(Committee)
 admin.site.register(Cosponsor)
 admin.site.register(Statement)
-admin.site.register(CrsReport)
 admin.site.register(CboReport)
 admin.site.register(CommitteeDocument)
 admin.site.register(PressStatement)
 admin.site.register(PressStatementTask)
 
-
+@admin.register(CrsReport)
+class CrsReportAdmin(admin.ModelAdmin):
+    """Admin field for CrsReport model."""
+    autocomplete_fields = ['bills']

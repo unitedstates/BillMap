@@ -304,6 +304,16 @@ class BillDetailView(DetailView):
 
        return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
     
+    # TODO Get identical or nearly identical bills with the following, or equivalent
+    # billnumbers = [
+    #         bill.get('bill_congress_type_number', '')
+    #         for bill in self.object.get_similar_bills
+    #         if ('identical' in bill.get('reason') or 'nearly identical' in bill.get('reason') or 'title match' in bill.get(
+    #             'reason') or (current_bill_score > 0 and
+    #                           (abs(bill.get('score') - current_bill_score) /
+    #                            current_bill_score < SIMILARITY_THRESHOLD)))
+    #     ]
+
     # SIMILARITY_THRESHOLD: Fraction difference in score that will still be considered identical
     def get_cosponsors_for_same_bills(self):
         committees_map = self.get_committees_map()
@@ -321,7 +331,7 @@ class BillDetailView(DetailView):
         billnumbers = [
             bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills
-            if ('identical' in bill.get('reason') or 'title match' in bill.get(
+            if ('identical' in bill.get('reason') or 'nearly identical' in bill.get('reason') or 'title match' in bill.get(
                 'reason') or (current_bill_score > 0 and
                               (abs(bill.get('score') - current_bill_score) /
                                current_bill_score < SIMILARITY_THRESHOLD)))

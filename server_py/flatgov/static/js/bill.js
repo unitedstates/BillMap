@@ -1,6 +1,6 @@
 $(document).ready( function () {
     $('#cosponsors-table-top').DataTable({
-        dom: 'Bflrtip',
+        dom: 'flrtBip',
         buttons: [
             {
                 extend: 'copy',
@@ -13,7 +13,9 @@ $(document).ready( function () {
             'excelHtml5'
         ],
         bFilter: false,
-        ordering: false,
+        bSort: true,
+        aaSorting: [],
+        ordering: true,
         bPaginate: false,
         iDisplayLength: 5,
         scrollY: '50vh',
@@ -23,7 +25,7 @@ $(document).ready( function () {
 
     
     $('#current-similar-bills-table').DataTable({
-        dom: "Bflrtip",
+        dom: "flrtBip",
         autoWidth: false,
         buttons: [
             {
@@ -39,13 +41,14 @@ $(document).ready( function () {
         ],
         columnDefs: [
             { "width": "10%", "targets": 0 },
-            { "width": "10%", "targets": 1 },
-            { "width": "15%", "targets": 2 },
-            { "width": "30%", "targets": 3 },
+            { "width": "25%", "targets": 1 },
+            { "width": "10%", "targets": 2 },
+            { "width": "15%", "targets": 3 },
             { "width": "10%", "targets": 4 },
             { "width": "10%", "targets": 5 },
         ],
-        bSort: false,
+        bSort: true,
+        aaSorting: [],
         bFilter: true,
         bPaginate: true,
         bLengthChange: false,
@@ -54,12 +57,16 @@ $(document).ready( function () {
         scrollX: true,
         scrollCollapse: true,
         language: {
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
             info: "_START_ to _END_ of _TOTAL_ Bills",
         },
     })
 
     $('#similar-bills-table').DataTable({
-        dom: "Bflrtip",
+        dom: "flrtBip",
         autoWidth: false,
         buttons: [
             {
@@ -69,7 +76,8 @@ $(document).ready( function () {
             
             {
                 extend: 'csv',
-                text: 'Export to CSV'
+                text: 'Export to CSV',
+                bottom: true
             },
             'excelHtml5'
         ],
@@ -82,6 +90,7 @@ $(document).ready( function () {
             { "width": "10%", "targets": 5 },
         ],
         bSort: false,
+        aaSorting: [],
         bFilter: true,
         bPaginate: true,
         bLengthChange: false,
@@ -114,6 +123,7 @@ $(document).ready( function () {
             { "width": "50%", "targets": 1 },
         ],
         bSort: false,
+        aaSorting: [],
         bFilter: true,
         bPaginate: false,
         bLengthChange: false,
@@ -130,12 +140,13 @@ $(document).ready( function () {
         },
     });
 
-    $('#cosponsors-table').DataTable({
-        dom: 'Bflrtip',
+    var cosponsorTable = $('#cosponsors-table').DataTable({
+        dom: 'flrtBip',
         buttons: [
             {
                 extend: 'copy',
-                text: 'Copy to clipboard'
+                text: 'Copy to clipboard',
+
             },
             {
                 extend: 'csv',
@@ -144,7 +155,8 @@ $(document).ready( function () {
             'excelHtml5'
         ],
         bFilter: true,
-        ordering: false,
+        ordering: true,
+        aaSorting: [],
         bPaginate: true,
         bLengthChange: false,
         iDisplayLength: 30,
@@ -159,6 +171,95 @@ $(document).ready( function () {
             info: "_START_ to _END_ of _TOTAL_ cosponsors"
         },
     });
+
+    $('#crs-reports-table').DataTable({
+        dom: 'flrtip',
+        bFilter: true,
+        ordering: true,
+        aaSorting: [],
+        bPaginate: true,
+        bLengthChange: false,
+        iDisplayLength: 30,
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        language: {
+            emptyTable: "No relevant CRS reports are available",
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
+            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+        },
+    });
+
+    $('#statements-of-table').DataTable({
+        dom: 'flrtip',
+        bFilter: true,
+        ordering: true,
+        aaSorting: [],
+        bPaginate: true,
+        bLengthChange: false,
+        iDisplayLength: 30,
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        language: {
+            emptyTable: "No relevant statements are available",
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
+            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+        },
+    });
+
+    $('#cbo-scores-table').DataTable({
+        order: [[2, 'asc']],
+        dom: 'flrtip',
+        bFilter: true,
+        ordering: true,
+        aaSorting: [],
+        bPaginate: true,
+        bLengthChange: false,
+        iDisplayLength: 30,
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        language: {
+            emptyTable: "No relevant CBO scores are available",
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
+            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+        },
+    });
+
+    $('#relevant-committee-documents-table').DataTable({
+        order: [[4, 'desc']],
+        dom: 'flrtip',
+        bFilter: true,
+        ordering: true,
+        aaSorting: [],
+        bPaginate: true,
+        bLengthChange: false,
+        iDisplayLength: 30,
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        language: {
+            emptyTable: "No relevant committee documents are available",
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
+            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+        },
+    });
+
+    cosponsorTable.buttons().container()
+    .appendTo('#unique-test');
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
         $($.fn.dataTable.tables(true)).DataTable()

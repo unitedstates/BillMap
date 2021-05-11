@@ -95,6 +95,7 @@
                             </tr>
                             {% endfor %}
                         </tbody>
+                        
                     </table>
                     <div><sup>+</sup>&nbsp; Sponsor</div>
                     <div><sup>*</sup>&nbsp; Original Cosponsor</div>
@@ -166,9 +167,9 @@
                 <thead>
                     <tr>
                         <th scope="col">Bill</th>
-                        <th scope="col">Detail</th>
-                        <th scope="col">Reason</th>
                         <th scope="col">Titles</th>
+                        <th scope="col">Reason</th>
+                        <th scope="col">Detail</th>
                         <th scope="col">Score</th>
                         <th scope="col">Sections matched</th>
                         <th scope="col">Best match section</th>
@@ -182,12 +183,18 @@
                             <td>
                                 {% if bill.in_db %}
                                     <a href="{% url 'bill-detail' slug=bill.bill_congress_type_number  %}">
-                                {{ bill.bill_congress_type_number |billnumber_display }}
+                                {{ bill.bill_congress_type_number|billnumber_display }}
                                     </a>
                                 {% else %}
                                     {{ bill.bill_congress_type_number|billnumber_display }}
                                 {% endif %}
                             </td>
+                            {% if bill.max_item %}
+                                <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
+                            {% else %}
+                                <td><span title="{{ bill.title }}">{{ bill.title|truncatechars:40 }}</span></td>
+                            {% endif %}
+                            <td>{{ bill.reason }}</td>
                             <td>
                                 {% if bill.in_db %}
                                     <a href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
@@ -197,12 +204,6 @@
                                     N/A
                                 {% endif %}
                             </td>
-                            <td>{{ bill.reason }}</td>
-                            {% if bill.max_item %}
-                                <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
-                            {% else %}
-                                <td><span title="{{ bill.title }}">{{ bill.title|truncatechars:40 }}</span></td>
-                            {% endif %}
                             <td>{% if bill.score %}{{ bill.score|floatformat:2 }}{% endif %}</td>
                             <td>{{ bill.number_of_sections }}</td>
                             <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
@@ -294,7 +295,10 @@
     </span>
     <ul class="nav nav-tabs mt-2" id="tablistCosponsors" role="tablist">
         <li class="nav-item" role="presentation">
-            <a class="nav-link active" id="all-congress-sponsor-tab" data-toggle="tab" href="#all-congress-sponsor" role="tab" aria-controls="all-congress-sponsor" aria-selected="true">All Congresses</a>
+            <a class="nav-link active" id="this-congress-sponsor-tab" data-toggle="tab" href="#this-congress-sponsor" role="tab" aria-controls="this-congress-sponsor" aria-selected="false">This Congress</a>
+        </li>
+        <li class="nav-item" role="presentation">
+            <a class="nav-link" id="all-congress-sponsor-tab" data-toggle="tab" href="#all-congress-sponsor" role="tab" aria-controls="all-congress-sponsor" aria-selected="true">All Congresses</a>
         </li>
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="cosponsorsTabContent">
@@ -303,6 +307,38 @@
                 View all current sponsors of {{ bill.type_abbrev }} {{ bill.number }} and identical bills in any recent Congress
             </h6>
             <table class="table mt-3" id="cosponsors-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Co-sponsor</th>
+                        <th scope="col">Bills</th>
+                        <th scope="col">Title</th>
+                        <th scope="col">Current Assigned Committees</th>
+                        <th scope="col">Party</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for cosponsor in cosponsors_for_bills %}
+                    <tr>
+                        <td>{{ cosponsor.name_full_official }}</td>
+                        <td>{{ cosponsor.bill_congress_type_numbers|billnumbers_display|join:", "}}</td>
+                        <td></td>
+                        <td>
+                            {{ cosponsor.committees_named|join:", " }}
+                        </td>
+                        <td>{{ cosponsor.party|slice:":1"}}</td>
+                        <td>
+                            {{cosponsor.ranks|join:", "}}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="tab-pane fade show " id="this-congress-sponsor" role="tabpanel" aria-labelledby="this-congress-sponsor-tab">
+            <h6 class="pt-3">
+                View this current sponsors of {{ bill.type_abbrev }} {{ bill.number }} and identical bills in any recent Congress
+            </h6>
+            <table class="table mt-3" id="this-cosponsors-table">
                 <thead>
                     <tr>
                         <th scope="col">Co-sponsor</th>
@@ -338,35 +374,24 @@
     <ul class="nav nav-tabs mt-2" id="tablistReports" role="tablist">
         <li class="nav-item" role="presentation">
         <a class="nav-link active" id="crs-report-tab" data-toggle="tab" href="#crs-report" role="tab" aria-controls="house"
-            aria-selected="true">CRS Report</a>
+            aria-selected="true">CRS Reports</a>
         </li>
         <li class="nav-item" role="presentation">
         <a class="nav-link" id="statement-admin-tab" data-toggle="tab" href="#statement-admin" role="tab" aria-controls="statement-admin"
-            aria-selected="false">Statement of Administration</a>
+            aria-selected="false">Statements of Administration Policy</a>
         </li>
         <li class="nav-item" role="presentation">
         <a class="nav-link" id="press-statements-tab" data-toggle="tab" href="#press-statements" role="tab"
-            aria-controls="press-statements" aria-selected="false">Press Statements</a>
+            aria-controls="press-statements" aria-selected="false">Press statements</a>
         </li>
         <li class="nav-item" role="presentation">
         <a class="nav-link" id="cbo-score-tab" data-toggle="tab" href="#cbo-score" role="tab"
-            aria-controls="cbo-score" aria-selected="false">CBO Score</a>
+            aria-controls="cbo-score" aria-selected="false">CBO Scores</a>
         </li>
         <li class="nav-item" role="presentation">
         <a class="nav-link" id="relevant-committee-tab" data-toggle="tab" href="#relevant-committee" role="tab"
             aria-controls="relevant-committee" aria-selected="false">Relevant Committee Documents</a>
         </li>
-        <!--li class="nav-item" role="presentation">
-        <a class="nav-link" id="floor-proceedings-tab" data-toggle="tab" href="#floor-proceedings" role="tab"
-            aria-controls="floor-proceedings" aria-selected="false">Floor Proceedings</a>
-        </li-->
-        <!--div class="dropdown">
-        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-            <a class="dropdown-item" href="#">Action</a>
-            <a class="dropdown-item" href="#">Another action</a>
-            <a class="dropdown-item" href="#">Something else here</a>
-        </div>
-        </div-->
     </ul>
     <div class="tab-content light-gray-tabs p-4" id="crsReportContent">
         <div class="tab-pane fade show active" id="crs-report" role="tabpanel" aria-labelledby="crs-report-tab">
@@ -374,7 +399,7 @@
                 View CRS reports for {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
-            <table class="table mt-3" id='crs-table'>
+            <table class="table mt-3" id='crs-reports-table'>
                 <thead>
                     <tr>
                         <th scope="col">Title</th>
@@ -400,13 +425,7 @@
                     </tr>
 
                     {% endfor %}
-                    {% if not crs_reports %}
-                    <tr>
-                        <td valign="top" colspan="5" class="empty_table">
-                          {{ no_data_message }} 
-                        </td>
-                    </tr>
-                    {% endif %}
+
                 </tbody>
             </table>
         </div>
@@ -415,11 +434,10 @@
                 View all the Statements of Administration Policy for {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
 
-            <table class="table mt-3" id='statements-table'>
+            <table class="table mt-3" id='statements-of-table'>
                 <thead>
                     <tr>
                         <th scope="col">Bill Number</th>
-                        <th scope="col">Bill Id</th>
                         <th scope="col">Bill</th>
                         <th scope="col">Congress</th>
                         <th scope="col">Date Issued</th>
@@ -431,7 +449,6 @@
                     
                     <tr>
                         <td>{{ statement.bill_number }}</td>
-                        <td>{{ statement.bill_id }}</td>
                         <td style="width: 300px;">{{ statement.bill_title|truncatechars:120 }}</td>
                         <td>{{ statement.congress }}</td>
                         <td>{{ statement.date_issued }}</td>
@@ -441,13 +458,6 @@
                     </tr>
                     
                     {% endfor %}
-                    {% if not statements %}
-                    <tr>
-                           <td valign="top" colspan="5" class="empty_table">
-                            {{ no_data_message }} 
-                           </td>
-                    </tr>
-                    {% endif %}
                 </tbody>
             </table>
         </div>
@@ -475,7 +485,7 @@
                             <td>$[ pressStatement.party ]</td>
                             <td>$[ pressStatement.date|formatDate ]</td>
                             <td><a v-bind:href="pressStatement.url" target="_blank" class='btn btn-primary'>
-                                View Press Statement
+                                View the press statement
                             </a></td>
                         </tr>
                     </tbody>
@@ -503,7 +513,7 @@
                 View all the CBO Reports for {{ bill.type_abbrev }} {{ bill.number }} in the {{ bill.congress|numstring_to_ordinal }} Congress
             </h6>
             
-            <table class="table mt-3" id='cbo-tables'>
+            <table class="table mt-3" id='cbo-scores-table'>
                 <thead>
                     <tr>
                         <th scope="col">Bill</th>
@@ -516,35 +526,27 @@
                     {% for cboreport in cbo_reports %}
                     
                     <tr>
-                        <td>{{ cboreport.bill_id }}</td>
+                        <td>{{ cboreport.bill_number }}</td>
                         <td style="width: 300px;">{{ cboreport.title|truncatechars:120 }}</td>
-                        <td>{{ cboreport.pub_date }}</td>
+                        <td>{{ cboreport.pub_date|date:"M, D, Y" }}</td>
                         <td><a href='{{ cboreport.original_pdf_link }}' target="_blank" class='btn btn-primary'>
                             Full Report
                         </a></td>
                     </tr>
                     {% endfor %}
-                    {% if not cbo_reports %}
-                    <tr>
-                        <td valign="top" colspan="5" class="empty_table">
-                          {{ no_data_message }} 
-                        </td>
-                    </tr>
-                    {% endif %}
                 </tbody>
             </table>
         </div>
         <div class="tab-pane fade" id="relevant-committee" role="tabpanel" aria-labelledby="relevant-committee-tab">
             <h6 class="pt-3">
-                View all the Committee Documents {{ bill.type_abbrev }} {{ bill.meta.number }} in the {{ bill.meta.congress|numstring_to_ordinal }} Congress
+                View committee documents that relate this legislation
             </h6>
 
-            <table class="table mt-3" id='committee-documents-table'>
+            <table class="table mt-3" id='relevant-committee-documents-table'>
                 <thead>
                     <tr>
                         <th scope="col">Type</th>
                         <th scope="col">Committee</th>
-                        <th scope="col">Category</th>
                         <th scope="col">Chamber</th>
                         <th scope="col">Report Number</th>
                         <th scope="col">Date Issued</th>
@@ -557,7 +559,6 @@
                     <tr>
                         <td>{{ committee.report_type }}</td>
                         <td style="width: auto;">{{ committee.committee }}</td>
-                        <td>{{ committee.category }}</td>
                         <td>{{ committee.chamber }}</td>
                         <td>{{ committee.report_number }}</td>
                         <td>{{ committee.date }}</td>

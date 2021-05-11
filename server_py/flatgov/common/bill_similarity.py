@@ -384,7 +384,8 @@ def topBillScores(similarBills: dict):
   for billnumber, similarsections in similarBills.items():
     billitem = {'bill_number_version':similarsections[0].get('bill_number_version'), 'score': sum([item.get('score') for item in similarsections])}
     topBills.append(billitem)
-  topBills.sort(key=lambda x: x.get('score', 0))
+  topBills.sort(key=lambda x: x.get('score', 0), reverse=True)
+  print(topBills)
   if len(topBills) > 30:
     return topBills[0:29]
   else:
@@ -516,9 +517,10 @@ def processBill(bill_path: str=PATH_BILL):
     #print(similarBillNumbers)
 
     compareMatrix = getSimilarityMatrix(similarBillNumbers)
+    print(compareMatrix)
     similarsMax = []
     for i, similarBillNumber in enumerate(similarBillNumbers):
-      print(compareMatrix[0][i])
+      #print(compareMatrix[0][i])
       # Only get the first row of the matrix
       if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
         compareMatrix[0][i]['billnumber_version'] = similarBillNumber

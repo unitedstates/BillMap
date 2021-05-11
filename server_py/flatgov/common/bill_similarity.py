@@ -393,6 +393,35 @@ def topBillScores(similarBills: dict):
 def stripBillVersion(billnumber_version: str):
     return re.sub(r'[a-z]*$', '', billnumber_version)
 
+def getSimilarityMatrix(billnumber_versions: List[str]):
+  """
+  Sample: ['116hr1500rh','115hr6972ih']
+
+  Args:
+      billnumber_versions (List[str]): [description]
+
+  Returns:
+      compareMatrix: List[List] of objects 
+  """
+  if shutil.which(constants.COMPAREMATRIX_GO_CMD):
+     similarBillsString = ','.join(billnumber_versions)
+     #print(constants.PATH_TO_CONGRESSDATA_DIR)
+     print(similarBillsString)
+     #similarBillsString = ','.join(['116hr1500rh','115hr6972ih'])
+     compareMatrixResults = subprocess.run([constants.COMPAREMATRIX_GO_CMD, '-p', constants.PATH_TO_CONGRESSDATA_DIR, '-b', similarBillsString], capture_output=True)
+     #compareMatrixString = str(compareMatrixResults.stdout).replace(" ", ",").replace('{','(').replace('}',')')
+     compareMatrixString = str(compareMatrixResults.stdout)
+     
+     try:
+      compareMatrixString = compareMatrixString.split(':compareMatrix:')[-2]
+      compareMatrixString = compareMatrixString.strip()
+      #print(compareMatrixString)
+      compareMatrix = json.loads(compareMatrixString.strip())
+      return compareMatrix
+     except Exception as err:
+      print('Could not parse comparison matrix: {0}'.format(str(err)))
+      return [[]]
+
 def processBill(bill_path: str=PATH_BILL):
   """
   A quick way to get a list of similar bills is the keys of the es_similarity_dict dictionary.
@@ -486,55 +515,40 @@ def processBill(bill_path: str=PATH_BILL):
     similarBillNumbers = [ billnumber_version, *[item.get('bill_number_version') for item in topBillScores(similarBills) if stripBillVersion(item.get('bill_number_version')) != billnumber ]]
     #print(similarBillNumbers)
 
-    if shutil.which(constants.COMPAREMATRIX_GO_CMD):
-      similarBillsString = ','.join(similarBillNumbers)
-      #print(constants.PATH_TO_CONGRESSDATA_DIR)
-      print(similarBillsString)
-      #similarBillsString = ','.join(['116hr1500rh','115hr6972ih'])
-      compareMatrixResults = subprocess.run([constants.COMPAREMATRIX_GO_CMD, '-p', constants.PATH_TO_CONGRESSDATA_DIR, '-b', similarBillsString], capture_output=True)
-      #compareMatrixString = str(compareMatrixResults.stdout).replace(" ", ",").replace('{','(').replace('}',')')
-      compareMatrixString = str(compareMatrixResults.stdout)
+    compareMatrix = getSimilarityMatrix(similarBillNumbers)
+    similarsMax = []
+    for i, similarBillNumber in enumerate(similarBillNumbers):
+      print(compareMatrix[0][i])
+      # Only get the first row of the matrix
+      if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
+        compareMatrix[0][i]['billnumber_version'] = similarBillNumber
+        compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
+        similarsMax.append(compareMatrix[0][i])
+    print(similarsMax)
+    # Add similarsMax information to related_dict
+    related_dict = bill.related_dict
+    for similarBill in similarsMax:
+      if related_dict.get(similarBill.get('billnumber')):
+        related_dict[similarBill.get('billnumber')]['reason'] = related_dict[similarBill.get('billnumber')]['reason'] + ", " + similarBill.get('Explanation')
+        # TODO fix sort order of 'reason'
+        if related_dict.get('identified_by', ''): 
+          if 'BillMap' not in related_dict.get('identified_by', '').split(', '): 
+            related_dict['identified_by'] = related_dict.get('identified_by', '') + ", BillMap" 
+        else:
+          related_dict['identified_by'] = "BillMap"
 
-      try:
-        compareMatrixString = compareMatrixString.split(':compareMatrix:')[-2]
-        compareMatrixString = compareMatrixString.strip()
-        #print(compareMatrixString)
-        similarsMax = []
-        compareMatrix = json.loads(compareMatrixString.strip())
-        for i, similarBillNumber in enumerate(similarBillNumbers):
-          print(compareMatrix[0][i])
-          # Only get the first row of the matrix
-          if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
-            compareMatrix[0][i]['billnumber_version'] = similarBillNumber
-            compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
-            similarsMax.append(compareMatrix[0][i])
-        print(similarsMax)
-        # Add similarsMax information to related_dict
-        related_dict = bill.related_dict
-        for similarBill in similarsMax:
-          if related_dict.get(similarBill.get('billnumber')):
-            related_dict[similarBill.get('billnumber')]['reason'] = related_dict[similarBill.get('billnumber')]['reason'] + ", " + similarBill.get('Explanation')
-            # TODO fix sort order of 'reason'
-            if related_dict.get('identified_by', ''): 
-              if 'BillMap' not in related_dict.get('identified_by', '').split(', '): 
-                related_dict['identified_by'] = related_dict.get('identified_by', '') + ", BillMap" 
-            else:
-              related_dict['identified_by'] = "BillMap"
+      else:
+        related_dict[similarBill.get('billnumber')] = {
+          "bill_congress_type_number": similarBill.get('billnumber'),
+          "bill_congress_type_number_version": similarBill.get('billnumber_version'),
+          "reason": similarBill.get('Explanation'),
+          "identified_by": "BillMap"
+        }
 
-          else:
-            related_dict[similarBill.get('billnumber')] = {
-              "bill_congress_type_number": similarBill.get('billnumber'),
-              "bill_congress_type_number_version": similarBill.get('billnumber_version'),
-              "reason": similarBill.get('Explanation'),
-              "identified_by": "BillMap"
-            }
-
-        # Keep comparisons that are: _incorporates_, _incorporated_by_, _nearly_identical_ and _identical_
-          #for j, sB2 in enumerate(similarBillNumbers):
-            #print('-'.join([similarBillNumber, sB2]))
-            #print(compareMatrix[i][j])
-      except Exception as err:
-        print('Could not parse comparison matrix: {0}'.format(str(err)))
+    # Keep comparisons that are: _incorporates_, _incorporated_by_, _nearly_identical_ and _identical_
+      #for j, sB2 in enumerate(similarBillNumbers):
+        #print('-'.join([similarBillNumber, sB2]))
+        #print(compareMatrix[i][j])
 
     try:
       print('Saving bill: {0}'.format(billnumber))

@@ -18,7 +18,7 @@ from celery import states
 
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
-from bills.models import (Bill, Cosponsor, Statement, CboReport,
+from bills.models import (cleanReasons, Bill, Cosponsor, Statement, CboReport,
                           CommitteeDocument, PressStatementTask,
                           PressStatement)
 
@@ -48,6 +48,7 @@ BILLS_META_JSON_PATH = getattr(settings, "BILLS_META_JSON_PATH", None)
 RELATED_BILLS_JSON_PATH = getattr(settings, "RELATED_BILLS_JSON_PATH", None)
 TITLES_INDEX_JSON_PATH = getattr(settings, "TITLES_INDEX_JSON_PATH", None)
 SIMILARITY_THRESHOLD = .1
+IDENTICAL_REASONS = ['identical', 'nearly identical', 'title match']
 
 BILL_REGEX = r'([1-9][0-9]{2})([a-z]+)(\d+)'
 
@@ -306,13 +307,13 @@ class BillDetailView(DetailView):
     
     # TODO Get identical or nearly identical bills with the following, or equivalent
     # billnumbers = [
-    #         bill.get('bill_congress_type_number', '')
-    #         for bill in self.object.get_similar_bills
-    #         if ('identical' in bill.get('reason') or 'nearly identical' in bill.get('reason') or 'title match' in bill.get(
-    #             'reason') or (current_bill_score > 0 and
-    #                           (abs(bill.get('score') - current_bill_score) /
-    #                            current_bill_score < SIMILARITY_THRESHOLD)))
-    #     ]
+    #        bill.get('bill_congress_type_number', '')
+    #        for bill in self.object.get_similar_bills
+    #        if (any(x in cleanReasons(bill.get('reason')) for x in IDENTICAL_REASONS)
+    #        or (current_bill_score > 0 and
+    #                          (abs(bill.get('score') - current_bill_score) /
+    #                           current_bill_score < SIMILARITY_THRESHOLD)))
+    #    ]
 
     # SIMILARITY_THRESHOLD: Fraction difference in score that will still be considered identical
     def get_cosponsors_for_same_bills(self):
@@ -331,8 +332,8 @@ class BillDetailView(DetailView):
         billnumbers = [
             bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills
-            if ('identical' in bill.get('reason') or 'nearly identical' in bill.get('reason') or 'title match' in bill.get(
-                'reason') or (current_bill_score > 0 and
+            if (any(x in cleanReasons(bill.get('reason')) for x in IDENTICAL_REASONS)
+            or (current_bill_score > 0 and
                               (abs(bill.get('score') - current_bill_score) /
                                current_bill_score < SIMILARITY_THRESHOLD)))
         ]

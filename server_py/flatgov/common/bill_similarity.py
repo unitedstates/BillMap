@@ -423,6 +423,32 @@ def getSimilarityMatrix(billnumber_versions: List[str]):
       print('Could not parse comparison matrix: {0}'.format(str(err)))
       return [[]]
 
+def getSimilarsMax(similarBillNumbers: List[str]):
+  """
+  Uses getSimilarityMatrix and then returns a list of bills related to the first bill,
+  that are identical, nearly identical, incorporated or incorporate
+
+  Args:
+      similarBillNumbers (List[str]): list of billnumbers (with version) to compare 
+
+  Returns:
+      similarsMax: list of most similar bills
+    E.g. [{'Score': 1, 'Explanation': '_identical_', 'ComparedDocs': '116s1970-116s1970', 'billnumber_version': '116s1970is', 'billnumber': '116s1970'}, 
+    {'Score': 0.9, 'Explanation': '_nearly_identical_', 'ComparedDocs': '116s1970-116hr3463', 'billnumber_version': '116hr3463ih', 'billnumber': '116hr3463'}] 
+  """
+  compareMatrix = getSimilarityMatrix(similarBillNumbers)
+  #print(compareMatrix)
+  similarsMax = []
+  for i, similarBillNumber in enumerate(similarBillNumbers):
+    print(compareMatrix[0][i])
+    # Only get the first row of the matrix
+    if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
+      compareMatrix[0][i]['billnumber_version'] = similarBillNumber
+      compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
+      similarsMax.append(compareMatrix[0][i])
+  print(similarsMax)
+  return similarsMax
+
 def processBill(bill_path: str=PATH_BILL):
   """
   A quick way to get a list of similar bills is the keys of the es_similarity_dict dictionary.
@@ -516,17 +542,7 @@ def processBill(bill_path: str=PATH_BILL):
     similarBillNumbers = [ billnumber_version, *[item.get('bill_number_version') for item in topBillScores(similarBills) if stripBillVersion(item.get('bill_number_version')) != billnumber ]]
     #print(similarBillNumbers)
 
-    compareMatrix = getSimilarityMatrix(similarBillNumbers)
-    print(compareMatrix)
-    similarsMax = []
-    for i, similarBillNumber in enumerate(similarBillNumbers):
-      #print(compareMatrix[0][i])
-      # Only get the first row of the matrix
-      if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
-        compareMatrix[0][i]['billnumber_version'] = similarBillNumber
-        compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
-        similarsMax.append(compareMatrix[0][i])
-    print(similarsMax)
+    similarsMax = getSimilarsMax(similarBillNumbers) 
     # Add similarsMax information to related_dict
     related_dict = bill.related_dict
     for similarBill in similarsMax:

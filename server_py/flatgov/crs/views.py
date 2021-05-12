@@ -10,7 +10,7 @@ def csv_report(request):
     writer = csv.writer(response)
     writer.writerow(['Report ID', 'Bill #', 'Report title', 'Report file path',
                      'Report date', 'Has metadata', 'Has report content'])
-    for report in CrsReport.objects.all():
+    for report in CrsReport.objects.all().iterator():
         for bill in report.bills.all():
             report_content.append([
                 report.pk,

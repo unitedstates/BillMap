@@ -327,7 +327,7 @@ class BillDetailView(DetailView):
         current_bill_score = self.get_current_bill_score()
         identical_bill_numbers =  [billnumber for billnumber in [bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills
-            if (any(x in cleanReasons(bill.get('reason')) for x in IDENTICAL_REASONS)
+            if (any(x in cleanReasons(bill.get('reason').split(", ")) for x in IDENTICAL_REASONS)
             or (current_bill_score > 0 and (abs(bill.get('score') - current_bill_score) / current_bill_score < SIMILARITY_THRESHOLD)))]
             if billnumber]
         return identical_bill_numbers

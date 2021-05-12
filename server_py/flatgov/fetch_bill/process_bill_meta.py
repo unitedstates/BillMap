@@ -22,7 +22,7 @@ def makeTitleIndex():
     billsMeta = loadBillsMeta()
     titlesIndex = {}
     for key, value in billsMeta.items():
-        titles = list(set(value.get('titles')))
+        titles = list(dict.fromkeys(value.get('titles')))
         for title in titles:
             if titlesIndex.get(title):
                 titlesIndex[title].append(key)
@@ -34,7 +34,7 @@ def makeNoYearTitleIndex():
     billsMeta = loadBillsMeta()
     noYearTitlesIndex = {}
     for key, value in billsMeta.items():
-        titles = list(set(value.get('titles')))
+        titles = list(dict.fromkeys(value.get('titles')))
         for title in titles:
             # truncate year from title
             noYearTitle = re.sub(r'of\s[0-9]{4}$', '', title)

@@ -243,7 +243,7 @@ def filterLatestVersionOnly(billFiles: List[str]):
   print('Number of bills with multiple versions: ' + str(len(billPathsDupes)))
   billPathsUnique = list(filter(lambda f: f not in billPathsDupes, billPaths)) 
   billFilesUnique = list(filter(lambda f: f.split('/text')[0] in billPathsUnique, billFiles))
-  billNumbersDupes = list(set(filter(None, map(getBillNumberFromCongressScraperBillPath, billPathsDupes))))
+  billNumbersDupes = list(dict.fromkeys(filter(None, map(getBillNumberFromCongressScraperBillPath, billPathsDupes))))
   latestBillVersions = list(map(getLatestBillVersion, billNumbersDupes))
   print('Number of latestBillVersions: ' + str(len(latestBillVersions)))
   billFilesDupes = [ os.path.join(getBillPath(version), 'text-versions',re.sub(r'[0-9]+[a-z]+[0-9]+', '', version), 'document.xml') for i, version  in enumerate(latestBillVersions)]

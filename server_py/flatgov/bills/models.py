@@ -1,6 +1,8 @@
 from collections import Counter
 from datetime import datetime
 from operator import itemgetter
+import re
+from typing import List
 
 from django.db import models
 from django.conf import settings
@@ -22,9 +24,15 @@ def sortRelatedBills(bill: dict) -> int:
         sortScore = bill.get('score', 0)
     return sortScore
 
-def cleanReasons(reasons: str):
-    return reasons.replace('_nearly_identical_', 'nearly identical').replace('_identical_', 'identical')
+def cleanReason(reason: str):
+    r1 = re.sub(r'([a-z])_([a-z])',r'\1 \2', reason)
+    return r1.replace('_', '')
 
+def cleanReasons(reasons: List[str]):
+    reasons = [cleanReason(reason) for reason in reasons]
+    if 'identical' in reasons and 'nearly identical' in reasons:
+        reasons.remove('nearly identical')
+        return reasons
 class Bill(models.Model):
     bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
     type = models.CharField(max_length=40, null=True, blank=True)
@@ -115,14 +123,14 @@ class Bill(models.Model):
         for bill_congress_type_number, bill in self.related_dict.items():
             if bill_congress_type_number in similar_bill_numbers:
                 bill_dict = similar_bills[similar_bill_numbers.index(bill_congress_type_number)]
-                reason = f"{bill.get('reason')}, section match"
+                reasons = [*(bill.get('reason').split(', ')), "section match"]
                 
                 # Deduplicate and remove 'None'
-                bill_dict['reason'] = ', '.join(list(set([cleanReasons(reasonItem) for reasonItem in reason.split(', ') if reasonItem != 'None'])))
+                bill_dict['reason'] = ', '.join(list(set(cleanReasons(reasons))))
                 bill_dict['identified_by'] = bill.get('identified_by')
                 if bill_congress_type_number == self.bill_congress_type_number:
-                    bill_dict['reason'] = 'identical, section match'+ bill.get('reason', '')
-                    bill_dict['reason'] = ', '.join(list(set([cleanReasons(reasonItem) for reasonItem in bill.get('reason', '').split(', ') if reasonItem != 'None'])))
+                    reasons = ["identical", *(bill.get('reason', '').split(", ")), "section match"]
+                    bill_dict['reason'] = ', '.join(list(set(cleanReasons(reasons))))
 
             else:
                 bill_dict = bill
@@ -133,8 +141,10 @@ class Bill(models.Model):
                 if bill.get('titles'):
                     bill_dict['title'] = ", ".join(bill.get('titles'))
                 if bill_congress_type_number == self.bill_congress_type_number:
-                    bill['reason'] = ', '.join(list(set(['identical', *cleanReasons(bill.get('reason', '')).split(', ')])))
-                    bill_dict['reason'] = ', '.join(list(set([cleanReasons(reasonItem) for reasonItem in bill.get('reason', '').split(', ') if reasonItem != 'None'])))
+                    reasons = bill.get('reason', '').split(', ')
+                    reasonString = ', '.join(list(set(cleanReasons(['identical', *reasons]))))
+                    bill['reason'] = reasonString 
+                    bill_dict['reason'] = reasonString 
             related_bills.append(bill_dict)
 
         sorted_related_bills = sorted(related_bills, key=lambda k: k['score'], reverse=True)

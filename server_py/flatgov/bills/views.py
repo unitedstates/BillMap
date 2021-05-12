@@ -336,8 +336,6 @@ class BillDetailView(DetailView):
     def get_cosponsors_for_same_bills(self):
         committees_map = self.get_committees_map()
         billnumbers = self.get_identical_bill_numbers()
-        print("COSPONSOR billnumbers:")
-        print(billnumbers)
         if self.object.bill_congress_type_number not in billnumbers:
             billnumbers = [self.object.bill_congress_type_number, *billnumbers]
         billids = Bill.objects.filter(

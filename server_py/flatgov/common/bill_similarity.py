@@ -26,13 +26,15 @@ BASE_DIR = settings.BASE_DIR
 # The max number of bills to get for each section
 MAX_BILLS_SECTION = 20
 
+NEAR_IDENTICAL_LIST = ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']
+
 def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO, size: int=10) -> dict:
   query = query
   # See API documentation
   # https://elasticsearch-py.readthedocs.io/en/v7.10.1/api.html#elasticsearch.Elasticsearch.search
   return es.search(index=index, body=query, size=size)
 
-def getXMLDirByCongress(congress: str ='116', docType: str = 'dtd', uscongress: bool = True) -> str:
+def getXMLDirByCongress(congress: str ='117', docType: str = 'dtd', uscongress: bool = True) -> str:
   if uscongress:
     return os.path.join(BASE_DIR, 'congress', 'data', congress, 'bills')
   return os.path.join(constants.PATH_TO_DATA_DIR, congress, docType)
@@ -442,7 +444,7 @@ def getSimilarsMax(similarBillNumbers: List[str]):
   for i, similarBillNumber in enumerate(similarBillNumbers):
     print(compareMatrix[0][i])
     # Only get the first row of the matrix
-    if compareMatrix[0][i].get('Explanation') in ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']:
+    if compareMatrix[0][i].get('Explanation') in NEAR_IDENTICAL_LIST:
       compareMatrix[0][i]['billnumber_version'] = similarBillNumber
       compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
       similarsMax.append(compareMatrix[0][i])

@@ -25,9 +25,7 @@ def sortRelatedBills(bill: dict) -> int:
     return sortScore
 
 def cleanReason(reason: str):
-    print('Pre: ' + reason)
     r1 = re.sub(r'_([a-z]*)_([a-z]*)_',r'\1 \2', reason)
-    print(r1)
     return r1.replace('_', '')
 
 def cleanReasons(reasons: List[str]):
@@ -158,8 +156,6 @@ class Bill(models.Model):
             related_bills.append(bill_dict)
 
         sorted_related_bills = sorted(related_bills, key=lambda k: k['score'], reverse=True)
-        # reason is out of order here, with 'section match' first
-        # print(sorted_related_bills)
         self_index = next((index for (index, d) in enumerate(sorted_related_bills) \
             if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
         if self_index:

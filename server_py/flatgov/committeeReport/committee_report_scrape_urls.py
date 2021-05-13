@@ -6,7 +6,6 @@ from pathlib import Path
 from datetime import datetime
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
-print(BASE_DIR, '=============')
 FILE_PATH = os.path.join(BASE_DIR, 'commitee_report_detail_urls.json')
 
 def url(path):

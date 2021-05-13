@@ -36,6 +36,7 @@ class CSVReport(models.Model):
     file = models.FileField(upload_to='crs/', null=True)
     created = models.DateTimeField(auto_now_add=True)
     status = models.BooleanField(default=False)
+    log = models.CharField(max_length=500, blank=True, null=True)
 
     def save(self, *args, **kwargs):
         created = False

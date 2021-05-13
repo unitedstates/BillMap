@@ -21,6 +21,10 @@
                     <h5>Click the below link to download CSV file.</h5>
                     <br>
                     <a href="{{ file.file.url }}">{{ file.file.url }}</a>,&nbsp;
+                {% elif file.log %}
+                    <h5>Failed</h5>
+                    <br>
+                    <p>{{ file.log }}</p>
                 {% else %}
                     <h5>CSV file is generating... Please reload the page after a while...</h5>
                 {% endif %}

@@ -1,3 +1,5 @@
+from celery import current_app
+
 from django.conf import settings
 from django.db import models
 from bills.models import Bill
@@ -27,3 +29,29 @@ class CrsReport(models.Model):
 
     def __str__(self):
         return '"{}" [{}], {}'.format(self.title, self.date, self.file)
+
+
+class CSVReport(models.Model):
+    task_id = models.CharField(max_length=50, blank=True, null=True)
+    file = models.FileField(upload_to='crs/', null=True)
+    created = models.DateTimeField(auto_now_add=True)
+    status = models.BooleanField(default=False)
+
+    def save(self, *args, **kwargs):
+        created = False
+        if not self.pk:
+            created = True
+        super().save(*args, **kwargs)
+        if created:
+            current_app.send_task(
+                'crs.tasks.generate_csv_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+
+    def delete(self, using=None, keep_parents=False):
+        """
+        keep parents while deleting the contact list.
+        """
+        self.file.delete(save=False)
+        super().delete(using, keep_parents)

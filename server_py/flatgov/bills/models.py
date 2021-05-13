@@ -25,7 +25,9 @@ def sortRelatedBills(bill: dict) -> int:
     return sortScore
 
 def cleanReason(reason: str):
+    print('Pre: ' + reason)
     r1 = re.sub(r'_([a-z]*)_([a-z]*)_',r'\1 \2', reason)
+    print(r1)
     return r1.replace('_', '')
 
 def cleanReasons(reasons: List[str]):
@@ -151,7 +153,6 @@ class Bill(models.Model):
                 if bill_congress_type_number == self.bill_congress_type_number:
                     reasons = bill.get('reason', '').split(', ')
                     reasonString = getReasonString(['identical', *reasons])
-                    print(reasonString)
                     bill['reason'] = reasonString 
                     bill_dict['reason'] = reasonString 
             related_bills.append(bill_dict)
@@ -174,8 +175,11 @@ class Bill(models.Model):
         
         combined_related_bills = sorted(sorted_related_bills + filtered_similar_bills, key=sortRelatedBills, reverse=True)
 
-        return combined_related_bills[:MAX_RELATED_BILLS]
-
+        combined_related_bills_clean =  combined_related_bills[:MAX_RELATED_BILLS]
+        for item in combined_related_bills_clean:
+            if item.get('reason', ''):
+                item['reason'] = getReasonString(item['reason'].split(", "))
+        return combined_related_bills_clean
     def get_second_similar_bills(self, second_bill):
         res = list()
         dup_checker_list = list()

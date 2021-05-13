@@ -307,10 +307,12 @@ class BillDetailView(DetailView):
        return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
     
     def get_billnumbers_similar(self):
+          print('get_billnumbers_similar')
           return [ bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills]
 
     def get_current_bill_score(self):
+        print('get_current_bill_score')
         if self.object.bill_congress_type_number in self.get_billnumbers_similar():
             current_bill = next(
                 filter(
@@ -324,6 +326,7 @@ class BillDetailView(DetailView):
 
     #  Get identical or nearly identical bills with the following, or equivalent
     def get_identical_bill_numbers(self):
+        print('get_identical_bill_numbers')
         current_bill_score = self.get_current_bill_score()
         identical_bill_numbers =  [billnumber for billnumber in [bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills

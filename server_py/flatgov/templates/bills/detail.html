@@ -53,6 +53,14 @@
                         <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span id="rel-bill">{{rel_bill}}</span></a>{% if not forloop.last %}, {% endif %}
                         {% endfor %}
                     {% endif %}
+
+                    {% if identical_bill_numbers %}
+                        <h5><b>Identical or nearly identical Bills:</b></h5>
+
+                        {% for identical_bill in identical_bill_numbers|billnumbers_display %}
+                        <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span style="font-size: 14px;" id="identical-bill">{{identical_bill}}</span></a>{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    {% endif %}
     
                     <h5 class="mt-3"><b>Recent Actions (in focus):</b></h5>
                     <p >No info available</p>

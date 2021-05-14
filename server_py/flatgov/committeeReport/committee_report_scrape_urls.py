@@ -4,9 +4,9 @@ import json
 import time
 from pathlib import Path
 from datetime import datetime
+from common import constants
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent
-print(BASE_DIR, '=============')
 FILE_PATH = os.path.join(BASE_DIR, 'commitee_report_detail_urls.json')
 
 def url(path):
@@ -28,7 +28,7 @@ def get_detail_urls(last_congress):
         first_congress = 103
     with open(FILE_PATH, 'w') as crec_file:
         current_year = datetime.today().year
-        current_congress = (current_year - 1787) // 2
+        current_congress = constants.CURRENT_CONGRESS 
         for congress_number in range(current_congress, first_congress, -1):
             data = get_response_in_json(congress_number)
             #print(data['childNodes'].__len__())

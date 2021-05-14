@@ -18,7 +18,7 @@ from celery import states
 
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
-from bills.models import (Bill, Cosponsor, Statement, CboReport,
+from bills.models import (cleanReasons, Bill, Cosponsor, Statement, CboReport,
                           CommitteeDocument, PressStatementTask,
                           PressStatement)
 
@@ -48,6 +48,7 @@ BILLS_META_JSON_PATH = getattr(settings, "BILLS_META_JSON_PATH", None)
 RELATED_BILLS_JSON_PATH = getattr(settings, "RELATED_BILLS_JSON_PATH", None)
 TITLES_INDEX_JSON_PATH = getattr(settings, "TITLES_INDEX_JSON_PATH", None)
 SIMILARITY_THRESHOLD = .1
+IDENTICAL_REASONS = ['identical', 'nearly identical', 'title match']
 
 BILL_REGEX = r'([1-9][0-9]{2})([a-z]+)(\d+)'
 
@@ -133,6 +134,7 @@ class BillDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['identical_bill_numbers'] = self.get_identical_bill_numbers()
         context['cosponsors_dict'] = self.get_cosponsors_dict()
         context['committees_dict'] = self.object.committees_dict
         context['committees_dict_deduped'] = self.get_committees_dict_deduped()
@@ -245,7 +247,7 @@ class BillDetailView(DetailView):
            except Exception as err:
                pass
            if sponsors:
-               print(sponsors[0])
+               #print(sponsors[0])
                cosponsors.remove(sponsors[0])
                cosponsors.insert(0, sponsors[0])
            else:
@@ -253,13 +255,10 @@ class BillDetailView(DetailView):
        # Add party from Cosponsors table
        unoriginal_cosponsors = []
        sorted_unoriginal_ranked_cosponsors = []
-       sorted_unoriginal_unranked_cosponsors = []
        unoriginal_unranked_cosponsors = []
        original_cosponsors = []
-       sorted_original_cosponsors = []#
        sorted_original_ranked_cosponsors = []#
        original_unranked_cosponsors = []#
-       insert_count = 0
        for i, cosponsor in enumerate(cosponsors):
            bioguide_id = cosponsor.get("bioguide_id", "")
            committee_id = cosponsor.get('committee_id')
@@ -304,12 +303,14 @@ class BillDetailView(DetailView):
 
        return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
     
-    # Fraction difference in score that will still be considered identical
-    def get_cosponsors_for_same_bills(self):
-        committees_map = self.get_committees_map()
-        billnumbers_similar = [ bill.get('bill_congress_type_number', '')
+    def get_billnumbers_similar(self):
+          #print('get_billnumbers_similar')
+          return [ bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills]
-        if self.object.bill_congress_type_number in billnumbers_similar:
+
+    def get_current_bill_score(self):
+        #print('get_current_bill_score')
+        if self.object.bill_congress_type_number in self.get_billnumbers_similar():
             current_bill = next(
                 filter(
                     lambda bill: bill.get('bill_congress_type_number') == self.
@@ -317,16 +318,24 @@ class BillDetailView(DetailView):
                     self.object.get_similar_bills))
             current_bill_score = current_bill.get('score')
         else:
-            current_bill_score = 0
-        billnumbers = [
-            bill.get('bill_congress_type_number', '')
+            current_bill_score = 0           
+        return current_bill_score
+
+    #  Get identical or nearly identical bills with the following, or equivalent
+    def get_identical_bill_numbers(self):
+        #print('get_identical_bill_numbers')
+        current_bill_score = self.get_current_bill_score()
+        identical_bill_numbers =  [billnumber for billnumber in [bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills
-            if ('identical' in bill.get('reason') or 'title match' in bill.get(
-                'reason') or (current_bill_score > 0 and
-                              (abs(bill.get('score') - current_bill_score) /
-                               current_bill_score < SIMILARITY_THRESHOLD)))
-        ]
-        billnumbers = [billnumber for billnumber in billnumbers if billnumber]
+            if (any(x in cleanReasons(bill.get('reason').split(", ")) for x in IDENTICAL_REASONS)
+            or (current_bill_score > 0 and (abs(bill.get('score') - current_bill_score) / current_bill_score < SIMILARITY_THRESHOLD)))]
+            if billnumber]
+        return identical_bill_numbers
+
+    # SIMILARITY_THRESHOLD: Fraction difference in score that will still be considered identical
+    def get_cosponsors_for_same_bills(self):
+        committees_map = self.get_committees_map()
+        billnumbers = self.get_identical_bill_numbers()
         if self.object.bill_congress_type_number not in billnumbers:
             billnumbers = [self.object.bill_congress_type_number, *billnumbers]
         billids = Bill.objects.filter(

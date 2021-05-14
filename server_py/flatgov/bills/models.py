@@ -1,6 +1,8 @@
 from collections import Counter
 from datetime import datetime
 from operator import itemgetter
+import re
+from typing import List
 
 from django.db import models
 from django.conf import settings
@@ -22,6 +24,21 @@ def sortRelatedBills(bill: dict) -> int:
         sortScore = bill.get('score', 0)
     return sortScore
 
+def cleanReason(reason: str):
+    r1 = re.sub(r'_([a-z]*)_([a-z]*)_',r'\1 \2', reason)
+    return r1.replace('_', '')
+
+def cleanReasons(reasons: List[str]):
+    reasons = [cleanReason(reason) for reason in reasons if reason is not None]
+    if 'identical' in reasons and 'nearly identical' in reasons:
+        reasons.remove('nearly identical')
+    if reasons and len(reasons) > 0:
+       return reasons
+    else:
+        return []
+
+def getReasonString(reasons: List[str]):
+    return ', '.join(list(dict.fromkeys(cleanReasons(reasons))))
 class Bill(models.Model):
     bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
     type = models.CharField(max_length=40, null=True, blank=True)
@@ -71,7 +88,7 @@ class Bill(models.Model):
         result = list()
         related_dict = self.related_dict
         for congress, value in related_dict.items():
-            if not value.get('cosponsors'):
+            if type(value) is not dict or not value.get('cosponsors'):
                 continue
             if congress == self.bill_congress_type_number:
                 continue
@@ -82,6 +99,7 @@ class Bill(models.Model):
             else:
                 continue
         return result
+
 
 
     @property
@@ -111,24 +129,30 @@ class Bill(models.Model):
         for bill_congress_type_number, bill in self.related_dict.items():
             if bill_congress_type_number in similar_bill_numbers:
                 bill_dict = similar_bills[similar_bill_numbers.index(bill_congress_type_number)]
-                reason = f"{bill.get('reason')}, section match"
+                reasons = [*(bill.get('reason').split(", ")), "section match"]
                 
                 # Deduplicate and remove 'None'
-                bill_dict['reason'] = ', '.join(list(set([reasonItem for reasonItem in reason.split(', ') if reasonItem != 'None'])))
+                reasonString = getReasonString(reasons)
+                bill_dict['reason'] = reasonString
                 bill_dict['identified_by'] = bill.get('identified_by')
                 if bill_congress_type_number == self.bill_congress_type_number:
-                    bill_dict['reason'] = 'identical, section match'+ bill.get('reason', '')
-                    bill_dict['reason'] = ', '.join(list(set([reasonItem for reasonItem in bill.get('reason', '').split(', ') if reasonItem != 'None'])))
+                    reasons = ["identical", *(bill.get('reason', '').split(", ")), "section match"]
+                    reasonString = getReasonString(reasons)
+                    bill_dict['reason'] = reasonString
 
             else:
                 bill_dict = bill
+                if type(bill_dict) is not dict:
+                    continue
                 bill_dict['bill_congress_type_number'] = bill_congress_type_number
                 bill_dict['score'] = 0
                 if bill.get('titles'):
                     bill_dict['title'] = ", ".join(bill.get('titles'))
                 if bill_congress_type_number == self.bill_congress_type_number:
-                    bill['reason'] = 'identical, ' + bill.get('reason', '')
-                    bill_dict['reason'] = ', '.join(list(set([reasonItem for reasonItem in bill.get('reason', '').split(', ') if reasonItem != 'None'])))
+                    reasons = bill.get('reason', '').split(', ')
+                    reasonString = getReasonString(['identical', *reasons])
+                    bill['reason'] = reasonString 
+                    bill_dict['reason'] = reasonString 
             related_bills.append(bill_dict)
 
         sorted_related_bills = sorted(related_bills, key=lambda k: k['score'], reverse=True)
@@ -147,8 +171,11 @@ class Bill(models.Model):
         
         combined_related_bills = sorted(sorted_related_bills + filtered_similar_bills, key=sortRelatedBills, reverse=True)
 
-        return combined_related_bills[:MAX_RELATED_BILLS]
-
+        combined_related_bills_clean =  combined_related_bills[:MAX_RELATED_BILLS]
+        for item in combined_related_bills_clean:
+            if item.get('reason', ''):
+                item['reason'] = getReasonString(item['reason'].split(", "))
+        return combined_related_bills_clean
     def get_second_similar_bills(self, second_bill):
         res = list()
         dup_checker_list = list()
@@ -170,7 +197,7 @@ class Bill(models.Model):
 
                 if bill_number == second_bill and dup_checker not in dup_checker_list:
                     dup_checker_list.append(dup_checker)
-                    dup_checker_list = list(set(dup_checker_list))
+                    dup_checker_list = list(dict.fromkeys(dup_checker_list))
                     similar['target_billnumber'] = target_billnumber
                     similar['target_section_header'] = target_section_header
                     similar['target_section_number'] = target_section_number

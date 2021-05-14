@@ -42,6 +42,7 @@ PATH_BILL_FULL_JSON = os.path.join(
 PATH_TO_BILLS_META = os.path.join(BASE_DIR, 'billsMeta.json')
 PATH_TO_BILLS_META_GO = os.path.join(BASE_DIR, 'billMetaGo.json')
 BILLMETA_GO_CMD = 'billmeta'
+COMPAREMATRIX_GO_CMD = 'comparematrix'
 PATH_TO_CONGRESSDATA_DIR = CONGRESS_DATA_PATH
 PATH_TO_DATA_DIR = os.getenv('PATH_TO_DATA_DIR', os.path.join('/', *"/usr/local/share/xcential/public/data".split('/')))
 PATH_TO_CONGRESSDATA_XML_DIR = os.getenv('PATH_TO_CONGRESSDATA_XML_DIR', os.path.join('/', *"/usr/local/share/xcential/public/data/116/dtd".split('/')))

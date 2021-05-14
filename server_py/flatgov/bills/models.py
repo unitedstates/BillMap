@@ -104,7 +104,6 @@ class Bill(models.Model):
 
     @property
     def get_similar_bills(self):
-        print('get similar bills')
         res = list()
         for billnumber, similarBillItem in self.es_similar_bills_dict.items():
             qs_bill = Bill.objects.filter(

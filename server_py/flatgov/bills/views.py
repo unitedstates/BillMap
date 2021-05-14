@@ -326,7 +326,7 @@ class BillDetailView(DetailView):
 
     #  Get identical or nearly identical bills with the following, or equivalent
     def get_identical_bill_numbers(self):
-        print('get_identical_bill_numbers')
+        #print('get_identical_bill_numbers')
         current_bill_score = self.get_current_bill_score()
         identical_bill_numbers =  [billnumber for billnumber in [bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills

@@ -21,9 +21,11 @@
 }
 
 .tab-content {
-    background-color: #d4d4d4 !important;
+    background-color: #1D4E70 !important;
     border-radius: 0px 15px 15px 15px !important;
+    color: white;
 }
+
 .pre-wrapper pre {
   white-space: pre-wrap;
   word-break: keep-all;
@@ -31,6 +33,18 @@
   font-family: 'Public Sans', sans-serif;
 }
 
+.section-container {
+    background-color: #1D4E70;
+    border-radius: 10px;
+}
+
+div.dataTables_scrollHead table {
+    border-radius: 10px 10px 0 0 ;
+}
+
+div.dataTables_scrollBody {
+    border-radius: 0px 0px 10px 10px !important;
+}
 .table {
     font-size: small;
     width: 100% !important;
@@ -67,6 +81,7 @@
 .dataTables_info {
     font-size: small;
     font-weight: bold;
+    color: white;
 }
 
 .dataTables_filter {
@@ -76,6 +91,37 @@ div.dataTables_wrapper div.dataTables_filter input {
     border-radius: 10px;
     border-color: #000000;
     
+}
+
+#wrap {
+    background-color: #2D4059;
+    border-radius: 10px;
+}
+
+.fc-scrollgrid {
+    background-color: white;
+    border-radius: 10px;
+    padding: 10px 30px 10px 30px;
+}
+
+.fc-button {
+    background-color: white !important;
+    color: black !important;
+}
+
+.fc-toolbar-title {
+    color: white;
+}
+
+#calendar-key {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    ;
+}
+
+.fc-button:hover {
+    background-color: rgb(219, 219, 219) !important;
 }
 
 div.dataTables_wrapper div.dataTables_scroll {
@@ -101,7 +147,6 @@ div.dataTables_wrapper div.dataTables_scroll {
 .light-gray-body {
     background-color: #f7f7f7;
     border-radius: 10px;
-    box-shadow: 3px 4px 4px #d4d4d4;
 }
 
 .light-gray-tabs {
@@ -118,8 +163,9 @@ div.dataTables_wrapper div.dataTables_scroll {
 }
 
 .nav-link.active {
-    background-color: #D7D7D7 !important;
-    border-color: #D7D7D7 !important;
+    background-color: #1D4E70 !important;
+    border-color: #1D4E70 !important;
+    color: white !important;
 }
 
 .nav-tabs {

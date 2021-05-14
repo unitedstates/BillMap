@@ -600,6 +600,7 @@ def processBills(congresses: list=CONGRESS_LIST_DEFAULT, docType: str='dtd', usc
       except Exception as err:
         print('Could not process for similarity: {0}'.format(str(err)))
         pass
+    number_of_bills_total += number_of_bills
     print(str(datetime.now()) + ' - Finished Similarity for congress: {0}'.format(congress))
     print(str(datetime.now()) + 'Processed {0} bills'.format(str(number_of_bills)))
   print(str(datetime.now()) + ' - Finished Similarity for all congresses: {0}'.format(', '.join(congresses)))

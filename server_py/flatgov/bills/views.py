@@ -247,7 +247,7 @@ class BillDetailView(DetailView):
            except Exception as err:
                pass
            if sponsors:
-               print(sponsors[0])
+               #print(sponsors[0])
                cosponsors.remove(sponsors[0])
                cosponsors.insert(0, sponsors[0])
            else:
@@ -255,13 +255,10 @@ class BillDetailView(DetailView):
        # Add party from Cosponsors table
        unoriginal_cosponsors = []
        sorted_unoriginal_ranked_cosponsors = []
-       sorted_unoriginal_unranked_cosponsors = []
        unoriginal_unranked_cosponsors = []
        original_cosponsors = []
-       sorted_original_cosponsors = []#
        sorted_original_ranked_cosponsors = []#
        original_unranked_cosponsors = []#
-       insert_count = 0
        for i, cosponsor in enumerate(cosponsors):
            bioguide_id = cosponsor.get("bioguide_id", "")
            committee_id = cosponsor.get('committee_id')
@@ -307,12 +304,12 @@ class BillDetailView(DetailView):
        return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
     
     def get_billnumbers_similar(self):
-          print('get_billnumbers_similar')
+          #print('get_billnumbers_similar')
           return [ bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills]
 
     def get_current_bill_score(self):
-        print('get_current_bill_score')
+        #print('get_current_bill_score')
         if self.object.bill_congress_type_number in self.get_billnumbers_similar():
             current_bill = next(
                 filter(

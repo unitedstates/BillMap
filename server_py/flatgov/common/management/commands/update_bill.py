@@ -3,6 +3,8 @@ import logging
 
 from django.core.management.base import BaseCommand
 from uscongress.handlers import govinfo, bills
+from common import constants
+
 
 GOVINFO_OPTIONS = {
     'collections': 'BILLS',
@@ -10,7 +12,7 @@ GOVINFO_OPTIONS = {
     'extract': 'mods,xml,premis',
 }
 
-CONGRESS = ['113', '114', '115', '116']
+CONGRESS = [constants.CURRENT_CONGRESS]
 
 BILLS_OPTIONS = {}
 

@@ -26,6 +26,9 @@
             <li class="nav-item">
                 <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="/about">About us</a>
             </li>
+            <li class="nav-item">
+                <a class="nav-link {% if request.resolver_match.url_name == 'csv-download' %}active{% endif %}" href="/crs/csv-download/">Download</a>
+            </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
             {% app_version as app_version %}

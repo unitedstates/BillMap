@@ -26,6 +26,36 @@
     {% endif %}
     <hr />
 </div>
+<div class="">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="bill light-gray-body p-4 h-100">
+                <h4 class="pb-2 text-center"><b>Overview</b></h4>
+                <h5><b>Bill Summary:</b></h5>
+                {% if bill.summary_short %}
+                <div class="pre-wrapper" style="font-size: 16px;"><pre>{{bill.summary_short}}</pre><div>
+                    
+                {% else %}
+                <div class="pre-wrapper" style="font-size: 16px;"><pre>{{ bill.summary |truncatewords_html:100 }}</pre></div>
+                {% endif %}
+                <!--
+                <h5><b>Bill Stage:</b></h5>
+                <p>Bill Stage will appear here</p> -->
+        
+                {% if bill.get_related_bill_numbers %}
+                    <h5><b>Related Bills:</b></h5>
+                    
+                    {% for rel_bill in bill.get_related_bill_numbers|billnumbers_by_congress:bill.congress|billnumbers_display %}
+                    <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span id="rel-bill">{{rel_bill}}</span></a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% if identical_bill_numbers %}
+                    <h5><b>Identical or nearly identical Bills:</b></h5>
+                    
+                    {% for identical_bill in identical_bill_numbers|billnumbers_display %}
+                    <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span style="font-size: 14px;" id="identical-bill">{{identical_bill}}</span></a>{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                {% endif %}
 
 <div>
     <div class="row">

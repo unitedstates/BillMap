@@ -1,6 +1,10 @@
 import csv
+from django.views.generic import TemplateView
+from django.shortcuts import render
 from django.http import HttpResponse
-from crs.models import CrsReport
+from django.contrib import messages
+
+from crs.models import CSVReport, CrsReport
 
 
 def csv_report(request):
@@ -23,3 +27,22 @@ def csv_report(request):
             ])
     writer.writerows(report_content)
     return response
+
+
+class CSVDownloadView(TemplateView):
+    template_name = 'CRSDownload.html'
+
+    def post(self, request, *args, **kwargs):
+        report = CSVReport.objects.first()
+        if report:
+            report.delete()
+
+        report = CSVReport.objects.create()
+
+        messages.success(request, 'Please wait for a while...')
+        return render(request, self.template_name, {'file': report})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['file'] = CSVReport.objects.first()
+        return context

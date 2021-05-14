@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    strong {
+        font-weight: bolder;
+    }
+</style>
+<div class="d-flex justify-content-center">
+    <div class=" my-5 container ml-4 mr-4">
+        <article class="mx-3 px-5">
+            <h3>Download CSR</h3>
+            <hr>
+            <form method="post">
+                {% csrf_token %}
+                <input type="submit" value="submit" class="btn btn-primary">
+            </form>
+            {% if file %}
+                <hr>
+                {% if file.file %}
+                    <h5>Click the below link to download CSV file.</h5>
+                    <br>
+                    <a href="{{ file.file.url }}">{{ file.file.url }}</a>,&nbsp;
+                {% elif file.log %}
+                    <h5>Failed</h5>
+                    <br>
+                    <p>{{ file.log }}</p>
+                {% else %}
+                    <h5>CSV file is generating... Please reload the page after a while...</h5>
+                {% endif %}
+            {% endif %}     
+        </article>
+    </div>    
+</div>
+
+{% endblock content %}

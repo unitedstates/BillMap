@@ -4,40 +4,44 @@
 
 {% url '/home' as home_path %}
 {% url '/about' as about_path %}
+<div class="row d-flex justify-content-center dark-blue-navbar">
+    <div class="col-md-10">
 
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <a class="navbar-brand" href="/home"><img src="{% static '/images/billmap_logo.png' %}" style="height: 50px;" alt=""></a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div class="collapse navbar-collapse" id="navbarSupportedContent">
-        <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home:home' %}">Home</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'bill-list' or request.resolver_match.url_name == 'bill-detail' or request.resolver_match.url_name  == 'bill-to-bill'  %}active{% endif %}" title="bills" href="/bills">Bills</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" title="documentation" href="/static/docs/index.html">Documentation</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="/about">About us</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link {% if request.resolver_match.url_name == 'csv-download' %}active{% endif %}" href="/crs/csv-download/">Download</a>
-            </li>
-        </ul>
-        <form class="form-inline my-2 my-lg-0">
-            {% app_version as app_version %}
-            <span class="mr-4 text-danger">
-                {{ app_version }}
-            </span>
-            <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-                Login
+        <nav class="navbar navbar-expand-lg navbar-light">
+            <a class="navbar-brand" href="/home"><img src="{% static '/images/billmap_logo.png' %}" style="height: 100px;" alt=""></a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
             </button>
-        </form>
+        
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a class="navbar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home:home' %}">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="navbar-link {% if request.resolver_match.url_name == 'bill-list' or request.resolver_match.url_name == 'bill-detail' or request.resolver_match.url_name  == 'bill-to-bill'  %}active{% endif %}" title="bills" href="/bills">Bills</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="navbar-link" title="documentation" href="/static/docs/index.html">Documentation</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="navbar-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="/about">About us</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="navbar-link {% if request.resolver_match.url_name == 'csv-download' %}active{% endif %}" href="/crs/csv-download/">Download</a>
+                    </li>
+                </ul>
+                <form class="form-inline my-2 my-lg-0">
+                    {% app_version as app_version %}
+                    <span class="mr-4 text-danger">
+                        {{ app_version }}
+                    </span>
+                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
+                        Login
+                    </button>
+                </form>
+            </div>
+        </nav>
     </div>
-</nav>
+</div>

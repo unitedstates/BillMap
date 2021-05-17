@@ -52,6 +52,7 @@ scrapelib==1.2.0
 Scrapy==2.4.1
 service-identity==18.1.0
 six==1.15.0
+sorl-thumbnail==12.7.0
 soupsieve==2.2
 sqlparse==0.3.1
 tenacity==7.0.0

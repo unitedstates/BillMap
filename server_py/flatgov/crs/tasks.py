@@ -13,8 +13,8 @@ def generate_csv_task(self, pk):
     csv_report.save(update_fields=['task_id'])
 
     try:
-        header_row = ['Bill #', 'Report title', 'Report file path',
-                        'Report date']
+        header_row = ['Bill #', 'Report Date', 'Report Title',
+                        'Report Metadata url', 'Report HTML url']
         csv_buffer = StringIO()
         csv_writer = csv.writer(csv_buffer)
         csv_writer.writerow(header_row)

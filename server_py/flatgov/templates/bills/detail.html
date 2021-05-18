@@ -330,9 +330,9 @@
                             <tr>
                                 <th scope="col">Co-sponsor</th>
                                 <th scope="col">Bills</th>
-                                <th scope="col">Title</th>
                                 <th scope="col">Current Assigned Committees</th>
                                 <th scope="col">Party</th>
+                                <th scope="col">Rank</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -340,7 +340,6 @@
                             <tr>
                                 <td>{{ cosponsor.name_full_official }}</td>
                                 <td>{{ cosponsor.bill_congress_type_numbers|billnumbers_display|join:", "}}</td>
-                                <td></td>
                                 <td>
                                     {{ cosponsor.committees_named|join:", " }}
                                 </td>

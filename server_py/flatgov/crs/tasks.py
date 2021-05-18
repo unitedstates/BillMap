@@ -13,21 +13,20 @@ def generate_csv_task(self, pk):
     csv_report.save(update_fields=['task_id'])
 
     try:
-        row = ['Report ID', 'Bill #', 'Report title', 'Report file path',
-                        'Report date', 'Has metadata', 'Has report content']
+        header_row = ['Bill #', 'Report title', 'Report file path',
+                        'Report date']
         csv_buffer = StringIO()
         csv_writer = csv.writer(csv_buffer)
+        csv_writer.writerow(header_row)
                 
         for report in CrsReport.objects.all().iterator():
             for bill in report.bills.all().iterator():
                 csv_writer.writerow([
-                    report.pk,
-                    bill.number,
-                    report.title,
-                    report.get_report_file_path(),
+                    bill.bill_congress_type_number,
                     report.date,
-                    report.metadata is not None,
-                    report.report_content_raw != ''
+                    report.title,
+                    report.meta_url,
+                    report.html_url
                 ])
         content_file = ContentFile(csv_buffer.getvalue().encode('utf-8'))
         csv_report.file.save('crs_reports.csv', content_file)

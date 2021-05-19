@@ -25,8 +25,9 @@ def sortRelatedBills(bill: dict) -> int:
     return sortScore
 
 def cleanReason(reason: str):
-    r1 = re.sub(r'_([a-z]*)_([a-z]*)_',r'\1 \2', reason)
-    return r1.replace('_', '')
+    r1 = re.sub(r'bills-',r'', reason)
+    r2 = re.sub(r'_([a-z]*)_([a-z]*)_',r'\1 \2', r1)
+    return r2.replace('_', '')
 
 def cleanReasons(reasons: List[str]):
     reasons = [cleanReason(reason) for reason in reasons if reason is not None]

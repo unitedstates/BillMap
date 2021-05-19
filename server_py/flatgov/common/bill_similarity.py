@@ -15,7 +15,7 @@ from iteration_utilities import flatten, unique_everseen, duplicates
 from common.utils import getText, getBillNumberFromBillPath, getBillNumberFromCongressScraperBillPath 
 from django.conf import settings
 from common import constants
-from bills.models import Bill
+from bills.models import Bill, MAX_RELATED_BILLS
 
 bill_file = "BILLS-116hr1500rh.xml"
 bill_file2 = "BILLS-116hr299ih.xml"
@@ -26,7 +26,17 @@ BASE_DIR = settings.BASE_DIR
 # The max number of bills to get for each section
 MAX_BILLS_SECTION = 20
 
-NEAR_IDENTICAL_LIST = ['bills-incorporates', 'bills-incorporated_by', 'bills-nearly_identical', 'bills-identical']
+REASON_ORDER_DICT = {
+  'bills-identical': 1,
+  'identical': 2,
+  'bills-nearly_identical': 3,
+  'bills-title_match': 4,
+  'bills-incorporates': 5,
+  'bills-incorporated_by': 6,
+  'related': 7
+}
+NEAR_IDENTICAL_LIST = ['bills-incorporates', 'bills-incorporated_by', 'bills-nearly_identical', 'bills-identical', 'bills-title_match']
+NEAR_IDENTICAL_REASON = 'bills-nearly_identical'
 
 def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO, size: int=10) -> dict:
   query = query
@@ -357,30 +367,17 @@ def getSimilarSections(res):
     return []
 
 SIMILARITY_THRESHOLD = .1
-def topSimilarBills(billnumber: str, similarBills: List[dict] ):
-  billnumbers_similar = [ bill.get('bill_congress_type_number', '')
-            for bill in similarBills]
-  if billnumber in billnumbers_similar:
-    current_bill = next(filter(
-      lambda bill: bill.get('bill_congress_type_number') == billnumber,
-      similarBills))
-    current_bill_score = current_bill.get('score')
-  else:
-    current_bill_score = 0
-  billnumbers = [
-    bill.get('bill_congress_type_number', '')
-    for bill in similarBills
-    if ('identical' in bill.get('reason', '')
-    or 'title' in bill.get('reason', '')
-    or (current_bill_score > 0 and
-                              (abs(bill.get('score') - current_bill_score) /
-                               current_bill_score < SIMILARITY_THRESHOLD)))
-        ]
-  billnumbers = [billnumber for billnumber in billnumbers if billnumber]
-  if billnumber not in billnumbers:
-    billnumbers = [billnumber, *billnumbers]
+def orderBills(similarBills: dict) -> List[dict]:
+  """
+  Get the bills in order by total section-level score, up to MAX_RELATED_BILLS (=30) 
 
-def topBillScores(similarBills: dict):
+  Args:
+      similarBills (dict):  {billversion: {data for bills}}
+
+  Returns:
+      List[dict]: List of bills in the form [{bill_number_version: 116hr200ih, score: 86.4 }, ...]
+  """
+
   topBills = []
   z = len(topBills)
   for billnumber, similarsections in similarBills.items():
@@ -388,8 +385,9 @@ def topBillScores(similarBills: dict):
     topBills.append(billitem)
   topBills.sort(key=lambda x: x.get('score', 0), reverse=True)
   print(topBills)
-  if len(topBills) > 30:
-    return topBills[0:29]
+  if len(topBills) > MAX_RELATED_BILLS:
+    maxMinus = MAX_RELATED_BILLS-1
+    return topBills[0:maxMinus]
   else:
     return topBills
 
@@ -425,33 +423,31 @@ def getSimilarityMatrix(billnumber_versions: List[str]):
       print('Could not parse comparison matrix: {0}'.format(str(err)))
       return [[]]
 
-def getSimilarsMax(similarBillNumbers: List[str]):
+def getSimilarityList(similarBillNumbers: List[str]):
   """
   Uses getSimilarityMatrix and then returns a list of bills related to the first bill,
-  that are identical, nearly identical, incorporated or incorporate
 
   Args:
       similarBillNumbers (List[str]): list of billnumbers (with version) to compare 
 
   Returns:
-      similarsMax: list of most similar bills
-    E.g. [{'Score': 1, 'Explanation': 'bill-identical', 'ComparedDocs': '116s1970-116s1970', 'billnumber_version': '116s1970is', 'billnumber': '116s1970'}, 
+      similarityList: list of bills with score and explanations
+    E.g. [{'Score': 1, 'Explanation': 'bills-identical', 'ComparedDocs': '116s1970-116s1970', 'billnumber_version': '116s1970is', 'billnumber': '116s1970'}, 
     {'Score': 0.9, 'Explanation': 'bills-nearly_identical', 'ComparedDocs': '116s1970-116hr3463', 'billnumber_version': '116hr3463ih', 'billnumber': '116hr3463'}] 
   """
   compareMatrix = getSimilarityMatrix(similarBillNumbers)
   if not compareMatrix:
     return []
   #print(compareMatrix)
-  similarsMax = []
+  similarityList = []
   for i, similarBillNumber in enumerate(similarBillNumbers):
     print(compareMatrix[0][i])
     # Only get the first row of the matrix
-    if compareMatrix[0][i].get('Explanation') in NEAR_IDENTICAL_LIST:
-      compareMatrix[0][i]['billnumber_version'] = similarBillNumber
-      compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
-      similarsMax.append(compareMatrix[0][i])
+    compareMatrix[0][i]['billnumber_version'] = similarBillNumber
+    compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
+    similarityList.append(compareMatrix[0][i])
   #print(similarsMax)
-  return similarsMax
+  return similarityList
 
 def processBill(bill_path: str=PATH_BILL):
   """
@@ -464,8 +460,6 @@ def processBill(bill_path: str=PATH_BILL):
   The es_similarity_dict is a dict of key:object pairs with the key as the bill number and the object
   as a list of objects, each of which is a matching section. So two bills that have a lot of similarity will have
   many sections in common, and a large total value. The top_similar are bills that are identical/nearly_identical/incorporated by/incorporates
-
-  TODO: consider pre-processing get_similar_bills from bills.models
 
   Args:
       bill_path (str, optional): [description]. Defaults to PATH_BILL.
@@ -543,16 +537,47 @@ def processBill(bill_path: str=PATH_BILL):
 
     bill.es_similarity = es_similarity
 
-    similarBillNumbers = [ billnumber_version, *[item.get('bill_number_version') for item in topBillScores(similarBills) if stripBillVersion(item.get('bill_number_version')) != billnumber ]]
+    topBills = orderBills(similarBills)
+    current_bill_score = 0
+    current_bill = next(
+                filter(
+                    lambda billItem: billItem.get('bill_congress_type_number') == billnumber,
+                    topBills))
+
+    nearlyIdenticalBills = []
+    if current_bill:
+      current_bill_score = current_bill.get('score')
+      for billItem in topBills:
+        if abs(billItem.get('score') - current_bill_score) / current_bill_score < SIMILARITY_THRESHOLD:
+          # add this item to related bills with 'bills-nearly_identical' or update related bills
+          nearlyIdenticalBills.append(billItem.get('bill_congress_type_number'))
+          
+
+    similarBillNumbers = [ billnumber_version, *[item.get('bill_number_version') for item in topBills if stripBillVersion(item.get('bill_number_version', '')) != billnumber ]]
     #print(similarBillNumbers)
 
-    similarsMax = getSimilarsMax(similarBillNumbers) 
-    # Add similarsMax information to related_dict
+    similarityList = getSimilarityList(similarBillNumbers) 
+    # Add similarityList information to related_dict
     related_dict = bill.related_dict
-    for similarBill in similarsMax:
-      if related_dict.get(similarBill.get('billnumber')):
-        related_dict[similarBill.get('billnumber')]['reason'] = related_dict[similarBill.get('billnumber')]['reason'] + ", " + similarBill.get('Explanation')
-        # TODO fix sort order of 'reason'
+    for similarBill in similarityList:
+      
+      # Skip items that are not in the 'nearly identical' categories
+      similarBillNumber = similarBill.get('billnumber')
+      similarBillExplanation = similarBill.get('Explanation', '')
+      if similarBillNumber not in nearlyIdenticalBills and similarBillExplanation not in NEAR_IDENTICAL_LIST:
+        continue
+      related_dict_for_bill = related_dict.get(similarBillNumber)
+      if related_dict_for_bill:
+        reasonList = [*(related_dict_for_bill['reason'].split(", ")), *(similarBillExplanation.split(", "))]
+        if similarBillNumber in nearlyIdenticalBills:
+          reasonList.append(NEAR_IDENTICAL_REASON)
+        
+        # Deduplicate and sort reasons
+        reasonList = sorted(list(set(reasonList)), key=lambda k: REASON_ORDER_DICT.get(k, 100))
+        
+        related_dict['reason'] = ", ".join(reasonList)
+
+
         if related_dict.get('identified_by', ''): 
           if 'BillMap' not in related_dict.get('identified_by', '').split(', '): 
             related_dict['identified_by'] = related_dict.get('identified_by', '') + ", BillMap" 

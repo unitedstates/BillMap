@@ -439,6 +439,8 @@ def getSimilarsMax(similarBillNumbers: List[str]):
     {'Score': 0.9, 'Explanation': 'bills-nearly_identical', 'ComparedDocs': '116s1970-116hr3463', 'billnumber_version': '116hr3463ih', 'billnumber': '116hr3463'}] 
   """
   compareMatrix = getSimilarityMatrix(similarBillNumbers)
+  if not compareMatrix:
+    return []
   #print(compareMatrix)
   similarsMax = []
   for i, similarBillNumber in enumerate(similarBillNumbers):

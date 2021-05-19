@@ -371,7 +371,7 @@ def topSimilarBills(billnumber: str, similarBills: List[dict] ):
     bill.get('bill_congress_type_number', '')
     for bill in similarBills
     if ('identical' in bill.get('reason', '')
-    or 'title match' in bill.get('reason', '')
+    or 'title' in bill.get('reason', '')
     or (current_bill_score > 0 and
                               (abs(bill.get('score') - current_bill_score) /
                                current_bill_score < SIMILARITY_THRESHOLD)))
@@ -450,7 +450,7 @@ def getSimilarsMax(similarBillNumbers: List[str]):
       compareMatrix[0][i]['billnumber_version'] = similarBillNumber
       compareMatrix[0][i]['billnumber'] = stripBillVersion(similarBillNumber)
       similarsMax.append(compareMatrix[0][i])
-  print(similarsMax)
+  #print(similarsMax)
   return similarsMax
 
 def processBill(bill_path: str=PATH_BILL):

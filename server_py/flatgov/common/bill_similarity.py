@@ -26,7 +26,7 @@ BASE_DIR = settings.BASE_DIR
 # The max number of bills to get for each section
 MAX_BILLS_SECTION = 20
 
-NEAR_IDENTICAL_LIST = ['_incorporates_', '_incorporated_by_', '_nearly_identical_', '_identical_']
+NEAR_IDENTICAL_LIST = ['bills-incorporates', 'bills-incorporated_by', 'bills-nearly_identical', 'bills-identical']
 
 def runQuery(index: str='billsections', query: dict=constants.SAMPLE_QUERY_NESTED_MLT_MARALAGO, size: int=10) -> dict:
   query = query
@@ -435,8 +435,8 @@ def getSimilarsMax(similarBillNumbers: List[str]):
 
   Returns:
       similarsMax: list of most similar bills
-    E.g. [{'Score': 1, 'Explanation': '_identical_', 'ComparedDocs': '116s1970-116s1970', 'billnumber_version': '116s1970is', 'billnumber': '116s1970'}, 
-    {'Score': 0.9, 'Explanation': '_nearly_identical_', 'ComparedDocs': '116s1970-116hr3463', 'billnumber_version': '116hr3463ih', 'billnumber': '116hr3463'}] 
+    E.g. [{'Score': 1, 'Explanation': 'bill-identical', 'ComparedDocs': '116s1970-116s1970', 'billnumber_version': '116s1970is', 'billnumber': '116s1970'}, 
+    {'Score': 0.9, 'Explanation': 'bills-nearly_identical', 'ComparedDocs': '116s1970-116hr3463', 'billnumber_version': '116hr3463ih', 'billnumber': '116hr3463'}] 
   """
   compareMatrix = getSimilarityMatrix(similarBillNumbers)
   #print(compareMatrix)
@@ -565,7 +565,7 @@ def processBill(bill_path: str=PATH_BILL):
           "identified_by": "BillMap"
         }
 
-    # Keep comparisons that are: _incorporates_, _incorporated_by_, _nearly_identical_ and _identical_
+    # Keep comparisons that are: bills-incorporates, bills-incorporated_by, bills-nearly_identical and bills-identical
       #for j, sB2 in enumerate(similarBillNumbers):
         #print('-'.join([similarBillNumber, sB2]))
         #print(compareMatrix[i][j])

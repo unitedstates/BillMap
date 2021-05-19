@@ -384,7 +384,6 @@ def orderBills(similarBills: dict) -> List[dict]:
     billitem = {'bill_number_version':similarsections[0].get('bill_number_version'), 'score': sum([item.get('score') for item in similarsections])}
     topBills.append(billitem)
   topBills.sort(key=lambda x: x.get('score', 0), reverse=True)
-  print(topBills)
   if len(topBills) > MAX_RELATED_BILLS:
     maxMinus = MAX_RELATED_BILLS-1
     return topBills[0:maxMinus]
@@ -538,20 +537,20 @@ def processBill(bill_path: str=PATH_BILL):
     bill.es_similarity = es_similarity
 
     topBills = orderBills(similarBills)
-    current_bill_score = 0
-    current_bill = next(
+    nearlyIdenticalBills = []
+    if topBills:
+      current_bill_score = 0
+      current_bill = next(
                 filter(
-                    lambda billItem: billItem.get('bill_congress_type_number') == billnumber,
+                    lambda billItem: re.sub(r'[a-z]*$', '', billItem.get('bill_number_version', '')) == billnumber,
                     topBills))
 
-    nearlyIdenticalBills = []
-    if current_bill:
-      current_bill_score = current_bill.get('score')
-      for billItem in topBills:
-        if abs(billItem.get('score') - current_bill_score) / current_bill_score < SIMILARITY_THRESHOLD:
+      if current_bill:
+        current_bill_score = current_bill.get('score')
+        for billItem in topBills:
+          if abs(billItem.get('score') - current_bill_score) / current_bill_score < SIMILARITY_THRESHOLD:
           # add this item to related bills with 'bills-nearly_identical' or update related bills
-          nearlyIdenticalBills.append(billItem.get('bill_congress_type_number'))
-          
+            nearlyIdenticalBills.append(re.sub(r'[a-z]*$', '', billItem.get('bill_number_version', '')))
 
     similarBillNumbers = [ billnumber_version, *[item.get('bill_number_version') for item in topBills if stripBillVersion(item.get('bill_number_version', '')) != billnumber ]]
     #print(similarBillNumbers)
@@ -564,13 +563,14 @@ def processBill(bill_path: str=PATH_BILL):
       # Skip items that are not in the 'nearly identical' categories
       similarBillNumber = similarBill.get('billnumber')
       similarBillExplanation = similarBill.get('Explanation', '')
-      if similarBillNumber not in nearlyIdenticalBills and similarBillExplanation not in NEAR_IDENTICAL_LIST:
+      if (similarBillNumber not in nearlyIdenticalBills) and (similarBillExplanation not in NEAR_IDENTICAL_LIST):
         continue
       related_dict_for_bill = related_dict.get(similarBillNumber)
       if related_dict_for_bill:
         reasonList = [*(related_dict_for_bill['reason'].split(", ")), *(similarBillExplanation.split(", "))]
-        if similarBillNumber in nearlyIdenticalBills:
+        if similarBillNumber in nearlyIdenticalBills and "bills-identical" not in reasonList:
           reasonList.append(NEAR_IDENTICAL_REASON)
+          continue
         
         # Deduplicate and sort reasons
         reasonList = sorted(list(set(reasonList)), key=lambda k: REASON_ORDER_DICT.get(k, 100))

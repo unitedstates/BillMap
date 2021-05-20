@@ -568,24 +568,24 @@ def processBill(bill_path: str=PATH_BILL):
       related_dict_for_bill = related_dict.get(similarBillNumber)
       if related_dict_for_bill:
         reasonList = [*(related_dict_for_bill['reason'].split(", ")), *(similarBillExplanation.split(", "))]
-        if similarBillNumber in nearlyIdenticalBills and "bills-identical" not in reasonList:
+        if similarBillNumber in nearlyIdenticalBills and ("bills-identical" not in reasonList):
           reasonList.append(NEAR_IDENTICAL_REASON)
           continue
         
         # Deduplicate and sort reasons
         reasonList = sorted(list(set(reasonList)), key=lambda k: REASON_ORDER_DICT.get(k, 100))
         
-        related_dict['reason'] = ", ".join(reasonList)
+        related_dict[similarBillNumber]['reason'] = ", ".join(reasonList)
 
 
-        if related_dict.get('identified_by', ''): 
-          if 'BillMap' not in related_dict.get('identified_by', '').split(', '): 
-            related_dict['identified_by'] = related_dict.get('identified_by', '') + ", BillMap" 
+        if related_dict_for_bill.get('identified_by', ''): 
+          if 'BillMap' not in related_dict_for_bill.get('identified_by', '').split(', '): 
+            related_dict[similarBillNumber]['identified_by'] = related_dict[similarBillNumber].get('identified_by', '') + ", BillMap" 
         else:
-          related_dict['identified_by'] = "BillMap"
+          related_dict[similarBillNumber]['identified_by'] = "BillMap"
 
       else:
-        related_dict[similarBill.get('billnumber')] = {
+        related_dict[similarBillNumber] = {
           "bill_congress_type_number": similarBill.get('billnumber'),
           "bill_congress_type_number_version": similarBill.get('billnumber_version'),
           "reason": similarBill.get('Explanation'),

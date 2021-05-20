@@ -30,7 +30,7 @@ def cleanReason(reason: str):
     return r2.replace('_', ' ')
 
 def cleanReasons(reasons: List[str]):
-    reasons = [cleanReason(reason) for reason in reasons if reason is not in [None, 'some similarity']]
+    reasons = [cleanReason(reason) for reason in reasons if reason not in [None, 'some similarity']]
     if 'identical' in reasons and 'nearly identical' in reasons:
         reasons.remove('nearly identical')
     if reasons and len(reasons) > 0:

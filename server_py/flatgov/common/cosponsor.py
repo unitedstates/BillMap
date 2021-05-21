@@ -287,7 +287,9 @@ def updateBillCosponsorJoinTable():
     print('Adding cosponsors for ', bCTN)
     cosponsors_dict = bill.cosponsors_dict
     sponsor = bill.sponsor
-    if sponsor and cosponsors_dict:
+    if sponsor and not cosponsors_dict:
+      cosponsors_dict = [sponsor]
+    elif sponsor and cosponsors_dict:
       cosponsors_dict.append(sponsor)
     for cosponsor_item in cosponsors_dict:
       bioguide_id = cosponsor_item.get('bioguide_id', '')

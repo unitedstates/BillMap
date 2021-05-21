@@ -95,6 +95,7 @@
                                             <th scope="col">Current Assigned Committees</th>
                                             <th scope="col">Party</th>
                                             <th scope="col">Rank</th>
+                                            <th scope="col">Currently in Congress</th>
                                         </tr>
                                     </thead>
                                     <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
@@ -109,6 +110,13 @@
                                             <td>{{ cosponsor.committee_name }}</td>
                                             <td>{{ cosponsor.party|slice:":1" }}</td>
                                             <td>{{ cosponsor.rank }}</td>
+                                            <td>
+                                                {% if cosponsor.current %}
+                                                    Yes 
+                                            {% else %}
+                                                No
+                                            {% endif %}
+                                            </td>
                                         </tr>
                                         {% endfor %}
                                     </tbody>
@@ -347,6 +355,7 @@
                                 <td>
                                     {{cosponsor.ranks|join:", "}}
                                 </td>
+                                
                             </tr>
                             {% endfor %}
                         </tbody>

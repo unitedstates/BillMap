@@ -139,7 +139,6 @@ class BillDetailView(DetailView):
         context['committees_dict'] = self.object.committees_dict
         context['committees_dict_deduped'] = self.get_committees_dict_deduped()
         context['committees_map'] = self.get_committees_map()
-        context['cosponsors'] = self.get_cosponsors()
         context['statements'] = self.get_related_statements()
         context['committees'] = self.get_related_committees()
         context['crs_reports'] = self.get_crs_reports()
@@ -212,27 +211,6 @@ class BillDetailView(DetailView):
             for committee in deduped
         }
 
-    def get_cosponsors(self):
-        cosponsor_bioguides = [
-            item.get('bioguide_id') for item in self.object.cosponsors_dict
-        ]
-        cosponsor_ids = [
-            item.get('id') for item in list(
-                Cosponsor.objects.filter(
-                    bioguide_id__in=cosponsor_bioguides).values('id'))
-        ]
-        sponsor_name = self.object.sponsor.get('name')
-        if sponsor_name:
-            sponsor = Cosponsor.objects.filter(name=sponsor_name).first()
-            if sponsor:
-                sponsor_id = sponsor.pk
-                cosponsor_ids.append(sponsor_id)
-        qs = Cosponsor.objects.filter(pk__in=cosponsor_ids)
-        serializer = CosponsorSerializer(qs,
-                                         many=True,
-                                         context={'bill': self.object})
-        return serializer.data
-    
     def get_cosponsors_dict(self):
        cosponsors =  self.object.cosponsors_dict
        cosponsors = sorted(cosponsors, key = lambda i: i.get('name'))
@@ -265,7 +243,13 @@ class BillDetailView(DetailView):
            if bioguide_id:
                try:
                    cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id) 
+                   if cosponsor_item:
+                    cosponsor["current"] = True
+                   else:
+                    cosponsor["current"] = False 
+
                except Exception as err:
+                   cosponsor["current"] = False
                    continue
                cosponsor['party'] = cosponsor_item.party
                cosponsor['name_full_official'] = cosponsor_item.name_full_official

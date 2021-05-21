@@ -279,7 +279,7 @@ def updateCommitteeMembers():
 
 # Add cosponsors from cosponsors dict to join table for each bill 
 def updateBillCosponsorJoinTable():
-  bills_query_set = Bill.objects.all().exclude(cosponsors_dict__exact=[]).only('bill_congress_type_number', 'cosponsors_dict')
+  bills_query_set = Bill.objects.all().only('bill_congress_type_number', 'cosponsors_dict')
   for bill in bills_query_set:
     bCTN =  bill.bill_congress_type_number
     if not bCTN:
@@ -287,6 +287,8 @@ def updateBillCosponsorJoinTable():
     print('Adding cosponsors for ', bCTN)
     cosponsors_dict = bill.cosponsors_dict
     sponsor = bill.sponsor
+    if not sponsor and not cosponsors_dict:
+      continue
     if sponsor:
       cosponsors_dict.append(sponsor)
     for cosponsor_item in cosponsors_dict:

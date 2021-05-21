@@ -448,6 +448,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_redis_install_and_start">Redis: install and start</a></li>
 <li><a href="#_how_to_run_celery_task">How to run celery task.</a></li>
 <li><a href="#_celery_tasks_what_they_do">Celery Tasks - What they do.</a></li>
+<li><a href="#_celery_schedule">Celery Schedule</a></li>
 </ul>
 </li>
 </ul>
@@ -979,12 +980,33 @@ The initial data loading will take a long time; there are about 17,000 records.<
 </div>
 </div>
 </div>
+<div class="sect2">
+<h3 id="_celery_schedule">Celery Schedule</h3>
+<div class="paragraph">
+<p>The Celery tasks are run on a schedule by <code>celery-beat</code>. The schedule is deined in <a href="https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py" class="bare">https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py</a></p>
+</div>
+<div class="paragraph">
+<p>For example, a CSV of the CRS documents is created every night at midnight here:</p>
+</div>
+<div class="paragraph">
+<p><a href="https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py#L42" class="bare">https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py#L42</a></p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code>'crs_scraper_daily': {
+'task': 'bills.tasks.crs_task',
+'schedule': crontab(minute=0, hour=1),
+'options': {'queue': 'bill'}
+},</code></pre>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-05-04 17:11:54 -0700
+Last updated 2021-05-20 18:31:51 -0700
 </div>
 </div>
 </body>

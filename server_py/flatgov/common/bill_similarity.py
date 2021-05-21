@@ -579,10 +579,11 @@ def processBill(bill_path: str=PATH_BILL):
         # Remove artifacts
         if bill.related_dict.get("reason"):
           del bill.related_dict["reason"]
-
-        if related_dict_for_bill.get('identified_by', ''): 
-          if 'BillMap' not in related_dict_for_bill.get('identified_by', '').split(', '): 
-            bill.related_dict[similarBillNumber]['identified_by'] = bill.related_dict[similarBillNumber].get('identified_by', '') + ", BillMap" 
+        
+        identifiedBy = related_dict_for_bill.get('identified_by', '')
+        if identifiedBy: 
+          if 'BillMap' not in identifiedBy.split(', '): 
+            bill.related_dict[similarBillNumber]['identified_by'] = identifiedBy + ", BillMap" 
         else:
           bill.related_dict[similarBillNumber]['identified_by'] = "BillMap"
 

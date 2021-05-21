@@ -514,7 +514,7 @@ def data_dir():
             data = output.get('data', None)
 
     if not data:
-        data = "data"
+        data = "/data"
 
     return data
 

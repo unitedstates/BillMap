@@ -338,13 +338,9 @@ class BillDetailView(DetailView):
         billnumbers = self.get_identical_bill_numbers()
         if self.object.bill_congress_type_number not in billnumbers:
             billnumbers = [self.object.bill_congress_type_number, *billnumbers]
-        billids = Bill.objects.filter(
-            bill_congress_type_number__in=billnumbers).values_list('pk',
-                                                                   flat=True)
-        bill_dict = {
-            id: billnumbers[index]
-            for index, id in enumerate(billids)
-        }
+        billids = [Bill.objects.get(
+            bill_congress_type_number=billnumber).id  for billnumber in billnumbers]
+        bill_dict = {billid: billnumbers[i] for i, billid in enumerate(billids)}
         cosponsors_for_bills = Cosponsor.objects.filter(
             bill__in=billids).values("bioguide_id", "name_full_official",
                                      "party", "state", "leadership",

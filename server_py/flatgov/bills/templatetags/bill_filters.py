@@ -112,3 +112,13 @@ def numstring_to_ordinal(numstring: str) -> str:
     if 11 <= (n % 100) <= 13:
         suffix = 'th'
     return str(n) + suffix
+
+
+@register.filter
+def normalize_score(score: float, total: float) -> int:
+    if not total:
+        total = 100
+    if not score:
+        return 0
+    else:
+        return round(score/total * 100)

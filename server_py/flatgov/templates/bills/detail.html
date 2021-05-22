@@ -190,6 +190,9 @@
             <div class="tab-content light-gray-tabs p-4" id="relatedBillsTableContent">
         
                 <div class="tab-pane fade show active" id="current-congress" role="tabpanel" aria-labelledby="current-congress-tab">
+                   <h6 class="pt-3">
+                        View bills related to {{ bill.type_abbrev }} {{ bill.number }} in the same Congress
+                   </h6>
                     <table class="table mt-3" id="current-similar-bills-table">
                         <thead>
                             <tr>
@@ -241,6 +244,9 @@
                     </table>
                 </div>
                 <div class="tab-pane fade" id="all-congress" role="tabpanel" aria-labelledby="all-congress-tab">
+                   <h6 class="pt-3">
+                        View bills related to {{ bill.type_abbrev }} {{ bill.number }} in recent Congresses
+                    </h6>
                     <table class="table mt-3" id="similar-bills-table">
                         <thead>
                             <tr>
@@ -289,6 +295,9 @@
                     </table>
                 </div>
                 <div class="tab-pane fade " id="similar-sections" role="tabpanel" aria-labelledby="similar-sections-tab">
+                   <h6 class="pt-3">
+                        View bills with related sections
+                   </h6>
                     <table class="table mt-3" id="similar-sections-table">
                         <thead>
                             <tr>
@@ -322,18 +331,18 @@
             </span>
             <ul class="nav nav-tabs mt-2" id="tablistCosponsors" role="tablist">
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link active" id="this-congress-sponsor-tab" data-toggle="tab" href="#this-congress-sponsor" role="tab" aria-controls="this-congress-sponsor" aria-selected="false">This Congress</a>
+                    <a class="nav-link active" id="this-congress-cosponsors-link" data-toggle="tab" href="#this-congress-cosponsors" role="tab" aria-controls="this-congress-cosponsors" aria-selected="true">Same Congress</a>
                 </li>
                 <li class="nav-item" role="presentation">
-                    <a class="nav-link" id="all-congress-sponsor-tab" data-toggle="tab" href="#all-congress-sponsor" role="tab" aria-controls="all-congress-sponsor" aria-selected="true">All Congresses</a>
+                    <a class="nav-link" id="all-congress-cosponsors-link" data-toggle="tab" href="#all-congress-cosponsors" role="tab" aria-controls="all-congress-cosponsors" aria-selected="false">All Congresses</a>
                 </li>
             </ul>
             <div class="tab-content light-gray-tabs p-4" id="cosponsorsTabContent">
-                <div class="tab-pane fade show active" id="all-congress-sponsor" role="tabpanel" aria-labelledby="all-congress-sponsor-tab">
+                <div class="tab-pane fade show active" id="this-congress-cosponsors" role="tabpanel" aria-labelledby="this-congress-cosponsors-tab">
                     <h6 class="pt-3">
-                        View all current sponsors of {{ bill.type_abbrev }} {{ bill.number }} and identical bills in any recent Congress
+                        View all current sponsors of {{ bill.type_abbrev }} {{ bill.number }} and identical bills in the same Congress
                     </h6>
-                    <table class="table mt-3" id="cosponsors-table">
+                    <table class="table mt-3" id="this-congress-cosponsors-table">
                         <thead>
                             <tr>
                                 <th scope="col">Co-sponsor</th>
@@ -345,9 +354,11 @@
                         </thead>
                         <tbody>
                             {% for cosponsor in cosponsors_for_bills %}
+                                {% check_billnumbers_congress cosponsor.bill_congress_type_numbers object.congress as cosponsor_checker %}
+                                 {% if cosponsor_checker %}
                             <tr>
                                 <td>{{ cosponsor.name_full_official }}</td>
-                                <td>{{ cosponsor.bill_congress_type_numbers|billnumbers_display|join:", "}}</td>
+                                <td>{{ cosponsor.bill_congress_type_numbers|billnumbers_by_congress:bill.congress|billnumbers_display|join:", "}}</td>
                                 <td>
                                     {{ cosponsor.committees_named|join:", " }}
                                 </td>
@@ -355,17 +366,17 @@
                                 <td>
                                     {{cosponsor.ranks|join:", "}}
                                 </td>
-                                
                             </tr>
+                                {% endif %}
                             {% endfor %}
                         </tbody>
                     </table>
                 </div>
-                <div class="tab-pane fade show " id="this-congress-sponsor" role="tabpanel" aria-labelledby="this-congress-sponsor-tab">
+                <div class="tab-pane fade show " id="all-congress-cosponsors" role="tabpanel" aria-labelledby="all-congress-cosponsors-tab">
                     <h6 class="pt-3">
                         View this current sponsors of {{ bill.type_abbrev }} {{ bill.number }} and identical bills in any recent Congress
                     </h6>
-                    <table class="table mt-3" id="this-cosponsors-table">
+                    <table class="table mt-3" id="all-congress-cosponsors-table">
                         <thead>
                             <tr>
                                 <th scope="col">Co-sponsor</th>

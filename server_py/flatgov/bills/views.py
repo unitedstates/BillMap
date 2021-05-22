@@ -146,6 +146,7 @@ class BillDetailView(DetailView):
         context['related_bills'] = self.get_related_bills()
         context['similar_bills'] = self.object.get_similar_bills
         context['es_similarity'] = self.object.es_similarity
+        context['current_bill_score'] = self.get_current_bill_score()
         context['cosponsors_for_bills'] = self.get_cosponsors_for_same_bills()
         context['propublica_api_key'] = settings.PROPUBLICA_CONGRESS_API_KEY
         context['no_data_message'] = "No data available for this table"

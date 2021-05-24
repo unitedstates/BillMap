@@ -34,101 +34,119 @@
                 <div class="col-md-6 p-2">
                     <div class="py-4 px-3 section-container h-100">
         
-                        <div class="bill light-gray-body p-4 h-100">
-                            <h4 class="pb-2 text-center"><b>Overview</b></h4>
-                            <h5><b>Bill Summary:</b></h5>
-                            {% if bill.summary_short %}
-                            <div class="pre-wrapper" style="font-size: 16px;"><pre>{{bill.summary_short}}</pre></div>
-                            
+                        <div class="bill light-gray-body p-4 h-100 d-flex justify-content-center">
+                            <div style="margin-bottom: 80px">
+                                <h4 class="pb-2 text-center"><b>Overview</b></h4>
+                                <h5><b>Bill Summary:</b></h5>
+                                {% if bill.summary_short %}
+                                <div class="pre-wrapper" style="font-size: 16px;"><pre>{{bill.summary_short}}</pre></div>
                                 
-                            {% else %}
-                            <div class="pre-wrapper" style="font-size: 16px;"><pre>{{ bill.summary |truncatewords_html:100 }}</pre></div>
-                            {% endif %}
-                            <!--
-                            <h5><b>Bill Stage:</b></h5>
-                            <p>Bill Stage will appear here</p> -->
-                    
-                            {% if bill.get_related_bill_numbers %}
-                                <h5><b>Related Bills:</b></h5>
-                                
-                                {% for rel_bill in bill.get_related_bill_numbers|billnumbers_by_congress:bill.congress|billnumbers_display %}
-                                <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span id="rel-bill">{{rel_bill}}</span></a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            {% endif %}
-        
-                            {% if identical_bill_numbers %}
-                                <h5 class="mt-3"><b>Identical or nearly identical Bills:</b></h5>
-        
-                                {% for identical_bill in identical_bill_numbers|billnumbers_display %}
+                                    
+                                {% else %}
+                                <div class="pre-wrapper" style="font-size: 16px;"><pre>{{ bill.summary |truncatewords_html:100 }}</pre></div>
+                                {% endif %}
+                                <!--
+                                <h5><b>Bill Stage:</b></h5>
+                                <p>Bill Stage will appear here</p> -->
+
+                                <!--
+
+                                -->
+                                    
+                                    {% if bill.get_related_bill_numbers %}
+                                    <h5><b>Related Bills:</b></h5>
+                                    
+                                    {% for rel_bill in bill.get_related_bill_numbers|billnumbers_by_congress:bill.congress|billnumbers_display %}
+                                    <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span id="rel-bill">{{rel_bill}}</span></a>{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                    
+                                    {% if identical_bill_numbers %}
+                                    <h5 class="mt-3"><b>Identical or nearly identical Bills:</b></h5>
+                                    
+                                    {% for identical_bill in identical_bill_numbers|billnumbers_display %}
                                     <a class="toolt" ><div class="tooltiptext" id="tool">...</div><span style="font-size: 14px;" id="identical-bill">{{identical_bill}}</span></a>{% if not forloop.last %}, {% endif %}
-                                {% endfor %}
-                            {% endif %}
-            
-                            <h5 class="mt-3"><b>Recent Actions (in focus):</b></h5>
-                            <p >No info available</p>
-                            <h5><b>Prognosis:</b></h5>
-                            <p >Prognosis will appear here</p>
-                            <div class="text-center"><a href="https://www.govtrack.us/congress/bills/{{bill.congress}}/{{bill.type}}{{bill.number}}/text" target="_blank" class="btn btn-primary btn-shadow text-center px-5 rounded-5" style="border: none; background-color:#781A36!important; border-radius: 10px;">Read the bill</a></div>
-            
+                                    {% endfor %}
+                                    {% endif %}
+                                    
+                                    
+                                    <h5 class="mt-3"><b>Recent Actions (in focus):</b></h5>
+                                    <p >No info available</p>
+                                <h5><b>Prognosis:</b></h5>
+                                <p >Prognosis will appear here</p>
+                            </div>
+                            <div class="text-center mt-5"
+                            style=" position: absolute; bottom: 70px;margin: auto; margin-top: 50px">
+                                <a 
+                                href="https://www.govtrack.us/congress/bills/{{bill.congress}}/{{bill.type}}{{bill.number}}/text"
+                                class="btn btn-primary btn-lg btn-shadow text-center mt-3 rounded-5 px-3" 
+                                style="border: none; border-radius: 10px; background-color: #2D4059; min-width: 350px">
+                                    Read the bill
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
         
                 <div class="col-md-6 p-2">
                     <div class=" py-4 px-3 section-container h-100">
-                        <div class="committee-jurisdiction light-gray-body p-4 h-100">
-                            <h4 class="text-center"><b>Committees and Sponsors</b></h4>
-                            <br>
-                            <div class="d-flex justify-content-between">
-                                <div class="">
-                                    <h5 class="pr-3"><b>Committees of Jurisdiction:</b></h5>
-                                    {% for committeeItem in committees_dict_deduped %}
-                                    <a href="#" class="link-secondary" >{{committeeItem.committee}}</a>{% if not forloop.last %}<span class="mr-0">, </span>  {% endif %}
-                                    {% endfor %}
-                               </div>
-                            </div>
-                            <div class="mt-5">
-                                <table class="table mt-3" id="cosponsors-table-top">
-                                    <thead>
-                                        <tr>
-                                            <th scope="col">Co-sponsor</th>
-                                            <th scope="col">Current Assigned Committees</th>
-                                            <th scope="col">Party</th>
-                                            <th scope="col">Rank</th>
-                                            <th scope="col">Currently in Congress</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
-                                       
-                                        <tr>
-                                             {% if cosponsor.name_full_official %}
-                                            <td>{{ cosponsor.name_full_official }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
-                                            {% else %}
-                                            <!--td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td-->
-                                            <td>{{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
-                                            {% endif %}
-                                            <td>{{ cosponsor.committee_name }}</td>
-                                            <td>{{ cosponsor.party|slice:":1" }}</td>
-                                            <td>{{ cosponsor.rank }}</td>
-                                            <td>
-                                                {% if cosponsor.current %}
-                                                    Yes 
-                                            {% else %}
-                                                No
-                                            {% endif %}
-                                            </td>
-                                        </tr>
+                        <div class="committee-jurisdiction light-gray-body p-4 h-100 d-flex justify-content-center">
+                            <div>
+                                
+                                <h4 class="text-center"><b>Committees and Sponsors</b></h4>
+                                <br>
+                                <div class="d-flex justify-content-between">
+                                    <div class="">
+                                        <h5 class="pr-3"><b>Committees of Jurisdiction:</b></h5>
+                                        {% for committeeItem in committees_dict_deduped %}
+                                        <a href="#" class="link-secondary" >{{committeeItem.committee}}</a>{% if not forloop.last %}<span class="mr-0">, </span>  {% endif %}
                                         {% endfor %}
-                                    </tbody>
-                                </table>
-                                <div><sup>+</sup>&nbsp; Sponsor</div>
-                                <div><sup>*</sup>&nbsp; Original Cosponsor</div>
+                                   </div>
+                                </div>
+                                <div class="mt-5" style="margin-bottom: 80px">
+                                    <table class="table mt-3" id="cosponsors-table-top">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col">Co-sponsor</th>
+                                                <th scope="col">Current Assigned Committees</th>
+                                                <th scope="col">Party</th>
+                                                <th scope="col">Rank</th>
+                                                <th scope="col">Currently in Congress</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody> {% for cosponsor in cosponsors_dict|slice:":5" %}
+                                           
+                                            <tr>
+                                                 {% if cosponsor.name_full_official %}
+                                                <td>{{ cosponsor.name_full_official }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                                                {% else %}
+                                                <!--td>{{ cosponsor.title }}. {{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td-->
+                                                <td>{{ cosponsor.name|cosponsor_name_display }} {% if cosponsor.original_cosponsor %}<sup>*</sup>{% endif %}{% if cosponsor.sponsor %}<sup>&dagger;</sup>{% endif %}</td>
+                                                {% endif %}
+                                                <td>{{ cosponsor.committee_name }}</td>
+                                                <td>{{ cosponsor.party|slice:":1" }}</td>
+                                                <td>{{ cosponsor.rank }}</td>
+                                                <td>
+                                                    {% if cosponsor.current %}
+                                                        Yes 
+                                                {% else %}
+                                                    No
+                                                {% endif %}
+                                                </td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                    <div><sup>+</sup>&nbsp; Sponsor</div>
+                                    <div><sup>*</sup>&nbsp; Original Cosponsor</div>
+                                </div>
                             </div>
-                            <div class="text-center mt-5">
-                                <a 
+                            <div class="text-center mt-5"
+                            style=" position: absolute; bottom: 70px;margin: auto; margin-top: 50px">
+                                <a
                                 href="#cosponsors-tab"
-                                class="btn btn-primary btn-lg btn-shadow text-center mt-3 rounded-5 px-3" 
-                                style="border: none; border-radius: 10px; background-color: #2D4059">
+                                class="btn btn-primary btn-lg btn-shadow text-center rounded-5" 
+                                style="border: none; border-radius: 10px; background-color: #2D4059; min-width: 350px;">
                                     View full list of sponsors
                                 </a>
                             </div>

@@ -12,6 +12,8 @@ body {
     background-color: #F1EDE4;
 }
 
+
+
 .bill-btn-primary {
     background-color:#781A36!important;
     border-color: #2D4059!important;
@@ -84,7 +86,7 @@ div.dataTables_scrollBody {
 .dataTables_info {
     font-size: small;
     font-weight: bold;
-    color: white;
+    color: black;
 }
 
 #cosponsors-table-top_info {

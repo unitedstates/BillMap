@@ -8,6 +8,9 @@
 * {
     font-family: 'Public Sans', sans-serif;
 }
+body {
+    background-color: #F1EDE4;
+}
 
 
 
@@ -84,6 +87,10 @@ div.dataTables_scrollBody {
     font-size: small;
     font-weight: bold;
     color: black;
+}
+
+#cosponsors-table-top_info {
+    color: #212529;
 }
 
 .dataTables_filter {

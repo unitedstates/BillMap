@@ -70,6 +70,7 @@ INSTALLED_APPS = [
     'committeeReport',
     'ckeditor',
     "ckeditor_uploader",
+    'sorl.thumbnail',
     
 ]
 

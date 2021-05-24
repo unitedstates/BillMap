@@ -206,11 +206,7 @@ def process_set(to_fetch, fetch_func, options, *extra_args):
     logging.warning("Skipped %s." % len(skips))
     logging.warning("Saved data for %s." % len(saved))
 
-    # return saved + skips  # all of the OK's
-    return {
-        'skips': skips,
-        'saved': saved
-    }
+    return saved + skips  # all of the OK's
 
 
 # Download file at `url`, cache to `destination`.
@@ -518,7 +514,7 @@ def data_dir():
             data = output.get('data', None)
 
     if not data:
-        data = "congress/data"
+        data = "/data"
 
     return data
 

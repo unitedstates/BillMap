@@ -14,7 +14,7 @@ body {
 
 .bill-btn-primary {
     background-color:#781A36!important;
-    border-color: #1d4e70!important;
+    border-color: #2D4059!important;
     border-radius: 10px;
 
 }
@@ -24,7 +24,7 @@ body {
 }
 
 .tab-content {
-    background-color: #1D4E70 !important;
+    background-color: #2D4059 !important;
     border-radius: 0px 15px 15px 15px !important;
     color: white;
 }
@@ -37,7 +37,7 @@ body {
 }
 
 .section-container {
-    background-color: #1D4E70;
+    background-color: #2D4059;
     border-radius: 10px;
 }
 
@@ -98,6 +98,11 @@ div.dataTables_wrapper div.dataTables_filter input {
     border-radius: 10px;
     border-color: #000000;
     
+}
+
+.dark-blue-navbar {
+    background-color: #2D4059;
+    height: 120px;
 }
 
 #wrap {
@@ -163,15 +168,26 @@ div.dataTables_wrapper div.dataTables_scroll {
     box-shadow: 3px 4px 4px #d4d4d4;
 }
 
+.navbar-link {
+    color: white !important;
+    padding: 0px 15px 5px 15px;
+    margin: 0px 10px 0px 10px;
+    text-decoration: none !important;
+    
+}
 .light-gray-nav-link .active {
     color: #495057;
     background-color: #d4d4d4;
     border-color: noner;
 }
 
+.navbar-link.active {
+    border-bottom: 5px solid white;
+}
+
 .nav-link.active {
-    background-color: #1D4E70 !important;
-    border-color: #1D4E70 !important;
+    background-color: #2D4059 !important;
+    border-color: #2D4059 !important;
     color: white !important;
 }
 
@@ -202,9 +218,9 @@ div.dataTables_wrapper div.dataTables_scroll {
     font-size: 24px;
     line-height: 30px;
     border: 2px solid #ccc;
-    -webkit-border-radius: 8px;
-    -moz-border-radius: 8px;
-    border-radius: 8px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    border-radius: 15px;
     outline: none;
 }
 
@@ -320,7 +336,7 @@ span.twitter-typeahead .tt-suggestion:focus {
 #bill-search {
     padding-right: 40px;
     border:1px solid var(--select-border);
-    border-radius: 5px;
+    border-radius: 8px;
 }
 
 .bill-tooltip {
@@ -373,6 +389,7 @@ span.twitter-typeahead .tt-suggestion:focus {
     position: absolute;
     right: 20px;
     top: 10px;
+    color: black;
 }
 
 @media only screen and (min-width: 768px) {

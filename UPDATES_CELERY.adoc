@@ -351,3 +351,20 @@ The xml for bill similarity is in text_versions that is the bill document itself
 #### Statements of Administration Policy 
 
 Found in `server_py/bills/tasks`, the Statements of Administration Policy task scrapes the links of SAP from the White House website and stores to the database using the `original_pdf_link` as a unique field to avoid duplicates.
+
+
+### Celery Schedule
+
+The Celery tasks are run on a schedule by `celery-beat`. The schedule is deined in https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py
+
+For example, a CSV of the CRS documents is created every night at midnight here:
+
+https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py#L42
+
+```
+'crs_scraper_daily': {
+'task': 'bills.tasks.crs_task',
+'schedule': crontab(minute=0, hour=1),
+'options': {'queue': 'bill'}
+},
+```

@@ -139,7 +139,6 @@ class BillDetailView(DetailView):
         context['committees_dict'] = self.object.committees_dict
         context['committees_dict_deduped'] = self.get_committees_dict_deduped()
         context['committees_map'] = self.get_committees_map()
-        context['cosponsors'] = self.get_cosponsors()
         context['statements'] = self.get_related_statements()
         context['committees'] = self.get_related_committees()
         context['crs_reports'] = self.get_crs_reports()
@@ -147,6 +146,7 @@ class BillDetailView(DetailView):
         context['related_bills'] = self.get_related_bills()
         context['similar_bills'] = self.object.get_similar_bills
         context['es_similarity'] = self.object.es_similarity
+        context['current_bill_score'] = self.get_current_bill_score()
         context['cosponsors_for_bills'] = self.get_cosponsors_for_same_bills()
         context['propublica_api_key'] = settings.PROPUBLICA_CONGRESS_API_KEY
         context['no_data_message'] = "No data available for this table"
@@ -212,27 +212,6 @@ class BillDetailView(DetailView):
             for committee in deduped
         }
 
-    def get_cosponsors(self):
-        cosponsor_bioguides = [
-            item.get('bioguide_id') for item in self.object.cosponsors_dict
-        ]
-        cosponsor_ids = [
-            item.get('id') for item in list(
-                Cosponsor.objects.filter(
-                    bioguide_id__in=cosponsor_bioguides).values('id'))
-        ]
-        sponsor_name = self.object.sponsor.get('name')
-        if sponsor_name:
-            sponsor = Cosponsor.objects.filter(name=sponsor_name).first()
-            if sponsor:
-                sponsor_id = sponsor.pk
-                cosponsor_ids.append(sponsor_id)
-        qs = Cosponsor.objects.filter(pk__in=cosponsor_ids)
-        serializer = CosponsorSerializer(qs,
-                                         many=True,
-                                         context={'bill': self.object})
-        return serializer.data
-    
     def get_cosponsors_dict(self):
        cosponsors =  self.object.cosponsors_dict
        cosponsors = sorted(cosponsors, key = lambda i: i.get('name'))
@@ -265,7 +244,13 @@ class BillDetailView(DetailView):
            if bioguide_id:
                try:
                    cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id) 
+                   if cosponsor_item:
+                    cosponsor["current"] = True
+                   else:
+                    cosponsor["current"] = False 
+
                except Exception as err:
+                   cosponsor["current"] = False
                    continue
                cosponsor['party'] = cosponsor_item.party
                cosponsor['name_full_official'] = cosponsor_item.name_full_official
@@ -338,13 +323,9 @@ class BillDetailView(DetailView):
         billnumbers = self.get_identical_bill_numbers()
         if self.object.bill_congress_type_number not in billnumbers:
             billnumbers = [self.object.bill_congress_type_number, *billnumbers]
-        billids = Bill.objects.filter(
-            bill_congress_type_number__in=billnumbers).values_list('pk',
-                                                                   flat=True)
-        bill_dict = {
-            id: billnumbers[index]
-            for index, id in enumerate(billids)
-        }
+        billids = [Bill.objects.get(
+            bill_congress_type_number=billnumber).id  for billnumber in billnumbers]
+        bill_dict = {billid: billnumbers[i] for i, billid in enumerate(billids)}
         cosponsors_for_bills = Cosponsor.objects.filter(
             bill__in=billids).values("bioguide_id", "name_full_official",
                                      "party", "state", "leadership",

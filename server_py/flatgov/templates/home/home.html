@@ -1,110 +1,128 @@
 {% extends 'base.html' %}
 {% load bill_filters %}
 {% load static %}
-
 {% block content %}
-<div class="light-gray-body my-5">
-  <div class="p-4">
-      <h1>Bill Map</h1>
-      <p class="lead">
-      We put federal legislation in context by showing congressional actions, the history of legislation, and what might happen next.
-      </p>
-  </div>
-</div>
-<div class="d-flex flex-nowrap light-gray-body mb-4 flex-column">
-  <div class="search p-4">
-    <div>
-        <h1 style="display: inline;">Search</h1>
-        <!--div class="dropdown pull-right" style="display: inline;" id="congressdropdown">
-          <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
-          data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-          Congress
-          </button>
-          <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-              {% for congress in congressrange %}
-                {% if forloop.first %}
-                    <a class="dropdown-item active" href="#">{{congress}}</a>
-                {% else %}
-                    <a class="dropdown-item" href="#">{{congress}}</a>
-                {% endif %}
-              {% endfor %}
+{% load thumbnail %}
+<div class="row">
+    <div class="" style="height: 500px; overflow: hidden">
+        <img class="img-fluid"  src="{% static '/images/home-banner-crop.png' %}" style="" alt="">
+    </div>
+    <div class="col-md-10 position-absolute mt-3 w-50" style="left: 8%; max-width: 600px">
+        <div class="" style="margin:0; padding: 0">
+            <div class="p-4">
+                <h1 style="font-weight: bolder;">Bill Map</h1>
+                <p class="lead">
+                We put federal legislation in context by showing congressional actions, the history of legislation, and what might happen next.
+                </p>
+            </div>
           </div>
-        </div-->
-
-      </div>
-      <!-- <p>Search for Legislation</p> -->
-      <div class="row">
-          <div class="col-md-4 col-sm-12 mt-2">
-              <div class="dropdown style="display: inline;" id="congressdropdown">
-                  <div>
-                      <select id="selectcongress" name="congress"  class=" select" aria-label="Select Congress">
-                          {% for congress in congressrange %}
-                          {% if forloop.first %}
-                          <option class="congress-item" value="{{congress}}" selected>{{congress|numstring_to_ordinal}}</option>
-                          {% else %}
-                          <option class="congress-item" value="{{congress}}">{{congress|numstring_to_ordinal}}</option>
-                          {% endif %}
-                          {% endfor %}
-                          <!--option class="congress-item" value="all">Any Congress</option-->
-                        </select>
+    </div>
+</div>
+<div class="row d-flex justify-content-center" style="background-color: #2D4059">
+    <div class="col-md-10">
+        <div class="d-flex flex-nowrap text-white mb-4 flex-column">
+          <div class="search p-4 pl-5 pr-5">
+            <div class="text-center mb-3">
+                <h1 class="text-center mb-2" style="display: inline; font-weight: 900">Search for Legislation</h1>
+                <!--div class="dropdown pull-right" style="display: inline;" id="congressdropdown">
+                  <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton"
+                  data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Congress
+                  </button>
+                  <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                      {% for congress in congressrange %}
+                        {% if forloop.first %}
+                            <a class="dropdown-item active" href="#">{{congress}}</a>
+                        {% else %}
+                            <a class="dropdown-item" href="#">{{congress}}</a>
+                        {% endif %}
+                      {% endfor %}
+                  </div>
+                </div-->
+        
+            </div>
+              <!-- <p>Search for Legislation</p> -->
+              <div class="row">
+                <div class="col-md-8 col-sm-12 mt-2">
+                    <div class="search-input-group input-group input-group-lg">
+                        <!-- <input id="bill-search" type="text" class="form-control typeahead" placeholder="Examples: s5, hr5, hres5, hjres5, hconres5, sjres5, sconres5, sres5"> -->
+                        <input id="bill-search" type="text" class="form-control typeahead" placeholder="Search for Legislation">
+                
+                        <span id="search-icon">
+                            <span>
+                                <i class="fa fa-search" aria-hidden="true"></i>
+                            </span>
+                        </span>
+                
+                          <!--<a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>-->
+                    </div>
+                    <br>
+                    <p class="font-italic text-muted">
+                        &nbsp;&nbsp;Examples: s5, hr5, hres5, hjres5, hconres5, sjres5, sconres5, sres5
+                    </p>
+                  </div>
+                  <div class="col-md-4 col-sm-12 mt-2">
+                      <div class="dropdown style="display: inline;" id="congressdropdown">
+                          <div>
+                              <select id="selectcongress" name="congress"  class=" select" aria-label="Select Congress">
+                                  {% for congress in congressrange %}
+                                  {% if forloop.first %}
+                                  <option class="congress-item" value="{{congress}}" selected>{{congress|numstring_to_ordinal}}</option>
+                                  {% else %}
+                                  <option class="congress-item" value="{{congress}}">{{congress|numstring_to_ordinal}}</option>
+                                  {% endif %}
+                                  {% endfor %}
+                                  <!--option class="congress-item" value="all">Any Congress</option-->
+                                </select>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
-        <div class="col-md-8 col-sm-12 mt-2">
-            <div class="search-input-group input-group input-group-lg">
-                <!-- <input id="bill-search" type="text" class="form-control typeahead" placeholder="Examples: s5, hr5, hres5, hjres5, hconres5, sjres5, sconres5, sres5"> -->
-                <input id="bill-search" type="text" class="form-control typeahead" placeholder="Search for Legislation">
         
-                <span id="search-icon">
-                    <span>
-                        <i class="fa fa-search" aria-hidden="true"></i>
-                    </span>
-                </span>
+          </div>
         
-                  <!--<a class="btn btn-primary" target="_blank" href="#" id="gobutton">GO!</a>-->
-            </div>
-            <br>
-            <p class="font-italic text-muted">
-                &nbsp;&nbsp;Examples: s5, hr5, hres5, hjres5, hconres5, sjres5, sconres5, sres5
-            </p>
+          <div class="text-center">
+            <a data-toggle="collapse" class="advanced-search-toggle" href="#bill-text-div" role="button" aria-expanded="false" aria-controls="bill-text-div">
+                <i class="fa fa-caret-down" aria-hidden="true">
+                </i>
+            </a>
           </div>
         </div>
 
-  </div>
-
-  <div class="text-center">
-    <a data-toggle="collapse" class="advanced-search-toggle" href="#bill-text-div" role="button" aria-expanded="false" aria-controls="bill-text-div">
-        <i class="fa fa-caret-down" aria-hidden="true">
-        </i>
-    </a>
-  </div>
-</div>
-
-
-<div  id="bill-text-div" class="collapse light-gray-body mb-4">
-    <div class="search p-4">
-        <div class="form-group text-center my-0">
-            <form action="" method="POST" class="post-form">{% csrf_token %}
-                {{ form.as_p }}
-                <input class="btn btn-outline-primary" type="submit" value="Find similar bills">
-            </form>
-        </div>
     </div>
 </div>
-
-<div>
-    <div id="wrap" class="p-4 mt-5">
-        <div id="calendar" style=""></div>
-        <div style="clear:both"></div>
+<div class="row d-flex justify-content-center">
     
-    </div>
-    <div class="" id="">
-    <div class="card card-body d-flex flex-row" id="calendar-key">
-        <div class="mr-5">Calendar key</div>
-    </div>
+    <div class="col-md-10">
+        
+        
+        <div  id="bill-text-div" class="collapse light-gray-body mb-4">
+            <div class="search p-4">
+                <div class="form-group text-center my-0">
+                    <form action="" method="POST" class="post-form">{% csrf_token %}
+                        {{ form.as_p }}
+                        <input class="btn btn-outline-primary" type="submit" value="Find similar bills">
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <div id="wrap" class="p-4 mt-5">
+                <div id="calendar" style=""></div>
+                <div style="clear:both"></div>
+            
+            </div>
+            <div class="" id="">
+            <div class="card card-body d-flex flex-row" id="calendar-key">
+                <div class="mr-5">Calendar key</div>
+            </div>
+            </div>
+        </div>
+        <div class="my-5"></div>
+        
     </div>
 </div>
-<div class="my-5"></div>
 {% endblock %}
 
 {% block extra_js %}

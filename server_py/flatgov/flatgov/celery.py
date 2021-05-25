@@ -43,6 +43,16 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
     },
+    'download_sources': {
+        'task': 'events.tasks.download_sources',
+        'schedule': crontab(minute=33), #, hour=3),
+        'options': {'queue': 'event'}
+    },
+    'process_sources': {
+        'task': 'events.tasks.process_sources',
+        'schedule': crontab(minute=40), #, hour=4),
+        'options': {'queue': 'event'}
+    },
     'update_cosponsor': {
         'task': 'bills.tasks.update_cosponsor_comm_task',
         'schedule': crontab(minute=0, hour=0),

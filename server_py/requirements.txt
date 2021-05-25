@@ -21,6 +21,7 @@ djangorestframework==3.12.2
 elasticsearch==7.9.1
 html5lib==1.1
 hyperlink==21.0.0
+icalendar==4.0.7
 idna==2.10
 incremental==21.3.0
 iso8601==0.1.13

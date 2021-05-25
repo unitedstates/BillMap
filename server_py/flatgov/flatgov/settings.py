@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'crs',  # by Dmitry
     'statementAdminPolicy',
     'committeeReport',
+    'events',
     'ckeditor',
     "ckeditor_uploader",
     'sorl.thumbnail',

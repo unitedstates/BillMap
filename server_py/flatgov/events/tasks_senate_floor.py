@@ -64,7 +64,7 @@ def process_xml_senate_floor(source):
             description=description,
             notes=conveneMeasure,
             chamber="senate",
-            className="event-senate",
+            className="event-senate-floor",
             start=start,
             end=end,
             allDay=False)

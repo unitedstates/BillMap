@@ -152,15 +152,27 @@ document.addEventListener('DOMContentLoaded', function() {
         {
             name: 'US Holidays',
             label: '* Federal Holidays',
-            googleCalendarId: 'en.usa#holiday@group.v.calendar.google.com',
-            className: 'event-us-holiday'
+            className: 'event-opm'
         },
         {
-            // https://www.majorityleader.gov/calendar/ical
-            name: 'Committee events',
+            name: 'Senate Floor Events',
             label: '',
-            googleCalendarId: '39dfmaqro0ubr9cbr6q6l0sb6ptggfpp@import.calendar.google.com',
-            className: 'event-majority-leader'
+            className: 'event-senate-floor'
+        },
+        {
+            name: 'Senate Committee Events',
+            label: '',
+            className: 'event-senate-committee'
+        },
+        {
+            name: 'House Committee Events',
+            label: '',
+            className: 'event-house-committee'
+        },
+        {
+            name: 'House Majority Leader',
+            label: '',
+            className: 'event-house-majority-leader'
         }
     ];
     var calendarKeyEl = document.getElementById('calendar-key');
@@ -202,20 +214,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
         displayEventTime: true,
 
-        // THIS KEY WON'T WORK IN PRODUCTION!!!
-        // To make your own Google API key, follow the directions here:
-        // http://fullcalendar.io/docs/google_calendar/
-        googleCalendarApiKey: 'AIzaSyDcnW6WejpTOCffshGDDb4neIrXVUA1EAE',
-
         eventSources: eventSources,
 
         eventClick: function(arg) {
             // opens events in a popup window
-            window.open(arg.event.url, 'google-calendar-event', 'width=700,height=600');
-
+            //window.open(arg.event.url, 'google-calendar-event', 'width=700,height=600');
+            window.alert("Open modal");
             arg.jsEvent.preventDefault() // don't navigate in main tab
-        }
+        },
 
+        events: {
+            url: '/events/',
+            method: 'GET',
+            extraParams: {
+                "start-date": '1999-01-01',
+                "end-date": '2021-12-31'
+            },
+            failure: function() {
+                alert('There was an error while fetching events!');
+            }
+        }
     });
 
     calendar.render();

@@ -11,7 +11,7 @@ import urllib.request
 import datetime
 
 CALENDAR_SOURCES = [{
-    "name": "Majority Leader",
+    "name": "House Majority Leader",
     "url": "https://www.majorityleader.gov/calendar/ical",
     "type": "ical"
 }, {

@@ -1,7 +1,7 @@
 :toc: auto
 # About BillMap
 
-BillMap (originally 'FlatGov') is a project of https://demandprogress.org[Demand Progress]. It provides context for federal legislation by combining a number of public data sets in innovative ways. The project includes a https://billmap.govtrack.us[standalone website] at billmap.govtrack.us, as well as reusable open-source components, currently hosted at https://github.com/aih/FlatGov.
+BillMap (originally 'FlatGov') is a project of https://demandprogress.org[Demand Progress]. It provides context for federal legislation by combining a number of public data sets in innovative ways. The project includes a https://billmap.govtrack.us[standalone website] at billmap.govtrack.us, as well as reusable open-source components, currently hosted at https://github.com/aih/FlatGov. A Changelog for the project can be found here: <<CHANGELOG.adoc#,CHANGELOG>>.
 
 The project consists of modular components that provide contextual information for bills. The components include:
 

@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.12">
-<title>Setting up the FlatGov db for Django</title>
+<title>Changelog</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -440,323 +440,565 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="article">
 <div id="header">
-<h1>Setting up the FlatGov db for Django</h1>
-<div id="toc" class="toc">
-<div id="toctitle">Table of Contents</div>
-<ul class="sectlevel1">
-<li><a href="#_added_bill_sponsor_model_to_bills_app">Added Bill, Sponsor model to bills app.</a></li>
-<li><a href="#_update_environment_variables">Update environment variables</a></li>
-<li><a href="#_download_tmp_files">Download tmp files</a></li>
-<li><a href="#_install_postgres_and_set_up_flatgov_database">Install Postgres and set up flatgov database</a>
-<ul class="sectlevel2">
-<li><a href="#_install_postgresql">Install PostgreSQL</a></li>
-<li><a href="#_set_up_the_flatgov_database">Set up the FlatGov database</a></li>
-</ul>
-</li>
-<li><a href="#_create_db_migration">Create db migration</a></li>
-<li><a href="#_load_fixtures">Load fixtures</a></li>
-<li><a href="#_create_billsmeta_json_file_via_django_command">Create billsMeta.json file via Django command.</a></li>
-<li><a href="#_review_models_with_django_admin">Review Models with Django Admin</a></li>
-<li><a href="#_review_data_from_the_django_shell">Review data from the Django shell</a></li>
-</ul>
-</div>
+<h1>Changelog</h1>
 </div>
 <div id="content">
-<div id="preamble">
-<div class="sectionbody">
-<div class="paragraph">
-<p>We are storing the data for this application in a SQL (Postgres) database to make use of the Django ORM.</p>
-</div>
-</div>
-</div>
 <div class="sect1">
-<h2 id="_added_bill_sponsor_model_to_bills_app">Added Bill, Sponsor model to bills app.</h2>
+<h2 id="_unreleased"><a href="https://github.com/aih/FlatGov/tree/HEAD">Unreleased</a></h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>At the moment, we have 2 models - Bill &amp; Sponsor. We will need to add more models and fields in the future.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_update_environment_variables">Update environment variables</h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Add 2 env vars.
-In <code>~/.bash_profile</code> or <code>~/.bashrc</code>
-<code>DJANGO_SETTINGS_MODULE=flatgov.dev</code>
-<code>SECRET_KEY=setAKeyInPrductioSECRET_KEY=setAKeyInPrductionn</code></p>
-</li>
-</ol>
+<p><a href="https://github.com/aih/FlatGov/compare/2021-05-24&#8230;&#8203;HEAD">Full Changelog</a></p>
 </div>
 <div class="paragraph">
-<p>Or, temporarily, from the command line:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$export DJANGO_SETTINGS_MODULE=flatgov.dev
-$export SECRET_KEY=setAKeyInPrductioSECRET_KEY=setAKeyInPrductionn</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_download_tmp_files">Download tmp files</h2>
-<div class="sectionbody">
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Download tmp files in fetch_bill app. <code>~Flatgov/server_py/flatgov/fetch_bill$ ./download_bills.sh</code></p>
-</li>
-<li>
-<p>You can find <code>congress</code> directory in here - <code>~FlatGov/server_py/flatgov/congress</code></p>
-</li>
-</ol>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_install_postgres_and_set_up_flatgov_database">Install Postgres and set up flatgov database</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>See <a href="https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04" class="bare">https://www.digitalocean.com/community/tutorials/how-to-use-postgresql-with-your-django-application-on-ubuntu-14-04</a></p>
-</div>
-<div class="sect2">
-<h3 id="_install_postgresql">Install PostgreSQL</h3>
-<div class="paragraph">
-<p>On a Mac, this can be done with <code>brew install postgresql</code> or manually via <a href="https://www.postgresql.org/download/macosx/" class="bare">https://www.postgresql.org/download/macosx/</a>
-If downloading manually, postgres command line should be enabled. See <a href="https://postgresapp.com/documentation/cli-tools.html" class="bare">https://postgresapp.com/documentation/cli-tools.html</a></p>
-</div>
-<div class="paragraph">
-<p>On Linux  <code>sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib</code></p>
-</div>
-</div>
-<div class="sect2">
-<h3 id="_set_up_the_flatgov_database">Set up the FlatGov database</h3>
-<div class="ulist">
-<ul>
-<li>
-<p>Start <code>psql</code> command line.</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>On a Mac, with the <code>postgres</code> user, enter the psql command line this way:</p>
-</div>
-<div class="paragraph">
-<p><code>psql -h localhost -d postgres</code></p>
-</div>
-<div class="paragraph">
-<p>On Ubuntu, set a password for the postgres user:
-<code>sudo -u postgres psql postgres</code></p>
-</div>
-<div class="paragraph">
-<p>Then
-<code>\password postgres</code></p>
-</div>
-<div class="paragraph">
-<p>Set the password and then close psql:</p>
-</div>
-<div class="paragraph">
-<p><code>\q</code></p>
+<p><strong>Closed issues:</strong></p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Create the <code>flatgov</code> db and <code>vmm</code> user</p>
+<p>Overview section and Committees and Sponsors section buttons should be positioned at the bottom of the sections <a href="https://github.com/aih/FlatGov/issues/393">#393</a></p>
 </li>
 </ul>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">postgres=# CREATE DATABASE flatgov;
-CREATE DATABASE
-postgres=# CREATE USER vmm WITH PASSWORD 'vmm';
-CREATE ROLE
-postgres=# ALTER ROLE vmm SET client_encoding TO 'utf8';
-ALTER ROLE
-postgres=# ALTER ROLE vmm SET default_transaction_isolation TO 'read committed';
-ALTER ROLE
-postgres=# ALTER ROLE vmm SET timezone TO 'UTC';
-ALTER ROLE
-postgres=# GRANT ALL PRIVILEGES ON DATABASE flatgov TO vmm;
-GRANT
-postgres=# \q
-flatgov{flatgov}$</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>Restart <code>postgresql</code> (may not be necessary):
-<code>brew services restart postgresql</code></p>
-</div>
-</div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_create_db_migration">Create db migration</h2>
+<h2 id="_2021_05_24_2021_05_24"><a href="https://github.com/aih/FlatGov/tree/2021-05-24">2021-05-24</a> (2021-05-24)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>From <code>Flatgov/server_py/flatgov$</code>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">flatgov{flatgov}$ python manage.py migrate
-Operations to perform:
-  Apply all migrations: admin, auth, bills, contenttypes, sessions
-Running migrations:
-Applying contenttypes.0001_initial... OK
-  Applying auth.0001_initial... OK
-  Applying admin.0001_initial... OK
-  Applying admin.0002_logentry_remove_auto_add... OK
-  Applying admin.0003_logentry_add_action_flag_choices... OK
-  Applying contenttypes.0002_remove_content_type_name... OK
-  Applying auth.0002_alter_permission_name_max_length... OK
-  Applying auth.0003_alter_user_email_max_length... OK
-  Applying auth.0004_alter_user_username_opts... OK
-  Applying auth.0005_alter_user_last_login_null... OK
-  Applying auth.0006_require_contenttypes_0002... OK
-  Applying auth.0007_alter_validators_add_error_messages... OK
-  Applying auth.0008_alter_user_username_max_length... OK
-  Applying auth.0009_alter_user_last_name_max_length... OK
-  Applying auth.0010_alter_group_name_max_length... OK
-  Applying auth.0011_update_proxy_permissions... OK
-  Applying auth.0012_alter_user_first_name_max_length... OK
-  Applying bills.0001_initial... OK
-  Applying bills.0002_auto_20201113_1449... OK
-  Applying bills.0003_auto_20201113_1604... OK
-  Applying bills.0004_auto_20201116_1336... OK
-  Applying bills.0005_auto_20201116_1341... OK
-  Applying bills.0006_auto_20201116_1421... OK
-  Applying bills.0007_auto_20201116_1432... OK
-  Applying bills.0008_bill_cosponsors_dict... OK
-  Applying sessions.0001_initial... OK</code></pre>
-</div>
+<p><a href="https://github.com/aih/FlatGov/compare/v0.3.1&#8230;&#8203;2021-05-24">Full Changelog</a></p>
 </div>
 <div class="paragraph">
-<p>If modules error, make sure
-(1) you are in the python virtual environment
-(2) environment variables are set
-(3) requirements.txt has been run (if haven&#8217;t yet)</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>cd /path/to/FlatGov/server_py
-pip install -r requirements.txt</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_load_fixtures">Load fixtures</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The About page is created as a fixture. To load it, run</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code>cd server_py/flatgov
-python manage.py loaddata about_us.json</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_create_billsmeta_json_file_via_django_command">Create billsMeta.json file via Django command.</h2>
-<div class="sectionbody">
-<div class="ulist">
-<ul>
-<li>
-<p>Add data to database</p>
-</li>
-</ul>
-</div>
-<div class="paragraph">
-<p>Given that we are using django orm for database, we can store bill, sponsor data via django commands.</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ python manage.py bill_data
-$ python manage.py process_bill_meta
-$ python manage.py related_bills</code></pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-<code>~FlatGov/server_py/flatgov/common</code> directory contains all the django commands. Also, the <code>--congress</code> flag tells the scripts to use data from the <code>congress</code> directory in ` &#8230;&#8203;server_py/flatgov/congress`, created by the <code>unitedstates/congress</code> scraper, described in SCRAPER.adoc. This will have directories for each congress: ` &#8230;&#8203;server_py/flatgov/congress/data/117`, ` &#8230;&#8203;server_py/flatgov/congress/data/116`, ` &#8230;&#8203;server_py/flatgov/congress/data/115`, etc.
-</td>
-</tr>
-</table>
-</div>
-<div class="paragraph">
-<p>The <code>billdata.py</code> file creates bill, sponsor objects and adds proper relations.</p>
-</div>
-<div class="paragraph">
-<p>After the metadata is loaded, index the bills to Elasticsearch and process bill similarity:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ python manage.py elastic_load --uscongress
-$ python manage.py bill_similarity --uscongress</code></pre>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_review_models_with_django_admin">Review Models with Django Admin</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>To review the data models, create a Django superuser and view the Django Admin panel.</p>
+<p><strong>Fixed bugs:</strong></p>
 </div>
 <div class="ulist">
 <ul>
 <li>
-<p>Create a Django Superadmin</p>
+<p>'No data available' statements not showing  <a href="https://github.com/aih/FlatGov/issues/353">#353</a></p>
 </li>
 </ul>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$python manage.py createsuperuser</code></pre>
+<div class="paragraph">
+<p><strong>Closed issues:</strong></p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>Home and Bill Page - Change background color <a href="https://github.com/aih/FlatGov/issues/394">#394</a></p>
+</li>
+<li>
+<p>Cosponsors table 'This Congress' tab shows the full list of cosponsors <a href="https://github.com/aih/FlatGov/issues/381">#381</a></p>
+</li>
+<li>
+<p>Normalize section total score for display <a href="https://github.com/aih/FlatGov/issues/379">#379</a></p>
+</li>
+<li>
+<p>Metadata conversion not completed for some bills  <a href="https://github.com/aih/FlatGov/issues/378">#378</a></p>
+</li>
+<li>
+<p>Cosponsors table shows a single sponsor of bills in both House and Senate <a href="https://github.com/aih/FlatGov/issues/375">#375</a></p>
+</li>
+<li>
+<p>Add bill number (e.g. 116hr200) as a column in the CSV table for the CRS <a href="https://github.com/aih/FlatGov/issues/364">#364</a></p>
+</li>
+<li>
+<p>Run CRS update + CSV as a nightly Celery task <a href="https://github.com/aih/FlatGov/issues/363">#363</a></p>
+</li>
+<li>
+<p>For title matching, remove leading text of the form '117 HR 447 IH: ' <a href="https://github.com/aih/FlatGov/issues/359">#359</a></p>
+</li>
+<li>
+<p>Add 'incorporated by' and 'incorporates' to relatedness criteria <a href="https://github.com/aih/FlatGov/issues/355">#355</a></p>
+</li>
+<li>
+<p>Rename Context tabs <a href="https://github.com/aih/FlatGov/issues/350">#350</a></p>
+</li>
+<li>
+<p>Develop About Us Page <a href="https://github.com/aih/FlatGov/issues/348">#348</a></p>
+</li>
+<li>
+<p>Access to <code>crs/csv-report</code> times out (we have ~6000 records) <a href="https://github.com/aih/FlatGov/issues/346">#346</a></p>
+</li>
+<li>
+<p>Review main and ensure enhancements have been added <a href="https://github.com/aih/FlatGov/issues/344">#344</a></p>
+</li>
+<li>
+<p>Update docs and link to navigation bar <a href="https://github.com/aih/FlatGov/issues/336">#336</a></p>
+</li>
+<li>
+<p>Issue with the logic of "Sponsors of Related Measures"  <a href="https://github.com/aih/FlatGov/issues/326">#326</a></p>
+</li>
+<li>
+<p>Add column to indicate whether a cosponsor is no longer in Congress <a href="https://github.com/aih/FlatGov/issues/322">#322</a></p>
+</li>
+<li>
+<p>Get cosponsors of related bills (update) <a href="https://github.com/aih/FlatGov/issues/319">#319</a></p>
+</li>
+<li>
+<p>Create Celery task to update cosponsors and committees <a href="https://github.com/aih/FlatGov/issues/298">#298</a></p>
+</li>
+<li>
+<p>Put examples of search formats below the search bar &amp; changes to reflect wireframe <a href="https://github.com/aih/FlatGov/issues/272">#272</a></p>
+</li>
+<li>
+<p>Scoring document similarity <a href="https://github.com/aih/FlatGov/issues/267">#267</a></p>
+</li>
+<li>
+<p>Monthly View on Calendar should start on Monday <a href="https://github.com/aih/FlatGov/issues/257">#257</a></p>
+</li>
+<li>
+<p>Add Text that explains that there is not a document available for Understand the Context Section <a href="https://github.com/aih/FlatGov/issues/249">#249</a></p>
+</li>
+<li>
+<p>When the user is on a bill page, the Bill tab in the nav should be highlighted <a href="https://github.com/aih/FlatGov/issues/245">#245</a></p>
+</li>
+<li>
+<p>Document the SAP scrapers for Trump and Biden <a href="https://github.com/aih/FlatGov/issues/230">#230</a></p>
+</li>
+<li>
+<p>Understand the Context UI Fix <a href="https://github.com/aih/FlatGov/issues/181">#181</a></p>
+</li>
+<li>
+<p>Future improvements for 'similar bills' <a href="https://github.com/aih/FlatGov/issues/178">#178</a></p>
+</li>
+<li>
+<p>Add "Currently in Congress" column  to the "Sponsors of Related Measures" section <a href="https://github.com/aih/FlatGov/issues/108">#108</a></p>
+</li>
+<li>
+<p>UI update for "Overview" section on the bill page <a href="https://github.com/aih/FlatGov/issues/102">#102</a></p>
+</li>
+<li>
+<p>Bill title should be left aligned with all the boxes <a href="https://github.com/aih/FlatGov/issues/100">#100</a></p>
+</li>
+<li>
+<p>Add "Compare" text button under the "Compare Bill Text" column.  <a href="https://github.com/aih/FlatGov/issues/89">#89</a></p>
+</li>
+<li>
+<p>Change search UI on Home Page <a href="https://github.com/aih/FlatGov/issues/83">#83</a></p>
+</li>
+<li>
+<p>The list of related bills in the top left panel does not always match the table of related bills <a href="https://github.com/aih/FlatGov/issues/64">#64</a></p>
+</li>
+<li>
+<p>On the Bills page, change the order of tabs in the "Understand the Context" section  <a href="https://github.com/aih/FlatGov/issues/63">#63</a></p>
+</li>
+<li>
+<p>Collect cboCostEstimates from data.json for each bill <a href="https://github.com/aih/FlatGov/issues/53">#53</a></p>
+</li>
+<li>
+<p>Document the <code>bills</code> table and how it relates to govtrack tables <a href="https://github.com/aih/FlatGov/issues/50">#50</a></p>
+</li>
+<li>
+<p>Sources for 'in Focus' information  <a href="https://github.com/aih/FlatGov/issues/1">#1</a></p>
+</li>
+</ul>
 </div>
 <div class="paragraph">
-<p>Locally, I&#8217;ve used <code>cool1dude</code> as the pw</p>
+<p><strong>Merged pull requests:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Feature/buttons 393 <a href="https://github.com/aih/FlatGov/pull/396">#396</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Feature/background 394 <a href="https://github.com/aih/FlatGov/pull/395">#395</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Filter cosponsor by Congress #381 <a href="https://github.com/aih/FlatGov/pull/384">#384</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Fix for #379. Normalize score <a href="https://github.com/aih/FlatGov/pull/380">#380</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Fixes #375 <a href="https://github.com/aih/FlatGov/pull/376">#376</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/simlar reasons update <a href="https://github.com/aih/FlatGov/pull/374">#374</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Handle new 'reason' form <a href="https://github.com/aih/FlatGov/pull/372">#372</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Update CSV writer for CRS <a href="https://github.com/aih/FlatGov/pull/371">#371</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Fix 'Rank' column for cosponsors <a href="https://github.com/aih/FlatGov/pull/370">#370</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>home page UI changes <a href="https://github.com/aih/FlatGov/pull/369">#369</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Feature/container UI changes ayesha <a href="https://github.com/aih/FlatGov/pull/367">#367</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Feature/similarbills matrix <a href="https://github.com/aih/FlatGov/pull/365">#365</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Weini <a href="https://github.com/aih/FlatGov/pull/362">#362</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>autocomplete and csv export updated <a href="https://github.com/aih/FlatGov/pull/356">#356</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/committees alignment fixed ayesha <a href="https://github.com/aih/FlatGov/pull/354">#354</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Revert "Feature/no data msg2" <a href="https://github.com/aih/FlatGov/pull/352">#352</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/enhancements ayesha 2 <a href="https://github.com/aih/FlatGov/pull/351">#351</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Fix calendar key <a href="https://github.com/aih/FlatGov/pull/349">#349</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/no data msg2 <a href="https://github.com/aih/FlatGov/pull/347">#347</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Standardize styling when table does not have data <a href="https://github.com/aih/FlatGov/pull/345">#345</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Fix calendar-key styling <a href="https://github.com/aih/FlatGov/pull/343">#343</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/enhancements cherrypick 2 <a href="https://github.com/aih/FlatGov/pull/342">#342</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>nav bar, home page and celery task is added <a href="https://github.com/aih/FlatGov/pull/341">#341</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>calendar UI changes <a href="https://github.com/aih/FlatGov/pull/339">#339</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+</ul>
 </div>
 </div>
 </div>
 <div class="sect1">
-<h2 id="_review_data_from_the_django_shell">Review data from the Django shell</h2>
+<h2 id="_v0_3_1_2021_05_01"><a href="https://github.com/aih/FlatGov/tree/v0.3.1">v0.3.1</a> (2021-05-01)</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>It may be useful to review data from the Django shell. For example, to find a sample of a Committee Document from the 117th Congress, enter the shell and run queries on the model:</p>
+<p><a href="https://github.com/aih/FlatGov/compare/v0.3.0&#8230;&#8203;v0.3.1">Full Changelog</a></p>
 </div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov$ python manage.py shell
-Python 3.8.3 (default, Sep 24 2020, 22:52:34)
-[GCC 7.5.0] on linux
-Type "help", "copyright", "credits" or "license" for more information.
-(InteractiveConsole)
-&gt;&gt;&gt; from bills.models import CommitteeDocument
-&gt;&gt;&gt; queryset = CommitteeDocument.objects.filter(congress=117)
-&gt;&gt;&gt; queryset.count()
-14
-&gt;&gt;&gt; record.queryset.first()
-Traceback (most recent call last):
-  File "&lt;console&gt;", line 1, in &lt;module&gt;
-NameError: name 'record' is not defined
-&gt;&gt;&gt; record = queryset.first()
-&gt;&gt;&gt; record.original_pdf_link
-'//www.govinfo.gov/content/pkg/CRPT-117hrpt3/pdf/CRPT-117hrpt3.pdf'
-&gt;&gt;&gt; record.associated_legislation
-'H. Res.85'</code></pre>
+<div class="paragraph">
+<p><strong>Implemented enhancements:</strong></p>
 </div>
+<div class="ulist">
+<ul>
+<li>
+<p>Create Celery task to update CBO data <a href="https://github.com/aih/FlatGov/issues/213">#213</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Closed issues:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Daniel&#8217;s Home Page Feedback <a href="https://github.com/aih/FlatGov/issues/207">#207</a></p>
+</li>
+<li>
+<p>CRS reports: add a Celery task <a href="https://github.com/aih/FlatGov/issues/173">#173</a></p>
+</li>
+<li>
+<p>UI Updates for Sponsors of Related Measures <a href="https://github.com/aih/FlatGov/issues/147">#147</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Merged pull requests:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Docs/update and link <a href="https://github.com/aih/FlatGov/pull/338">#338</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Docs/update and link <a href="https://github.com/aih/FlatGov/pull/337">#337</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>home UI updated <a href="https://github.com/aih/FlatGov/pull/335">#335</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_v0_3_0_2021_04_27"><a href="https://github.com/aih/FlatGov/tree/v0.3.0">v0.3.0</a> (2021-04-27)</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p><a href="https://github.com/aih/FlatGov/compare/2021-03-30&#8230;&#8203;v0.3.0">Full Changelog</a></p>
+</div>
+<div class="paragraph">
+<p><strong>Implemented enhancements:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Move all scrapy scripts out of the top level of the <code>scrapers</code> directory <a href="https://github.com/aih/FlatGov/issues/210">#210</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Fixed bugs:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Problem getting number for congress with some bills <a href="https://github.com/aih/FlatGov/issues/329">#329</a></p>
+</li>
+<li>
+<p>CBO report: handle error with 'pubDate' <a href="https://github.com/aih/FlatGov/issues/184">#184</a></p>
+</li>
+<li>
+<p>Skip adding text when there is no summary (adding cosponsors) <a href="https://github.com/aih/FlatGov/issues/55">#55</a></p>
+</li>
+<li>
+<p>Apparent problem indexing 116hr5150 <a href="https://github.com/aih/FlatGov/issues/43">#43</a></p>
+</li>
+<li>
+<p>Handle cosponsor names like 'Sanford D. Bishop, Jr.' which currently becomes 'Jr. Sanford D. Bishop' <a href="https://github.com/aih/FlatGov/issues/24">#24</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Closed issues:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Search using just the bill number will populate results but the links route the user to a "page not found" page <a href="https://github.com/aih/FlatGov/issues/327">#327</a></p>
+</li>
+<li>
+<p>Develop a download csv/xls file feature for the "Sponsors of related measures" table data <a href="https://github.com/aih/FlatGov/issues/324">#324</a></p>
+</li>
+<li>
+<p>Remove Committee Id from both Co-Sponsors tables <a href="https://github.com/aih/FlatGov/issues/323">#323</a></p>
+</li>
+<li>
+<p>Change 'On Assigned Committee' to 'Current Assigned Committee' <a href="https://github.com/aih/FlatGov/issues/321">#321</a></p>
+</li>
+<li>
+<p>Add 'leadership' information to Cosponsor download <a href="https://github.com/aih/FlatGov/issues/316">#316</a></p>
+</li>
+<li>
+<p>Remove 'Read Bill:' text <a href="https://github.com/aih/FlatGov/issues/313">#313</a></p>
+</li>
+<li>
+<p>Short title missing in bill data <a href="https://github.com/aih/FlatGov/issues/309">#309</a></p>
+</li>
+<li>
+<p>Set the order of cosponsors for the Committees and Cosponsors box <a href="https://github.com/aih/FlatGov/issues/306">#306</a></p>
+</li>
+<li>
+<p>Propagate Cosponsor table to the <code>cosponsor_dict</code> in the detail.html view <a href="https://github.com/aih/FlatGov/issues/305">#305</a></p>
+</li>
+<li>
+<p>Handle 'H.Con.Res.' in title correctly <a href="https://github.com/aih/FlatGov/issues/304">#304</a></p>
+</li>
+<li>
+<p>Capture committee information when processing data.json for bills <a href="https://github.com/aih/FlatGov/issues/300">#300</a></p>
+</li>
+<li>
+<p>Related Bills in Overview section - include only related bills from the current congress and change display <a href="https://github.com/aih/FlatGov/issues/290">#290</a></p>
+</li>
+<li>
+<p>Apply ordinal in bill display filter  <a href="https://github.com/aih/FlatGov/issues/289">#289</a></p>
+</li>
+<li>
+<p>Press statement Put Pagination in a fixed position <a href="https://github.com/aih/FlatGov/issues/283">#283</a></p>
+</li>
+<li>
+<p>Press statements: Add Pagination navigation menu <a href="https://github.com/aih/FlatGov/issues/281">#281</a></p>
+</li>
+<li>
+<p>Press Statements: Change architecture and show results instantly using direct API calls <a href="https://github.com/aih/FlatGov/issues/280">#280</a></p>
+</li>
+<li>
+<p>Press Statements  <a href="https://github.com/aih/FlatGov/issues/275">#275</a></p>
+</li>
+<li>
+<p>Read Bill button  <a href="https://github.com/aih/FlatGov/issues/274">#274</a></p>
+</li>
+<li>
+<p>Include short title (or truncated short title) in typeahead search list <a href="https://github.com/aih/FlatGov/issues/273">#273</a></p>
+</li>
+<li>
+<p>Search bar input format <a href="https://github.com/aih/FlatGov/issues/271">#271</a></p>
+</li>
+<li>
+<p>The congress filter should be on the same line as the search bar and include arrow <a href="https://github.com/aih/FlatGov/issues/270">#270</a></p>
+</li>
+<li>
+<p>Create scraper to update legislator information <a href="https://github.com/aih/FlatGov/issues/268">#268</a></p>
+</li>
+<li>
+<p>Create a Celery task to update the (Biden) SAP scraper daily  <a href="https://github.com/aih/FlatGov/issues/264">#264</a></p>
+</li>
+<li>
+<p>Committee and member information available from Propublica API <a href="https://github.com/aih/FlatGov/issues/263">#263</a></p>
+</li>
+<li>
+<p>Add Committee and Party information to Sponsors <a href="https://github.com/aih/FlatGov/issues/259">#259</a></p>
+</li>
+<li>
+<p>Provide consistent bill number display, e.g. H. R. 1500 (116) <a href="https://github.com/aih/FlatGov/issues/254">#254</a></p>
+</li>
+<li>
+<p>Organize Celery tasks <a href="https://github.com/aih/FlatGov/issues/248">#248</a></p>
+</li>
+<li>
+<p>Make Sponsor table more compatible with Govtrack <a href="https://github.com/aih/FlatGov/issues/228">#228</a></p>
+</li>
+<li>
+<p>Remove the 'Sponsor' model from bill.models <a href="https://github.com/aih/FlatGov/issues/227">#227</a></p>
+</li>
+<li>
+<p>Refactor CBO scraper to allow dynamic updates <a href="https://github.com/aih/FlatGov/issues/212">#212</a></p>
+</li>
+<li>
+<p>Create Celery task for Committee Documents <a href="https://github.com/aih/FlatGov/issues/205">#205</a></p>
+</li>
+<li>
+<p>Scrape the current Biden Statements of administration policy <a href="https://github.com/aih/FlatGov/issues/203">#203</a></p>
+</li>
+<li>
+<p>Statements and CBO: Consider using many-to-many relation to bills <a href="https://github.com/aih/FlatGov/issues/185">#185</a></p>
+</li>
+<li>
+<p>UI Sprint 1 _ Bill Page "Folder" Containers <a href="https://github.com/aih/FlatGov/issues/166">#166</a></p>
+</li>
+<li>
+<p>UI Sprint 1 _ Bills Related to  <a href="https://github.com/aih/FlatGov/issues/164">#164</a></p>
+</li>
+<li>
+<p>UI Sprint 1 _ Committees and Sponsors Section <a href="https://github.com/aih/FlatGov/issues/163">#163</a></p>
+</li>
+<li>
+<p>UI Sprint 1 _ Overview Section  <a href="https://github.com/aih/FlatGov/issues/161">#161</a></p>
+</li>
+<li>
+<p>Change Overview Section UI <a href="https://github.com/aih/FlatGov/issues/155">#155</a></p>
+</li>
+<li>
+<p>Bill selection: Allow user to hit return to select the currently typed value <a href="https://github.com/aih/FlatGov/issues/123">#123</a></p>
+</li>
+<li>
+<p>Bill summary should be a small description instead of a "read bill" button <a href="https://github.com/aih/FlatGov/issues/101">#101</a></p>
+</li>
+<li>
+<p>Add "Export" button on right side for "Sponsors of Related Measures" and " Bills Related to" sections to download a .csv file <a href="https://github.com/aih/FlatGov/issues/90">#90</a></p>
+</li>
+<li>
+<p>Link to Committee transcript data for bill (no need to scrape) <a href="https://github.com/aih/FlatGov/issues/54">#54</a></p>
+</li>
+<li>
+<p>Develop API calls for Press statements <a href="https://github.com/aih/FlatGov/issues/35">#35</a></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p><strong>Merged pull requests:</strong></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>Remove 'amdt' bills from search. Fixes #327 <a href="https://github.com/aih/FlatGov/pull/332">#332</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/related cosponsors <a href="https://github.com/aih/FlatGov/pull/331">#331</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Fix for 'None' in bill number or congress <a href="https://github.com/aih/FlatGov/pull/330">#330</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/committees cosponsors ayesha <a href="https://github.com/aih/FlatGov/pull/328">#328</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Docs/celery update <a href="https://github.com/aih/FlatGov/pull/325">#325</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Add Cosponsor relations to Bill model <a href="https://github.com/aih/FlatGov/pull/320">#320</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Add committee leadership positions <a href="https://github.com/aih/FlatGov/pull/317">#317</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Clean up fields in detail view <a href="https://github.com/aih/FlatGov/pull/312">#312</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Update billdata <a href="https://github.com/aih/FlatGov/pull/311">#311</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Update billdata <a href="https://github.com/aih/FlatGov/pull/310">#310</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Bug/type abbrev <a href="https://github.com/aih/FlatGov/pull/308">#308</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Fix for type abbrev. Closes #304 <a href="https://github.com/aih/FlatGov/pull/307">#307</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/related bills ayesha <a href="https://github.com/aih/FlatGov/pull/302">#302</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Feature/bill committee <a href="https://github.com/aih/FlatGov/pull/301">#301</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Fix for #272 <a href="https://github.com/aih/FlatGov/pull/299">#299</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/cosponsor UI <a href="https://github.com/aih/FlatGov/pull/297">#297</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/cosponsor info <a href="https://github.com/aih/FlatGov/pull/296">#296</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/crec celery <a href="https://github.com/aih/FlatGov/pull/295">#295</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Bump django from 3.1.6 to 3.1.8 <a href="https://github.com/aih/FlatGov/pull/294">#294</a> (<a href="https://github.com/apps/dependabot">dependabot[bot]</a>)</p>
+</li>
+<li>
+<p>Bump django from 3.1.6 to 3.1.8 in /server_py <a href="https://github.com/aih/FlatGov/pull/293">#293</a> (<a href="https://github.com/apps/dependabot">dependabot[bot]</a>)</p>
+</li>
+<li>
+<p>Bill short titles <a href="https://github.com/aih/FlatGov/pull/292">#292</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Convert congress to ordinals <a href="https://github.com/aih/FlatGov/pull/291">#291</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Bump urllib3 from 1.26.3 to 1.26.4 in /server_py <a href="https://github.com/aih/FlatGov/pull/288">#288</a> (<a href="https://github.com/apps/dependabot">dependabot[bot]</a>)</p>
+</li>
+<li>
+<p>search bar UI updated <a href="https://github.com/aih/FlatGov/pull/287">#287</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/read bill ayesha <a href="https://github.com/aih/FlatGov/pull/286">#286</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Add date templates <a href="https://github.com/aih/FlatGov/pull/284">#284</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Press statements ayesha <a href="https://github.com/aih/FlatGov/pull/282">#282</a> (<a href="https://github.com/ayeshamk">ayeshamk</a>)</p>
+</li>
+<li>
+<p>Feature/crec celery <a href="https://github.com/aih/FlatGov/pull/279">#279</a> (<a href="https://github.com/kapphire">kapphire</a>)</p>
+</li>
+<li>
+<p>Feature/readme celery <a href="https://github.com/aih/FlatGov/pull/278">#278</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/readme celery <a href="https://github.com/aih/FlatGov/pull/277">#277</a> (<a href="https://github.com/aih">aih</a>)</p>
+</li>
+<li>
+<p>Feature/django scrapy <a href="https://github.com/aih/FlatGov/pull/276">#276</a> (<a href="https://github.com/kapphire">kapphire</a>)</p>
+</li>
+<li>
+<p><em>This Changelog was automatically generated by <a href="https://github.com/github-changelog-generator/github-changelog-generator">github_changelog_generator</a></em></p>
+</li>
+</ul>
 </div>
 </div>
 </div>

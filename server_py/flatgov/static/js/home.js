@@ -148,6 +148,12 @@ $(document).ready(function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    $.ajax("https://in-session.house.gov").done(function (response) {
+        if (response === "1") {
+            $('#session-indicator').append("<i class=\"fa fa-flag\"></i> LIVE");
+        }
+    });
+
     var eventSources = [
         {
             name: 'US Holidays',

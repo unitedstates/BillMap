@@ -62,7 +62,7 @@
                     </p>
                   </div>
                   <div class="col-md-4 col-sm-12 mt-2">
-                      <div class="dropdown style="display: inline;" id="congressdropdown">
+                      <div class="dropdown" style="display: inline;" id="congressdropdown">
                           <div>
                               <select id="selectcongress" name="congress"  class=" select" aria-label="Select Congress">
                                   {% for congress in congressrange %}
@@ -106,9 +106,15 @@
                 </div>
             </div>
         </div>
-        
+
         <div>
-            <div id="wrap" class="p-4 mt-5">
+            <div class="mt-5 text-right">
+                <div id="session-indicator" class="session-indicator"></div>
+            </div>
+        </div>
+
+        <div>
+            <div id="wrap" class="p-4">
                 <div id="calendar" style=""></div>
                 <div style="clear:both"></div>
             

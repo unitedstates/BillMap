@@ -19,7 +19,7 @@ class EveryCrsReport:
         r = requests.get(EveryCrsReport.REPORTS_API_URL)
         if not r:
             raise RuntimeError("Can't get reports from everycrsreport.com")
-        reader = csv.DictReader(r.text.splitlines())
+        reader = csv.DictReader(r.content.decode("utf8").splitlines())
 
         meta_url_dups = CrsReport.objects.values_list('meta_url', flat=True).distinct()
         html_url_dups = CrsReport.objects.values_list('html_url', flat=True).distinct()

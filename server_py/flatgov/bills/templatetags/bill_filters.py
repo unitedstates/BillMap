@@ -50,6 +50,14 @@ def billnumbers_display(billnumbers: list):
 
 @register.filter
 @stringfilter
+def add_number_of_sections(reason: str, number_of_sections: int) -> str:
+    if not number_of_sections:
+        return reason
+    
+    return reason.replace('section match', 'section match ({})'.format(number_of_sections))
+
+@register.filter
+@stringfilter
 def cosponsor_name_display(name: str) -> str:
     """
     Converts "Waters, Maxine" to "Maxine Waters"

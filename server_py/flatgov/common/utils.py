@@ -5,6 +5,8 @@ import logging
 import gzip
 import json
 import re
+import datetime
+from pytz import timezone
 from common import constants
 
 logging.basicConfig(filename='utils.log',
@@ -22,6 +24,19 @@ def getText(item) -> str:
     return item.text
   except:
     return ''
+
+def set_eastern_timezone(obj):
+    if isinstance(obj, datetime.datetime):
+        return timezone('US/Eastern').localize(obj)
+    if isinstance(obj, datetime.date):
+        return timezone('US/Eastern').localize(datetime.datetime(obj.year, obj.month, obj.day))
+    elif isinstance(obj, str):
+        return timezone('US/Eastern').localize(obj.strftime("%Y-%m-%d"))
+
+    try:
+        return timezone('US/Eastern').localize(str(obj).strftime("%Y-%m-%d"))
+    except:
+        return None
 
 def getBillNumberFromBillPath(bill_path: str) -> str:
   """
@@ -105,3 +120,4 @@ def dumpRelatedBillJSON(billCongressTypeNumber, relatedBillJSON, relatedBillDirP
             logger.debug('Saved to: ' + relatedBillJSONPath)
         except Exception as err:
             raise Exception('Error storing ' + relatedBillJSONPath + ': ' + str(err))
+

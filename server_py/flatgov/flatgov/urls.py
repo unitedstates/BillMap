@@ -23,6 +23,7 @@ urlpatterns = [
     path('bills/', include('bills.urls')),
     path('', include('home.urls')),
     path('uscongress/debug/', include('uscongress.urls')),
+    path('events/', include('events.urls')),
     path('admin/', admin.site.urls),
     path('crs/', include('crs.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

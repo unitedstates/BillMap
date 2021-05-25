@@ -46,7 +46,7 @@ def process_xml_senate_committee(source):
             title=title,
             description=description,
             notes=room,
-            className="event-senate-committee-hearing" if isHearing else "event-senate-committee-markup",
+            className="event-senate-committee" if isHearing else "event-senate-committee",
             start=start,
             end=end,
             chamber="senate",

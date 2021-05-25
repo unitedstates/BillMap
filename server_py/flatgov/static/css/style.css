@@ -529,7 +529,19 @@ tbody td img:hover {
     background-color: pink;
 }
 
-.event-majority-leader *{
+.event-senate-floor {
+    background-color: red;
+}
+
+.event-senate-committee {
+    background-color: darkred;
+}
+
+.event-house-committee {
+    background-color: orange;
+}
+
+.event-house-majority-leader *{
     background-color: lightgray;
     color: darkblue;
     border: none;

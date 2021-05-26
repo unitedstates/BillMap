@@ -26,6 +26,7 @@ def process_ical(source):
             print("Recurring event detected, not supported yet")
         else:
             className = "event-opm" if source.name == "OPM Holidays" else "event-house-majority-leader"
+            chamber = "house" if source.name == "House Majority Leader" else ""
 
             Event.objects.create(
                 sourceName=source.name,
@@ -35,7 +36,8 @@ def process_ical(source):
                 allDay=allDay,
                 className=className,
                 start=startdate,
-                end=enddate)
+                end=enddate,
+                chamber=chamber)
 
     print("End processing ical: " + source.name)
     return

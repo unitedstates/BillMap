@@ -159,8 +159,14 @@ class BillDetailView(DetailView):
 
     def get_related_committees(self, **kwargs):
         slug = self.kwargs['slug']
-        return CommitteeDocument.objects.filter(
-            bill_number__iexact=slug[3:]).filter(congress__iexact=slug[:3])
+        bill_numbers = []
+        bill_numbers.append(slug[3:])
+        print('---- id', self.get_identical_bill_numbers())
+        [bill_numbers.append(number[3:]) for number in self.get_identical_bill_numbers() if number[3:] not in bill_numbers]
+        q_list = map(lambda n: Q(bill_number__iexact=n), bill_numbers)
+        q_list = reduce(lambda a, b: a | b, q_list)
+        print('---q list', q_list)
+        return CommitteeDocument.objects.filter(q_list).filter(congress__iexact=slug[:3])
 
     def get_crs_reports(self, **kwargs):
         slug = self.kwargs['slug']

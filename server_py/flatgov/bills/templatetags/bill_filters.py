@@ -43,9 +43,11 @@ def billnumbers_by_congress(billnumbers: list, congress: str):
    return  [billnumber for billnumber in list(billnumbers) if str(congress) in billnumber.split('(')[-1]]
 
 @register.filter
-def billnumbers_display(billnumbers: list):
+def billnumbers_display(billnumbers: list, withorig=False):
     if isinstance(billnumbers, str):
         billnumbers = billnumbers.split(', ')
+    if withorig:
+        return [(billnumber, billnumber_display(billnumber)) for billnumber in list(billnumbers) ]
     return [billnumber_display(billnumber) for billnumber in list(billnumbers) ]
 
 @register.filter

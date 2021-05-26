@@ -190,6 +190,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var calendarEl = document.getElementById('calendar');
 
+    var chamber = "all";
+    var type = "all";
+    var committee = "all";
+
     var calendar = new FullCalendar.Calendar(calendarEl, {
 
         headerToolbar: {
@@ -231,9 +235,12 @@ document.addEventListener('DOMContentLoaded', function() {
         events: {
             url: '/events/',
             method: 'GET',
-            extraParams: {
-                "start-date": '1999-01-01',
-                "end-date": '2021-12-31'
+            extraParams: function() {
+                return {
+                    "chamber": chamber,
+                    "committee": committee,
+                    "type": type
+                };
             },
             failure: function() {
                 alert('There was an error while fetching events!');
@@ -255,5 +262,27 @@ document.addEventListener('DOMContentLoaded', function() {
         if (selectedDate) {
             calendar.gotoDate(selectedDate);
         }
+    });
+
+    $.ajax("/events/committees").done(function (val) {
+        var options = ""
+        $(val).each(function (i, committee) {
+            options += "<option value='"+ committee +"'>" + committee + "</option>";
+        });
+
+        $('#committee_selector').append(options);
+    });
+
+    $("#chamber_selector").on("change", function () {
+        chamber = $("#chamber_selector").val();
+        calendar.refetchEvents();
+    });
+    $("#committee_selector").on("change", function () {
+        committee = $("#committee_selector").val();
+        calendar.refetchEvents();
+    });
+    $("#type_selector").on("change", function () {
+        type = $("#type_selector").val();
+        calendar.refetchEvents();
     });
 });

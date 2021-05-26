@@ -221,7 +221,7 @@
                                 <th scope="col">Detail</th>
                                 <!--th scope="col">Score</th-->
                                 <!--th scope="col">Sections matched</th-->
-                                <th scope="col">Best match section</th>
+                                <!--th scope="col">Best match section</th-->
                             </tr>
                         </thead>
                         <tbody>
@@ -261,7 +261,7 @@
                                     </td>
                                     <!--td>{% if bill.score %}{{ bill.score|normalize_score:current_bill_score }}{% endif %}</td-->
                                     <!--td>{{ bill.number_of_sections }}</td-->
-                                    <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
+                                    <!--td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td-->
                                 </tr>
                                 {% endif %}
                             {% endfor %}
@@ -281,7 +281,7 @@
                                 <th scope="col">Titles</th>
                                 <!--th scope="col">Score</th-->
                                 <!--th scope="col">Sections matched</th-->
-                                <th scope="col">Best match section</th>
+                                <!--th scope="col">Best match section</th-->
                             </tr>
                         </thead>
                         <tbody>
@@ -319,7 +319,7 @@
                                     {% endif %}
                                     <!--td>{% if bill.score %}{{ bill.score|normalize_score:current_bill_score }}{% endif %}</td-->
                                     <!--td>{{ bill.number_of_sections }}</td-->
-                                    <td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td>
+                                    <!--td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td-->
                                 </tr>
                             {% endfor %}
                         </tbody>

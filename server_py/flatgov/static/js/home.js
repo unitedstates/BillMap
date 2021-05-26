@@ -223,10 +223,9 @@ document.addEventListener('DOMContentLoaded', function() {
         eventSources: eventSources,
 
         eventClick: function(arg) {
-            // opens events in a popup window
-            //window.open(arg.event.url, 'google-calendar-event', 'width=700,height=600');
-            window.alert("Open modal");
-            arg.jsEvent.preventDefault() // don't navigate in main tab
+            $('#eventModalTitle').text(arg.event.title);
+            $('#eventModalDescription').text(arg.event.extendedProps.description + " " + arg.event.extendedProps.notes);
+            $("#eventModal").modal({});
         },
 
         events: {

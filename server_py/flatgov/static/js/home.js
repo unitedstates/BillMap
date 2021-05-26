@@ -249,5 +249,12 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         $('.fc-today-button').removeAttr("disabled");
     });
-    
+
+    $("#calendar-date-input").on("change", function () {
+        var selectedDate = $("#calendar-date-input").val();
+
+        if (selectedDate) {
+            calendar.gotoDate(selectedDate);
+        }
+    });
 });

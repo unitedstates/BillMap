@@ -401,11 +401,22 @@
                         </thead>
                         <tbody>
                             {% for cosponsor in cosponsors_for_bills %}
-                                {% check_billnumbers_congress cosponsor.bill_congress_type_numbers object.congress as cosponsor_checker %}
-                                 {% if cosponsor_checker %}
+                            {% check_billnumbers_congress cosponsor.bill_congress_type_numbers object.congress as cosponsor_checker %}
+                            {% if cosponsor_checker %}
                             <tr>
                                 <td>{{ cosponsor.name_full_official }}</td>
-                                <td>{{ cosponsor.bill_congress_type_numbers|billnumbers_by_congress:bill.congress|billnumbers_display|join:", "}}</td>
+                                <!-- <td>{{ cosponsor.bill_congress_type_numbers|billnumbers_by_congress:bill.congress|billnumbers_display }}</td> -->
+                                <td style="max-width: 400px;">
+                                    {% for rel_bill, rel_bill_display in cosponsor.bill_congress_type_numbers|billnumbers_by_congress:bill.congress|billnumbers_display %}
+                                        {% if rel_bill %}
+                                            <a class="" href="{% url 'bill-detail' slug=rel_bill  %}" >
+                                        {% else %}
+                                            <a class="">
+                                        {% endif %}
+                                            <span id="rel-bill">{{rel_bill_display}}</span>
+                                            </a>{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </td>
                                 <td>
                                     {{ cosponsor.committees_named|join:", " }}
                                 </td>

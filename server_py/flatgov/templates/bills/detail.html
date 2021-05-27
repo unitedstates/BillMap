@@ -631,6 +631,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">Type</th>
+                                <th scope="col">Bill</th>
                                 <th scope="col">Committee</th>
                                 <th scope="col">Chamber</th>
                                 <th scope="col">Report Number</th>
@@ -643,6 +644,7 @@
         
                             <tr>
                                 <td>{{ committee.report_type }}</td>
+                                <td>{{ committee.associated_legislation }} ({{ committee.congress }})</td>
                                 <td style="width: auto;">{{ committee.committee }}</td>
                                 <td>{{ committee.chamber }}</td>
                                 <td>{{ committee.report_number }}</td>

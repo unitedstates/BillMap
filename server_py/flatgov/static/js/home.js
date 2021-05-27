@@ -148,6 +148,12 @@ $(document).ready(function() {
 });
 
 document.addEventListener('DOMContentLoaded', function() {
+    $.ajax("https://in-session.house.gov").done(function (response) {
+        if (response === "1") {
+            $('#session-indicator').append("<i class=\"fa fa-flag\"></i> LIVE");
+        }
+    });
+
     var eventSources = [
         {
             name: 'US Holidays',
@@ -184,6 +190,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     var calendarEl = document.getElementById('calendar');
 
+    var chamber = "all";
+    var type = "all";
+    var committee = "all";
+
     var calendar = new FullCalendar.Calendar(calendarEl, {
 
         headerToolbar: {
@@ -217,18 +227,20 @@ document.addEventListener('DOMContentLoaded', function() {
         eventSources: eventSources,
 
         eventClick: function(arg) {
-            // opens events in a popup window
-            //window.open(arg.event.url, 'google-calendar-event', 'width=700,height=600');
-            window.alert("Open modal");
-            arg.jsEvent.preventDefault() // don't navigate in main tab
+            $('#eventModalTitle').text(arg.event.title);
+            $('#eventModalDescription').text(arg.event.extendedProps.description + " " + arg.event.extendedProps.notes);
+            $("#eventModal").modal({});
         },
 
         events: {
             url: '/events/',
             method: 'GET',
-            extraParams: {
-                "start-date": '1999-01-01',
-                "end-date": '2021-12-31'
+            extraParams: function() {
+                return {
+                    "chamber": chamber,
+                    "committee": committee,
+                    "type": type
+                };
             },
             failure: function() {
                 alert('There was an error while fetching events!');
@@ -243,5 +255,34 @@ document.addEventListener('DOMContentLoaded', function() {
         event.preventDefault();
         $('.fc-today-button').removeAttr("disabled");
     });
-    
+
+    $("#calendar-date-input").on("change", function () {
+        var selectedDate = $("#calendar-date-input").val();
+
+        if (selectedDate) {
+            calendar.gotoDate(selectedDate);
+        }
+    });
+
+    $.ajax("/events/committees").done(function (val) {
+        var options = ""
+        $(val).each(function (i, committee) {
+            options += "<option value='"+ committee +"'>" + committee + "</option>";
+        });
+
+        $('#committee_selector').append(options);
+    });
+
+    $("#chamber_selector").on("change", function () {
+        chamber = $("#chamber_selector").val();
+        calendar.refetchEvents();
+    });
+    $("#committee_selector").on("change", function () {
+        committee = $("#committee_selector").val();
+        calendar.refetchEvents();
+    });
+    $("#type_selector").on("change", function () {
+        type = $("#type_selector").val();
+        calendar.refetchEvents();
+    });
 });

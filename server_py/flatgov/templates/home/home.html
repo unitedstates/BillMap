@@ -62,7 +62,7 @@
                     </p>
                   </div>
                   <div class="col-md-4 col-sm-12 mt-2">
-                      <div class="dropdown style="display: inline;" id="congressdropdown">
+                      <div class="dropdown" style="display: inline;" id="congressdropdown">
                           <div>
                               <select id="selectcongress" name="congress"  class=" select" aria-label="Select Congress">
                                   {% for congress in congressrange %}
@@ -106,9 +106,51 @@
                 </div>
             </div>
         </div>
-        
+
         <div>
-            <div id="wrap" class="p-4 mt-5">
+            <div class="mt-5">
+                <h3>What's Happening This Month</h3>
+                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            </div>
+        </div>
+
+        <div>
+            <div class="mt-1 text-right">
+                <div id="session-indicator" class="session-indicator"></div>
+            </div>
+        </div>
+
+        <div>
+            <div class="form-group row">
+                <label for="example-date-input" class="col-2 col-form-label">Scroll To Date</label>
+                <div class="col-10">
+                    <input class="form-control" type="date" value="" id="calendar-date-input">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div id="wrap" class="p-4">
+
+                <div class="mb-2">
+                    <label for="chamber_selector">Chamber</label>
+                    <select id="chamber_selector" class="selectpicker">
+                        <option value='all'>All</option>
+                        <option value='house'>House</option>
+                        <option value='senate'>Senate</option>
+                    </select>
+                    <label for="committee_selector">Committee</label>
+                    <select id="committee_selector" class="selectpicker">
+                        <option value='all'>All</option>
+                    </select>
+                    <label for="type_selector">Type</label>
+                    <select id="type_selector" class="selectpicker">
+                        <option value='all'>All</option>
+                        <option value='hearing'>Hearing</option>
+                        <option value='markup'>Markup</option>
+                    </select>
+                </div>
+
                 <div id="calendar" style=""></div>
                 <div style="clear:both"></div>
             
@@ -121,6 +163,24 @@
         </div>
         <div class="my-5"></div>
         
+    </div>
+</div>
+<div class="modal fade" id="eventModal" tabindex="-1" role="dialog" aria-labelledby="eventModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="eventModalTitle">Event Title</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="eventModalDescription">
+                Event Description
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

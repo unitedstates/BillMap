@@ -150,7 +150,7 @@ $(document).ready(function() {
 document.addEventListener('DOMContentLoaded', function() {
     $.ajax("https://in-session.house.gov").done(function (response) {
         if (response === "1") {
-            $('#session-indicator').append("<i class=\"fa fa-flag\"></i> LIVE");
+            $('#session-indicator').append("<i class=\"fa fa-flag\"></i> HOUSE IS LIVE");
         }
     });
 
@@ -184,8 +184,9 @@ document.addEventListener('DOMContentLoaded', function() {
     var calendarKeyEl = document.getElementById('calendar-key');
 
     $.each(eventSources, function(index, eventSource) {
+
         $(calendarKeyEl)
-          .append("<div style='line-height:16px;' class=\"event-source-color-key p-1 px-3 mx-3 text-white " + eventSource.className+ "\">"+"<div class='d-flex flex-column justify-content-center text-center event-text'>"+"<div>"+eventSource.name+"</div>"+"<small style='line-height:16px; font-size: 10px;'>"+eventSource.label+"</small></div>"+"</div>")
+          .append("<div class=\"card " + eventSource.className + " \" style=\"width: 18rem;\"><div class=\"card-body\"><h5 class=\"card-title\">"+ eventSource.name +"</h5><p class=\"card-text\">"+eventSource.label+"</p></div></div>")
     });
 
     var calendarEl = document.getElementById('calendar');
@@ -226,10 +227,35 @@ document.addEventListener('DOMContentLoaded', function() {
 
         eventSources: eventSources,
 
-        eventClick: function(arg) {
-            $('#eventModalTitle').text(arg.event.title);
-            $('#eventModalDescription').text(arg.event.extendedProps.description + " " + arg.event.extendedProps.notes);
+        eventClick: function(info) {
+            $('#eventModalTitle').text(info.event.title);
+            $('#eventModalDescription').html("Start Time: " + info.event.start + "<br/><br/>" + info.event.extendedProps.description + "<br/><br/>" + info.event.extendedProps.notes);
             $("#eventModal").modal({});
+        },
+
+        eventDidMount: function(info) {
+
+            var tooltipText = "";
+
+            if (info.event.extendedProps.chamber) {
+                tooltipText += info.event.extendedProps.chamber + " / ";
+            }
+
+            if (info.event.extendedProps.committee) {
+                tooltipText += info.event.extendedProps.committee + " / ";
+            }
+
+            if (info.event.extendedProps.type) {
+                tooltipText += info.event.extendedProps.type + " / ";
+            }
+
+            if (info.event.title) {
+                tooltipText += "Title: " + info.event.title;
+            }
+
+            $(info.el).tooltip({
+                title: tooltipText
+            });
         },
 
         events: {

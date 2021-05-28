@@ -107,9 +107,24 @@ div.dataTables_wrapper div.dataTables_filter input {
     height: 120px;
 }
 
-#wrap {
+.wrap {
     background-color: #2D4059;
     border-radius: 10px;
+}
+
+.wrap .accordion.card {
+    border-radius: 10px;
+    background-color: #2D4059;
+    border:none;
+}
+
+.wrap .accordion.card .btn-link {
+    color: white;
+}
+
+.wrap .accordion.card .accordion-body.card-body {
+    background-color: white;
+    border:none;
 }
 
 .fc-scrollgrid {
@@ -502,6 +517,15 @@ tbody td img:hover {
     box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
 }
 
+.calendar-filters label {
+    color: white;
+}
+
+.calendar-filters select {
+    background-color: white;
+    padding: 5px;
+}
+
 .session-indicator {
     color: red;
 }
@@ -529,14 +553,17 @@ tbody td img:hover {
 }
 
 .event-opm {
-    background-color: pink;
+    background-color: lightgray;
+    color: darkblue;
 }
 
 .event-senate-floor {
     background-color: red;
+    color: white;
 }
 
 .event-senate-committee {
+    color: white;
     background-color: darkred;
 }
 
@@ -544,13 +571,27 @@ tbody td img:hover {
     background-color: orange;
 }
 
-.event-house-majority-leader *{
-    background-color: lightgray;
+.event-house-majority-leader, .event-house-majority-leader * {
+    background-color: yellow;
     color: darkblue;
-    border: none;
 }
+
 .advanced-search-toggle {
     display: block;
+}
+
+.calendar-key-header {
+    text-align: left;
+    display: block;
+    width: 100%;
+}
+
+.calendar-key-header .btn-link.focus, .calendar-key-header .btn-link:focus, .calendar-key-header btn-link:hover {
+    text-decoration: none;
+}
+
+.fc-event {
+    cursor: pointer;
 }
 
 @media only screen and (min-width: 768px) {

@@ -114,53 +114,72 @@
             </div>
         </div>
 
-        <div>
-            <div class="mt-1 text-right">
-                <div id="session-indicator" class="session-indicator"></div>
-            </div>
-        </div>
-
-        <div>
+        <div class="mt-1">
             <div class="form-group row">
-                <label for="example-date-input" class="col-2 col-form-label">Scroll To Date</label>
-                <div class="col-10">
+                <label for="example-date-input" class="col-2 col-form-label">Scroll to date</label>
+                <div class="col-4">
                     <input class="form-control" type="date" value="" id="calendar-date-input">
                 </div>
+                <div class="col-6 pt-3 text-right">
+                    <div id="session-indicator" class="session-indicator"></div>
+                </div>
             </div>
         </div>
 
         <div>
-            <div id="wrap" class="p-4">
+            <div class="p-4 wrap">
 
-                <div class="mb-2">
-                    <label for="chamber_selector">Chamber</label>
-                    <select id="chamber_selector" class="selectpicker">
-                        <option value='all'>All</option>
-                        <option value='house'>House</option>
-                        <option value='senate'>Senate</option>
-                    </select>
-                    <label for="committee_selector">Committee</label>
-                    <select id="committee_selector" class="selectpicker">
-                        <option value='all'>All</option>
-                    </select>
-                    <label for="type_selector">Type</label>
-                    <select id="type_selector" class="selectpicker">
-                        <option value='all'>All</option>
-                        <option value='hearing'>Hearing</option>
-                        <option value='markup'>Markup</option>
-                    </select>
+                <div class="row mb-3 calendar-filters">
+                    <div class="col-2">
+                        <label for="chamber_selector">Chamber</label>
+                        <select id="chamber_selector" class="selectpicker">
+                            <option value='all'>All</option>
+                            <option value='house'>House</option>
+                            <option value='senate'>Senate</option>
+                        </select>
+                    </div>
+                    <div class=" col-2">
+                        <label for="committee_selector">Committee</label>
+                        <select id="committee_selector" class="selectpicker">
+                            <option value='all'>All</option>
+                        </select>
+                    </div>
+                    <div class=" col-2">
+                        <label for="type_selector">Type</label>
+                        <select id="type_selector" class="selectpicker">
+                            <option value='all'>All</option>
+                            <option value='hearing'>Hearing</option>
+                            <option value='markup'>Markup</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div id="calendar" style=""></div>
+                <div id="calendar" class="mt-1"></div>
                 <div style="clear:both"></div>
             
             </div>
-            <div class="" id="">
-            <div class="card card-body d-flex flex-row" id="calendar-key">
-                <div class="mr-5">Calendar key</div>
-            </div>
+
+            <div id="calendarKeyAccordion" class="wrap">
+                <div class="card accordion mt-3">
+                    <div class="card-header" id="headingOne">
+                        <h5 class="mb-0">
+                            <button class="btn btn-link calendar-key-header" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                Calendar Key
+                            </button>
+                        </h5>
+                    </div>
+
+                    <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#calendarKeyAccordion">
+                        <div class="card-body accordion-body">
+
+                            <div class="card-columns" id="calendar-key">
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
+
         <div class="my-5"></div>
         
     </div>

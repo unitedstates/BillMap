@@ -598,8 +598,9 @@ tbody td img:hover {
     width: 100%;
 }
 
-.calendar-key-header .btn-link.focus, .calendar-key-header .btn-link:focus, .calendar-key-header btn-link:hover {
+.calendar-key-header.btn-link:active, .calendar-key-header.btn-link:focus, .calendar-key-header.btn-link:hover {
     text-decoration: none;
+    box-shadow: none;
 }
 
 .fc-event {

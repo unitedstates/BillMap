@@ -293,7 +293,9 @@ document.addEventListener('DOMContentLoaded', function() {
     $.ajax("/events/committees").done(function (val) {
         var options = ""
         $(val).each(function (i, committee) {
-            options += "<option value='"+ committee +"'>" + committee + "</option>";
+            if (committee) {
+                options += "<option value='"+ committee +"'>" + committee + "</option>";
+            }
         });
 
         $('#committee_selector').append(options);

@@ -146,7 +146,7 @@ class Bill(models.Model):
                 if type(bill_dict) is not dict:
                     continue
                 bill_dict['bill_congress_type_number'] = bill_congress_type_number
-                bill_dict['score'] = 0
+                bill_dict['score'] = 99
                 if bill.get('titles'):
                     bill_dict['title'] = ", ".join(bill.get('titles'))
                 if bill_congress_type_number == self.bill_congress_type_number:

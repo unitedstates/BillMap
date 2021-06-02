@@ -56,7 +56,7 @@ def add_number_of_sections(reason: str, number_of_sections: int) -> str:
     if not number_of_sections:
         return reason
     
-    return reason.replace('section match', 'section match ({})'.format(number_of_sections))
+    return reason.replace('section similarity', 'section similarity ({})'.format(number_of_sections))
 
 @register.filter
 @stringfilter

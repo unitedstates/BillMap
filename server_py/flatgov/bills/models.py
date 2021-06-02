@@ -120,7 +120,7 @@ class Bill(models.Model):
                 'title_list': maxItem.get('title', ''),
                 'bill_congress_type_number': billnumber,
                 'max_item': maxItem,
-                'reason': 'section match',
+                'reason': 'section similarity',
             })
 
         similar_bills = sorted(res, key=lambda k: k['score'], reverse=True)
@@ -130,14 +130,14 @@ class Bill(models.Model):
         for bill_congress_type_number, bill in self.related_dict.items():
             if bill_congress_type_number in similar_bill_numbers:
                 bill_dict = similar_bills[similar_bill_numbers.index(bill_congress_type_number)]
-                reasons = [*(bill.get('reason').split(", ")), "section match"]
+                reasons = [*(bill.get('reason').split(", ")), "section similarity"]
                 
                 # Deduplicate and remove 'None'
                 reasonString = getReasonString(reasons)
                 bill_dict['reason'] = reasonString
                 bill_dict['identified_by'] = bill.get('identified_by')
                 if bill_congress_type_number == self.bill_congress_type_number:
-                    reasons = ["identical", *(bill.get('reason', '').split(", ")), "section match"]
+                    reasons = ["identical", *(bill.get('reason', '').split(", ")), "section similarity"]
                     reasonString = getReasonString(reasons)
                     bill_dict['reason'] = reasonString
 
@@ -165,7 +165,7 @@ class Bill(models.Model):
         filtered_similar_bills = list()
         for bill in similar_bills:
             if bill.get('bill_congress_type_number','') == self.bill_congress_type_number:
-                    bill['reason'] = 'identical, section match'
+                    bill['reason'] = 'identical, section similarity'
 
             if bill.get('bill_congress_type_number') not in self.related_dict.keys():
                 filtered_similar_bills.append(bill) 

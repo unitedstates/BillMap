@@ -55,15 +55,15 @@
         {% if bill_to_bill|length == 10 %}
             <p><span><strong>Top 10 matched sections :</strong></span></p>
         {% else %}
-            <p><span><strong>Sections matched ({{ bill_to_bill|length }}) :</strong></span></p>
+            <p><span><strong>Similar sections ({{ bill_to_bill|length }}) :</strong></span></p>
         {% endif %}
         <div class="tab-pane fade show active" id="current" role="tabpanel" aria-labelledby="current-tab">
             <table class="table mt-3">
                 <thead>
                     <tr class="d-flex">
                         <th class="col-2">Score</th>
-                        <th class="col-5">Section match from {{ bill.bill_congress_type_number }}</th>
-                        <th class="col-5">Section match from {{ second_bill.bill_congress_type_number }}</th>
+                        <th class="col-5">Section similarity from {{ bill.bill_congress_type_number }}</th>
+                        <th class="col-5">Section similarity from {{ second_bill.bill_congress_type_number }}</th>
                     </tr>
                 </thead>
                 <tbody>

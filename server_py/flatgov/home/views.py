@@ -60,7 +60,6 @@ class BillListTitleAPIView(View):
 
 class GetBillTitleAPIView(View):
     def get(self, request, bill):
-        print(bill)
         bill = Bill.objects.filter(bill_congress_type_number=bill).first()
         if not bill:
             return JsonResponse({"status": 404})

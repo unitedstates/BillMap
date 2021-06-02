@@ -20,27 +20,9 @@
                         <a class="navbar-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home:home' %}">Home</a>
                     </li>
                     <li class="nav-item">
-                        <a class="navbar-link {% if request.resolver_match.url_name == 'bill-list' or request.resolver_match.url_name == 'bill-detail' or request.resolver_match.url_name  == 'bill-to-bill'  %}active{% endif %}" title="bills" href="/bills">Bills</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="navbar-link" title="documentation" href="/static/docs/index.html">Documentation</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="navbar-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="/about">About us</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="navbar-link {% if request.resolver_match.url_name == 'csv-download' %}active{% endif %}" href="/crs/csv-download/">Download</a>
+                        <a class="navbar-link {% if request.resolver_match.url_name == 'about' %}active{% endif %}" href="/about">About Us</a>
                     </li>
                 </ul>
-                <form class="form-inline my-2 my-lg-0">
-                    {% app_version as app_version %}
-                    <span class="mr-4 text-danger">
-                        {{ app_version }}
-                    </span>
-                    <button class="btn btn-outline-success my-2 my-sm-0" type="submit">
-                        Login
-                    </button>
-                </form>
             </div>
         </nav>
     </div>

@@ -106,7 +106,18 @@ div.dataTables_wrapper div.dataTables_filter input {
     background-color: #2D4059;
     height: 120px;
 }
+.dark-blue-footer {
+    background-color: #2D4059;
+}
 
+.link {
+    color: white;
+    font-weight: lighter;
+    margin-right: 20px;
+}
+.link:hover {
+    color: white;
+}
 .wrap {
     background-color: #2D4059;
     border-radius: 10px;
@@ -421,7 +432,7 @@ label textarea{
     vertical-align: middle;
 }
 
-footer {
+footerr {
     color: white;
     background: rgb(120, 26, 54);
     padding: 100px;

@@ -1,0 +1,30 @@
+{% load static %}
+{% load render_attrs %}
+
+{% url '/home' as home_path %}
+{% url '/about' as about_path %}
+<div class="row d-sm-flex justify-content-center dark-blue-footer py-5">
+    <div class="col-md-10 m-3">
+
+        <div class="">
+           <div class="d-md-flex justify-content-between">
+               <div>
+                <ul class="nav flex-row" style="color: wheat;">
+                    <li class="nav-item mb-2">
+                        <a class="link" title="documentation" href="/static/docs/index.html">Documentation</a>
+                    </li>
+                    <li class="nav-item mb-2">
+                        <a class="link" href="/crs/csv-download/">Data Download</a>
+                    </li>
+                </ul>
+               </div>
+               <div class="d-flex align-items-center mt-3 m-sm-0">
+                    {% app_version as app_version %}
+                    <span class="mr-4 text-danger">
+                        {{ app_version }}
+                    </span>
+               </div>
+           </div>
+        </div>
+    </div>
+</div>

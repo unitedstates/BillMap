@@ -229,7 +229,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
         eventClick: function(info) {
             $('#eventModalTitle').text(info.event.title);
-            $('#eventModalDescription').html("Start Time: " + info.event.start + "<br/><br/>" + info.event.extendedProps.description + "<br/><br/>" + info.event.extendedProps.notes);
+            $('#eventModalDescription').html(
+              "Chamber: " + (info.event.extendedProps.chamber ? info.event.extendedProps.chamber : "None") + "<br/>" +
+              "Committee: " + (info.event.extendedProps.committee ? info.event.extendedProps.committee : "None") + "<br/>" +
+              "Sub-Committee: " + (info.event.extendedProps.subcommittee ? info.event.extendedProps.subcommittee : "None")  + "<br/>" +
+              "Type: " + (info.event.extendedProps.type ? info.event.extendedProps.type : "None") + "<br/>" +
+              "Start Time: " + info.event.start + "<br/><br/>" +
+              info.event.extendedProps.description + "<br/><br/>" +
+              info.event.extendedProps.notes);
             $("#eventModal").modal({});
         },
 

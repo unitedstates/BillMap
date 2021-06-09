@@ -22,7 +22,8 @@ def process_xml_senate_committee(source):
     meetingBag = cssMeetingsScheduledBag["meeting"]
 
     for meeting in meetingBag:
-        committeeCode = meeting["cmte_code"] #SSFR00
+        eventId = meeting["identifier"] if "identifier" in meeting else "" # 329690
+        committeeCode = meeting["cmte_code"] # SSFR00
         committee = meeting["committee"] # Foreign Relations
         dayOfWeek = meeting["day_of_week"] # Wednesday
         room = meeting["room"] # SD-106
@@ -31,8 +32,15 @@ def process_xml_senate_committee(source):
         start = set_eastern_timezone(parse_date_from_string(meeting["date"]))
         end = start + datetime.timedelta(hours=1)
 
+        hasSubCommittee = False
+        hasMultipleSubCommittees = False
+
         if "sub_cmte" in meeting and meeting["sub_cmte"] is not None:
+            hasSubCommittee = True
             subCommittee = meeting["sub_cmte"] # optional, Labor, Health and Human Services, and Education, and Related Agencies
+
+            if isinstance(subCommittee, list):
+                hasMultipleSubCommittees = True
         else:
             subCommittee = None
 
@@ -41,20 +49,116 @@ def process_xml_senate_committee(source):
 
         isHearing = True if re.search("hearing", matter, flags=re.IGNORECASE) else False
 
-        Event.objects.create(
-            sourceName=source.name,
-            title=title,
-            description=description,
-            notes=room,
-            className="event-senate-committee" if isHearing else "event-senate-committee",
-            start=start,
-            end=end,
-            chamber="senate",
-            committee=committee,
-            committeeCode = committeeCode,
-            subcommittee=subCommittee,
-            type="hearing" if isHearing else "markup",
-            allDay=False)
+
+        existingEvent = False
+
+        if hasMultipleSubCommittees:
+            for sc in subCommittee:
+                try:
+                    existingEvent = Event.objects.get(sourceName=source.name, subCommittee=sc, eventId=eventId)
+                except:
+                    existingEvent = False
+
+                if existingEvent:
+                    print("Updating event: " + eventId)
+                    existingEvent.sourceId=source.id
+                    existingEvent.title=title
+                    existingEvent.description=description
+                    existingEvent.notes=room
+                    existingEvent.allDay=False
+                    existingEvent.className="event-senate-committee" if isHearing else "event-senate-committee"
+                    existingEvent.start=start
+                    existingEvent.end=end
+                    existingEvent.type="hearing" if isHearing else "markup"
+                    existingEvent.chamber="senate"
+                    existingEvent.committee=committee
+                    existingEvent.committeeCode=committeeCode
+                    existingEvent.subcommittee=sc
+
+                    existingEvent.save(update_fields=['sourceId',
+                                                      'title',
+                                                      'description',
+                                                      'notes',
+                                                      'allDay',
+                                                      'className',
+                                                      'start',
+                                                      'end',
+                                                      'type',
+                                                      'chamber',
+                                                      'committee',
+                                                      'committeeCode',
+                                                      'subCommittee'])
+                else:
+                    print("Creating event: " + eventId)
+                    Event.objects.create(
+                        sourceName=source.name,
+                        sourceId = source.id,
+                        eventId = eventId,
+                        title=title,
+                        description=description,
+                        notes=room,
+                        className="event-senate-committee" if isHearing else "event-senate-committee",
+                        start=start,
+                        end=end,
+                        chamber="senate",
+                        committee=committee,
+                        committeeCode =committeeCode,
+                        subcommittee=sc,
+                        type="hearing" if isHearing else "markup",
+                        allDay=False)
+        else:
+            try:
+                existingEvent = Event.objects.get(sourceName=source.name, eventId=eventId)
+            except:
+                existingEvent = False
+
+            if existingEvent:
+                print("Updating event: " + eventId)
+                existingEvent.sourceId=source.id
+                existingEvent.title=title
+                existingEvent.description=description
+                existingEvent.notes=room
+                existingEvent.allDay=False
+                existingEvent.className="event-senate-committee" if isHearing else "event-senate-committee"
+                existingEvent.start=start
+                existingEvent.end=end
+                existingEvent.type="hearing" if isHearing else "markup"
+                existingEvent.chamber="senate"
+                existingEvent.committee=committee
+                existingEvent.committeeCode=committeeCode
+                existingEvent.subcommittee=subCommittee if subCommittee else ""
+
+                existingEvent.save(update_fields=['sourceId',
+                                                  'title',
+                                                  'description',
+                                                  'notes',
+                                                  'allDay',
+                                                  'className',
+                                                  'start',
+                                                  'end',
+                                                  'type',
+                                                  'chamber',
+                                                  'committee',
+                                                  'committeeCode',
+                                                  'subCommittee'])
+            else:
+                print("Creating event: " + eventId)
+                Event.objects.create(
+                    sourceName=source.name,
+                    sourceId = source.id,
+                    eventId = eventId,
+                    title=title,
+                    description=description,
+                    notes=room,
+                    className="event-senate-committee" if isHearing else "event-senate-committee",
+                    start=start,
+                    end=end,
+                    chamber="senate",
+                    committee=committee,
+                    committeeCode =committeeCode,
+                    subcommittee=subCommittee if subCommittee else "",
+                    type="hearing" if isHearing else "markup",
+                    allDay=False)
 
     print("End processing xml senate committee schedule data: " + source.name)
     return

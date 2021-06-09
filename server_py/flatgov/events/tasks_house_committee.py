@@ -131,37 +131,114 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
             sc_exists = False
             for sc in dom.xpath("meeting-details/subcommittees/committee-name"):
                 sc_exists = True
-                Event.objects.create(
-                    sourceName=source.name,
-                    title=topic,
-                    description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills),
-                    notes=notes,
-                    chamber="house",
-                    className="event-house-committee",
-                    committee=c.text,
-                    committeeCode=c.get("id"),
-                    subcommittee=sc.text,
-                    start=start,
-                    end=end,
-                    type = type,
-                    url = xmlUrl,
-                    allDay=False)
+
+                existingEvent = False
+                try:
+                    existingEvent = Event.objects.get(sourceName=source.name, eventId=event_id, subcommittee=sc.text)
+                except:
+                    existingEvent = False
+
+                if existingEvent:
+                    print("Updating event: " + event_id)
+                    existingEvent.sourceId=source.id
+                    existingEvent.title=topic
+                    existingEvent.description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills),
+                    existingEvent.notes=notes
+                    existingEvent.allDay=False
+                    existingEvent.className="event-house-committee"
+                    existingEvent.start=start
+                    existingEvent.end=end
+                    existingEvent.type=type,
+                    existingEvent.chamber="house",
+                    existingEvent.referenceUrl = xmlUrl,
+                    existingEvent.committee=c.text,
+                    existingEvent.committeeCode=c.get("id")
+
+                    existingEvent.save(update_fields=['sourceId',
+                                                      'title',
+                                                      'description',
+                                                      'notes',
+                                                      'allDay',
+                                                      'className',
+                                                      'start',
+                                                      'end',
+                                                      'type',
+                                                      'chamber',
+                                                      'referenceUrl',
+                                                      'committee',
+                                                      'committeeCode'])
+                else:
+                    print("Creating event: " + event_id)
+                    Event.objects.create(
+                        sourceName=source.name,
+                        sourceId=source.id,
+                        eventId=event_id,
+                        title=topic,
+                        description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills),
+                        notes=notes,
+                        chamber="house",
+                        className="event-house-committee",
+                        committee=c.text,
+                        committeeCode=c.get("id"),
+                        subcommittee=sc.text,
+                        start=start,
+                        end=end,
+                        type = type,
+                        referenceUrl = xmlUrl,
+                        allDay=False)
 
             if not sc_exists:
-                Event.objects.create(
-                    sourceName=source.name,
-                    title=topic,
-                    description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills),
-                    notes=notes,
-                    chamber="house",
-                    className="event-house-committee",
-                    committee=c.text,
-                    committeeCode=c.get("id"),
-                    start=start,
-                    end=end,
-                    type = type,
-                    url = xmlUrl,
-                    allDay=False)
+                existingEvent = False
+                try:
+                    existingEvent = Event.objects.get(sourceName=source.name, eventId=event_id, committeeCode=c.get("id"))
+                except:
+                    existingEvent = False
+
+                if existingEvent:
+                    print("Updating event: " + event_id)
+                    existingEvent.sourceId=source.id
+                    existingEvent.title=topic
+                    existingEvent.description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills)
+                    existingEvent.notes=notes
+                    existingEvent.allDay=False
+                    existingEvent.className="event-house-committee"
+                    existingEvent.start=start
+                    existingEvent.end=end
+                    existingEvent.type=type
+                    existingEvent.chamber="house"
+                    existingEvent.referenceUrl = xmlUrl
+                    existingEvent.committee=c.text
+
+                    existingEvent.save(update_fields=['sourceId',
+                                                      'title',
+                                                      'description',
+                                                      'notes',
+                                                      'allDay',
+                                                      'className',
+                                                      'start',
+                                                      'end',
+                                                      'type',
+                                                      'chamber',
+                                                      'referenceUrl',
+                                                      'committee'])
+                else:
+                    print("Creating event: " + event_id)
+                    Event.objects.create(
+                        sourceName=source.name,
+                        sourceId=source.id,
+                        eventId=event_id,
+                        title=topic,
+                        description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills),
+                        notes=notes,
+                        chamber="house",
+                        className="event-house-committee",
+                        committee=c.text,
+                        committeeCode=c.get("id"),
+                        start=start,
+                        end=end,
+                        type = type,
+                        referenceUrl = xmlUrl,
+                        allDay=False)
 
     except Exception as e:
         print("Error parsing " + xmlUrl + " " + str(e))

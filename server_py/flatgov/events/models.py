@@ -7,6 +7,7 @@ from iteration_utilities import flatten, unique_everseen, duplicates
 
 class Event(models.Model):
     sourceName = models.CharField(max_length=100, null=True, blank=True)
+    sourceId = models.CharField(max_length=100, null=True, blank=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
     title = models.CharField(max_length=1000, null=True, blank=True)
@@ -21,11 +22,13 @@ class Event(models.Model):
     endRecur = models.DateTimeField(null=True, blank=True)
     allDay = models.BooleanField(null=True, blank=True)
     daysOfWeek = models.JSONField(default=list)
+    eventId = models.CharField(max_length=100, null=True, blank=True)
+    referenceUrl = models.CharField(max_length=5000, null=True, blank=True)
     url = models.CharField(max_length=5000, null=True, blank=True)
     chamber = models.CharField(max_length=100, null=True, blank=True)
     committeeCode= models.CharField(max_length=100, null=True, blank=True)
-    committee = models.CharField(max_length=100, null=True, blank=True)
-    subcommittee = models.CharField(max_length=100, null=True, blank=True)
+    committee = models.CharField(max_length=200, null=True, blank=True)
+    subcommittee = models.CharField(max_length=200, null=True, blank=True)
     type = models.CharField(max_length=100, null=True, blank=True)
 
     def __str__(self):

@@ -171,7 +171,18 @@ class BillDetailView(DetailView):
         crs_reports = list(self.object.crsreport_set.all())
         crs_reports_context = []
         for report in crs_reports:
-            context_item = {"title": report.title, "date": report.date}
+            pdf_everycrs = ""
+            html_everycrs = ""
+            main_everycrs = ""
+            if report.file:
+                pdf_everycrs = "https://www.everycrsreport.com/files/" + report.file
+                fileparts = report.file.split("_")
+                if len(fileparts) == 3:
+                    main_everycrs = "https://www.everycrsreport.com/reports/" + fileparts[1] + ".html"
+            if report.html_url:
+                html_everycrs = "https://www.everycrsreport.com/files/" + report.html_url
+
+            context_item = {"title": report.title, "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
             metadata = json.loads(report.metadata)
             versions = metadata.get('versions', [])
             if versions and len(versions) > 0:

@@ -234,9 +234,12 @@ document.addEventListener('DOMContentLoaded', function() {
               "Committee: " + (info.event.extendedProps.committee ? info.event.extendedProps.committee : "None") + "<br/>" +
               "Sub-Committee: " + (info.event.extendedProps.subcommittee ? info.event.extendedProps.subcommittee : "None")  + "<br/>" +
               "Type: " + (info.event.extendedProps.type ? info.event.extendedProps.type : "None") + "<br/>" +
-              "Start Time: " + info.event.start + "<br/><br/>" +
-              info.event.extendedProps.description + "<br/><br/>" +
-              info.event.extendedProps.notes);
+              "Event ID: " + (info.event.extendedProps.eventId ? info.event.extendedProps.eventId : "None") + "<br/>" +
+              "Reference URL: " + (info.event.extendedProps.referenceUrl ? "<a href='" + info.event.extendedProps.referenceUrl + "' target='_blank'>Open</a>" : "None") + "<br/><br/>" +
+              "Start Time: " + info.event.start + "<br/>" +
+              "End Time: " + info.event.end + "<br/><br/>" +
+              "Description: " + info.event.extendedProps.description + "<br/><br/>" +
+              "Notes: " + info.event.extendedProps.notes + "<br/><br/>")
             $("#eventModal").modal({});
         },
 

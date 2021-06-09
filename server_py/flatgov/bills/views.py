@@ -175,12 +175,12 @@ class BillDetailView(DetailView):
             html_everycrs = ""
             main_everycrs = ""
             if report.file:
-                pdf_everycrs = "everycrsreport.com/files/" + report.file
+                pdf_everycrs = "https://everycrsreport.com/files/" + report.file
                 fileparts = report.file.split("_")
                 if len(fileparts) == 3:
-                    main_everycrs = "everycrsreport.com/reports/" + fileparts[1] + ".html"
+                    main_everycrs = "https://everycrsreport.com/reports/" + fileparts[1] + ".html"
             if report.html_url:
-                html_everycrs = "everycrsreport.com/files/" + report.html_url
+                html_everycrs = "https://everycrsreport.com/files/" + report.html_url
 
             context_item = {"title": report.title, "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
             metadata = json.loads(report.metadata)

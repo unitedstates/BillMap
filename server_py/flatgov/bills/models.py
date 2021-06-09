@@ -336,5 +336,5 @@ TASK_STATE_CHOICES = sorted(zip(ALL_STATES, ALL_STATES))
 #    updated_at = models.DateTimeField(auto_now_add=True)
     
 
-    def __str__(self):
-        return f"{self.congress} {self.bill_number} {self.status}"
+#    def __str__(self):
+#        return f"{self.congress} {self.bill_number} {self.status}"

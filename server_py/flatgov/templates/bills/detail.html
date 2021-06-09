@@ -124,7 +124,7 @@
                                                 <th scope="col">Co-sponsor</th>
                                                 <th scope="col">Current Assigned Committees</th>
                                                 <th scope="col">Party</th>
-                                                <th scope="col">Rank</th>
+                                                <!--th scope="col">Rank</th-->
                                                 <th scope="col">Currently in Congress</th>
                                             </tr>
                                         </thead>
@@ -139,7 +139,7 @@
                                                 {% endif %}
                                                 <td>{{ cosponsor.committee_name }}</td>
                                                 <td>{{ cosponsor.party|slice:":1" }}</td>
-                                                <td>{{ cosponsor.rank }}</td>
+                                                <!--td>{{ cosponsor.rank }}</td-->
                                                 <td>
                                                     {% if cosponsor.current %}
                                                         Yes 
@@ -396,7 +396,7 @@
                                 <th scope="col">Bills</th>
                                 <th scope="col">Current Assigned Committees</th>
                                 <th scope="col">Party</th>
-                                <th scope="col">Rank</th>
+                                <!--th scope="col">Rank</th-->
                             </tr>
                         </thead>
                         <tbody>
@@ -420,9 +420,9 @@
                                     {{ cosponsor.committees_named|join:", " }}
                                 </td>
                                 <td>{{ cosponsor.party|slice:":1"}}</td>
-                                <td>
+                                <!--td>
                                     {{cosponsor.ranks|join:", "}}
-                                </td>
+                                </td-->
                             </tr>
                                 {% endif %}
                             {% endfor %}
@@ -440,7 +440,7 @@
                                 <th scope="col">Bills</th>
                                 <th scope="col">Current Assigned Committees</th>
                                 <th scope="col">Party</th>
-                                <th scope="col">Rank</th>
+                                <!--th scope="col">Rank</th-->
                             </tr>
                         </thead>
                         <tbody>
@@ -462,9 +462,9 @@
                                     {{ cosponsor.committees_named|join:", " }}
                                 </td>
                                 <td>{{ cosponsor.party|slice:":1"}}</td>
-                                <td>
+                                <!--td>
                                     {{cosponsor.ranks|join:", "}}
-                                </td>
+                                </td-->
                             </tr>
                             {% endfor %}
                         </tbody>

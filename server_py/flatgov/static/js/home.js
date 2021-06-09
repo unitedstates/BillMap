@@ -237,7 +237,7 @@ document.addEventListener('DOMContentLoaded', function() {
               "Event ID: " + (info.event.extendedProps.eventId ? info.event.extendedProps.eventId : "None") + "<br/>" +
               "Reference URL: " + (info.event.extendedProps.referenceUrl ? "<a href='" + info.event.extendedProps.referenceUrl + "' target='_blank'>Open</a>" : "None") + "<br/><br/>" +
               "Start Time: " + info.event.start + "<br/>" +
-              "End Time: " + info.event.end + "<br/><br/>" +
+              "End Time: " + (info.event.end ? info.event.end : "Not specified") + "<br/><br/>" +
               "Description: " + info.event.extendedProps.description + "<br/><br/>" +
               "Notes: " + info.event.extendedProps.notes + "<br/><br/>")
             $("#eventModal").modal({});

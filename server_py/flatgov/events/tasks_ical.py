@@ -7,7 +7,10 @@ import datetime
 
 def process_ical(source):
     print("Processing ical: " + source.name)
-    #source.content is not xml
+
+    if source.name == "OPM Holidays":
+        print("Deleting existing OPM Holidays")
+        Event.objects.filter(sourceName=source.name).delete()
 
     cal = icalendar.Calendar.from_ical(source.content)
 
@@ -38,7 +41,7 @@ def process_ical(source):
                 existingEvent = False
 
             if existingEvent:
-                print("Updating event: " + eventId)
+                #print("Updating event: " + eventId)
                 existingEvent.sourceId=source.id
                 existingEvent.title=summary
                 existingEvent.description=description
@@ -59,7 +62,7 @@ def process_ical(source):
                                                   'end',
                                                   'chamber'])
             else:
-                print("Creating event: " + eventId)
+                #print("Creating event: " + eventId)
                 Event.objects.create(
                     sourceName=source.name,
                     sourceId=source.id,

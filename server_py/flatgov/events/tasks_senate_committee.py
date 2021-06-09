@@ -44,7 +44,7 @@ def process_xml_senate_committee(source):
         else:
             subCommittee = None
 
-        title = committee if not subCommittee else "{} - {}".format(committee, subCommittee)
+        title = committee
         description = "{} {} in Room {} - {}".format(meeting["date"], dayOfWeek, room, matter)
 
         isHearing = True if re.search("hearing", matter, flags=re.IGNORECASE) else False
@@ -58,6 +58,8 @@ def process_xml_senate_committee(source):
                     existingEvent = Event.objects.get(sourceName=source.name, subCommittee=sc, eventId=eventId)
                 except:
                     existingEvent = False
+
+                title = "{} - {}".format(committee, sc)
 
                 if existingEvent:
                     print("Updating event: " + eventId)
@@ -73,7 +75,6 @@ def process_xml_senate_committee(source):
                     existingEvent.chamber="senate"
                     existingEvent.committee=committee
                     existingEvent.committeeCode=committeeCode
-                    existingEvent.subcommittee=sc
 
                     existingEvent.save(update_fields=['sourceId',
                                                       'title',
@@ -86,8 +87,7 @@ def process_xml_senate_committee(source):
                                                       'type',
                                                       'chamber',
                                                       'committee',
-                                                      'committeeCode',
-                                                      'subCommittee'])
+                                                      'committeeCode'])
                 else:
                     print("Creating event: " + eventId)
                     Event.objects.create(
@@ -126,7 +126,7 @@ def process_xml_senate_committee(source):
                 existingEvent.chamber="senate"
                 existingEvent.committee=committee
                 existingEvent.committeeCode=committeeCode
-                existingEvent.subcommittee=subCommittee if subCommittee else ""
+                existingEvent.subcommittee=subCommittee if hasSubCommittee else ""
 
                 existingEvent.save(update_fields=['sourceId',
                                                   'title',
@@ -140,7 +140,7 @@ def process_xml_senate_committee(source):
                                                   'chamber',
                                                   'committee',
                                                   'committeeCode',
-                                                  'subCommittee'])
+                                                  'subcommittee'])
             else:
                 print("Creating event: " + eventId)
                 Event.objects.create(
@@ -156,7 +156,7 @@ def process_xml_senate_committee(source):
                     chamber="senate",
                     committee=committee,
                     committeeCode =committeeCode,
-                    subcommittee=subCommittee if subCommittee else "",
+                    subcommittee=subCommittee if hasSubCommittee else "",
                     type="hearing" if isHearing else "markup",
                     allDay=False)
 

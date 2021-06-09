@@ -19,8 +19,7 @@ from celery import states
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
 from bills.models import (cleanReasons, Bill, Cosponsor, Statement, CboReport,
-                          CommitteeDocument, PressStatementTask,
-                          PressStatement)
+                          CommitteeDocument)
 
 from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 

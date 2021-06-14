@@ -3,6 +3,7 @@ from typing import Mapping
 from celery import shared_task
 from django.db.models.fields import BinaryField
 
+
 from scrapy.crawler import CrawlerProcess
 from scrapy.utils.project import get_project_settings
 

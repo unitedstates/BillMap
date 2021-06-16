@@ -174,6 +174,9 @@ class Bill(models.Model):
 
         combined_related_bills_clean =  combined_related_bills[:MAX_RELATED_BILLS]
         for item in combined_related_bills_clean:
+            qs_bill = Bill.objects.filter(
+                bill_congress_type_number=item['billnumber'])
+            item["in_db"] =  qs_bill.exists()
             if item.get('reason', ''):
                 item['reason'] = getReasonString(item['reason'].split(", "))
         return combined_related_bills_clean

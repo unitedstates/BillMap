@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'bills',
     'uscongress',
     'home',
+    'feedback',
 
     'rest_framework',
     'django_tables2',
@@ -307,3 +308,9 @@ CKEDITOR_CONFIGS = {
         "codeSnippet_theme": "xcode",
     }
 }
+
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER', "")
+EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD', "")
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True

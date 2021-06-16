@@ -5,13 +5,15 @@ import re
 from functools import reduce
 from typing import Dict
 from operator import itemgetter
-
+from django.urls import reverse_lazy
+from common.tasks import send_email
 from django.conf import settings
 from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render
 from django.views.generic import TemplateView, DetailView
+from django.views.generic.edit import FormMixin
 
 from django_tables2 import MultiTableMixin
 from celery import states
@@ -19,12 +21,12 @@ from celery import states
 from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
 
 from bills.models import (cleanReasons, Bill, Cosponsor, Statement, CboReport,
-                          CommitteeDocument, PressStatementTask,
-                          PressStatement)
+                          CommitteeDocument)
 
 from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 
 from crs.models import CrsReport
+from feedback.forms import FeedbackModelForm
 
 
 def deep_get(dictionary: Dict, *keys):
@@ -119,11 +121,33 @@ def similar_bills_view(request):
     }
     return render(request, 'bills/bill-similar.html', context)
 
-
-class BillDetailView(DetailView):
+class BillDetailView(FormMixin, DetailView):
     model = Bill
     template_name = 'bills/detail.html'
     slug_field = 'bill_congress_type_number'
+    form_class = FeedbackModelForm
+
+    def get_success_url(self):
+        return reverse_lazy('bill-detail', kwargs={'slug': self.object.bill_congress_type_number})
+
+    def post(self, request, *args, **kwargs):
+        self.object = self.get_object()
+        form = self.get_form()
+        if form.is_valid():
+            return self.form_valid(form)
+        else:
+            return self.form_invalid(form)
+
+    def form_valid(self, form):
+        form.save()
+
+        email_subject = 'Received a feedback'
+        email_list = [settings.EMAIL_HOST_USER]
+
+        url = self.request.scheme+"://"+self.request.META.get('HTTP_HOST') + form.instance.get_admin_url()
+        email_content = f'<a href="{url}">Click here to see feedback</a>'
+        send_email.delay(email_subject, email_list, email_content)
+        return super().form_valid(form)
 
     # paginate_by = settings.DJANGO_TABLES2_PAGINATE_BY
 
@@ -150,6 +174,8 @@ class BillDetailView(DetailView):
         context['cosponsors_for_bills'] = self.get_cosponsors_for_same_bills()
         context['propublica_api_key'] = settings.PROPUBLICA_CONGRESS_API_KEY
         context['no_data_message'] = "No data available for this table"
+        context['feedback_form'] = self.get_form()
+
         return context
 
     def get_related_statements(self, **kwargs):
@@ -171,7 +197,18 @@ class BillDetailView(DetailView):
         crs_reports = list(self.object.crsreport_set.all())
         crs_reports_context = []
         for report in crs_reports:
-            context_item = {"title": report.title, "date": report.date}
+            pdf_everycrs = ""
+            html_everycrs = ""
+            main_everycrs = ""
+            if report.file:
+                pdf_everycrs = "https://www.everycrsreport.com/files/" + report.file
+                fileparts = report.file.split("_")
+                if len(fileparts) == 3:
+                    main_everycrs = "https://www.everycrsreport.com/reports/" + fileparts[1] + ".html"
+            if report.html_url:
+                html_everycrs = "https://www.everycrsreport.com/files/" + report.html_url
+
+            context_item = {"title": report.title, "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
             metadata = json.loads(report.metadata)
             versions = metadata.get('versions', [])
             if versions and len(versions) > 0:

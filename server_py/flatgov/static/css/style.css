@@ -5,11 +5,52 @@
 	font-weight: 400;
 	font-style: normal;
 }
+
+textarea::-webkit-input-placeholder {
+    color: #0bf;
+  }
+  
+  textarea:-moz-placeholder { /* Firefox 18- */
+    color: #0bf;  
+  }
+
+  
+  textarea::-moz-placeholder {  /* Firefox 19+ */
+    color: #0bf;  
+  }
+
+  textarea:-ms-input-placeholder {
+    color: #0bf;  
+  }
+  
+  textarea::placeholder {
+    color: #13597A !important;
+    box-shadow: none !important;
+  }
+
+  .textarea-feedback {
+      background-color: #DADADA;
+      border: none;
+      border-radius: 0;
+    }
+    
+.textarea-feedback:focus {
+    background-color: #DADADA;
+    border: none;
+    box-shadow: none;
+    color: #13597A;
+
+  }
+
 * {
     font-family: 'Public Sans', sans-serif;
 }
 body {
     background-color: #F1EDE4;
+}
+
+.feedback-section {
+    color:#13597A;
 }
 
 

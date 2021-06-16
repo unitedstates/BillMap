@@ -48,6 +48,7 @@ class BillListAPIView(View):
         bills = Bill.objects.values_list('bill_congress_type_number', flat=True) \
             .order_by('bill_congress_type_number')
         return JsonResponse({"bill_list": list(reversed(bills))})
+
 class BillListTitleAPIView(View):
     
     def get(self, request, congressnumber):

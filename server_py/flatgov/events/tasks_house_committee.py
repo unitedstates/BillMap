@@ -17,7 +17,7 @@ def process_html_house_committee(source):
     for cmteCode in re.findall(r'<option value="(....)">', source.content):
 
         # Download the feed for this committee.
-        print("Fetching events for committee " + cmteCode)
+        #print("Fetching events for committee " + cmteCode)
         html = ""
 
         with urllib.request.urlopen(Request("http://docs.house.gov/Committee/RSS.ashx?Code={}".format(cmteCode),
@@ -139,7 +139,7 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
                     existingEvent = False
 
                 if existingEvent:
-                    print("Updating event: " + event_id)
+                    #print("Updating event: " + event_id)
                     existingEvent.sourceId=source.id
                     existingEvent.title=topic
                     existingEvent.description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills),
@@ -168,7 +168,7 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
                                                       'committee',
                                                       'committeeCode'])
                 else:
-                    print("Creating event: " + event_id)
+                    #print("Creating event: " + event_id)
                     Event.objects.create(
                         sourceName=source.name,
                         sourceId=source.id,
@@ -195,7 +195,7 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
                     existingEvent = False
 
                 if existingEvent:
-                    print("Updating event: " + event_id)
+                    #print("Updating event: " + event_id)
                     existingEvent.sourceId=source.id
                     existingEvent.title=topic
                     existingEvent.description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills)
@@ -222,7 +222,7 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
                                                       'referenceUrl',
                                                       'committee'])
                 else:
-                    print("Creating event: " + event_id)
+                    #print("Creating event: " + event_id)
                     Event.objects.create(
                         sourceName=source.name,
                         sourceId=source.id,

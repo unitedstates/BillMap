@@ -62,7 +62,7 @@ def process_xml_senate_committee(source):
                 title = "{} - {}".format(committee, sc)
 
                 if existingEvent:
-                    print("Updating event: " + eventId)
+                    #print("Updating event: " + eventId)
                     existingEvent.sourceId=source.id
                     existingEvent.title=title
                     existingEvent.description=description
@@ -89,7 +89,7 @@ def process_xml_senate_committee(source):
                                                       'committee',
                                                       'committeeCode'])
                 else:
-                    print("Creating event: " + eventId)
+                    #print("Creating event: " + eventId)
                     Event.objects.create(
                         sourceName=source.name,
                         sourceId = source.id,
@@ -113,7 +113,7 @@ def process_xml_senate_committee(source):
                 existingEvent = False
 
             if existingEvent:
-                print("Updating event: " + eventId)
+                #print("Updating event: " + eventId)
                 existingEvent.sourceId=source.id
                 existingEvent.title=title
                 existingEvent.description=description
@@ -142,7 +142,7 @@ def process_xml_senate_committee(source):
                                                   'committeeCode',
                                                   'subcommittee'])
             else:
-                print("Creating event: " + eventId)
+                #print("Creating event: " + eventId)
                 Event.objects.create(
                     sourceName=source.name,
                     sourceId = source.id,

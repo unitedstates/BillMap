@@ -1,6 +1,8 @@
 from django import template
 from django.template.defaultfilters import stringfilter
 from common import constants
+from typing import Union
+import re
 
 
 # BILL_NUMBER_REGEX = r'(?P<congress>[1-9][0-9]*)(?P<stage>[a-z]+)(?P<number>[0-9]+)(?P<version>[a-z]+)?$'
@@ -21,7 +23,17 @@ register = template.Library()
 
 @register.filter
 @stringfilter
-def billnumber_display(billnumber: str):
+def billtitle_display(title: Union(str, None)):
+    if not title:
+        return title
+    return re.sub(r'(:?.*\s([^ ]*):\s*)?(.*)$', r'\3 (\2)', title ).replace(' ()','')
+
+@register.filter
+@stringfilter
+def billnumber_display(billnumber: Union(str, None)):
+    if not billnumber:
+        return billnumber
+
     billMatch = constants.BILL_NUMBER_REGEX_COMPILED.match(billnumber) 
     if billMatch and billMatch.groupdict():
         billMatchGroups = billMatch.groupdict()

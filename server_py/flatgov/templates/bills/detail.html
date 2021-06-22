@@ -295,9 +295,9 @@
                                         {% endif %}
                                     </td>
                                     {% if bill.max_item %}
-                                        <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title }}</span></td>
+                                        <td><span title="{{ bill.max_item.title|billtitle_display }}">{{ bill.max_item.title|billtitle_display }}</span></td>
                                     {% else %}
-                                        <td><span title="{{ bill.title }}">{{ bill.title }}</span></td>
+                                        <td><span title="{{ bill.title|billnumber_display }}">{{ bill.title|billtitle_display }}</span></td>
                                     {% endif %}
                                     {% with bill.number_of_sections as number_of_sections %}
                                         {% if number_of_sections %}
@@ -353,9 +353,9 @@
                                         {% endif %}
                                     </td>
                                     {% if bill.max_item %}
-                                        <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title }}</span></td>
+                                        <td><span title="{{ bill.max_item.title|billtitle_display }}">{{ bill.max_item.title|billtitle_display }}</span></td>
                                     {% else %}
-                                        <td><span title="{{ bill.title }}">{{ bill.title }}</span></td>
+                                        <td><span title="{{ bill.title|billtitle_display }}">{{ bill.title|billtitle_display }}</span></td>
                                     {% endif %}
                                     {% with bill.number_of_sections as number_of_sections %}
                                         {% if number_of_sections %}

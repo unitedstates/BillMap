@@ -45,13 +45,11 @@ app.conf.beat_schedule = {
     },
     'download_sources': {
         'task': 'events.tasks.download_sources',
-        'schedule': crontab(minute=0, hour=19),
-        'options': {'queue': 'event'}
+        'schedule': crontab(minute=0, hour=19)
     },
     'process_sources': {
         'task': 'events.tasks.process_sources',
-        'schedule': crontab(minute=5, hour=19),
-        'options': {'queue': 'event'}
+        'schedule': crontab(minute=5, hour=19)
     },
     'update_cosponsor': {
         'task': 'bills.tasks.update_cosponsor_comm_task',

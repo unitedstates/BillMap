@@ -332,9 +332,9 @@
                         <thead>
                             <tr>
                                 <th scope="col">Bill</th>
+                                <th scope="col">Titles</th>
                                 <th scope="col">Detail</th>
                                 <th scope="col">Reason</th>
-                                <th scope="col">Titles</th>
                                 <!--th scope="col">Score</th-->
                                 <!--th scope="col">Sections matched</th-->
                                 <!--th scope="col">Best match section</th-->
@@ -352,6 +352,18 @@
                                             {{ bill.bill_congress_type_number|billnumber_display }}
                                         {% endif %}
                                     </td>
+                                    {% if bill.max_item %}
+                                        <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
+                                    {% else %}
+                                        <td><span title="{{ bill.title }}">{{ bill.title|truncatechars:40 }}</span></td>
+                                    {% endif %}
+                                    {% with bill.number_of_sections as number_of_sections %}
+                                        {% if number_of_sections %}
+                                            <td>{{ bill.reason|add_number_of_sections:number_of_sections }}</td>
+                                        {% else %}
+                                            <td>{{ bill.reason|add_number_of_sections:0 }}</td>
+                                        {% endif %}
+                                    {% endwith %}
                                     <td>
                                         {% if bill.in_db %}
                                             <a href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
@@ -361,18 +373,6 @@
                                             N/A
                                         {% endif %}
                                     </td>
-                                    {% with bill.number_of_sections as number_of_sections %}
-                                        {% if number_of_sections %}
-                                            <td>{{ bill.reason|add_number_of_sections:number_of_sections }}</td>
-                                        {% else %}
-                                            <td>{{ bill.reason|add_number_of_sections:0 }}</td>
-                                        {% endif %}
-                                    {% endwith %}
-                                    {% if bill.max_item %}
-                                        <td><span title="{{ bill.max_item.title }}">{{ bill.max_item.title|truncatechars:40 }}</span></td>
-                                    {% else %}
-                                        <td><span title="{{ bill.title }}">{{ bill.title|truncatechars:40 }}</span></td>
-                                    {% endif %}
                                     <!--td>{% if bill.score %}{{ bill.score|normalize_score:current_bill_score }}{% endif %}</td-->
                                     <!--td>{{ bill.number_of_sections }}</td-->
                                     <!--td>{% if bill.max_item.section_num %}<span>{{ bill.max_item.section_num }}</span> {% endif %}<span title="{{ bill.max_item.section_header }}">{{ bill.max_item.section_header|truncatechars:40 }}</span></td-->

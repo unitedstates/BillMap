@@ -2,7 +2,7 @@ CELERY_BIN=".../Flatgov/server_py/flatgov/venv/bin/celery"
 CELERY_APP="flatgov.celery:app"
 
 CELERYD_CHDIR=".../Flatgov/server_py/flatgov"
-CELERYD_OPTS="--time-limit=300 --concurrency=3 -Q link -l INFO"
+CELERYD_OPTS="--time-limit=300 --concurrency=3 -l INFO"
 CELERYD_LOG_FILE="/var/log/celery/link_%n%I.log"
 CELERYD_PID_FILE="/var/run/celery/link_%n.pid"
 CELERYD_USER="flatgov"

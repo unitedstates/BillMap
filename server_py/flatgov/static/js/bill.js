@@ -136,7 +136,39 @@ $(document).ready( function () {
         },
     });
 
-    var cosponsorTable = $('#cosponsors-table').DataTable({
+    var cosponsorTable = $('#this-congress-cosponsors-table').DataTable({
+        dom: 'flrtBip',
+        buttons: [
+            {
+                extend: 'copy',
+                text: 'Copy to clipboard',
+
+            },
+            {
+                extend: 'csv',
+                text: 'Export to CSV'
+            },
+            'excelHtml5'
+        ],
+        bFilter: true,
+        ordering: true,
+        aaSorting: [],
+        bPaginate: true,
+        bLengthChange: false,
+        iDisplayLength: 30,
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        language: {
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
+            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+        },
+    });
+
+    var cosponsorTable = $('#all-congress-cosponsors-table').DataTable({
         dom: 'flrtBip',
         buttons: [
             {

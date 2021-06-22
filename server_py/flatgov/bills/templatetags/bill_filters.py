@@ -23,14 +23,14 @@ register = template.Library()
 
 @register.filter
 @stringfilter
-def billtitle_display(title: Union(str, None)):
+def billtitle_display(title: Union[str, None]):
     if not title:
         return title
     return re.sub(r'(:?.*\s([^ ]*):\s*)?(.*)$', r'\3 (\2)', title ).replace(' ()','')
 
 @register.filter
 @stringfilter
-def billnumber_display(billnumber: Union(str, None)):
+def billnumber_display(billnumber: Union[str, None]):
     if not billnumber:
         return billnumber
 

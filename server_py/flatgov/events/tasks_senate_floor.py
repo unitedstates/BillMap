@@ -15,6 +15,10 @@ def process_xml_senate_floor(source):
     congress = meetingsBag["congress"]
     session = meetingsBag["session"]
 
+    # No event IDs, delete events that are in current year before starting since floor xml has events for current year
+    starting_day_of_current_year = set_eastern_timezone(datetime.datetime.now().date()).replace(month=1, day=1, hour=0, minute=0, second=0, microsecond=0)
+    Event.objects.filter(sourceName=source.name, start__gte=starting_day_of_current_year).delete()
+
     for meeting in meetingBag:
         conveneElement = meeting["convene"]
         conveneBusiness = conveneElement["@business"] # optional, "", R, R2
@@ -60,6 +64,7 @@ def process_xml_senate_floor(source):
 
         Event.objects.create(
             sourceName=source.name,
+            sourceId=source.id,
             title=conveneTitle,
             description=description,
             notes=conveneMeasure,

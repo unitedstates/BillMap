@@ -185,7 +185,7 @@ $(document).ready( function () {
                 "previous": "<",
                 "next": ">",
             },
-            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+            info: "_START_ to _END_ of _TOTAL_ reports"
         },
     });
 
@@ -206,7 +206,7 @@ $(document).ready( function () {
                 "previous": "<",
                 "next": ">",
             },
-            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+            info: "_START_ to _END_ of _TOTAL_ statements"
         },
     });
 
@@ -228,7 +228,7 @@ $(document).ready( function () {
                 "previous": "<",
                 "next": ">",
             },
-            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+            info: "_START_ to _END_ of _TOTAL_ CBO scores"
         },
     });
 
@@ -250,7 +250,7 @@ $(document).ready( function () {
                 "previous": "<",
                 "next": ">",
             },
-            info: "_START_ to _END_ of _TOTAL_ cosponsors"
+            info: "_START_ to _END_ of _TOTAL_ committee documents"
         },
     });
 

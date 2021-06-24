@@ -200,7 +200,7 @@ class BillDetailView(FormMixin, DetailView):
         [bill_numbers.append(number) for number in self.identical_bill_numbers if number[3:] not in bill_numbers]
         q_list = map(lambda n: Q(bills__bill_congress_type_number__iexact=n), bill_numbers)
         q_list = reduce(lambda a, b: a | b, q_list)
-        crs_reports = list(CrsReport.objects.filter(q_list))
+        crs_reports = list(CrsReport.objects.filter(q_list).distinct('title'))
 
         crs_reports_context = []
         for report in crs_reports:

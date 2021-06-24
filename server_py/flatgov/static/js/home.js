@@ -229,7 +229,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
         eventClick: function(info) {
             $('#eventModalTitle').text(info.event.title);
-            $('#eventModalDescription').html("Start Time: " + info.event.start + "<br/><br/>" + info.event.extendedProps.description + "<br/><br/>" + info.event.extendedProps.notes);
+            $('#eventModalDescription').html(
+              "Chamber: " + (info.event.extendedProps.chamber ? info.event.extendedProps.chamber : "None") + "<br/>" +
+              "Committee: " + (info.event.extendedProps.committee ? info.event.extendedProps.committee : "None") + "<br/>" +
+              "Sub-Committee: " + (info.event.extendedProps.subcommittee ? info.event.extendedProps.subcommittee : "None")  + "<br/>" +
+              "Type: " + (info.event.extendedProps.type ? info.event.extendedProps.type : "None") + "<br/>" +
+              "Event ID: " + (info.event.extendedProps.eventId ? info.event.extendedProps.eventId : "None") + "<br/>" +
+              "Reference URL: " + (info.event.extendedProps.referenceUrl ? "<a href='" + info.event.extendedProps.referenceUrl + "' target='_blank'>Open</a>" : "None") + "<br/><br/>" +
+              "Start Time: " + info.event.start + "<br/>" +
+              "End Time: " + (info.event.end ? info.event.end : "Not specified") + "<br/><br/>" +
+              "Description: " + info.event.extendedProps.description + "<br/><br/>" +
+              "Notes: " + info.event.extendedProps.notes + "<br/><br/>")
             $("#eventModal").modal({});
         },
 
@@ -293,7 +303,9 @@ document.addEventListener('DOMContentLoaded', function() {
     $.ajax("/events/committees").done(function (val) {
         var options = ""
         $(val).each(function (i, committee) {
-            options += "<option value='"+ committee +"'>" + committee + "</option>";
+            if (committee) {
+                options += "<option value='"+ committee +"'>" + committee + "</option>";
+            }
         });
 
         $('#committee_selector').append(options);

@@ -159,6 +159,7 @@ div.dataTables_wrapper div.dataTables_filter input {
 .link:hover {
     color: white;
 }
+
 .wrap {
     background-color: #2D4059;
     border-radius: 10px;
@@ -638,8 +639,9 @@ tbody td img:hover {
     width: 100%;
 }
 
-.calendar-key-header .btn-link.focus, .calendar-key-header .btn-link:focus, .calendar-key-header btn-link:hover {
+.calendar-key-header.btn-link:active, .calendar-key-header.btn-link:focus, .calendar-key-header.btn-link:hover {
     text-decoration: none;
+    box-shadow: none;
 }
 
 .fc-event {

@@ -134,13 +134,13 @@ def process_source(source):
             print("No previous entries found. This must be a new source archive.")
 
         # if source archive is more recent than existing records
-        if not not latestSource:
+        if latestSource:
             process = False
 
             if previousEntryForSource:
                 if latestSource.created > previousEntryForSource.created:
                     # delete all existing entries for source. TODO maybe delete after processing new records
-                    Event.objects.filter(sourceName=source["name"]).delete()
+                    # Event.objects.filter(sourceName=source["name"]).delete()
                     # We should consider synchronizing events if we start storing additional metadata in our DB in the future
                     process = True
                 else:

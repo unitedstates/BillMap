@@ -14,34 +14,9 @@ app.conf.broker_connection_timeout = 30
 app.conf.worker_prefetch_multiplier = 1
 
 app.conf.beat_schedule = {
-    'update_bill': {
-        'task': 'uscongress.tasks.update_bill_task',
-        'schedule': crontab(minute=0, hour=0),
-        'options': {'queue': 'bill'}
-    },
     'biden_statements_daily': {
         'task': 'common.biden_statements',
         'schedule': crontab(minute=0, hour=1),
-    },
-    'sap_scraper_daily': {
-        'task': 'bills.tasks.sap_scrapy_task',
-        'schedule': crontab(minute=0, hour=1),
-        'options': {'queue': 'bill'}
-    },
-    'committee_report_scraper_daily': {
-        'task': 'bills.tasks.committee_report_scrapy_task',
-        'schedule': crontab(minute=0, hour=1),
-        'options': {'queue': 'bill'}
-    },
-    'cbo_scraper_daily': {
-        'task': 'bills.tasks.cbo_task',
-        'schedule': crontab(minute=0, hour=1),
-        'options': {'queue': 'bill'}
-    },
-    'crs_scraper_daily': {
-        'task': 'bills.tasks.crs_task',
-        'schedule': crontab(minute=0, hour=1),
-        'options': {'queue': 'bill'}
     },
     'download_sources': {
         'task': 'events.tasks.download_sources',
@@ -50,12 +25,7 @@ app.conf.beat_schedule = {
     'process_sources': {
         'task': 'events.tasks.process_sources',
         'schedule': crontab(minute=5, hour=19)
-    },
-    'update_cosponsor': {
-        'task': 'bills.tasks.update_cosponsor_comm_task',
-        'schedule': crontab(minute=0, hour=0),
-        'options': {'queue': 'bill'}
-    },
+    }
 }
 
 app.conf.timezone = 'UTC'

@@ -14,10 +14,6 @@ app.conf.broker_connection_timeout = 30
 app.conf.worker_prefetch_multiplier = 1
 
 app.conf.beat_schedule = {
-    'biden_statements_daily': {
-        'task': 'common.biden_statements',
-        'schedule': crontab(minute=0, hour=1),
-    },
     'download_sources': {
         'task': 'events.tasks.download_sources',
         'schedule': crontab(minute=0, hour=19)

@@ -125,6 +125,7 @@ class BillDetailView(FormMixin, DetailView):
     model = Bill
     template_name = 'bills/detail.html'
     slug_field = 'bill_congress_type_number'
+    identical_bill_numbers = []
     form_class = FeedbackModelForm
 
     def get_success_url(self):
@@ -187,14 +188,20 @@ class BillDetailView(FormMixin, DetailView):
         slug = self.kwargs['slug']
         bill_numbers = []
         bill_numbers.append(slug[3:])
-        [bill_numbers.append(number[3:]) for number in self.get_identical_bill_numbers() if number[3:] not in bill_numbers]
+        [bill_numbers.append(number[3:]) for number in self.identical_bill_numbers if number[3:] not in bill_numbers]
         q_list = map(lambda n: Q(bill_number__iexact=n), bill_numbers)
         q_list = reduce(lambda a, b: a | b, q_list)
         return CommitteeDocument.objects.filter(q_list).filter(congress__iexact=slug[:3])
 
     def get_crs_reports(self, **kwargs):
         slug = self.kwargs['slug']
-        crs_reports = list(self.object.crsreport_set.all())
+        bill_numbers = []
+        bill_numbers.append(slug)
+        [bill_numbers.append(number) for number in self.identical_bill_numbers if number[3:] not in bill_numbers]
+        q_list = map(lambda n: Q(bills__bill_congress_type_number__iexact=n), bill_numbers)
+        q_list = reduce(lambda a, b: a | b, q_list)
+        crs_reports = list(CrsReport.objects.filter(q_list).distinct('title'))
+
         crs_reports_context = []
         for report in crs_reports:
             pdf_everycrs = ""
@@ -208,7 +215,7 @@ class BillDetailView(FormMixin, DetailView):
             if report.html_url:
                 html_everycrs = "https://www.everycrsreport.com/files/" + report.html_url
 
-            context_item = {"title": report.title, "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
+            context_item = {"title": report.title, "identical_bill_numbers": report.bills.all().values_list('bill_congress_type_number', flat=True), "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
             metadata = json.loads(report.metadata)
             versions = metadata.get('versions', [])
             if versions and len(versions) > 0:
@@ -349,19 +356,19 @@ class BillDetailView(FormMixin, DetailView):
 
     #  Get identical or nearly identical bills with the following, or equivalent
     def get_identical_bill_numbers(self):
-        #print('get_identical_bill_numbers')
         current_bill_score = self.get_current_bill_score()
         identical_bill_numbers =  [billnumber for billnumber in [bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills
             if (any(x in cleanReasons(bill.get('reason').split(", ")) for x in IDENTICAL_REASONS)
             or (current_bill_score > 0 and (abs(bill.get('score') - current_bill_score) / current_bill_score < SIMILARITY_THRESHOLD)))]
             if billnumber]
+        self.identical_bill_numbers = identical_bill_numbers
         return identical_bill_numbers
 
     # SIMILARITY_THRESHOLD: Fraction difference in score that will still be considered identical
     def get_cosponsors_for_same_bills(self):
         committees_map = self.get_committees_map()
-        billnumbers = self.get_identical_bill_numbers()
+        billnumbers = self.identical_bill_numbers
         if self.object.bill_congress_type_number not in billnumbers:
             billnumbers = [self.object.bill_congress_type_number, *billnumbers]
         billids = [Bill.objects.get(

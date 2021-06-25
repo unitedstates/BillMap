@@ -550,6 +550,7 @@
                         <thead>
                             <tr>
                                 <th scope="col">Title</th>
+                                <th scope="col"> Bills</th>
                                 <th scope="col">Date</th>
                                 <th scope="col">Link</th>
                             </tr>
@@ -559,6 +560,17 @@
         
                             <tr>
                                 <td style="width: 300px;">{{ crs_report.title|truncatechars:120 }}</td>
+                                <td style="max-width:400px">
+                                    {% for rel_bill, rel_bill_display in crs_report.identical_bill_numbers|billnumbers_display:True %}
+                                        {% if rel_bill %}
+                                            <a href="{% url 'bill-detail' slug=rel_bill  %}" >
+                                                <span id="rel-bill">{{rel_bill_display}}</span>
+                                            </a>{% if not forloop.last %}, {% endif %}
+                                        {% else %}
+                                            ""
+                                        {% endif %}
+                                    {% endfor %}
+                                </td>
                                 <td>{{ crs_report.date|date }}</td>
                                 <td>
                                 {% if crs_report.main_everycrs %}

@@ -115,7 +115,7 @@
 
 - Search using just the bill number will populate results but the links route the user to a "page not found" page [\#327](https://github.com/aih/FlatGov/issues/327)
 - Develop a download csv/xls file feature for the "Sponsors of related measures" table data [\#324](https://github.com/aih/FlatGov/issues/324)
-- Remove Committee Id from both Co-Sponsors tables [\#323](https://github.com/aih/FlatGov/issues/323)
+- Remove Committee Id from both Cosponsors tables [\#323](https://github.com/aih/FlatGov/issues/323)
 - Change 'On Assigned Committee' to 'Current Assigned Committee' [\#321](https://github.com/aih/FlatGov/issues/321)
 - Add 'leadership' information to Cosponsor download [\#316](https://github.com/aih/FlatGov/issues/316)
 - Remove 'Read Bill:' text [\#313](https://github.com/aih/FlatGov/issues/313)

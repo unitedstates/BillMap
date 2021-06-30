@@ -115,7 +115,7 @@ https://github.com/aih/FlatGov/compare/v0.2.1...v0.3.0[Full Changelog]
 
 * Search using just the bill number will populate results but the links route the user to a "page not found" page https://github.com/aih/FlatGov/issues/327[#327]
 * Develop a download csv/xls file feature for the "Sponsors of related measures" table data https://github.com/aih/FlatGov/issues/324[#324]
-* Remove Committee Id from both Co-Sponsors tables https://github.com/aih/FlatGov/issues/323[#323]
+* Remove Committee Id from both Cosponsors tables https://github.com/aih/FlatGov/issues/323[#323]
 * Change 'On Assigned Committee' to 'Current Assigned Committee' https://github.com/aih/FlatGov/issues/321[#321]
 * Add 'leadership' information to Cosponsor download https://github.com/aih/FlatGov/issues/316[#316]
 * Remove 'Read Bill:' text https://github.com/aih/FlatGov/issues/313[#313]

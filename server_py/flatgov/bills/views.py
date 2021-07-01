@@ -200,7 +200,7 @@ class BillDetailView(FormMixin, DetailView):
         [bill_numbers.append(number) for number in self.identical_bill_numbers if number[3:] not in bill_numbers]
         q_list = map(lambda n: Q(bills__bill_congress_type_number__iexact=n), bill_numbers)
         q_list = reduce(lambda a, b: a | b, q_list)
-        crs_reports = list(CrsReport.objects.filter(q_list))
+        crs_reports = list(CrsReport.objects.filter(q_list).distinct('title'))
 
         crs_reports_context = []
         for report in crs_reports:
@@ -215,7 +215,7 @@ class BillDetailView(FormMixin, DetailView):
             if report.html_url:
                 html_everycrs = "https://www.everycrsreport.com/files/" + report.html_url
             crs_bill_numbers = report.bills.all().values_list('bill_congress_type_number', flat=True)
-            identical_bill_number = list(set(bill_numbers).intersection(crs_bill_numbers))[:1]
+            identical_bill_number = list(set(bill_numbers).intersection(crs_bill_numbers))
 
             context_item = {"title": report.title, "identical_bill_number": identical_bill_number, "identical_bill_numbers": crs_bill_numbers, "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
             metadata = json.loads(report.metadata)

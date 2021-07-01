@@ -214,8 +214,10 @@ class BillDetailView(FormMixin, DetailView):
                     main_everycrs = "https://www.everycrsreport.com/reports/" + fileparts[1] + ".html"
             if report.html_url:
                 html_everycrs = "https://www.everycrsreport.com/files/" + report.html_url
+            crs_bill_numbers = report.bills.all().values_list('bill_congress_type_number', flat=True)
+            identical_bill_number = list(set(bill_numbers).intersection(crs_bill_numbers))
 
-            context_item = {"title": report.title, "identical_bill_numbers": report.bills.all().values_list('bill_congress_type_number', flat=True), "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
+            context_item = {"title": report.title, "identical_bill_number": identical_bill_number, "identical_bill_numbers": crs_bill_numbers, "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
             metadata = json.loads(report.metadata)
             versions = metadata.get('versions', [])
             if versions and len(versions) > 0:

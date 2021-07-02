@@ -301,9 +301,9 @@
                                     {% endif %}
                                     {% with bill.number_of_sections as number_of_sections %}
                                         {% if number_of_sections %}
-                                            <td>{{ bill.reason|add_number_of_sections:number_of_sections }}</td>
+                                            <td class="text-capitalize">{{ bill.reason|add_number_of_sections:number_of_sections }}</td>
                                         {% else %}
-                                            <td>{{ bill.reason|add_number_of_sections:0 }}</td>
+                                            <td class="text-capitalize">{{ bill.reason|add_number_of_sections:0 }}</td>
                                         {% endif %}
                                     {% endwith %}
                                     <td>

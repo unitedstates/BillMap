@@ -1,4 +1,10 @@
 $(document).ready( function () {
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
+        $($.fn.dataTable.tables(true)).DataTable()
+          .columns.adjust();
+    });
+
     $('#cosponsors-table-top').DataTable({
         dom: 'flrtBip',
         buttons: [
@@ -26,7 +32,7 @@ $(document).ready( function () {
     
     $('#current-similar-bills-table').DataTable({
         dom: "flrtBip",
-        autoWidth: false,
+        autoWidth: true,
         buttons: [
             {
                 extend: 'copy',
@@ -47,6 +53,7 @@ $(document).ready( function () {
         ],
         bSort: true,
         aaSorting: [],
+        ordering: true,
         bFilter: true,
         bPaginate: true,
         bLengthChange: false,
@@ -65,7 +72,7 @@ $(document).ready( function () {
 
     $('#similar-bills-table').DataTable({
         dom: "flrtBip",
-        autoWidth: false,
+        autoWidth: true,
         buttons: [
             {
                 extend: 'copy',
@@ -87,6 +94,7 @@ $(document).ready( function () {
         ],
         bSort: false,
         aaSorting: [],
+        ordering: true,
         bFilter: true,
         bPaginate: true,
         bLengthChange: false,
@@ -101,7 +109,7 @@ $(document).ready( function () {
 
     $('#similar-sections-table').DataTable({
         dom: "Rlfrtip",
-        autoWidth: false,
+        autoWidth: true,
         buttons: [
             {
                 extend: 'copy',
@@ -120,6 +128,7 @@ $(document).ready( function () {
         ],
         bSort: false,
         aaSorting: [],
+        ordering: true,
         bFilter: true,
         bPaginate: false,
         bLengthChange: false,
@@ -289,8 +298,4 @@ $(document).ready( function () {
     cosponsorTable.buttons().container()
     .appendTo('#unique-test');
 
-    $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
-        $($.fn.dataTable.tables(true)).DataTable()
-           .columns.adjust();
-     });
 });

@@ -1001,19 +1001,21 @@
                     success: function (response) {
                         if(response.short_title) {
                             $(event.currentTarget).find('#tool').text(truncateString(response.short_title, 60)).css('display', 'inline-block')
-                        } else {
+                        } else if (response.short_title) {
                             $(event.currentTarget).find('#tool').text(truncateString(response.first_title, 60)).css('display', 'inline-block')
+                        } else {
+                            $(event.currentTarget).find('#tool').text(truncateString("We did not identify any related bills from this Congress", 60)).css('display', 'inline-block')
                         }
                     },
+                    error: function (e) {
+                        $(event.currentTarget).find('#tool').text(truncateString("We did not identify any related bills from this Congress", 60)).css('display', 'inline-block')
+                    }
                 }); 
             }
-            
-            //console.log(relatedBill)
         }, 0)
     })
 
     $('.related-bill').mouseleave((event) => {
-
         clearTimeout(timeOut)
         $(event.currentTarget).find('#tool').css('display', 'none')
     })

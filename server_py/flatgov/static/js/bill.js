@@ -295,6 +295,27 @@ $(document).ready( function () {
         },
     });
 
+    $('#press-statements-table').DataTable({
+        dom: 'flrtip',
+        bFilter: true,
+        ordering: true,
+        aaSorting: [],
+        bPaginate: true,
+        bLengthChange: false,
+        iDisplayLength: 30,
+        scrollY: '50vh',
+        scrollX: true,
+        scrollCollapse: true,
+        language: {
+            emptyTable: "No relevant press statements are available",
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
+            info: "_START_ to _END_ of _TOTAL_ press statements"
+        },
+    });
+
     cosponsorTable.buttons().container()
     .appendTo('#unique-test');
 

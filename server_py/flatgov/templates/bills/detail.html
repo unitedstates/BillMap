@@ -54,7 +54,7 @@
                                 -->
                                     
                                     {% if bill.get_related_bill_numbers %}
-                                    <h5><b>Related Bills:</b></h5>
+                                    <h5><b>Related Bills in the same Congress:</b></h5>
                                     
                                     {% for rel_bill, rel_bill_display in bill.get_related_bill_numbers|billnumbers_by_congress:bill.congress|billnumbers_display:True %}
                                         {% if rel_bill %}
@@ -153,7 +153,7 @@
                                             {% endfor %}
                                         </tbody>
                                     </table>
-                                    <div><sup>+</sup>&nbsp; Sponsor</div>
+                                    <div><sup>+</sup>&nbsp; Original Sponsor</div>
                                     <div><sup>*</sup>&nbsp; Original Cosponsor</div>
                                 </div>
                             </div>
@@ -274,7 +274,7 @@
                                 <th scope="col">Bill</th>
                                 <th scope="col">Titles</th>
                                 <th scope="col">Reason</th>
-                                <th scope="col">Matching Sections</th>
+                                <th scope="col">Similar Sections</th>
                                 <!--th scope="col">Score</th-->
                                 <!--th scope="col">Sections matched</th-->
                                 <!--th scope="col">Best match section</th-->
@@ -301,15 +301,15 @@
                                     {% endif %}
                                     {% with bill.number_of_sections as number_of_sections %}
                                         {% if number_of_sections %}
-                                            <td>{{ bill.reason|add_number_of_sections:number_of_sections }}</td>
+                                            <td class="text-capitalize">{{ bill.reason|add_number_of_sections:number_of_sections }}</td>
                                         {% else %}
-                                            <td>{{ bill.reason|add_number_of_sections:0 }}</td>
+                                            <td class="text-capitalize">{{ bill.reason|add_number_of_sections:0 }}</td>
                                         {% endif %}
                                     {% endwith %}
                                     <td>
                                         {% if bill.in_db %}
-                                            <a href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
-                                                <img src="{% static 'images/share-files.png' %}" alt="">
+                                            <a title="Click here to see the sections we have identified as similar between the bills" href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
+                                                <img src="{% static 'images/share-files.png' %}" alt="Similar sections link">
                                             </a>
                                         {% else %}
                                             N/A
@@ -334,7 +334,7 @@
                                 <th scope="col">Bill</th>
                                 <th scope="col">Titles</th>
                                 <th scope="col">Reason</th>
-                                <th scope="col">Matching Sections</th>
+                                <th scope="col">Similar Sections</th>
                                 <!--th scope="col">Score</th-->
                                 <!--th scope="col">Sections matched</th-->
                                 <!--th scope="col">Best match section</th-->
@@ -359,15 +359,15 @@
                                     {% endif %}
                                     {% with bill.number_of_sections as number_of_sections %}
                                         {% if number_of_sections %}
-                                            <td>{{ bill.reason|add_number_of_sections:number_of_sections }}</td>
+                                            <td class="text-capitalize">{{ bill.reason|add_number_of_sections:number_of_sections }}</td>
                                         {% else %}
-                                            <td>{{ bill.reason|add_number_of_sections:0 }}</td>
+                                            <td class="text-capitalize">{{ bill.reason|add_number_of_sections:0 }}</td>
                                         {% endif %}
                                     {% endwith %}
                                     <td>
                                         {% if bill.in_db %}
-                                            <a href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
-                                                <img src="{% static 'images/share-files.png' %}" alt="">
+                                            <a title="Click here to see the sections we have identified as similar matching between the bills" href="{% url 'bill-to-bill' slug=object.bill_congress_type_number second_bill=bill.bill_congress_type_number %}">
+                                                <img src="{% static 'images/share-files.png' %}" alt="Similar sections link">
                                             </a>
                                         {% else %}
                                             N/A

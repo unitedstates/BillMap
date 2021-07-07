@@ -21,7 +21,7 @@ setuptools.setup(
     description="Modules for the Flatgov Project",
     long_description=long_description,
     long_description_content_type="text/asciidoc",
-    url="https://github.com/aih/FlatGov",
+    url="https://github.com/aih/BillMap",
     packages=setuptools.find_packages(),
     include_package_data=True,
     install_requires=[

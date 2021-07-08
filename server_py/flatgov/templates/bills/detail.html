@@ -638,7 +638,7 @@ You can use related bills to identify other measures from this Congress that con
                 </div>
                 <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
                     <div class="">
-                        <table class="table mt-3" id='press-statements-table' style="height: 50vh !important;">
+                        <table v-if="pressStatements.length" class="table mt-3 h-50" id='press-statements-table' style="height: 50vh; overflow: scroll">
                         
                             <thead>
                                 <tr>
@@ -658,12 +658,32 @@ You can use related bills to identify other measures from this Congress that con
                                     <td style="width: 200px;">$[ pressStatement.name ]</td>
                                     <td>$[ pressStatement.chamber ]</td>
                                     <td>$[ pressStatement.party ]</td>
-                                    <td>$[ pressStatement.date|formatDate ]</td>
-                                    <td><a v-bind:href="pressStatement.url" target="_blank" class='btn btn-primary'>
+                                    <td style="min-width:120px" >$[ pressStatement.date|formatDate ]</td>
+                                    <td style="min-width:300px"><a v-bind:href="pressStatement.url" target="_blank" class='btn btn-primary'>
                                         View the press statement
                                     </a></td>
                                 </tr>
                             </tbody>
+                        </table>
+                        <table v-else class="table mt-3" id="press-statements-table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Title</th>
+                                    <th scope="col">Issued By</th>
+                                    <th scope="col">Chamber</th>
+                                    <th scope="col">Party</th>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Link</th>
+                                </tr>
+                            </thead>
+                            <tbody class="" >
+                                
+                                <tr class="text-center" style="text-align: center">
+                                    <td style='text-align: center;' colspan="6">No relevant press statements are available</td>
+                                    
+                                </tr>
+                            </tbody>
+                        
                         </table>
                         <nav aria-label="..." class="d-flex justify-content-end dataTables_paginate">
                             <ul class="pagination">

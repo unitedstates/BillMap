@@ -1001,7 +1001,7 @@
                     success: function (response) {
                         if(response.short_title) {
                             $(event.currentTarget).find('#tool').text(truncateString(response.short_title, 60)).css('display', 'inline-block')
-                        } else if (response.short_title) {
+                        } else if (response.first_title) {
                             $(event.currentTarget).find('#tool').text(truncateString(response.first_title, 60)).css('display', 'inline-block')
                         } else {
                             $(event.currentTarget).find('#tool').text(truncateString("We did not identify any related bills from this Congress", 60)).css('display', 'inline-block')

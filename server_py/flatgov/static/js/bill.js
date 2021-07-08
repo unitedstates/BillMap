@@ -103,6 +103,10 @@ $(document).ready( function () {
         scrollX: true,
         scrollCollapse: true,
         language: {
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
             info: "_START_ to _END_ of _TOTAL_ Bills",
         },
     })

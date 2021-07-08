@@ -105,7 +105,7 @@ const getSimilarBills = function(e){
     event.preventDefault(e);
     const inputText = document.getElementById("bill-text-textarea").value;
     if(inputText){
-        console.log(inputText);
+    alert(inputText);
     }
 
 }; 
@@ -279,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 };
             },
             failure: function() {
-                console.log('There was an error while fetching events!');
+                alert('There was an error while fetching events!');
             }
         }
     });

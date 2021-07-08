@@ -112,7 +112,7 @@ $(document).ready( function () {
     })
 
     $('#similar-sections-table').DataTable({
-        dom: "Rlfrtip",
+        dom: "flrtBip",
         autoWidth: true,
         buttons: [
             {

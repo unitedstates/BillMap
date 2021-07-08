@@ -55,6 +55,8 @@
                                     
                                     {% if bill.get_related_bill_numbers %}
                                     <h5><b>Related Bills in the same Congress:</b></h5>
+                                    <p class="font-italic text-muted">
+You can use related bills to identify other measures from this Congress that contain the same or similar text. These can be companion measures or measures that share similar legislative text throughout the bill or in sections of the bill.                                    </p>
                                     
                                     {% for rel_bill, rel_bill_display in bill.get_related_bill_numbers|billnumbers_by_congress:bill.congress|billnumbers_display:True %}
                                         {% if rel_bill %}
@@ -70,7 +72,9 @@
                                     
                                     {% if identical_bill_numbers %}
                                     <h5 class="mt-3"><b>Companion or Antecedent Bills:</b></h5>
-                                    
+                                    <p class="font-italic text-muted">
+                                        This section identifies legislation that is virtually identical to the bill you are looking at now from this and other Congresses. It is a fast way to identify companion legislation and antecedent legislation.
+                                    </p>
                                     {% for identical_bill, identical_bill_display in identical_bill_numbers|billnumbers_display:True %}
                                         {% if identical_bill %}
                                             <a class="toolt" href="{% url 'bill-detail' slug=identical_bill  %}" >

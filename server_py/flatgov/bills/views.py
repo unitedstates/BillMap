@@ -227,7 +227,12 @@ class BillDetailView(FormMixin, DetailView):
 
     def get_related_cbo(self, **kwargs):
         slug = self.kwargs['slug']
-        return CboReport.objects.filter(bill_number__iexact=slug[3:]).filter(
+        bill_numbers = []
+        bill_numbers.append(slug[3:])
+        [bill_numbers.append(number[3:]) for number in self.identical_bill_numbers if number[3:] not in bill_numbers]
+        q_list = map(lambda n: Q(bill_number__iexact=n), bill_numbers)
+        q_list = reduce(lambda a, b: a | b, q_list)
+        return CboReport.objects.filter(q_list).filter(
             congress__iexact=slug[:3])
 
     def get_related_bills(self):

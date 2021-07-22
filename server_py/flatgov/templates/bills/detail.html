@@ -43,7 +43,7 @@
                                 
                                     
                                 {% else %}
-                                <div class="pre-wrapper" style="font-size: 16px;"><pre>{{ bill.summary |truncatewords_html:100 }}</pre></div>
+                                    <div class="pre-wrapper" style="font-size: 16px;"><pre><span class="bill-summary-text">{{ bill.summary }}</span> <a class="show-more-summary link-primary">Show More</a></pre></div>
                                 {% endif %}
                                 <!--
                                 <h5><b>Bill Stage:</b></h5>
@@ -1005,6 +1005,21 @@
 </script>
 
 <script>
+    const showMoreText = $('.bill-summary-text').text();
+    const showLessText = showMoreText.substring(0, 400);
+    $('.bill-summary-text').text(showLessText);
+    $(".show-more-summary").click(function () {        
+        $(".bill-summary-text").toggleClass("show-more-height");
+        if($(".bill-summary-text").hasClass("show-more-height")){
+            $(this).text("Show Less");
+            $('.bill-summary-text').text(showMoreText);
+
+        }else{
+            $(this).text("Show More");
+            $('.bill-summary-text').text(showLessText);
+        }
+    });
+
     function truncateString(str, num) {
         if (str.length <= num) {
           return str
@@ -1057,6 +1072,11 @@
     .unique-dt {
         background-color: red;
 
+    }
+    
+    .show-more-summary {
+        text-decoration: none;
+        cursor: pointer;
     }
 </style>
 

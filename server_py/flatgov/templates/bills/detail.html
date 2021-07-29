@@ -152,7 +152,7 @@
                                                 <td>{{ cosponsor.party|slice:":1" }}</td>
                                                 <td>
                                                     {% if cosponsor.party|slice:":1" == "D" and cosponsor.rank == 1 %}
-                                                        Chair member
+                                                        Chair
                                                     {% elif cosponsor.party|slice:":1" == "R" and cosponsor.rank == 1 %}
                                                         Ranking member
                                                     {% else %}
@@ -486,7 +486,7 @@
                                 </td-->
                                 <td>
                                     {% if cosponsor.party|slice:":1" == "D" and 1 in cosponsor.ranks %}
-                                        Chair member
+                                        Chair
                                     {% elif cosponsor.party|slice:":1" == "R" and 1 in cosponsor.ranks %}
                                         Ranking member
                                     {% else %}
@@ -536,7 +536,7 @@
                                 <td>{{ cosponsor.party|slice:":1"}}</td>
                                 <td>
                                     {% if cosponsor.party|slice:":1" == "D" and 1 in cosponsor.ranks %}
-                                        Chair member
+                                        Chair
                                     {% elif cosponsor.party|slice:":1" == "R" and 1 in cosponsor.ranks %}
                                         Ranking member
                                     {% else %}

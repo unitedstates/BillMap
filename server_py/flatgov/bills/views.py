@@ -50,7 +50,7 @@ BILLS_META_JSON_PATH = getattr(settings, "BILLS_META_JSON_PATH", None)
 RELATED_BILLS_JSON_PATH = getattr(settings, "RELATED_BILLS_JSON_PATH", None)
 TITLES_INDEX_JSON_PATH = getattr(settings, "TITLES_INDEX_JSON_PATH", None)
 SIMILARITY_THRESHOLD = .1
-IDENTICAL_REASONS = ['identical', 'nearly identical']
+IDENTICAL_REASONS = ['identical', 'nearly identical', 'title match']
 
 BILL_REGEX = r'([1-9][0-9]{2})([a-z]+)(\d+)'
 

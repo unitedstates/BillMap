@@ -135,6 +135,7 @@
                                                 <th scope="col">Current Assigned Committees</th>
                                                 <th scope="col">Party</th>
                                                 <!--th scope="col">Rank</th-->
+                                                <th scope="col">Position</th>
                                                 <th scope="col">Member of Congress</th>
                                             </tr>
                                         </thead>
@@ -149,6 +150,16 @@
                                                 {% endif %}
                                                 <td>{{ cosponsor.committee_name }}</td>
                                                 <td>{{ cosponsor.party|slice:":1" }}</td>
+                                                <td>
+                                                    {% if cosponsor.party|slice:":1" == "D" and cosponsor.rank == 1 %}
+                                                        Chair member
+                                                    {% elif cosponsor.party|slice:":1" == "R" and cosponsor.rank == 1 %}
+                                                        Ranking member
+                                                    {% else %}
+                                                        Member
+                                                    {% endif %}
+
+                                                </td>
                                                 <!--td>{{ cosponsor.rank }}</td-->
                                                 <td>
                                                     {% if cosponsor.current %}
@@ -445,6 +456,7 @@
                                 <th scope="col">Bills</th>
                                 <th scope="col">Current Assigned Committees</th>
                                 <th scope="col">Party</th>
+                                <th scope="col">Position</th>
                                 <!--th scope="col">Rank</th-->
                             </tr>
                         </thead>
@@ -472,6 +484,16 @@
                                 <!--td>
                                     {{cosponsor.ranks|join:", "}}
                                 </td-->
+                                <td>
+                                    {% if cosponsor.party|slice:":1" == "D" and 1 in cosponsor.ranks %}
+                                        Chair member
+                                    {% elif cosponsor.party|slice:":1" == "R" and 1 in cosponsor.ranks %}
+                                        Ranking member
+                                    {% else %}
+                                        Member
+                                    {% endif %}
+
+                                </td>
                             </tr>
                                 {% endif %}
                             {% endfor %}
@@ -489,6 +511,7 @@
                                 <th scope="col">Bills</th>
                                 <th scope="col">Current Assigned Committees</th>
                                 <th scope="col">Party</th>
+                                <th scope="col">Position</th>
                                 <!--th scope="col">Rank</th-->
                             </tr>
                         </thead>
@@ -511,6 +534,16 @@
                                     {{ cosponsor.committees_named|join:", " }}
                                 </td>
                                 <td>{{ cosponsor.party|slice:":1"}}</td>
+                                <td>
+                                    {% if cosponsor.party|slice:":1" == "D" and 1 in cosponsor.ranks %}
+                                        Chair member
+                                    {% elif cosponsor.party|slice:":1" == "R" and 1 in cosponsor.ranks %}
+                                        Ranking member
+                                    {% else %}
+                                        Member
+                                    {% endif %}
+
+                                </td>
                                 <!--td>
                                     {{cosponsor.ranks|join:", "}}
                                 </td-->

@@ -43,6 +43,23 @@
             </div>
               <!-- <p>Search for Legislation</p> -->
               <div class="row">
+                  <div class="col-md-4 col-sm-12 mt-2">
+                      <div class="dropdown" style="display: inline;" id="congressdropdown">
+                          <div>
+                              <select id="selectcongress" name="congress"  class=" select" aria-label="Select Congress">
+                                  {% for congress in congressrange %}
+                                  {% if forloop.first %}
+                                  <option class="congress-item" value="{{congress}}" selected>{{congress|numstring_to_ordinal}}</option>
+                                  {% else %}
+                                  <option class="congress-item" value="{{congress}}">{{congress|numstring_to_ordinal}}</option>
+                                  {% endif %}
+                                  {% endfor %}
+                                  <!--option class="congress-item" value="all">Any Congress</option-->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
                 <div class="col-md-8 col-sm-12 mt-2">
                     <div class="search-input-group input-group input-group-lg">
                         <!-- <input id="bill-search" type="text" class="form-control typeahead" placeholder="Examples: s5, hr5, hres5, hjres5, hconres5, sjres5, sconres5, sres5"> -->
@@ -61,22 +78,6 @@
                         &nbsp;&nbsp;Examples: s5, hr5, hres5, hjres5, hconres5, sjres5, sconres5, sres5
                     </p>
                   </div>
-                  <div class="col-md-4 col-sm-12 mt-2">
-                      <div class="dropdown" style="display: inline;" id="congressdropdown">
-                          <div>
-                              <select id="selectcongress" name="congress"  class=" select" aria-label="Select Congress">
-                                  {% for congress in congressrange %}
-                                  {% if forloop.first %}
-                                  <option class="congress-item" value="{{congress}}" selected>{{congress|numstring_to_ordinal}}</option>
-                                  {% else %}
-                                  <option class="congress-item" value="{{congress}}">{{congress|numstring_to_ordinal}}</option>
-                                  {% endif %}
-                                  {% endfor %}
-                                  <!--option class="congress-item" value="all">Any Congress</option-->
-                                </select>
-                            </div>
-                        </div>
-                    </div>
                 </div>
         
           </div>

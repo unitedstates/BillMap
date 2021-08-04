@@ -85,7 +85,7 @@
                                         {% if identical_bill %}
                                             <a class="toolt" href="{% url 'bill-detail' slug=identical_bill  %}" >
                                         {% else %}
-                                            <a class="toolt"  >
+                                            <a class="toolt">
                                         {% endif %}
                                                 <div class="tooltiptext" id="tool">...</div>
                                                 <span style="font-size: 16px;" id="identical-bill">{{identical_bill_display}}</span>
@@ -1066,8 +1066,11 @@
 
             
             const relatedBill = $(event.currentTarget).find('#rel-bill').text()
-            const congress = relatedBill.split('(').pop().substring(0,3)
-            const billId = relatedBill.split('(')[0].replace(/[^a-z0-9]/gi,'').toLowerCase();
+            const identicalBill = $(event.currentTarget).find('#identical-bill').text()
+            const currentBill = relatedBill? relatedBill: identicalBill
+
+            const congress = currentBill.split('(').pop().substring(0,3)
+            const billId = currentBill.split('(')[0].replace(/[^a-z0-9]/gi,'').toLowerCase();
             if ($(event.currentTarget).find('#tool').text() === '...') {
                 $.ajax({
                     type: "GET",

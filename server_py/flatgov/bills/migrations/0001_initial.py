@@ -100,7 +100,7 @@ class Migration(migrations.Migration):
                 ('bill_congress_type_number', models.CharField(db_index=True, max_length=100, unique=True)),
                 ('type', models.CharField(blank=True, max_length=40, null=True)),
                 ('congress', models.IntegerField(blank=True, null=True)),
-                ('became_law', models.Boolean(default=False)),
+                ('became_law', models.BooleanField(default=False)),
                 ('number', models.CharField(blank=True, max_length=5, null=True)),
                 ('titles', models.JSONField(default=list)),
                 ('summary', models.TextField(blank=True, null=True)),

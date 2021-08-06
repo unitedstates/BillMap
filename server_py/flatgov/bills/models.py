@@ -45,6 +45,7 @@ class Bill(models.Model):
     type = models.CharField(max_length=40, null=True, blank=True)
     congress = models.IntegerField(null=True, blank=True)
     number = models.CharField(max_length=5, null=True, blank=True)
+    isEnacted = models.BooleanField(default=False)
     titles = models.JSONField(default=list)
     summary = models.TextField(null=True, blank=True)
     titles_whole_bill = models.JSONField(default=list)

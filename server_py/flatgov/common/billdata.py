@@ -237,6 +237,12 @@ def saveBillsMetaToDb():
     for key in extrakeys:
       del billdata[key]
     
+    # TODO extract info from 'history' on whether a bill was enacted and store as isEnacted (Bool)
+    isEnacted = deep_get(billdata, 'history', 'enacted');
+    if not isEnacted:
+      billdata['isEnacted'] = False
+
+
     # Avoid not null constraint
     if not billdata.get('related_bills'):
       billdata['related_bills'] = []

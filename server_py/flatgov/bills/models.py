@@ -58,7 +58,7 @@ class Bill(models.Model):
     committees_dict = models.JSONField(default=list)
     es_similarity = models.JSONField(default=list)
     es_similar_bills_dict = models.JSONField(default=dict)
-    became_law = models.BooleanField(default=False)
+    became_law = models.BooleanField(default=False, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

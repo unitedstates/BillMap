@@ -10,12 +10,6 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.DeleteModel(
-            name='PressStatement',
-        ),
-        migrations.DeleteModel(
-            name='PressStatementTask',
-        ),
         migrations.AddField(
             model_name='bill',
             name='isEnacted',

@@ -62,6 +62,10 @@ body {
 
 }
 
+.law-bulb {
+    color: #09ff00;
+}
+
 .btn-shadow {
     box-shadow: 7px 6px 11px 0px rgba(194,194,194,1);
 }

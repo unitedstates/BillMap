@@ -679,7 +679,7 @@
                                 <td>{{ statement.congress }}</td>
                                 <td>{{ statement.date_issued }}</td>
                                 <td>
-                                {% if statement.permanent_pdf_link.url %}
+                                {% if statement.permanent_pdf_link and statement.permanent_pdf_link.url %}
                                     <a href='{{ statement.permanent_pdf_link.url }}' target="_blank" class='btn btn-primary'>
                                     Full Report
                                     </a>

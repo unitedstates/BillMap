@@ -334,7 +334,12 @@ def addTitleMainToRelated(dirName: str, fileName: str):
       else:
         relatedDict_old[bill]["reason"] = ", ".join(list(set((relatedDict_old[bill]["reason"] + ", bills-title_match_main").split(", "))))
     billdata.related_dict = relatedDict_old
-    #Bill.objects.update_or_create(bill_congress_type_number=current_bill, defaults=billdata)
+    try:
+      billdata.save()
+      print("Saved update to " + current_bill) 
+    except Exception as err:
+      print("Could not save") 
+      logger.error(err)
   except Exception as err:
     logger.error(err)
 

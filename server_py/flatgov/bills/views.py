@@ -27,7 +27,7 @@ from bills.serializers import RelatedBillSerializer, CosponsorSerializer
 
 from crs.models import CrsReport
 from feedback.forms import FeedbackModelForm
-
+from .utils import sort_bills_for_congress
 
 def deep_get(dictionary: Dict, *keys):
     """
@@ -369,12 +369,14 @@ class BillDetailView(FormMixin, DetailView):
     #  Get identical or nearly identical bills with the following, or equivalent
     def get_identical_bill_numbers(self):
         current_bill_score = self.get_current_bill_score()
+
         identical_bill_numbers =  [billnumber for billnumber in [bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills
             if (any(x in cleanReasons(bill.get('reason').split(", ")) for x in IDENTICAL_REASONS)
             or (current_bill_score > 0 and (abs(bill.get('score') - current_bill_score) / current_bill_score < SIMILARITY_THRESHOLD)))]
             if billnumber]
         self.identical_bill_numbers = identical_bill_numbers
+        sort_bills_for_congress(identical_bill_numbers)
         return identical_bill_numbers
 
     # SIMILARITY_THRESHOLD: Fraction difference in score that will still be considered identical

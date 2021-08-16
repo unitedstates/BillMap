@@ -161,6 +161,13 @@ def form_bill_json_dict(xml_as_dict):
         logging.info("[%s] Skipping reserved bill number with no sponsor (%s)" % (bill_id, bill_dict['titles']['item'][0]['title']))
         return bill_dict['titles']['item'][0]['title'] # becomes the 'reason'
 
+    if bill_dict.get('sponsors') and bill_dict['sponsors'].get('item') and len(bill_dict['sponsors']['item']) > 0:
+        sponsor = bill_info.sponsor_for(bill_dict['sponsors']['item'][0])
+    else:
+        sponsor = None
+    
+    byRequestTypeExists = sponsor and bill_dict['sponsors']['item'][0].get('requestType')
+
     bill_data = {
         'bill_id': bill_id,
         'bill_type': bill_dict.get('billType').lower(),
@@ -170,8 +177,8 @@ def form_bill_json_dict(xml_as_dict):
         'url': billstatus_url_for(bill_id),
 
         'introduced_at': bill_dict.get('introducedDate', ''),
-        'by_request': bill_dict['sponsors']['item'][0]['byRequestType']     is not None,
-        'sponsor': bill_info.sponsor_for(bill_dict['sponsors']['item'][0]),
+        'by_request': byRequestTypeExists,
+        'sponsor': sponsor, 
         'cosponsors': bill_info.cosponsors_for(bill_dict['cosponsors']),
 
         'actions': actions,

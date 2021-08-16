@@ -14,7 +14,9 @@ GOVINFO_OPTIONS = {
 
 CONGRESS = str(constants.CURRENT_CONGRESS)
 
-BILLS_OPTIONS = {}
+BILLS_OPTIONS = {
+    'congress': CONGRESS,
+}
 
 
 class Command(BaseCommand):

@@ -23,10 +23,10 @@ from django.conf import settings
 from common.constants import BILLMETA_GO_CMD, PATH_TO_BILLS_META_GO
 
 GOVINFO_OPTIONS = {
-    'collections': 'BILLS',
-    'bulkdata': 'BILLSTATUS',
-    'congress': '117',
-    'extract': 'mods,xml,premis'
+    "collections": "BILLS",
+    "bulkdata": "BILLSTATUS",
+    "congress": "117",
+    "extract": "mods,xml,premis"
 }
 
 BILLS_OPTIONS = {}

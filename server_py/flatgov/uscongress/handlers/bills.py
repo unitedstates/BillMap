@@ -9,7 +9,6 @@ from . import amendment_info
 from . import govinfo
 from . import utils
 
-
 def run(options):
     bill_id = options.get('bill_id', None)
 
@@ -32,8 +31,7 @@ def run(options):
         if limit:
             to_fetch = to_fetch[:int(limit)]
 
-    processed = utils.process_set(to_fetch, processor_func, options)
-    return processed
+    utils.process_set(to_fetch, processor_func, options)
 
 
 def get_bills_to_process(options):
@@ -106,6 +104,12 @@ def process_bill(bill_id, options):
     # Read FDSys bulk data file.
     xml_as_dict = read_fdsys_bulk_bill_status_file(fdsys_xml_path, bill_id)
     bill_data = form_bill_json_dict(xml_as_dict)
+    if isinstance(bill_data, str): # Non-error failure
+        return {
+            "ok": True,
+            "saved": False,
+            "reason": bill_data,
+        }
 
     # Convert and write out data.json and data.xml.
     utils.write(
@@ -153,6 +157,17 @@ def form_bill_json_dict(xml_as_dict):
     actions = bill_info.actions_for(bill_dict['actions']['item'], bill_id, bill_info.current_title_for(titles, 'official'))
     status, status_date = bill_info.latest_status(actions, bill_dict.get('introducedDate', ''))
 
+    if bill_dict['sponsors'] is None and bill_dict['titles']['item'][0]['title'].startswith("Reserved "):
+        logging.info("[%s] Skipping reserved bill number with no sponsor (%s)" % (bill_id, bill_dict['titles']['item'][0]['title']))
+        return bill_dict['titles']['item'][0]['title'] # becomes the 'reason'
+
+    if bill_dict.get('sponsors') and bill_dict['sponsors'].get('item') and len(bill_dict['sponsors']['item']) > 0:
+        sponsor = bill_info.sponsor_for(bill_dict['sponsors']['item'][0])
+    else:
+        sponsor = None
+    
+    byRequestTypeExists = sponsor and bill_dict['sponsors']['item'][0].get('requestType')
+
     bill_data = {
         'bill_id': bill_id,
         'bill_type': bill_dict.get('billType').lower(),
@@ -162,8 +177,8 @@ def form_bill_json_dict(xml_as_dict):
         'url': billstatus_url_for(bill_id),
 
         'introduced_at': bill_dict.get('introducedDate', ''),
-        'by_request': bill_dict['sponsors']['item'][0]['byRequestType']     is not None,
-        'sponsor': bill_info.sponsor_for(bill_dict['sponsors']['item'][0]),
+        'by_request': byRequestTypeExists,
+        'sponsor': sponsor, 
         'cosponsors': bill_info.cosponsors_for(bill_dict['cosponsors']),
 
         'actions': actions,
@@ -234,7 +249,7 @@ def reparse_actions(bill_id, options):
     bill_data = json.loads(source)
 
     # Munge data.
-    from .bill_info import parse_bill_action
+    from bill_info import parse_bill_action
     title = bill_info.current_title_for(bill_data['titles'], 'official')
     old_status = None
     for action in bill_data['actions']:
@@ -285,4 +300,3 @@ def reparse_actions(bill_id, options):
         "saved": wrote_any,
         "reason": "no changes or changes skipped by user",
     }
-

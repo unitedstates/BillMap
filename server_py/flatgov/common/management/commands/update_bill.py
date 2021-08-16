@@ -12,7 +12,7 @@ GOVINFO_OPTIONS = {
     'extract': 'mods,xml,premis',
 }
 
-CONGRESS = [constants.CURRENT_CONGRESS]
+CONGRESS = str(constants.CURRENT_CONGRESS)
 
 BILLS_OPTIONS = {}
 

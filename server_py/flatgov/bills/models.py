@@ -27,7 +27,7 @@ def sortRelatedBills(bill: dict) -> int:
 def cleanReason(reason: str):
     r1 = re.sub(r'bills-',r'', reason)
     r2 = re.sub(r'_([a-z]*)_([a-z]*)_',r'\1 \2', r1)
-    return r2.replace('_', ' ')
+    return r2.replace('_', ' ').replace('match main', 'match (main)')
 
 def cleanReasons(reasons: List[str]):
     reasons = [cleanReason(reason) for reason in reasons if reason not in [None, 'some similarity']]

@@ -315,6 +315,41 @@ def updateBillsMeta(billsMeta= {}):
   saveBillsMeta(billsMeta)
   return billsMeta
 
+def isBillMetaJson(fileName: str) -> bool:
+  return fileName == 'billMeta.json'
+
+def addTitleMainToRelated(dirName: str, fileName: str):
+  try:
+    billMeta = loadJSON(os.path.join(dirName, fileName))
+    relatedDict = billMeta.get("related_dict", {})
+    if not relatedDict:
+      return
+    current_bill = billMeta.get("bill_congress_type_number")
+    billsRelatedByMainTitle = [billnumber for billnumber, billdata in relatedDict.items() if "bills-title_match_main" in billdata.get("reason").split(", ")]
+    billdata = Bill.objects.get(bill_congress_type_number=current_bill)
+    relatedDict_old = billdata.related_dict
+    for bill in billsRelatedByMainTitle:
+      if not relatedDict_old.get(bill):
+        relatedDict_old[bill] = relatedDict[bill] 
+      else:
+        relatedDict_old[bill]["reason"] = ", ".join(list(set((relatedDict_old[bill]["reason"] + ", bills-title_match_main").split(", "))))
+    billdata.related_dict = relatedDict_old
+    try:
+      billdata.save()
+      print("Saved update to " + current_bill) 
+    except Exception as err:
+      print("Could not save") 
+      logger.error(err)
+  except Exception as err:
+    logger.error(err)
+
+    return
+
+def addTitleMainToRelatedAll():
+  walkBillDirs(processFile=addTitleMainToRelated, fileMatch=isBillMetaJson)
+
+
+
 def updateBillsList(bills=[]):
   def addToBillsList(dirName: str, fileName: str):
     billCongressTypeNumber = getBillFromDirname(dirName)

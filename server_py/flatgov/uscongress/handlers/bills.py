@@ -116,7 +116,7 @@ def process_bill(bill_id, options):
         json.dumps(bill_data, indent=2, sort_keys=True),
         os.path.dirname(fdsys_xml_path) + '/data.json')
 
-    from bill_info import create_govtrack_xml
+    from .bill_info import create_govtrack_xml
     with open(os.path.dirname(fdsys_xml_path) + '/data.xml', 'wb') as xml_file:
         xml_file.write(create_govtrack_xml(bill_data, options))
 
@@ -285,7 +285,7 @@ def reparse_actions(bill_id, options):
       wrote_any = True
 
     # Write new data.xml file.
-    from bill_info import create_govtrack_xml
+    from .bill_info import create_govtrack_xml
     data_xml_fn = data_json_fn.replace(".json", ".xml")
     with open(data_xml_fn, 'r') as xml_file:
         source = xml_file.read()

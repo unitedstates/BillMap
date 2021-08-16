@@ -52,7 +52,6 @@ def billnumber_display(billnumber: Union[str, None]):
 
 @register.filter
 def billnumbers_by_congress(billnumbers: list, congress: str):
-    billnumbers = list(reversed(sorted(billnumbers)))
     return  list([billnumber for billnumber in list(billnumbers) if str(congress) in billnumber.split('(')[-1]])
 
 @register.filter

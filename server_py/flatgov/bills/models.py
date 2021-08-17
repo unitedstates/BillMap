@@ -39,7 +39,8 @@ def cleanReasons(reasons: List[str]):
         return []
 
 def getReasonString(reasons: List[str]):
-    return ', '.join(list(dict.fromkeys(cleanReasons(reasons))))
+    # TODO: consider sorting the reasons in a particular order
+    return ', '.join(sorted(list(dict.fromkeys(cleanReasons(reasons)))))
 class Bill(models.Model):
     bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
     type = models.CharField(max_length=40, null=True, blank=True)
@@ -155,6 +156,8 @@ class Bill(models.Model):
                     reasonString = getReasonString(['identical', *reasons])
                     bill['reason'] = reasonString 
                     bill_dict['reason'] = reasonString 
+                else:
+                    bill_dict['reason'] = getReasonString(bill.get('reason').split(', '))
             related_bills.append(bill_dict)
 
         sorted_related_bills = sorted(related_bills, key=lambda k: k['score'], reverse=True)

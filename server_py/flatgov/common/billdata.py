@@ -434,7 +434,7 @@ def addFieldToDb(fileName: str, fieldName: str):
 
 # Functions to load es_similarity, es_similar_bills_dict and escategory
 
-BILLMODEL_FIELDS_ADD = [ { "fileName": "relatedDict.json", "fieldName": "related_bills_dict"},
+BILLMODEL_FIELDS_ADD = [ { "fileName": "relatedDict.json", "fieldName": "related_dict"},
 {"fileName": "esSimilarBillsDict.json", "fieldName": "es_similar_bills_dict"}, 
 {"fileName": "esSimilarity.json",  "fieldName": "es_similarity"},
 {"fileName": "esSimilarCategory.json", "fieldName": "es_similar_reasons"}
@@ -442,7 +442,7 @@ BILLMODEL_FIELDS_ADD = [ { "fileName": "relatedDict.json", "fieldName": "related
 
 def updateBillModelFields():
   for field in BILLMODEL_FIELDS_ADD:
-    addFieldToDb(field['fileName'], field['fieldName'])
+    addFieldToDb(fileName=field['fileName'], fieldName=field['fieldName'])
 
 def updateBillsList(bills=[]):
   def addToBillsList(dirName: str, fileName: str):

@@ -58,6 +58,7 @@ class Bill(models.Model):
     cosponsors_dict = models.JSONField(default=list, blank=True)
     committees_dict = models.JSONField(default=list, blank=True)
     es_similarity = models.JSONField(default=list, blank=True)
+    es_similar_reasons = models.JSONField(default=dict, blank=True)
     es_similar_bills_dict = models.JSONField(default=dict, blank=True)
     became_law = models.BooleanField(default=False, null=True)
 

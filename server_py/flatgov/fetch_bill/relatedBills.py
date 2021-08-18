@@ -7,11 +7,11 @@ import re
 try:
     from flatgovtools.constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
     from flatgovtools.utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
-    from flatgovtools.billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
+    from flatgovtools.billdata import deep_get, billIdToBillNumber, loadDataJSON, loadBillsMeta
 except:
     from .constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
     from .utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
-    from .billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
+    from .billdata import deep_get, billIdToBillNumber, loadDataJSON, loadBillsMeta
 
 OF_YEAR_REGEX = re.compile(r'\sof\s[0-9]+$')
 

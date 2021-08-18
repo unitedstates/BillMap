@@ -410,12 +410,13 @@ def updateBillMetaToDb(dirName: str, fileName: str):
   except Exception as err:
     print(err)
 
-def updateBillMetaToDbAll():
-  walkBillDirs(processFile=updateBillMetaToDb, fileMatch=isBillMetaJson)
+# Process only 117th Congress bills with rootDir=path.join(constants.PATH_TO_CONGRESSDATA_DIR,'data','117')
+def updateBillMetaToDbAll(rootDir=constants.PATH_TO_CONGRESSDATA_DIR,):
+  walkBillDirs(rootDir=rootDir, processFile=updateBillMetaToDb, fileMatch=isBillMetaJson)
 
 
 # Loads json files into the database by field name
-def addFieldToDb(fileName: str, fieldName: str):
+def addFieldToDb(fileName: str, fieldName: str, rootDir=constants.PATH_TO_CONGRESSDATA_DIR):
   logger.info('**********************************************')
   logger.info('Updating all %s in db with %s' % (fieldName, fileName))
   logger.info('**********************************************')
@@ -439,7 +440,7 @@ def addFieldToDb(fileName: str, fieldName: str):
       print(err)
       logger.error(err)
 
-  walkBillDirs(processFile=updateBillField, fileMatch=isFileName)
+  walkBillDirs(rootDir=rootDir, processFile=updateBillField, fileMatch=isFileName)
   logger.info('**********************************************')
   logger.info('Done updating all %s in db with %s' % (fieldName, fileName))
   logger.info('**********************************************')
@@ -455,9 +456,9 @@ BILLMODEL_FIELDS_ADD = [ { "fileName": "relatedDict.json", "fieldName": "related
 {"fileName": "esSimilarCategory.json", "fieldName": "es_similar_reasons"}
 ]
 
-def updateBillModelFields():
+def updateBillModelFields(rootDir=constants.PATH_TO_CONGRESSDATA_DIR):
   for field in BILLMODEL_FIELDS_ADD:
-    addFieldToDb(fileName=field['fileName'], fieldName=field['fieldName'])
+    addFieldToDb(fileName=field['fileName'], fieldName=field['fieldName'], rootDir=rootDir)
 
 def updateBillsList(bills=[]):
   def addToBillsList(dirName: str, fileName: str):

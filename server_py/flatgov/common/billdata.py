@@ -402,13 +402,13 @@ def updateBillMetaToDbAll():
 # Loads json files into the database by field name
 def addFieldToDb(fileName: str, fieldName: str):
   logger.info('**********************************************')
-  logger.info('Updating all %s in db with %s' % fieldName, fileName)
+  logger.info('Updating all %s in db with %s' % (fieldName, fileName))
   logger.info('**********************************************')
   def isFileName(fileNameIn: str) -> bool:
     return fileNameIn == fileName
   def updateBillField(dirName: str, fileName: str):
     billnumber = getBillFromDirname(dirName)
-    logger.info('Updating %s for %s' % fieldName, billnumber)
+    logger.info('Updating %s for %s' % (fieldName, billnumber))
     bill = Bill.objects.get(bill_congress_type_number=billnumber)
     try:
       fieldJSON = loadJSON(os.path.join(dirName, fileName))
@@ -422,7 +422,7 @@ def addFieldToDb(fileName: str, fieldName: str):
 
   walkBillDirs(processFile=updateBillField, fileMatch=isFileName)
   logger.info('**********************************************')
-  logger.info('Done updating all %s in db with %s' % fieldName, fileName)
+  logger.info('Done updating all %s in db with %s' % (fieldName, fileName))
   logger.info('**********************************************')
 
 # Functions to load es_similarity, es_similar_bills_dict and escategory

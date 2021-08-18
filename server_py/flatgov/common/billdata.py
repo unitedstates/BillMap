@@ -2,6 +2,7 @@
 #
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
+from server_py.flatgov.common.utils import getBillNumberFromBillPath
 import sys, os, argparse, logging, re, json, gzip
 from typing import Dict
 from functools import reduce
@@ -259,6 +260,7 @@ def saveBillsMetaToDb():
       print(err)
       continue
 
+# With db = True, this updates fields of the Bill item in the db 
 def updateBillsMeta(billsMeta= {}):
   def addToBillsMeta(dirName: str, fileName: str):
     billDict = loadJSON(os.path.join(dirName, fileName))
@@ -318,6 +320,7 @@ def updateBillsMeta(billsMeta= {}):
 def isBillMetaJson(fileName: str) -> bool:
   return fileName == 'billMeta.json'
 
+
 def addTitleMainToRelated(dirName: str, fileName: str):
   try:
     billMeta = loadJSON(os.path.join(dirName, fileName))
@@ -348,7 +351,91 @@ def addTitleMainToRelated(dirName: str, fileName: str):
 def addTitleMainToRelatedAll():
   walkBillDirs(processFile=addTitleMainToRelated, fileMatch=isBillMetaJson)
 
+def updateBillMetaToDb(billdata= {}):
+  billCongressTypeNumber = billdata.get('bill_congress_type_number','') 
+  if not billCongressTypeNumber:
+    return 
+  print('Loading: ' + billCongressTypeNumber)
 
+  billdata['cosponsors_dict'] = billdata.get('cosponsors', [])
+  billdata['committees_dict'] = billdata.get('committees', [])
+  billdata['type'] = billdata.get('bill_type', '')
+  congress = billdata.get('congress', '')
+  if congress and len(congress) > 0:
+    billdata['congress'] = int(congress)
+  else:
+    billdata['congress'] = None
+  
+  extrakeys = [key for key in billdata.keys() if not (key in BILLMODEL_FIELDS)]
+  for key in extrakeys:
+    del billdata[key]
+  
+  # Do not update the related bills_dict; this will be separately updated using `relatedDict.json`
+  if billdata.get('related_bills_dict'):
+    del billdata['related_bills_dict']
+  
+  isEnacted = deep_get(billdata, 'history', 'enacted');
+  if not isEnacted:
+    billdata['became_law'] = False
+  else:
+    billdata['became_law'] = True
+
+  # Avoid not null constraint
+  if not billdata.get('related_bills'):
+    billdata['related_bills'] = []
+
+  if not billdata.get('cosponsors_dict'):
+    billdata['cosponsors_dict'] = []
+
+  if not billdata.get('committees_dict'):
+    billdata['committees_dict'] = []
+
+  try:
+    Bill.objects.update_or_create(bill_congress_type_number=billCongressTypeNumber, defaults=billdata)
+  except Exception as err:
+    print(err)
+
+def updateBillMetaToDbAll():
+  walkBillDirs(processFile=updateBillMetaToDb, fileMatch=isBillMetaJson)
+
+
+# Loads json files into the database by field name
+def addFieldToDb(fileName: str, fieldName: str):
+  logger.info('**********************************************')
+  logger.info('Updating all %s in db with %s' % fieldName, fileName)
+  logger.info('**********************************************')
+  def isFileName(fileNameIn: str) -> bool:
+    return fileNameIn == fileName
+  def updateBillField(dirName: str, fileName: str):
+    billnumber = getBillFromDirname(dirName)
+    logger.info('Updating %s for %s' % fieldName, billnumber)
+    bill = Bill.objects.get(bill_congress_type_number=billnumber)
+    try:
+      fieldJSON = loadJSON(os.path.join(dirName, fileName))
+      if not fieldJSON:
+        return
+      bill[fieldName] = fieldJSON
+      bill.save(update_fields=[fieldName]) 
+    except Exception as err:
+      print(err)
+      logger.error(err)
+
+  walkBillDirs(processFile=updateBillField, fileMatch=isFileName)
+  logger.info('**********************************************')
+  logger.info('Done updating all %s in db with %s' % fieldName, fileName)
+  logger.info('**********************************************')
+
+# Functions to load es_similarity, es_similar_bills_dict and escategory
+
+BILLMODEL_FIELDS_ADD = [ { "fileName": "relatedDict.json", "fieldName": "related_bills_dict"},
+{"fileName": "esSimilarBillsDict.json", "fieldName": "es_similar_bills_dict"}, 
+{"fileName": "esSimilarity.json",  "fieldName": "es_similarity"},
+{"fileName": "esSimilarCategory.json", "fieldName": "es_similar_reasons"}
+]
+
+def updateBillModelFields():
+  for field in BILLMODEL_FIELDS_ADD:
+    addFieldToDb(field['fileName'], field['fieldName'])
 
 def updateBillsList(bills=[]):
   def addToBillsList(dirName: str, fileName: str):

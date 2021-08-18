@@ -1,9 +1,166 @@
 :toc:
 
-## Celery tasks: scraping and processing 
+## BillMap Celery Tasks: What they do.
 
 Celery runs scheduled tasks, primarily to scrape and process data. To run celery, install Redis (as a taskrunner and db for Celery). The other dependencies are installed with `pip` when initially installing the requirements for the app with `pip install -r requirements.txt`.
 
+uscongress:: update uscongress bill and metadata
+statementAdminPolicy:: updates statements of administration policy from the current White House (OMB) website
+committeereport:: update committee reports associated with bills 
+cbo:: update cbo reports associated with bills 
+crs:: update crs reports associated with bills 
+
+### US Congress Task
+
+Within the US Congress task, there are six celery tasks, that run sequentially:
+`update_bill_task`, `bill_data_task`, `process_bill_meta_task`, `related_bill_task`, `elastic_load_task`, `bill_similarity_task`
+
+1. Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.
+
+With the open source scraper itself, we run `./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS`
+
+Then `./run bills`
+
+It will create `data.json` out of `data.xml` and text_versions.
+
+Instead of open source scraper command, we are using celery task named `update_bill_task` to download new bill metadata and text.
+
+The celery task is running daily at midnight in the server background.
+
+Whenever celery task started running, it creates `UscongressUpdateJob` table record in the database to track the task status.
+
+The fields in the `UscongressUpdateJob`:
+
+- job_id : celery task id
+
+- fdsys_status : choice field (pending, success, failed) : It represents the status of uscongress bill download (fdsys and text versions) what the celery task `update_bill_task` does. Once it's finished, the field value turns to `success` or `failed`
+
+- saved : the list of bill congress numbers downloaded by running the celery task `update_bill_task`.
+
+- skips : the list of bill congress numbers skipped by running the celery task `update_bill_task`.
+
+- data_status : choice field (pending, success, failed) : Once download is finished, the celery task `update_bill_task` creates `data.json` out of `data.xml` and text_versions that is exactly same as the `./run bills` does.
+
+- bill_status : choice field (pending, success, failed) : After creating `data.json`, we creates `billList.json` and `billsMeta.json` by running another celery task named `bill_data_task`. the field represents the status of the celery task to see if it's finished (succeed or failed)
+
+- meta_status : choice field (pending, success, failed) : After creating `billList.json` and `billsMeta.json`, we process the metadata by running the celery task named `process_bill_meta_task`. It represents the status of the task to see if it's finished or in pending.
+
+- related_status : choice field (pending, success, failed) : Once the celery task `process_bill_meta_task` is finished, the other celery task named `related_bill_task` to get related bills. This field represents the status of the celery task.
+
+- elastic_status : choice field (pending, success, failed) : Once the task `related_bill_task` is finished, the other celery task named `elastic_load_task` runs in order to update loading of the `new` bills into Elasticsearch. This field represents the status of the task.
+
+- similarity :  choice field (pending, success, failed) : After finishing `elastic_load_task`, we update `es_similarity` field of each bill in the database. This is the field of the task status.
+
+- created : the date time field represents the time when the record is created. 
+
++
+2. Create `billList.json` and `billsMeta.json`
+
+Once the celery task `update_bill_task` is finished (complete the download bill text and metadata), the other celery task named `bill_data_task` runs. This is triggered in the `save` function of the `uscongress.models.py`:
+
+```python
+ def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.bill_data_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.process_bill_meta_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+			...
+```
+
+As mentioned above, whenever the `update_bill_task` runs, it creates `UscongressUpdateJob` table record in the database.
+
+In `saved` fields, there is the list of bill congress number that represents which bills are newly downloaded.
+
+The task `bill_data_task` creates billList.json and `billsMeta.json` file with the list in `saved` field and dump related bill json files.
+
+data.json files at the top level (not the data.json in the text versions) are used to create metadata.
+
+We will provide an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)
+
+3. Process bill meta data.
+
+After completing `bill_data_task`, `process_bill_meta_task` runs. This processes and organizes the metadata for bills.
+
+4. Create Related bills.
+
+Next, the `related_bill_task` runs.
+
+In the task it creates bill instances in the Bill table in the database.
+
+5. Update loading of the `new` bills into Elasticsearch
+
+The celery task `elastic_load_task` update loading of the `new` bills into Elasticsearch
+
+The xml for bill similarity is in text_versions that is the bill document itself.
+
+We use them.
+
+6. Update the bill similarity
+
+The celery task `bill_similarity_task` update the bill similarity.
+
+It only update the new bills since the new bill list is in the `saved` field in the UscongressUpdateJob table record.
+
+The xml for bill similarity is in text_versions that is the bill document itself, so we use them.
+
+#### Flat structure
+
+├── 110
+│   ├── dtd
+│   └── pdf
+├── 111
+│   ├── dtd
+│   └── pdf
+├── 112
+│   ├── dtd
+│   └── pdf
+├── 113
+│   ├── dtd
+   └── pdf
+├── 114
+│   ├── dtd
+│   ├── pdf
+├── 115
+│   ├── dtd
+│   ├── pdf
+├── 115-bk
+│   ├── dtd
+│   ├── pdf
+├── 116
+│   ├── dtd
+│   ├── pdf
+
+### Statements of Administration Policy 
+
+Found in `server_py/bills/tasks`, the Statements of Administration Policy task scrapes the links of SAP from the White House website and stores to the database using the `original_pdf_link` as a unique field to avoid duplicates.
+
+
+## Celery installation and set-up 
+
+### Celery Schedule
+
+The Celery tasks are run on a schedule by `celery-beat`. The schedule is defined in https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py
+
+For example, a CSV of the CRS documents is created every night at midnight here:
+
+https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py#L42
+
+```
+'crs_scraper_daily': {
+'task': 'bills.tasks.crs_task',
+'schedule': crontab(minute=0, hour=1),
+'options': {'queue': 'bill'}
+},
+```
 ### Redis: install and start
 
 
@@ -28,7 +185,7 @@ To confirm that it is running:
 
 If necessary, edit `/etc/redis/redis.conf`. Our set-up should not require any special settings
 
-### How to run celery task.
+### How to run a celery task
 
 #### Development
 
@@ -209,162 +366,3 @@ current_app.send_task("bills.tasks.committee_report_scrapy_task", queue="bill")
 
 Then you can keep track of the task status on the terminal that celery is running on or you can see the CommitteeDocument records in the django admin dashboard.
 The initial data loading will take a long time; there are about 17,000 records.
-
-### Celery Tasks - What they do.
-Celery tasks:
-
-uscongress:: update uscongress bill and metadata
-statementAdminPolicy:: updates statements of administration policy from the current White House (OMB) website
-committeereport:: update committee reports associated with bills 
-cbo:: update cbo reports associated with bills 
-crs:: update crs reports associated with bills 
-
-#### US Congress Task
-
-Within the US Congress task, there are six celery tasks, that run sequentially:
-`update_bill_task`, `bill_data_task`, `process_bill_meta_task`, `related_bill_task`, `elastic_load_task`, `bill_similarity_task`
-
-1. Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.
-
-With the open source scraper itself, we run `./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS`
-
-Then `./run bills`
-
-It will create `data.json` out of `data.xml` and text_versions.
-
-Instead of open source scraper command, we are using celery task named `update_bill_task` to download new bill metadata and text.
-
-The celery task is running daily at midnight in the server background.
-
-Whenever celery task started running, it creates `UscongressUpdateJob` table record in the database to track the task status.
-
-The fields in the `UscongressUpdateJob`:
-
-- job_id : celery task id
-
-- fdsys_status : choice field (pending, success, failed) : It represents the status of uscongress bill download (fdsys and text versions) what the celery task `update_bill_task` does. Once it's finished, the field value turns to `success` or `failed`
-
-- saved : the list of bill congress numbers downloaded by running the celery task `update_bill_task`.
-
-- skips : the list of bill congress numbers skipped by running the celery task `update_bill_task`.
-
-- data_status : choice field (pending, success, failed) : Once download is finished, the celery task `update_bill_task` creates `data.json` out of `data.xml` and text_versions that is exactly same as the `./run bills` does.
-
-- bill_status : choice field (pending, success, failed) : After creating `data.json`, we creates `billList.json` and `billsMeta.json` by running another celery task named `bill_data_task`. the field represents the status of the celery task to see if it's finished (succeed or failed)
-
-- meta_status : choice field (pending, success, failed) : After creating `billList.json` and `billsMeta.json`, we process the metadata by running the celery task named `process_bill_meta_task`. It represents the status of the task to see if it's finished or in pending.
-
-- related_status : choice field (pending, success, failed) : Once the celery task `process_bill_meta_task` is finished, the other celery task named `related_bill_task` to get related bills. This field represents the status of the celery task.
-
-- elastic_status : choice field (pending, success, failed) : Once the task `related_bill_task` is finished, the other celery task named `elastic_load_task` runs in order to update loading of the `new` bills into Elasticsearch. This field represents the status of the task.
-
-- similarity :  choice field (pending, success, failed) : After finishing `elastic_load_task`, we update `es_similarity` field of each bill in the database. This is the field of the task status.
-
-- created : the date time field represents the time when the record is created. 
-
-+
-2. Create `billList.json` and `billsMeta.json`
-
-Once the celery task `update_bill_task` is finished (complete the download bill text and metadata), the other celery task named `bill_data_task` runs. This is triggered in the `save` function of the `uscongress.models.py`:
-
-```python
- def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
-            current_app.send_task(
-                'uscongress.tasks.bill_data_task',
-                args=(self.pk, ),
-                queue='bill'
-            )
-        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
-            current_app.send_task(
-                'uscongress.tasks.process_bill_meta_task',
-                args=(self.pk, ),
-                queue='bill'
-            )
-			...
-```
-
-As mentioned above, whenever the `update_bill_task` runs, it creates `UscongressUpdateJob` table record in the database.
-
-In `saved` fields, there is the list of bill congress number that represents which bills are newly downloaded.
-
-The task `bill_data_task` creates billList.json and `billsMeta.json` file with the list in `saved` field and dump related bill json files.
-
-data.json files at the top level (not the data.json in the text versions) are used to create metadata.
-
-We will provide an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)
-
-3. Process bill meta data.
-
-After completing `bill_data_task`, `process_bill_meta_task` runs. This processes and organizes the metadata for bills.
-
-4. Create Related bills.
-
-Next, the `related_bill_task` runs.
-
-In the task it creates bill instances in the Bill table in the database.
-
-5. Update loading of the `new` bills into Elasticsearch
-
-The celery task `elastic_load_task` update loading of the `new` bills into Elasticsearch
-
-The xml for bill similarity is in text_versions that is the bill document itself.
-
-We use them.
-
-6. Update the bill similarity
-
-The celery task `bill_similarity_task` update the bill similarity.
-
-It only update the new bills since the new bill list is in the `saved` field in the UscongressUpdateJob table record.
-
-The xml for bill similarity is in text_versions that is the bill document itself, so we use them.
-
-##### Flat structure
-
-├── 110
-│   ├── dtd
-│   └── pdf
-├── 111
-│   ├── dtd
-│   └── pdf
-├── 112
-│   ├── dtd
-│   └── pdf
-├── 113
-│   ├── dtd
-   └── pdf
-├── 114
-│   ├── dtd
-│   ├── pdf
-├── 115
-│   ├── dtd
-│   ├── pdf
-├── 115-bk
-│   ├── dtd
-│   ├── pdf
-├── 116
-│   ├── dtd
-│   ├── pdf
-
-#### Statements of Administration Policy 
-
-Found in `server_py/bills/tasks`, the Statements of Administration Policy task scrapes the links of SAP from the White House website and stores to the database using the `original_pdf_link` as a unique field to avoid duplicates.
-
-
-### Celery Schedule
-
-The Celery tasks are run on a schedule by `celery-beat`. The schedule is deined in https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py
-
-For example, a CSV of the CRS documents is created every night at midnight here:
-
-https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py#L42
-
-```
-'crs_scraper_daily': {
-'task': 'bills.tasks.crs_task',
-'schedule': crontab(minute=0, hour=1),
-'options': {'queue': 'bill'}
-},
-```

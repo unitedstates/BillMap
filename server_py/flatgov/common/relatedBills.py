@@ -128,7 +128,7 @@ def addSponsors():
         number = billData.get('number')
         short_title = billData.get('short_title')
 
-        for bill_inner, relatedItemValue in relatedBill.get('related').items():
+        for bill_inner, relatedItemValue in relatedBill.get('related', {}).items():
             billInnerData = loadDataJSON(bill_inner)
             if not billInnerData:
                 continue

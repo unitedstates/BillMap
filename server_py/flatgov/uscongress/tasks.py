@@ -49,9 +49,10 @@ def update_bill_task(self):
         # The bills.py file is copied from the uscongress repository
         processed = bills.run(BILLS_OPTIONS)
         history.data_status = UscongressUpdateJob.SUCCESS
-        history.saved = processed.get('saved')
-        history.skips = processed.get('skips')
-        history.save(update_fields=['data_status', 'saved', 'skips'])
+        if processed:
+            history.saved = processed.get('saved')
+            history.skips = processed.get('skips')
+            history.save(update_fields=['data_status', 'saved', 'skips'])
     except Exception as e:
         history.data_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['data_status'])

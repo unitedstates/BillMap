@@ -351,7 +351,16 @@ def addTitleMainToRelated(dirName: str, fileName: str):
 def addTitleMainToRelatedAll():
   walkBillDirs(processFile=addTitleMainToRelated, fileMatch=isBillMetaJson)
 
-def updateBillMetaToDb(billdata= {}):
+def updateBillMetaToDb(dirName: str, fileName: str):
+  billnumber = getBillFromDirname(dirName)
+  logger.info('Adding or updating billMeta for %s' % billnumber)
+  print('Adding or updating billMeta for %s' % billnumber)
+  try:
+    billdata = loadJSON(os.path.join(dirName, fileName))
+  except Exception as err:
+    print(err)
+  if not billdata:
+    return
   billCongressTypeNumber = billdata.get('bill_congress_type_number','') 
   if not billCongressTypeNumber:
     return 

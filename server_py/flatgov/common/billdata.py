@@ -413,8 +413,8 @@ def addFieldToDb(fileName: str, fieldName: str):
     billnumber = getBillFromDirname(dirName)
     logger.info('Updating %s for %s' % (fieldName, billnumber))
     print('Updating %s for %s' % (fieldName, billnumber))
-    bill = Bill.objects.get(bill_congress_type_number=billnumber)
     try:
+      bill = Bill.objects.get(bill_congress_type_number=billnumber)
       fieldJSON = loadJSON(os.path.join(dirName, fileName))
       if not fieldJSON:
         return

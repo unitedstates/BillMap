@@ -390,11 +390,10 @@ def updateBillMetaToDb(dirName: str, fileName: str):
   if billdata.get('es_similar_bills_dict'):
     del billdata['es_similar_bills_dict']
   
+  billdata['became_law'] = True
   isEnacted = deep_get(billdata, 'history', 'enacted');
-  if not isEnacted:
-    billdata['became_law'] = False
-  else:
-    billdata['became_law'] = True
+  if isEnacted:
+    billdata['became_law'] = True 
 
   # Avoid not null constraint
   if not billdata.get('related_bills'):

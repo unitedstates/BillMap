@@ -414,7 +414,7 @@ def addFieldToDb(fileName: str, fieldName: str):
       fieldJSON = loadJSON(os.path.join(dirName, fileName))
       if not fieldJSON:
         return
-      bill[fieldName] = fieldJSON
+      setattr(bill, fieldName, fieldJSON)
       bill.save(update_fields=[fieldName]) 
     except Exception as err:
       print(err)

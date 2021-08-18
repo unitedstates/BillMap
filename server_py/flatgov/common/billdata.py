@@ -383,6 +383,12 @@ def updateBillMetaToDb(dirName: str, fileName: str):
   # Do not update the related bills_dict; this will be separately updated using `relatedDict.json`
   if billdata.get('related_bills_dict'):
     del billdata['related_bills_dict']
+
+  if billdata.get('es_similarity'):
+    del billdata['es_similarity']
+
+  if billdata.get('es_similar_bills_dict'):
+    del billdata['es_similar_bills_dict']
   
   isEnacted = deep_get(billdata, 'history', 'enacted');
   if not isEnacted:

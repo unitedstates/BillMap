@@ -359,6 +359,7 @@ def updateBillMetaToDb(dirName: str, fileName: str):
     billdata = loadJSON(os.path.join(dirName, fileName))
   except Exception as err:
     print(err)
+    return
   if not billdata:
     return
   billCongressTypeNumber = billdata.get('bill_congress_type_number','') 

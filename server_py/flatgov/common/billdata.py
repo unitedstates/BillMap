@@ -410,8 +410,8 @@ def updateBillMetaToDb(dirName: str, fileName: str):
   except Exception as err:
     print(err)
 
-# Process only 117th Congress bills with rootDir=path.join(constants.PATH_TO_CONGRESSDATA_DIR,'data','117')
-def updateBillMetaToDbAll(rootDir=constants.PATH_TO_CONGRESSDATA_DIR,):
+# Process only 117th Congress bills with rootDir=os.path.join(constants.PATH_TO_CONGRESSDATA_DIR,'117')
+def updateBillMetaToDbAll(rootDir=constants.PATH_TO_CONGRESSDATA_DIR):
   walkBillDirs(rootDir=rootDir, processFile=updateBillMetaToDb, fileMatch=isBillMetaJson)
 
 

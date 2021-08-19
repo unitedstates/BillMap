@@ -252,7 +252,7 @@ class Bill(models.Model):
             reason = ''
             if reasonItem and reasonItem.get('Explanation'):
                 # Do not include bills that are unrelated
-                if reasonItem == "bills-unrelated":
+                if reasonItem.get('Explanation') == "bills-unrelated":
                     continue
                 reason = getReasonString([reasonItem.get('Explanation'), 'bills-section_similarity'])
             else:

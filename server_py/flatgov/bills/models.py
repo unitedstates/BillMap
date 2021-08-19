@@ -269,12 +269,14 @@ class Bill(models.Model):
         # Combine bills from related_bills and similar_bills, 
         combined_related_bills = {}
         for billnumber in billnumbers_all:
-            combined_related_bills['billnumber'] = {
+            combined_related_bills[billnumber] = {
             }
 
             if related_bills.get(billnumber):
+                print(related_bills.get(billnumber))
                 combined_related_bills[billnumber] = related_bills[billnumber]
             elif similar_bills.get(billnumber):
+                print(similar_bills.get(billnumber))
                 combined_related_bills[billnumber] = similar_bills[billnumber]
             
             if related_bills.get(billnumber) and similar_bills.get(billnumber):

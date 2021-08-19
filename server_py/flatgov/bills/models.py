@@ -289,7 +289,7 @@ class Bill(models.Model):
         self_index = next((index for (index, d) in enumerate(combined_related_bills_list) \
             if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
         if self_index:
-            combined_related_bills_list.insert(0, combined_related_bills.pop(self_index))
+            combined_related_bills_list.insert(0, combined_related_bills_list.pop(self_index))
 
         return  combined_related_bills_list[:MAX_RELATED_BILLS]
 

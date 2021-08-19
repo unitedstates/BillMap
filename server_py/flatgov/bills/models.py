@@ -236,7 +236,7 @@ class Bill(models.Model):
         #        # "titles"  (bill_dict)
         #        # "titles_whole_bill"  (bill_dict)
         #        # "title_whole_bill"  (bill_dict)
-        #        // BillMap reasons include 'identical', 'nearly identical', 'section similarity', 'title match', 'title match (main)'
+        #        // BillMap reasons include 'identical', 'nearly identical', 'some similarity', 'section similarity', 'unrelated' 'title match', 'title match (main)'
         #        // CRS reasons include 'related' and 'procedurally related' 
         #        }
         similar_bills = dict()

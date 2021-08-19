@@ -264,7 +264,7 @@ class Bill(models.Model):
                 'bill_congress_type_number': billnumber,
                 'max_item': maxItem,
                 'reason': reason,
-            })
+            }
         
         # Combine bills from related_bills and similar_bills, 
         combined_related_bills = {}

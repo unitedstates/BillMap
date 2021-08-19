@@ -273,10 +273,8 @@ class Bill(models.Model):
             }
 
             if related_bills.get(billnumber):
-                print(related_bills.get(billnumber))
                 combined_related_bills[billnumber] = related_bills[billnumber]
             elif similar_bills.get(billnumber):
-                print(similar_bills.get(billnumber))
                 combined_related_bills[billnumber] = similar_bills[billnumber]
             
             if related_bills.get(billnumber) and similar_bills.get(billnumber):
@@ -284,12 +282,10 @@ class Bill(models.Model):
                 combined_related_bills[billnumber]["reason"] = getReasonString(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", "))
                 combined_related_bills[billnumber]["identified_by"] = ", ".join(list(set(related_bills.get("identified_by", "").split(", ") + related_bills.get("identified_by", "").split(", "))))
 
-        print("combined_related_bills ****************")
-        print(combined_related_bills)
         combined_related_bills_list = [bill for bill in combined_related_bills.values()]
 
         # Sort by score; insert the current bill at the front
-        combined_related_bills_lsit = sorted(combined_related_bills_list, key=lambda k: k.get("score", 0), reverse=True)
+        combined_related_bills_list = sorted(combined_related_bills_list, key=lambda k: k.get("score", 0), reverse=True)
         self_index = next((index for (index, d) in enumerate(combined_related_bills_list) \
             if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
         if self_index:

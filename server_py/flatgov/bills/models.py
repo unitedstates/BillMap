@@ -141,44 +141,62 @@ class Bill(models.Model):
         This combines various JSON fields from the Bill.object, each of which
         is a dict of similar bills, with reasons for the similarity
 
+        Combine bills from:
+         - related_dict (including title reasons)
+         - es_similar_bills_dict, enriched with reasons from es_similar_reasons
+
         Returns:
             List[similar bill dict]: List of dicts of similar bills
 
-            Each similar bill dict is of the form:
-            { '116hr200': {
-                'score': sum([item.get('score', 0) for item in similarBillItem]),
-                'number_of_sections': len(similarBillItem),
-                'in_db': qs_bill.exists(),
-                'title_list': maxItem.get('title', ''),
-                'bill_congress_type_number': billnumber,
-                'max_item': maxItem,
-                'reason': 'section similarity'
+            Each similar bill dict is of the form (additional bill_dict fields in comments):
+            { "116hr200": {
+                "bill_id" # (bill_dict)
+                "bill_congress_type_number": billnumber,
+                "type"  # (bill_dict)
+                "identified_by"
+                "reason"
+                "score" # (similar_bill_dict)
+                "number_of_sections" #  (similar_bill_dict)
+                "max_item" #  (similar_bill_dict)
+                "title_max" #  (similar_bill_dict)
+                "in_db" #  (similar_bill_dict)
+                "titles"  # (bill_dict)
+                "titles_whole_bill"  # (bill_dict)
+                "title_whole_bill"  # (bill_dict)
+                // BillMap reasons include 'identical', 'nearly identical', 'section similarity', 'title match', 'title match (main)'
+                // CRS reasons include 'related' and 'procedurally related' 
                 }
         """
 
-        # TODO combine bills from:
-        # - related_dict (including title reasons)
-        # - es_similar_bills_dict
-        # - es_similar_reasons
 
-        related_bills = list()
+        billnumbers_all = list()
+
+        related_bills = dict()
         for bill_congress_type_number, bill in self.related_dict.items():
             bill_dict = bill
             """
             This has the following fields:
             bill_dict = {
-                type": "", 
-                "bill_congress_type_number": "116hr529"
-                "reason": "bills-title_match_main, bills-title_match", 
-                "titles": ["National Intersection and Interchange Safety Construction Program Act", "To direct the Secretary of Transportation to establish a national intersection and interchange safety construction program, and for other purposes."],
-                "titles_whole_bill": ["To direct the Secretary of Transportation to establish a national intersection and interchange safety construction program, and for other purposes.", "National Intersection and Interchange Safety Construction Program Act"], 
                 "bill_id": "hr529-116", 
+                "bill_congress_type_number": "116hr529"
+                "type": "", 
                 "identified_by": "BillMap", 
+                "reason": "bills-title_match_main, bills-title_match", 
+                # "score" set to 99 to put these at the top (similar_bill_dict) 
+                # number_of_sections (similar_bill_dict)
+                # "max_item" (similar_bill_dict)
+                # "title_max" (similar_bill_dict)
+                # "in_db" (similar_bill_dict)
+                # "title" (similar_bill_dict)
+                "titles"
+                "titles_whole_bill": ["To direct the Secretary of Transportation to establish a national intersection and interchange safety construction program, and for other purposes.", "National Intersection and Interchange Safety Construction Program Act"], 
+                "title_whole_bill": ", ".join(bill.get('titles_whole_bill')) 
             }
             In addition, we add a score (int or float) and string fields "title" and "title_whole_bill"
             """
             if type(bill_dict) is not dict:
                 continue
+            billnumbers_all.append(bill_congress_type_number)
             if not bill_dict.get('bill_congress_type_number'):
                 bill_dict['bill_congress_type_number'] = bill_congress_type_number
 
@@ -188,7 +206,7 @@ class Bill(models.Model):
             if bill.get('titles'):
                 bill_dict['title'] = ", ".join(bill.get('titles'))
             if bill.get('titles_whole_bill'):
-                bill_dict['title__whole_bill'] = ", ".join(bill.get('title_whole_bill'))
+                bill_dict['title__whole_bill'] = ", ".join(bill.get('titles_whole_bill'))
             if bill_congress_type_number == self.bill_congress_type_number:
                 reasons = bill.get('reason', '').split(', ')
                 reasonString = getReasonString(['identical', *reasons])
@@ -196,12 +214,34 @@ class Bill(models.Model):
                 bill_dict['reason'] = reasonString 
             else:
                 bill_dict['reason'] = getReasonString(bill.get('reason').split(', '))
-            related_bills.append(bill_dict)
+            qs_bill = Bill.objects.filter(
+                bill_congress_type_number=bill_congress_type_number)
+            bill_dict['in_db'] = qs_bill.exists(),
 
+            related_bills[bill_congress_type_number] = bill_dict
 
-        # Creates a 'res' list and adds items based on the total section score
-        similar_bills = list()
+        # Creates a 'similar_bills' list and adds items based on the total section score
+        # Each Item is of the form:
+        #    { "116hr200": {
+        #        # "bill_id" (bill_dict)
+        #        "bill_congress_type_number": billnumber,
+        #        # "type"  (bill_dict)
+        #        "identified_by": "BillMap"
+        #        "reason": "nearly identical, title match, title match (main)" 
+        #        "score": sum([item.get("score", 0) for item in similarBillItem]),
+        #        "number_of_sections": len(similarBillItem),
+        #        "max_item": maxItem,
+        #        "title_max": maxItem.get("title", ""), # This is of the form "116 HR 529 IH: National Intersection and Interchange Safety Construction Program Act of 2019" and is taken from the bill metadata
+        #        "in_db": qs_bill.exists(),
+        #        # "titles"  (bill_dict)
+        #        # "titles_whole_bill"  (bill_dict)
+        #        # "title_whole_bill"  (bill_dict)
+        #        // BillMap reasons include 'identical', 'nearly identical', 'section similarity', 'title match', 'title match (main)'
+        #        // CRS reasons include 'related' and 'procedurally related' 
+        #        }
+        similar_bills = dict()
         for billnumber, similarBillItem in self.es_similar_bills_dict.items():
+            billnumbers_all.append(billnumber)
             qs_bill = Bill.objects.filter(
                 bill_congress_type_number=billnumber)
             if similarBillItem:
@@ -212,42 +252,44 @@ class Bill(models.Model):
             reasonItem = self.es_similar_reasons.get(billnumber, '')
             reason = ''
             if reasonItem and reasonItem.get('Explanation'):
-                reason = cleanReason(reasonItem.get('Explanation'))
+                reason = cleanReasons([reasonItem.get('Explanation'), 'bills-section_similarity'])
             else:
                 reason = 'section similarity'
 
-            similar_bills.append({
+            similar_bills[billnumber]={
                 'score': sum([item.get('score', 0) for item in similarBillItem]),
                 'number_of_sections': len(similarBillItem),
                 'in_db': qs_bill.exists(),
-                'title_list': maxItem.get('title', ''),
+                'title_max': maxItem.get('title', ''), 
                 'bill_congress_type_number': billnumber,
                 'max_item': maxItem,
                 'reason': reason,
             })
         
-        # TODO combine bills from related_bills and similar_bills, 
+        # Combine bills from related_bills and similar_bills, 
+        combined_related_bills = {}
+        for billnumber in billnumbers_all:
+            combined_related_bills['billnumber'] = {
+            }
 
-        # similar_bills = sorted(similar_bills, key=lambda k: k['score'], reverse=True)
+            if related_bills.get(billnumber):
+                combined_related_bills[billnumber] = related_bills[billnumber]
+            elif similar_bills.get(billnumber):
+                combined_related_bills[billnumber] = similar_bills[billnumber]
+            
+            if related_bills.get(billnumber) and similar_bills.get(billnumber):
+                # merge common fields reason and identified_by
+                combined_related_bills[billnumber]["reason"] = cleanReasons(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", "))
+                combined_related_bills[billnumber]["identified_by"] = ", ".join(list(set(related_bills.get("identified_by", "").split(", ") + related_bills.get("identified_by", "").split(", "))))
 
         # Sort by score; insert the current bill at the front
-        # sorted_related_bills = sorted(related_bills, key=lambda k: k['score'], reverse=True)
-        # self_index = next((index for (index, d) in enumerate(sorted_related_bills) \
-        #     if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
-        # if self_index:
-        #     sorted_related_bills.insert(0, sorted_related_bills.pop(self_index))
+        combined_related_bills = sorted(combined_related_bills, key=lambda k: k['score'], reverse=True)
+        self_index = next((index for (index, d) in enumerate(combined_related_bills) \
+            if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
+        if self_index:
+            combined_related_bills.insert(0, combined_related_bills.pop(self_index))
 
-        
-        #combined_related_bills = sorted(related_bills + similar_bills, key=sortRelatedBills, reverse=True)
-
-        combined_related_bills_clean =  combined_related_bills[:MAX_RELATED_BILLS]
-        for item in combined_related_bills_clean:
-            qs_bill = Bill.objects.filter(
-                bill_congress_type_number=item.get('bill_congress_type_number', 'none'))
-            item["in_db"] =  qs_bill.exists()
-            if item.get('reason', ''):
-                item['reason'] = getReasonString(item['reason'].split(", "))
-        return combined_related_bills_clean
+        return  combined_related_bills[:MAX_RELATED_BILLS]
 
    # It appears that this is unused
    # def get_second_similar_bills(self, second_bill):

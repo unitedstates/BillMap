@@ -456,6 +456,8 @@ BILLMODEL_FIELDS_ADD = [ { "fileName": "relatedDict.json", "fieldName": "related
 {"fileName": "esSimilarCategory.json", "fieldName": "es_similar_reasons"}
 ]
 
+# This can update all fields by Congress, if rootDir is set to 
+# os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, str(congress))
 def updateBillModelFields(rootDir=constants.PATH_TO_CONGRESSDATA_DIR):
   for field in BILLMODEL_FIELDS_ADD:
     addFieldToDb(fileName=field['fileName'], fieldName=field['fieldName'], rootDir=rootDir)

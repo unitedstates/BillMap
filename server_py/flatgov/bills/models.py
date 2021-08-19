@@ -59,7 +59,7 @@ class Bill(models.Model):
     committees_dict = models.JSONField(default=list, blank=True)
     es_similarity = models.JSONField(default=list, blank=True)
     es_similar_reasons = models.JSONField(default=dict, blank=True)
-    es_similar_bills_dict = models.JSONField(default=dict, blank=True)
+    es_similar_bills_dict = models.JSONField(default=dict, blank=True, null=True)
     became_law = models.BooleanField(default=False, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
@@ -84,6 +84,20 @@ class Bill(models.Model):
             return stagesFormat.get(self.type.upper(), '')
         else:
             return ''
+
+    @property
+    def became_law_through_related_bill(self):
+        if self.became_law:
+            return 'This bill became law'
+        for related_bill in self.get_related_bill_numbers():
+            try:
+                bill = Bill.objects.get(bill_congress_type_number=related_bill)
+
+                if bill.became_law:
+                    return {"bill_number": related_bill, "message":'This bill became law through a related bill, '}
+            except:
+                return None
+        return None
 
     def get_related_bill_numbers(self):
         return self.related_dict.keys()

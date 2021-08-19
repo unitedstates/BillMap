@@ -285,7 +285,7 @@ class Bill(models.Model):
         combined_related_bills_list = [bill for bill in combined_related_bills.values()]
 
         # Sort by score; insert the current bill at the front
-        combined_related_bills_lsit = sorted(combined_related_bills_list, key=lambda k: k['score'], reverse=True)
+        combined_related_bills_lsit = sorted(combined_related_bills_list, key=lambda k: k.get("score", 0), reverse=True)
         self_index = next((index for (index, d) in enumerate(combined_related_bills_list) \
             if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
         if self_index:

@@ -390,7 +390,7 @@ def updateBillMetaToDb(dirName: str, fileName: str):
   if billdata.get('es_similar_bills_dict'):
     del billdata['es_similar_bills_dict']
   
-  billdata['became_law'] = True
+  billdata['became_law'] = False 
   isEnacted = deep_get(billdata, 'history', 'enacted');
   if isEnacted:
     billdata['became_law'] = True 

@@ -252,7 +252,7 @@ class Bill(models.Model):
             reasonItem = self.es_similar_reasons.get(billnumber, '')
             reason = ''
             if reasonItem and reasonItem.get('Explanation'):
-                reason = cleanReasons([reasonItem.get('Explanation'), 'bills-section_similarity'])
+                reason = getReasonString([reasonItem.get('Explanation'), 'bills-section_similarity'])
             else:
                 reason = 'section similarity'
 
@@ -279,7 +279,7 @@ class Bill(models.Model):
             
             if related_bills.get(billnumber) and similar_bills.get(billnumber):
                 # merge common fields reason and identified_by
-                combined_related_bills[billnumber]["reason"] = cleanReasons(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", "))
+                combined_related_bills[billnumber]["reason"] = getReasonString(cleanReasons(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", ")))
                 combined_related_bills[billnumber]["identified_by"] = ", ".join(list(set(related_bills.get("identified_by", "").split(", ") + related_bills.get("identified_by", "").split(", "))))
 
         # Sort by score; insert the current bill at the front

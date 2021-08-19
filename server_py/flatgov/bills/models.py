@@ -49,7 +49,7 @@ def cleanReasons(reasons: List[str]) -> List[str]:
     Returns:
         (List[str]): list of reasons in readable form
     """
-    reasons = [cleanReason(reason) for reason in reasons if reason not in [None, 'some similarity']]
+    reasons = [cleanReason(reason) for reason in reasons if reason not in [None, 'bills-some_similarity']]
     if 'identical' in reasons and 'nearly identical' in reasons:
         reasons.remove('nearly identical')
     if reasons and len(reasons) > 0:

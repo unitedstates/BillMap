@@ -282,6 +282,8 @@ class Bill(models.Model):
                 combined_related_bills[billnumber]["reason"] = getReasonString(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", "))
                 combined_related_bills[billnumber]["identified_by"] = ", ".join(list(set(related_bills.get("identified_by", "").split(", ") + related_bills.get("identified_by", "").split(", "))))
 
+        print("combined_related_bills ****************")
+        print(combined_related_bills)
         combined_related_bills_list = [bill for bill in combined_related_bills.values()]
 
         # Sort by score; insert the current bill at the front

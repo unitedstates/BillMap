@@ -2,7 +2,7 @@
 #
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
-from server_py.flatgov.common.utils import getBillNumberFromBillPath
+from .utils import getBillNumberFromBillPath
 import sys, os, argparse, logging, re, json, gzip
 from typing import Dict
 from functools import reduce

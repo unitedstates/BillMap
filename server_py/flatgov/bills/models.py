@@ -279,17 +279,19 @@ class Bill(models.Model):
             
             if related_bills.get(billnumber) and similar_bills.get(billnumber):
                 # merge common fields reason and identified_by
-                combined_related_bills[billnumber]["reason"] = getReasonString(cleanReasons(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", ")))
+                combined_related_bills[billnumber]["reason"] = getReasonString(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", "))
                 combined_related_bills[billnumber]["identified_by"] = ", ".join(list(set(related_bills.get("identified_by", "").split(", ") + related_bills.get("identified_by", "").split(", "))))
 
+        combined_related_bills_list = [bill for bill in combined_related_bills.values()]
+
         # Sort by score; insert the current bill at the front
-        combined_related_bills = sorted(combined_related_bills, key=lambda k: k['score'], reverse=True)
-        self_index = next((index for (index, d) in enumerate(combined_related_bills) \
+        combined_related_bills_lsit = sorted(combined_related_bills_list, key=lambda k: k['score'], reverse=True)
+        self_index = next((index for (index, d) in enumerate(combined_related_bills_list) \
             if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
         if self_index:
-            combined_related_bills.insert(0, combined_related_bills.pop(self_index))
+            combined_related_bills_list.insert(0, combined_related_bills.pop(self_index))
 
-        return  combined_related_bills[:MAX_RELATED_BILLS]
+        return  combined_related_bills_list[:MAX_RELATED_BILLS]
 
    # It appears that this is unused
    # def get_second_similar_bills(self, second_bill):

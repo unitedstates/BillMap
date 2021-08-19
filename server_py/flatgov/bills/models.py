@@ -196,7 +196,6 @@ class Bill(models.Model):
             """
             if type(bill_dict) is not dict:
                 continue
-            billnumbers_all.append(bill_congress_type_number)
             if not bill_dict.get('bill_congress_type_number'):
                 bill_dict['bill_congress_type_number'] = bill_congress_type_number
 
@@ -219,6 +218,7 @@ class Bill(models.Model):
             bill_dict['in_db'] = qs_bill.exists(),
 
             related_bills[bill_congress_type_number] = bill_dict
+            billnumbers_all.append(bill_congress_type_number)
 
         # Creates a 'similar_bills' list and adds items based on the total section score
         # Each Item is of the form:
@@ -241,7 +241,6 @@ class Bill(models.Model):
         #        }
         similar_bills = dict()
         for billnumber, similarBillItem in self.es_similar_bills_dict.items():
-            billnumbers_all.append(billnumber)
             qs_bill = Bill.objects.filter(
                 bill_congress_type_number=billnumber)
             if similarBillItem:
@@ -268,6 +267,7 @@ class Bill(models.Model):
                 'max_item': maxItem,
                 'reason': reason,
             }
+            billnumbers_all.append(billnumber)
         
         # Combine bills from related_bills and similar_bills, 
         combined_related_bills = {}

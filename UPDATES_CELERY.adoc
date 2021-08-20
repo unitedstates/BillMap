@@ -203,8 +203,8 @@ For configuration, copy `deployment_scripts/conf_celeryd` file to `/etc/default/
 You can check if the worker is active by:
 
 ```bash
-(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov/flatgov$  sudo chown -R ubuntu:root /var/run/celery/
-(flatgov) ubuntu/opt/flatgov/FlatGov/server_py/flatgov/flatgov$ sudo chown -R ubuntu:root /var/log/celery/
+(flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov/flatgov$  sudo chown -R ubuntu:ubuntu /var/run/celery/
+(flatgov) ubuntu/opt/flatgov/FlatGov/server_py/flatgov/flatgov$ sudo chown -R ubuntu:ubuntu /var/log/celery/
 (flatgov) ubuntu:/opt/flatgov/FlatGov/server_py/flatgov/flatgov$ sudo /etc/init.d/celeryd start
 celery init v10.1.
 Using config script: /etc/default/celeryd

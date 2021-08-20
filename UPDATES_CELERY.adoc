@@ -10,6 +10,8 @@ committeereport:: update committee reports associated with bills
 cbo:: update cbo reports associated with bills 
 crs:: update crs reports associated with bills 
 
+The main celery app is in `server_py/flatgov/flatgov/celery.py` and the schedule of tasks is defined in `app.conf.beat_schedule` there.
+
 ### US Congress Task
 
 Within the US Congress task, there are six celery tasks, that run sequentially:

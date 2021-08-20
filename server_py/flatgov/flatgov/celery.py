@@ -21,7 +21,12 @@ app.conf.beat_schedule = {
     'process_sources': {
         'task': 'events.tasks.process_sources',
         'schedule': crontab(minute=5, hour=19)
-    }
+    },
+    'crs_scraper_daily': {
+        'task': 'bills.tasks.crs_task',
+        'schedule': crontab(minute=0, hour=1),
+        'options': {'queue': 'bill'}
+    },
 }
 
 app.conf.timezone = 'UTC'

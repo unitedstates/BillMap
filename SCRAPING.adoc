@@ -1,80 +1,51 @@
 :toc:
 
-## Scraping bill text and metadata
 
-### Django commands
+## Overview
 
-The steps below will create the baseline bill text and metadata directories that are used by this project. The initial scraping may take a very long time (1 or 2 days). Updates are done through the Celery task runner.
+There are a number of scrapers that get data for this project. The initial scraping, in some cases is done manually, and the data is then loaded into the database. There are Celery tasks that maintain the data. These are described in <<UPDATES_CELERY.adoc, UPDATES_CELERY>>. 
 
-NOTE: These instructions use the scrapers maintained in `https://github.com/unitedstates/congress`. In some ways the data structure they create is not ideal: each bill is many levels deep in a nested hierarchy, requiring tree walking to store and retrieve files. However, it is a widely-used and maintained scraper that is compatible with `govtrack`, so we use it here. 
+The following scrapers are available:
 
-#### Download
+1. US Congress (for bills and metadata)
+2. Statements of Administration Policy
+3. CRS reports
+4. Relevant Committee Documents
+5. CBO Scores
 
-1. Set up the database
+## Scrapers
 
-Before downloading bill text and metadata with Django commands, ensure that the `postgresql` database is ready set up.
-
-Please see django_database.adoc for details.
-+
-2. Activate the virtual environment and check if modules are imported.
-
-If you get a `module not found` error, make sure that:
-
-    a. you are in the Python virtual environment
-    b. environment variables are set
-    c. requirements.txt has been run previously in the virtual environment
-```
-cd /path/to/FlatGov/server_py
-pip install -r requirements.txt
-```
-+
-3. Download bill text and metadata
-
-- Run the django command `python manage.py update_bill`
-
-It will download bills (113 ~ 116) using uscongress open source scraper and store them into `server_py/flatgov/congress/data`.
-
-This process will take several hours.
-
-We set up a logging system, so we can keep tracking of the download status via the admin console.
-
-#### Update bill data in the database and index into Elasticsearch
-
-1. Create billsMeta.json file via Django command.
+### US Congress (Bills)
 
 ```bash
-$ python manage.py bill_data
+./run govinfo --bulkdata=BILLSTATUS
+./run bills
 ```
 
-2. Process bills metadata
+When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:
 
-```bash
-$ python manage.py process_bill_meta
-```
+`find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
 
-3. Create related bills
+For more detail, see <<USCONGRESS_SCRAPER.adoc, USCONGRESS_SCRAPER>>.
 
-```bash
-$ python manage.py related_bills
-```
+### Statements of Administration Policy
 
-4. Update loading of the `new` bills into Elasticsearch
+Instructions for loading the database fixture for the Statements of Administration Policy are in the `DATA BACKGROUND` document, here: <<DATA_BACKGROUND#_statement_of_administration_policy, DATA BACKGROUND: Statement of Administration Policy>>.
 
-```bash
-$ python manage.py elastic_load --uscongress
-```
+### CRS Reports
 
-NOTE: The `--uscongress` option is necessary to use data from the `uscongress` scraper. There is an alternate scraper (not included in this repository) that uses a flat structure to store bill text (e.g. `116/dtd/BILLS-116hr200ih.xml`); without the `--uscongress` option, the commands would try to load data from that structure. The `getXMLDirByCongress` function takes the data-structure as an option and finds the bill xml in either data structure.
+The scraper for CRS Reports, and its instructions, are described in <<CRS_REPORTS.adoc, CRS_REPORTS_SCRAPER>>.
 
-5. Calculate bill similarity and store in db
+### Relevant Committee Documents
 
-```bash
-$ python manage.py bill_similarity --uscongress
-```
+To load Relevant Committee Documents data use the following instructions:
 
-### Alternative: Manual scraping 
 
-This is only necessary if you want the text files (e.g. .txt, .html, .pdf) in the `congress` directory. It is more complicated and adds ~10Gb of data above the downloads from ProPublica which are automated in `flatgovtools/download_bills.sh`.
+1. After installing the requirements under scrapers directory, run crec_scrape_urls.py file under scrapers directory.
+2. Go to the crec_scrapy folder and run “scrapy crawl crec”  command. It will take about an hour to scrape all the data in crec_scrapy/data/crec_data.json file.
+3. Copy scraped data from crec_scrapy/data/crec_data.json to django base directory. First delete old data under django base directory or replace it.
+4. Run django command “./manage.py load_crec” command to populate the data to the database.
+
 
 #### Install `unitedstates/congress` repository
 
@@ -116,33 +87,3 @@ pip install cryptography
 4. Install requirements
 
 From the `congress` repository directory, `pip install -r requirements.txt`
-
-#### Bills 
-
-```bash
-./run govinfo --bulkdata=BILLSTATUS
-./run bills
-```
-
-When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:
-
-`find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
-
-
-## Statements of Administration Policy
-
-Instructions for loading the database fixture for the Statements of Administration Policy are in the `DATA BACKGROUND` document, here: <<DATA_BACKGROUND#_statement_of_administration_policy, DATA BACKGROUND: Statement of Administration Policy>>.
-
-## CRS Reports
-
-The scraper for CRS Reports, and its instructions, are described in <<CRS_REPORTS.adoc, CRS_REPORTS_SCRAPER>>.
-
-## Relevant Committee Documents
-
-To load Relevant Committee Documents data use the following instructions:
-
-
-1. After installing the requirements under scrapers directory, run crec_scrape_urls.py file under scrapers directory.
-2. Go to the crec_scrapy folder and run “scrapy crawl crec”  command. It will take about an hour to scrape all the data in crec_scrapy/data/crec_data.json file.
-3. Copy scraped data from crec_scrapy/data/crec_data.json to django base directory. First delete old data under django base directory or replace it.
-4. Run django command “./manage.py load_crec” command to populate the data to the database.

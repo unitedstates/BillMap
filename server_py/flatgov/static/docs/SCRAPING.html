@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 2.0.15">
-<title>Scraping bill text and metadata</title>
+<title>Overview</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | https://asciidoctor.org */
@@ -440,181 +440,102 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div id="toc" class="toc">
 <div id="toctitle">Table of Contents</div>
 <ul class="sectlevel1">
-<li><a href="#_scraping_bill_text_and_metadata">Scraping bill text and metadata</a>
+<li><a href="#_overview">Overview</a></li>
+<li><a href="#_scrapers">Scrapers</a>
 <ul class="sectlevel2">
-<li><a href="#_django_commands">Django commands</a></li>
-<li><a href="#_alternative_manual_scraping">Alternative: Manual scraping</a></li>
-</ul>
-</li>
+<li><a href="#_us_congress_bills">US Congress (Bills)</a></li>
 <li><a href="#_statements_of_administration_policy">Statements of Administration Policy</a></li>
 <li><a href="#_crs_reports">CRS Reports</a></li>
 <li><a href="#_relevant_committee_documents">Relevant Committee Documents</a></li>
+</ul>
+</li>
 </ul>
 </div>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="_scraping_bill_text_and_metadata">Scraping bill text and metadata</h2>
+<h2 id="_overview">Overview</h2>
+<div class="sectionbody">
+<div class="paragraph">
+<p>There are a number of scrapers that get data for this project. The initial scraping, in some cases is done manually, and the data is then loaded into the database. There are Celery tasks that maintain the data. These are described in <a href="#UPDATES_CELERY.adoc">UPDATES_CELERY</a>.</p>
+</div>
+<div class="paragraph">
+<p>The following scrapers are available:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>US Congress (for bills and metadata)</p>
+</li>
+<li>
+<p>Statements of Administration Policy</p>
+</li>
+<li>
+<p>CRS reports</p>
+</li>
+<li>
+<p>Relevant Committee Documents</p>
+</li>
+<li>
+<p>CBO Scores</p>
+</li>
+</ol>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_scrapers">Scrapers</h2>
 <div class="sectionbody">
 <div class="sect2">
-<h3 id="_django_commands">Django commands</h3>
-<div class="paragraph">
-<p>The steps below will create the baseline bill text and metadata directories that are used by this project. The initial scraping may take a very long time (1 or 2 days). Updates are done through the Celery task runner.</p>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-These instructions use the scrapers maintained in <code><a href="https://github.com/unitedstates/congress" class="bare">https://github.com/unitedstates/congress</a></code>. In some ways the data structure they create is not ideal: each bill is many levels deep in a nested hierarchy, requiring tree walking to store and retrieve files. However, it is a widely-used and maintained scraper that is compatible with <code>govtrack</code>, so we use it here.
-</td>
-</tr>
-</table>
-</div>
-<div class="sect3">
-<h4 id="_download">Download</h4>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Set up the database</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Before downloading bill text and metadata with Django commands, ensure that the <code>postgresql</code> database is ready set up.</p>
-</div>
-<div class="paragraph">
-<p>Please see django_database.adoc for details.</p>
-</div>
-<div class="paragraph">
-<p>+
-2. Activate the virtual environment and check if modules are imported.</p>
-</div>
-<div class="paragraph">
-<p>If you get a <code>module not found</code> error, make sure that:</p>
-</div>
-<div class="olist loweralpha">
-<ol class="loweralpha">
-<li>
-<p>you are in the Python virtual environment</p>
-</li>
-<li>
-<p>environment variables are set</p>
-</li>
-<li>
-<p>requirements.txt has been run previously in the virtual environment</p>
-</li>
-</ol>
-</div>
+<h3 id="_us_congress_bills">US Congress (Bills)</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code>cd /path/to/FlatGov/server_py
-pip install -r requirements.txt</code></pre>
+<pre class="highlight"><code class="language-bash" data-lang="bash">./run govinfo --bulkdata=BILLSTATUS
+./run bills</code></pre>
 </div>
 </div>
 <div class="paragraph">
-<p>+
-3. Download bill text and metadata</p>
-</div>
-<div class="ulist">
-<ul>
-<li>
-<p>Run the django command <code>python manage.py update_bill</code></p>
-</li>
-</ul>
+<p>When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:</p>
 </div>
 <div class="paragraph">
-<p>It will download bills (113 ~ 116) using uscongress open source scraper and store them into <code>server_py/flatgov/congress/data</code>.</p>
+<p><code>find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'</code></p>
 </div>
 <div class="paragraph">
-<p>This process will take several hours.</p>
-</div>
-<div class="paragraph">
-<p>We set up a logging system, so we can keep tracking of the download status via the admin console.</p>
-</div>
-</div>
-<div class="sect3">
-<h4 id="_update_bill_data_in_the_database_and_index_into_elasticsearch">Update bill data in the database and index into Elasticsearch</h4>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Create billsMeta.json file via Django command.</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ python manage.py bill_data</code></pre>
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Process bills metadata</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ python manage.py process_bill_meta</code></pre>
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Create related bills</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ python manage.py related_bills</code></pre>
-</div>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Update loading of the <code>new</code> bills into Elasticsearch</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ python manage.py elastic_load --uscongress</code></pre>
-</div>
-</div>
-<div class="admonitionblock note">
-<table>
-<tr>
-<td class="icon">
-<div class="title">Note</div>
-</td>
-<td class="content">
-The <code>--uscongress</code> option is necessary to use data from the <code>uscongress</code> scraper. There is an alternate scraper (not included in this repository) that uses a flat structure to store bill text (e.g. <code>116/dtd/BILLS-116hr200ih.xml</code>); without the <code>--uscongress</code> option, the commands would try to load data from that structure. The <code>getXMLDirByCongress</code> function takes the data-structure as an option and finds the bill xml in either data structure.
-</td>
-</tr>
-</table>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Calculate bill similarity and store in db</p>
-</li>
-</ol>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ python manage.py bill_similarity --uscongress</code></pre>
-</div>
-</div>
+<p>For more detail, see <a href="#USCONGRESS_SCRAPER.adoc">USCONGRESS_SCRAPER</a>.</p>
 </div>
 </div>
 <div class="sect2">
-<h3 id="_alternative_manual_scraping">Alternative: Manual scraping</h3>
+<h3 id="_statements_of_administration_policy">Statements of Administration Policy</h3>
 <div class="paragraph">
-<p>This is only necessary if you want the text files (e.g. .txt, .html, .pdf) in the <code>congress</code> directory. It is more complicated and adds ~10Gb of data above the downloads from ProPublica which are automated in <code>flatgovtools/download_bills.sh</code>.</p>
+<p>Instructions for loading the database fixture for the Statements of Administration Policy are in the <code>DATA BACKGROUND</code> document, here: <a href="DATA_BACKGROUND.html#_statement_of_administration_policy">DATA BACKGROUND: Statement of Administration Policy</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_crs_reports">CRS Reports</h3>
+<div class="paragraph">
+<p>The scraper for CRS Reports, and its instructions, are described in <a href="#CRS_REPORTS.adoc">CRS_REPORTS_SCRAPER</a>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_relevant_committee_documents">Relevant Committee Documents</h3>
+<div class="paragraph">
+<p>To load Relevant Committee Documents data use the following instructions:</p>
+</div>
+<div class="olist arabic">
+<ol class="arabic">
+<li>
+<p>After installing the requirements under scrapers directory, run crec_scrape_urls.py file under scrapers directory.</p>
+</li>
+<li>
+<p>Go to the crec_scrapy folder and run “scrapy crawl crec”  command. It will take about an hour to scrape all the data in crec_scrapy/data/crec_data.json file.</p>
+</li>
+<li>
+<p>Copy scraped data from crec_scrapy/data/crec_data.json to django base directory. First delete old data under django base directory or replace it.</p>
+</li>
+<li>
+<p>Run django command “./manage.py load_crec” command to populate the data to the database.</p>
+</li>
+</ol>
 </div>
 <div class="sect3">
 <h4 id="_install_unitedstatescongress_repository">Install <code>unitedstates/congress</code> repository</h4>
@@ -697,68 +618,13 @@ pip install cryptography</code></pre>
 <p>From the <code>congress</code> repository directory, <code>pip install -r requirements.txt</code></p>
 </div>
 </div>
-<div class="sect3">
-<h4 id="_bills">Bills</h4>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">./run govinfo --bulkdata=BILLSTATUS
-./run bills</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>When running initially, I got an error because the bulk directories had not been made. To unzip the files manually in all directories:</p>
-</div>
-<div class="paragraph">
-<p><code>find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'</code></p>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_statements_of_administration_policy">Statements of Administration Policy</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Instructions for loading the database fixture for the Statements of Administration Policy are in the <code>DATA BACKGROUND</code> document, here: <a href="DATA_BACKGROUND.html#_statement_of_administration_policy">DATA BACKGROUND: Statement of Administration Policy</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_crs_reports">CRS Reports</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>The scraper for CRS Reports, and its instructions, are described in <a href="#CRS_REPORTS.adoc">CRS_REPORTS_SCRAPER</a>.</p>
-</div>
-</div>
-</div>
-<div class="sect1">
-<h2 id="_relevant_committee_documents">Relevant Committee Documents</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>To load Relevant Committee Documents data use the following instructions:</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>After installing the requirements under scrapers directory, run crec_scrape_urls.py file under scrapers directory.</p>
-</li>
-<li>
-<p>Go to the crec_scrapy folder and run “scrapy crawl crec”  command. It will take about an hour to scrape all the data in crec_scrapy/data/crec_data.json file.</p>
-</li>
-<li>
-<p>Copy scraped data from crec_scrapy/data/crec_data.json to django base directory. First delete old data under django base directory or replace it.</p>
-</li>
-<li>
-<p>Run django command “./manage.py load_crec” command to populate the data to the database.</p>
-</li>
-</ol>
 </div>
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-08-18 09:00:29 -0700
+Last updated 2021-08-20 07:32:33 -0700
 </div>
 </div>
 </body>

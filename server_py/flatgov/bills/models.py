@@ -311,35 +311,6 @@ class Bill(models.Model):
 
         return  combined_related_bills_list[:MAX_RELATED_BILLS]
 
-   # It appears that this is unused
-   # def get_second_similar_bills(self, second_bill):
-   #     res = list()
-   #     dup_checker_list = list()
-
-   #     for item in self.es_similarity:
-   #         similars = item.get('similars')
-   #         target_billnumber = item.get('billnumber')
-   #         target_section_header = item.get('section_header')
-   #         if target_section_header:
-   #             target_section_header = ' '.join(target_section_header.split())
-   #         target_section_number = item.get('section_number')
-   #         dup_checker = target_billnumber + target_section_header
-
-   #         if not similars:
-   #             continue
-
-   #         for similar in similars:
-   #             bill_number = similar.get('billnumber')
-
-   #             if bill_number == second_bill and dup_checker not in dup_checker_list:
-   #                 dup_checker_list.append(dup_checker)
-   #                 dup_checker_list = list(dict.fromkeys(dup_checker_list))
-   #                 similar['target_billnumber'] = target_billnumber
-   #                 similar['target_section_header'] = target_section_header
-   #                 similar['target_section_number'] = target_section_number
-   #                 res.append(similar)
-   #     return sorted(res, key=lambda k: k['score'], reverse=True)[:10]
-
     @property
     def bill_summary(self):
         if not self.summary:

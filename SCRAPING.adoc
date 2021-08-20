@@ -3,7 +3,7 @@
 
 ## Overview
 
-There are a number of scrapers that get data for this project. The initial scraping, in some cases is done manually, and the data is then loaded into the database. There are Celery tasks that maintain the data. These are described in <<UPDATES_CELERY.adoc, UPDATES_CELERY>>. 
+There are a number of scrapers that get data for this project. The initial scraping, in some cases is done manually, and the data is then loaded into the database. There are Celery tasks that maintain the data. These are described in <<UPDATES_CELERY.adoc#, UPDATES_CELERY>>. 
 
 The following scrapers are available:
 
@@ -26,7 +26,7 @@ When running initially, I got an error because the bulk directories had not been
 
 `find . -name "*.zip" | xargs -P 5 -I fileName sh -c 'unzip -o -d "$(dirname "fileName")/$(basename -s .zip "fileName")" "fileName"'`
 
-For more detail, see <<USCONGRESS_SCRAPER.adoc, USCONGRESS_SCRAPER>>.
+For more detail, see <<USCONGRESS_SCRAPER.adoc#, USCONGRESS_SCRAPER>>.
 
 ### Statements of Administration Policy
 
@@ -34,7 +34,7 @@ Instructions for loading the database fixture for the Statements of Administrati
 
 ### CRS Reports
 
-The scraper for CRS Reports, and its instructions, are described in <<CRS_REPORTS.adoc, CRS_REPORTS_SCRAPER>>.
+The scraper for CRS Reports, and its instructions, are described in <<CRS_REPORTS.adoc#, CRS_REPORTS_SCRAPER>>.
 
 ### Relevant Committee Documents
 

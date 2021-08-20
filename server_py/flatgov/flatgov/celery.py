@@ -22,6 +22,16 @@ app.conf.beat_schedule = {
         'task': 'events.tasks.process_sources',
         'schedule': crontab(minute=5, hour=19)
     },
+    'sap_scraper_daily': {
+        'task': 'bills.tasks.sap_scrapy_task',
+        'schedule': crontab(minute=0, hour=2),
+        'options': {'queue': 'bill'}
+    }, # Biden statements would go next, but there is currently a bug
+    'update_cosponsor': {
+        'task': 'bills.tasks.update_cosponsor_comm_task',
+        'schedule': crontab(minute=20, hour=2),
+        'options': {'queue': 'bill'}
+    },
     'crs_scraper_daily': {
         'task': 'bills.tasks.crs_task',
         'schedule': crontab(minute=0, hour=1),

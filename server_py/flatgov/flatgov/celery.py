@@ -27,7 +27,9 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=2),
         'options': {'queue': 'bill'}
     }, # Biden statements would go next, but there is currently a bug
-    'update_cosponsor': {
+    'update_cosponsor': { 
+        # the update_cosponsor task deletes the cosponsor table and recreates it
+        # it takes about 1 hour to run
         'task': 'bills.tasks.update_cosponsor_comm_task',
         'schedule': crontab(minute=20, hour=2),
         'options': {'queue': 'bill'}

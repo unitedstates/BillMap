@@ -30,6 +30,12 @@ eg:
 [{"reason": "related", "bill_id": "hjres7-110", "billCongressTypeNumber": "110hjres7"}, {"reason": "related", "bill_id": "hjres10-110", "billCongressTypeNumber": "110hjres10"}, {"reason": "related", "bill_id": "hjres21-110", "billCongressTypeNumber": "110hjres21"}, {"reason": "related", "bill_id": "hjres45-110", "billCongressTypeNumber": "110hjres45"}, {"reason": "related", "bill_id": "hjres81-110", "billCongressTypeNumber": "110hjres81"}, {"reason": "related", "bill_id": "sjres24-110", "billCongressTypeNumber": "110sjres24"}]
 ```
 
+* related_dict : A dictionary showing related bills.
+
+```javascript
+{"116hr529": {"type": "", "reason": "bills-title_match_main, bills-title_match", "titles": ["National Intersection and Interchange Safety Construction Program Act", "To direct the Secretary of Transportation to establish a national intersection and interchange safety construction program, and for other purposes."], "bill_id": "hr529-116", "identified_by": "BillMap", "titles_whole_bill": ["To direct the Secretary of Transportation to establish a.."], "bill_congress_type_number": "116hr529"}, "117hr200": ...}
+```
+
 * cosponsors_dict : cosponsors dictionary
 ```
 eg:
@@ -37,10 +43,22 @@ eg:
 
 [{"name": "Aderholt, Robert B.", "state": "AL", "title": "Rep", "district": "4", "thomas_id": "01460", "sponsored_at": "2007-01-24", "withdrawn_at": null}, {"name": "Akin, W. Todd", "state": "MO", "title": "Rep", "district": "2", "thomas_id": "01655", "sponsored_at": "2007-01-04", "withdrawn_at": null}, {"name": "Bachmann, Michele", "state": "MN", "title": "Rep", "district": "6", "thomas_id": "01858", "sponsored_at": "2007-01-04", "withdrawn_at": null}]
 ```
+* committees_dict : committees dictionary
+
+```javascript
+[{"activity": ["referral"], "committee": "House Transportation and Infrastructure", "committee_id": "HSPW", "subcommittee": "", "subcomittee_id": ""}, {"activity": ["referral"], "committee": "House Transportation and Infrastructure", "committee_id": "HSPW", "subcommittee": "Subcommittee on Highways and Transit", "subcomittee_id": ""}]
+```
 
 * es_similarity: a list of similar bills for each section of this bill. Generated from `bill_similarity.py`
 
+* es_similar_reasons: a dict listing the reasons two bills are similar
+```javascript
+{"116hr529": {"Score": 0.94, "ScoreOther": 0.95, "Explanation": "bills-nearly_identical", "ComparedDocs": "117hr200-116hr529"}, ..}
+```
+
 * es_similar_bills_dict: a dictionary of similar bills for each section of this bill. Generated from `bill_similarity.py` and formatted to make the `bill similarity` table easy to generate.
+
+* became_law: a boolean indicating whether the bill became law.
 
 * created: a date field for when the bill record was created
 * updated: a date field for when the bill record was updated 
@@ -96,8 +114,6 @@ eg:
 * text_incorporation : What enacted bills have provisions of this bill been incorporated into?
 
 * original_intent_replaced : Whether the bill has become the vehicle for passage of an unrelated measure *and* the original substance of the bill is completely gone. Set to False to flag that the enacted bill has been reviewed and it was not a vehicle.
-
-
 
 ### Related Fields
 

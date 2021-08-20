@@ -141,8 +141,11 @@ The xml for bill similarity is in text_versions that is the bill document itself
 
 ### Statements of Administration Policy 
 
-Found in `server_py/bills/tasks`, the Statements of Administration Policy task scrapes the links of SAP from the White House website and stores to the database using the `original_pdf_link` as a unique field to avoid duplicates.
+Found in `server_py/flatgov/common/management`, the Statements of Administration Policy task (currently 'biden_statements.py') scrapes the links of SAP from the White House website and stores to the database using the `original_pdf_link` as a unique field to avoid duplicates.
 
+### Committee Reports 
+
+TODO: describe the celery task for committee reports 
 
 ## Celery installation and set-up 
 
@@ -161,29 +164,6 @@ https://github.com/aih/FlatGov/blob/main/server_py/flatgov/flatgov/celery.py#L42
 'options': {'queue': 'bill'}
 },
 ```
-### Redis: install and start
-
-
-* On Ubuntu:
-
-Install
-```bash
-$ sudo apt update
-$ sudo apt install redis-server
-Reading package lists... Done
-Fetched 634 kB in 0s (24.3 MB/s)...
-
-```
-
-
-Start
-`sudo systemctl restart redis.service`
-
-
-To confirm that it is running:
-`sudo systemctl status redis`
-
-If necessary, edit `/etc/redis/redis.conf`. Our set-up should not require any special settings
 
 ### How to run a celery task
 
@@ -260,7 +240,7 @@ celeryd (node link_celery) (pid 26679) is up...
 +
 2. Init-script: celerybeat
 
-Before configuring it, go to the `deployment_scripts/celerybeat` and update all the paths with the absolute paths
+Before configuring it, go to the `deployment_scripts/conf_celerybeat` and update all the paths with the absolute paths
 
 Copy `deployment_scripts/celerybeat` file to `/etc/init.d/celerybeat`.
 
@@ -272,11 +252,27 @@ Make celerybeat executable (Run following commands from the terminal.)
 
 For configuration, copy `deployment_scripts/conf_celerybeat` file to `/etc/default/celerybeat`.
 
+Then 
+`sudo chown root:root '/etc/default/celerybeat'`
+`sudo chmod 640 '/etc/default/celerybeat'`
+
 You can check if the beat is active by:
 
 `sudo /etc/init.d/celerybeat start`
 
 `sudo /etc/init.d/celerybeat status`
+
+On ubuntu, with a 'flatgov' virtualenv, the settings are as follows:
+
+"/etc/default/celerybeat" 
+```
+CELERY_BIN="/home/ubuntu/.pyenv/versions/3.8.3/envs/flatgov/bin/celery"
+CELERY_APP="flatgov.celery:app"
+CELERYBEAT_CHDIR="/opt/flatgov/FlatGov/server_py/flatgov"
+CELERYBEAT_USER="ubuntu"
+CELERYBEAT_GROUP="ubuntu"
+CELERYBEAT_OPTS="--schedule=/var/run/celery/celerybeat-schedule"
+```
 
 +
 3. Maintenance
@@ -286,6 +282,8 @@ As was shown, the following commands control worker and beat:
 `/etc/init.d/celeryd {start|stop|restart}`
 
 `/etc/init.d/celerybeat {start|stop|restart}`
+
+The celerybeat user may also need to be set to `ubuntu`
 
 +
 4. Run a task manually
@@ -366,3 +364,28 @@ current_app.send_task("bills.tasks.committee_report_scrapy_task", queue="bill")
 
 Then you can keep track of the task status on the terminal that celery is running on or you can see the CommitteeDocument records in the django admin dashboard.
 The initial data loading will take a long time; there are about 17,000 records.
+
+### Redis: install and start
+
+Running Celery requires Redis. To set up and get Redis working see below. Also see the instructions on the [Redis website](https://redis.io/).:
+
+* On Ubuntu:
+
+Install
+```bash
+$ sudo apt update
+$ sudo apt install redis-server
+Reading package lists... Done
+Fetched 634 kB in 0s (24.3 MB/s)...
+
+```
+
+
+Start
+`sudo systemctl restart redis.service`
+
+
+To confirm that it is running:
+`sudo systemctl status redis`
+
+If necessary, edit `/etc/redis/redis.conf`. Our set-up should not require any special settings

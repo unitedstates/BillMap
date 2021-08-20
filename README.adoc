@@ -180,10 +180,15 @@ These are described in more detail in <<SCRAPING.adoc#, SCRAPING>>.
 
 ### Related bills
 
-Bills that are related to each other are identified in two ways:
+Bills that are related to each other are identified in a few ways:
 
 1. Metadata (in `billstatus` XML) from the Congressional Research Service identifies bills as `identical` or related (e.g through a Committee process). We show these in the `Related Bills` table of the application.
 2. Same or similar titles. Two bills are considered related if they have exactly the same title, or differ only in the year (e.g. 'The Very Important Information Act of 2022' and 'The Very Important Information Act of 2023'). We process metadata to collect bill titles and show these bills in the `Related Bills` table.
+3. Same or similar main titles. This narrows the match to bills whose 'whole bill title' matches the main title of the bill being compared. 
+4. Section similarity: we calculate the similarity of the sections of the bill being compared to the sections of the bill being compared to. We calculate an overall score and select the top bills.
+5. Among the bills found to be similar from the section similarity, we do pairwise comparisons to determine if the bills are identical, nearly identical or if one bill is included in the other ('includes' or 'included by').
+
+Our methods for calculating similarity (items 4 and 5 above) are described in more detail below.
 
 ### Bill similarity -- text similarity
 
@@ -232,14 +237,3 @@ image::media/bill-similarity-compare.png[BilltoBillSimilarity,300,200]
 [#img-text-to-bill-similarity]
 [caption="Figure 4: " ]
 image::media/bill-similarity-text-search.png[TextToBillSimilarity,300,200]
-
-
-## Relevant Committee Documents
-
-To load Relevant Committee Documents data use the following instructions:
-
-
-1. After installing the requirements under scrapers directory, run crec_scrape_urls.py file under scrapers directory.
-2. Go to the crec_scrapy folder and run “scrapy crawl crec”  command. It will take about an hour to scrape all the data in crec_scrapy/data/crec_data.json file.
-3. Copy scraped data from crec_scrapy/data/crec_data.json to django base directory.  First delete old data under django base directory or replace it.
-4. Run django command “./manage.py load_crec” command to populate the data to the database.

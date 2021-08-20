@@ -32,6 +32,14 @@ For more detail, see <<USCONGRESS_SCRAPER.adoc#, USCONGRESS_SCRAPER>>.
 
 Instructions for loading the database fixture for the Statements of Administration Policy are in the `DATA BACKGROUND` document, here: <<DATA_BACKGROUND#_statement_of_administration_policy, DATA BACKGROUND: Statement of Administration Policy>>.
 
+To load the latest data (from the Biden Administration), run:
+
+```bash
+
+./manage.py biden_statements
+
+```
+
 ### CRS Reports
 
 The scraper for CRS Reports, and its instructions, are described in <<CRS_REPORTS.adoc#, CRS_REPORTS_SCRAPER>>.

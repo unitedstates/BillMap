@@ -216,10 +216,6 @@ To load Biden statements data with management command, run the following command
 
 ```
 
-
-
-
-
 ## CRS Reports 
 
 CRS reports are scraped from the `everycrsreport` website. For each report, an attempt is made to associate it with bills by a combination of: the report title, the report metadata from `everycrsreport`, and the report html from the site. For example, if the report title includes `H. R. 200`, that bill is associated with the report in our database.

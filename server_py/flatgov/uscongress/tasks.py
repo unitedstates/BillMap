@@ -1,4 +1,5 @@
 import os
+from server_py.flatgov.common import constants
 import subprocess
 import shutil
 from celery import shared_task, current_app
@@ -10,7 +11,7 @@ from uscongress.helper import (
     update_bills_meta,
     es_similarity_bill,
 )
-from common.billdata import saveBillsMeta, saveBillsMetaToDb
+from common.billdata import saveBillsMeta, updateBillMetaToDbAll, saveBillsMetaToDb
 from common.process_bill_meta import makeAndSaveTitlesIndex
 from common.elastic_load import ( 
     refreshIndices,
@@ -60,7 +61,10 @@ def update_bill_task(self):
 
 def update_bills_meta_go():
     subprocess.run([BILLMETA_GO_CMD, '-p', settings.BASE_DIR])
-    saveBillsMetaToDb()
+    # Update only the current Congress metadata
+    rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, str(constants.CURRENT_CONGRESS))
+    updateBillMetaToDbAll(rootDir)
+    #saveBillsMetaToDb()
 
 @shared_task(bind=True)
 def bill_data_task(self, pk):

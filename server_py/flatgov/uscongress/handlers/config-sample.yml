@@ -1,0 +1,4 @@
+# output directories
+output:
+  cache: /Users/arihershowitz/Documents/workspace/FlatGovDir/FlatGov/server_py/flatgov
+  data: /Users/arihershowitz/Documents/workspace/FlatGovDir/congress/data

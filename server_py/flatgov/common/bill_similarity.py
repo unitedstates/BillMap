@@ -284,7 +284,7 @@ def getInnerResults(res):
 def getSimilarBills(es_similarity: List[dict] ) -> dict:
   """
   Get a dict of similar bills and matching sections
-  Remove items from the 'similars' object which refer to the same bill section.
+  Remove items from the 'similar_sec' object which refer to the same bill section.
   Retain only the higest scoring match.
 
   Args:
@@ -300,7 +300,7 @@ def getSimilarBills(es_similarity: List[dict] ) -> dict:
     }
   """
   similarBills = {}
-  sectionSimilars = [item.get('similars', []) for item in es_similarity]
+  sectionSimilars = [item.get('similar_sections', []) for item in es_similarity]
   billnumbers = list(unique_everseen(flatten([[similarItem.get('billnumber') for similarItem in similars] for similars in sectionSimilars])))
   for billnumber in billnumbers:
     try:
@@ -524,7 +524,7 @@ def processBill(bill_path: str=PATH_BILL):
 
       similarity = moreLikeThis(queryText=section_text)
       similar_sections = sorted(getSimilarSections(similarity), key=itemgetter('score'), reverse=True)
-      section_item['similars'] = similar_sections
+      section_item['similar_sections'] = similar_sections
       es_similarity.append(section_item)
 
     similarBills = getSimilarBills(es_similarity)
@@ -532,7 +532,7 @@ def processBill(bill_path: str=PATH_BILL):
     
     cleanedSimilars = getCleanSimilars(similarBills)
     for sectionIndex, sectionItem in enumerate(es_similarity):
-      es_similarity[sectionIndex]["similars"] = cleanedSimilars.get(str(sectionIndex), [])
+      es_similarity[sectionIndex]["similar_sections"] = cleanedSimilars.get(str(sectionIndex), [])
 
     bill.es_similarity = es_similarity
 

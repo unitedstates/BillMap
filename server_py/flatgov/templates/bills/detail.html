@@ -431,11 +431,11 @@
                         </thead>
                         <tbody>
                             {% for section in bill.es_similarity %}
-                              {% if section.similars %}
+                              {% if section.similar_sections %}
                                 <tr>
                                     <td><span>{{ section.section_number }}&nbsp;{{ section.section_header}}</span></td>
                                     <td>
-                                       {% for similar in section.similars %}
+                                       {% for similar in section.similar_sections %}
                                             <a href="{% url 'bill-detail' slug=similar.billnumber  %}">
                                                 {{ similar.bill_number_version |billnumber_display }}
                                             </a>

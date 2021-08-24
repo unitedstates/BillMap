@@ -297,6 +297,7 @@ class Bill(models.Model):
             if related_bills.get(billnumber) and similar_bills.get(billnumber):
                 # merge common fields reason and identified_by
                 combined_related_bills[billnumber]["score"] = max(related_bills[billnumber].get("score", 0), similar_bills[billnumber].get("score", 0))
+                combined_related_bills[billnumber]["number_of_sections"] = similar_bills[billnumber].get("number_of_sections", 0)
                 combined_related_bills[billnumber]["reason"] = getReasonString(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", "))
                 combined_related_bills[billnumber]["identified_by"] = ", ".join(list(set(related_bills.get("identified_by", "").split(", ") + related_bills.get("identified_by", "").split(", "))))
 

@@ -68,7 +68,7 @@ def billnumbers_display(billnumbers: list, withorig=False):
 @stringfilter
 def add_number_of_sections(reason: str, number_of_sections: int) -> str:
     if not number_of_sections:
-        return reason + '()'
+        return reason
     
     return reason.replace('section similarity', 'section similarity ({})'.format(number_of_sections))
 

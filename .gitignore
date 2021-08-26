@@ -6,6 +6,7 @@ congress
 cache
 data
 us_congress
+/media/statements
 
 staticfiles
 nohup.out

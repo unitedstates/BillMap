@@ -308,9 +308,9 @@ Python 3.8.3 (default, Sep 24 2020, 22:52:34)
 [GCC 7.5.0] on linux
 Type "help", "copyright", "credits" or "license" for more information.
 (InteractiveConsole)
->>> from bills.tasks import sap_scrapy_task
+>>> from bills.tasks import sap_biden_task
 >>> from celery import current_app
->>> current_app.send_task('bills.tasks.sap_scrapy_task', queue='bill')
+>>> current_app.send_task('bills.tasks.sap_biden_task', queue='bill')
 <AsyncResult: a5d7d336-0125-4bdf-8819-5628b2341081>
 ```
 OR for the uscongress update task:

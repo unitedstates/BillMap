@@ -15,13 +15,12 @@ from committeeReport.committee_report_scrape_urls import get_detail_urls
 from common.cbo import cbo
 from common.cosponsor import updateCosponsorAndCommittees
 from crs.populate_crs_table import CrsFromApi
+from common.biden_statements import load_biden_statements
 
 @shared_task(bind=True)
-def sap_scrapy_task(self):
-    os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'statementAdminPolicy.settings')
-    process = CrawlerProcess(get_project_settings())
-    process.crawl(SapPdfSimple)
-    process.start(stop_after_crawl=False)
+def sap_biden_task(self):
+    load_biden_statements()
+    return 'Biden statements loaded successfully'
 
 
 @shared_task(bind=True)

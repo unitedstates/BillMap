@@ -18,6 +18,10 @@ app.conf.beat_schedule = {
         'task': 'events.tasks.download_sources',
         'schedule': crontab(minute=0, hour=19)
     },
+    'load_biden_statements': {
+        'task': 'bills.tasks.sap_biden_task',
+        'schedule': crontab(minute=0, hour=23)
+    },
     'process_sources': {
         'task': 'events.tasks.process_sources',
         'schedule': crontab(minute=5, hour=19)

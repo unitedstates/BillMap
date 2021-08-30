@@ -45,7 +45,7 @@ if os.getenv('DJANGO_SETTINGS_MODULE') == "flatgov.dev":
 else:
     DEBUG = False 
 
-ALLOWED_HOSTS = ['localhost', 'flatgov.linkedlegislation.com', 'plus.govtrack.us', 'billmap.govtrack.us']
+ALLOWED_HOSTS = ['localhost', 'billmap.linkedlegislation.com', 'flatgov.linkedlegislation.com', 'plus.govtrack.us', 'billmap.govtrack.us']
 
 
 # Application definition

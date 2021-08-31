@@ -2,11 +2,12 @@
 #
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
+from server_py.flatgov.common.constants import CURRENT_CONGRESS, CURRENT_CONGRESSIONAL_YEAR
 import sys, os, logging, re
 from typing import Dict
 from functools import reduce
 
-from common import constants, utils
+from common import constants
 from bills.models import CboReport
 
 import xmltodict
@@ -82,8 +83,8 @@ def rec_cbo_item(cbo_items):
 
 def collect_cbo_data_into_json(rootDir = constants.PATH_TO_CONGRESSDATA_DIR, processFile = logName, dirMatch = getTopBillLevel, fileMatch = isDataXML):
    # TODO: deduplicate logging; make sure this goes to the Celery logger for the task
-    logger.info('Starting to collect CBO data')
-    print('Starting to collect CBO data')
+    logger.info('Starting to collect CBO data from ' + rootDir)
+    print('Starting to collect CBO data from' + rootDir)
     for dirName, subdirList, fileList in os.walk(rootDir):
       if dirMatch(dirName):
         #logger.info('Entering directory: %s' % dirName)
@@ -113,6 +114,7 @@ def collect_cbo_data_into_json(rootDir = constants.PATH_TO_CONGRESSDATA_DIR, pro
 
           #quit()
             #processFile(dirName=dirName, fileName=fname)
+    print('Finished to collecting CBO data from' + rootDir)
 
 def save_cbo_data_to_db(cbo_data):
   
@@ -133,8 +135,8 @@ def save_cbo_data_to_db(cbo_data):
     day = date[8:10]
     congress = 0
     #print(day)
-    const_year = 2022
-    const_congress = 117
+    const_year = CURRENT_CONGRESSIONAL_YEAR 
+    const_congress = CURRENT_CONGRESS 
     dif = const_year - int(year)
     congress = const_congress - (dif // 2)
     cbo['pub_date'] = date
@@ -169,8 +171,4 @@ def save_cbo_data_to_db(cbo_data):
     pass
 
 def cbo():
-  collect_cbo_data_into_json()
-
-
-
-
+  collect_cbo_data_into_json(rootDir=os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, str(CURRENT_CONGRESS)))

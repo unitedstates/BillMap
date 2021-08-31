@@ -25,7 +25,7 @@ app.conf.beat_schedule = {
     'update_cbo_scores': {
         'task': 'bills.tasks.cbo_task',
         'schedule': crontab(minute=0, hour=1),
-        'options': {'queue': 'cbo'}
+        'options': {'queue': 'bill'}
     },
     'sap_scraper_daily': {
         'task': 'bills.tasks.sap_scrapy_task',

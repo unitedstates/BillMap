@@ -173,6 +173,7 @@ $(document).ready( function () {
         scrollX: true,
         scrollCollapse: true,
         language: {
+            emptyTable: "No information available.",
             paginate: {
                 "previous": "<",
                 "next": ">",

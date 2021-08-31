@@ -13,6 +13,7 @@ class UscongressUpdateJob(models.Model):
     )
 
     job_id = models.CharField(max_length=50, blank=True, null=True)
+    job_start = models.DateTimeField(auto_now_add=True)
     fdsys_status = models.CharField(choices=STATUS,
                                     default=PENDING,
                                     max_length=20)

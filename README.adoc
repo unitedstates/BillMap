@@ -1,9 +1,9 @@
 :toc:
 
-# FlatGov: A https://demandprogress.org[Demand Progress] Project 
-Utilities and applications for the FlatGov project by Demand Progress
+# BillMap: A https://demandprogress.org[Demand Progress] Project 
+Utilities and applications for the BillMap project by Demand Progress
 
-A live demo of the application is https://flatgov.linkedlegislation.com[here]. These application documentation are also available there, at https://flatgov.linkedlegislation.com/static/docs/README.html When the documentation has been updated in the git repository, it can be converted to html and copied to the application directory with the script `scripts/docs_generator.sh` (requires installation of asciidoctor).
+A live demo of the application is https://BillMap.linkedlegislation.com[here]. These application documentation are also available there, at https://BillMap.linkedlegislation.com/static/docs/README.html When the documentation has been updated in the git repository, it can be converted to html and copied to the application directory with the script `scripts/docs_generator.sh` (requires installation of asciidoctor).
 
 The application version is shown in the top right of the page; it is set by the project's latest git tag or, if that is not available, by the `__version__` string set in `_version.py`.
 
@@ -16,15 +16,15 @@ Both components are described below.
 
 ## Web Application Quickstart (development)
 
-The FlatGov web application is built using the Django/Python web application framework. The application is contained in the `server_py` directory of this repository. It makes use of data that is processed using the scrapers and scripts described in the <<DATA_BACKGROUND.adoc#,DATA_BACKGROUND>>.
+The BillMap web application is built using the Django/Python web application framework. The application is contained in the `server_py` directory of this repository. It makes use of data that is processed using the scrapers and scripts described in the <<DATA_BACKGROUND.adoc#,DATA_BACKGROUND>>.
 
 Below are instructions to set up a local development environment. For production deployment instructions, see <<DEPLOYMENT.adoc#,DEPLOYMENT>>.
 
 ### Clone this repository
 
 ```bash
-$ git clone https://github.com/aih/FlatGov.git
-$ cd FlatGov
+$ git clone https://github.com/aih/BillMap.git
+$ cd BillMap
 ```
 
 ### Install Python dependencies
@@ -46,19 +46,19 @@ Note: you may have to manually update `~/.bashrc` for virtual env commands to wo
 Create the environment (with pyenv virtualenv):
 ```bash
 $ pyenv install 3.7
-$ pyenv virtualenv 3.7 flatgov
+$ pyenv virtualenv 3.7 BillMap
 ```
 Note: you may have to specify the patch version e.g. 3.7.9
 
 Activate the environment
 ```bash
-$ pyenv activate flatgov
+$ pyenv activate BillMap
 ```
 
 Then load the `requirements.txt` into the virtual environment:
 
 ```bash
-$ cd /path/to/FlatGov/server_py
+$ cd /path/to/server_py
 $ pip install -r requirements.txt
 ```
 
@@ -86,7 +86,7 @@ pyenv activate pypy37flat
 4. Install requirements
 
 ```
-cd /path/to/FlatGov/server_py
+cd /path/to/server_py
 pip install -r requirements.txt
 ```
 
@@ -110,7 +110,7 @@ To download and process data from earlier congresses, see details in <<DATA_BACK
 
 Download data from the most recent Congress
 ```bash
-cd flatgov/uscongress
+cd /path/to/uscongress
 ./run govinfo --bulkdata=BILLSTATUS --congress=117`
 ./run bills
 ```
@@ -119,13 +119,13 @@ NOTE: You may need to separately clone the `unitedstates/congress` repository, r
 
 #### Celery task to update bill downloads and data
 
-Updates to the data are done through the Celery taskrunner (see https://docs.celeryproject.org/en/stable/getting-started/introduction.html). Details of the tasks in Flatgov are in <<CELERY.adoc#, CELERY>>.
+Updates to the data are done through the Celery taskrunner (see https://docs.celeryproject.org/en/stable/getting-started/introduction.html). Details of the tasks in BillMap are in <<CELERY.adoc#, CELERY>>.
 
 To run the Celery worker
 
 ```bash
-$ pyenv activate flatgov
-$ cd ~/.../FlatGov/server_py/flatgov 
+$ pyenv activate BillMap
+$ cd ~/.../server_py/flatgov 
 $ celery worker -Q bill -A flatgov.celery:app -n flatgov.%%h --loglevel=info
 ```
 
@@ -180,15 +180,10 @@ These are described in more detail in <<SCRAPING.adoc#, SCRAPING>>.
 
 ### Related bills
 
-Bills that are related to each other are identified in a few ways:
+Bills that are related to each other are identified in two ways:
 
 1. Metadata (in `billstatus` XML) from the Congressional Research Service identifies bills as `identical` or related (e.g through a Committee process). We show these in the `Related Bills` table of the application.
 2. Same or similar titles. Two bills are considered related if they have exactly the same title, or differ only in the year (e.g. 'The Very Important Information Act of 2022' and 'The Very Important Information Act of 2023'). We process metadata to collect bill titles and show these bills in the `Related Bills` table.
-3. Same or similar main titles. This narrows the match to bills whose 'whole bill title' matches the main title of the bill being compared. 
-4. Section similarity: we calculate the similarity of the sections of the bill being compared to the sections of the bill being compared to. We calculate an overall score and select the top bills.
-5. Among the bills found to be similar from the section similarity, we do pairwise comparisons to determine if the bills are identical, nearly identical or if one bill is included in the other ('includes' or 'included by').
-
-Our methods for calculating similarity (items 4 and 5 above) are described in more detail below.
 
 ### Bill similarity -- text similarity
 
@@ -237,3 +232,14 @@ image::media/bill-similarity-compare.png[BilltoBillSimilarity,300,200]
 [#img-text-to-bill-similarity]
 [caption="Figure 4: " ]
 image::media/bill-similarity-text-search.png[TextToBillSimilarity,300,200]
+
+
+## Relevant Committee Documents
+
+To load Relevant Committee Documents data use the following instructions:
+
+
+1. After installing the requirements under scrapers directory, run crec_scrape_urls.py file under scrapers directory.
+2. Go to the crec_scrapy folder and run “scrapy crawl crec”  command. It will take about an hour to scrape all the data in crec_scrapy/data/crec_data.json file.
+3. Copy scraped data from crec_scrapy/data/crec_data.json to django base directory.  First delete old data under django base directory or replace it.
+4. Run django command “./manage.py load_crec” command to populate the data to the database.

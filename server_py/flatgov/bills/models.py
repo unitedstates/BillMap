@@ -317,8 +317,6 @@ class Bill(models.Model):
         if not self.summary:
             return settings.BILL_SUMMARY_DEFAULT_TEXT
         return self.summary
-
-
 class Cosponsor(models.Model):
     name = models.CharField(max_length=250) # Last, First 
     name_first = models.CharField(max_length=250, blank=True, null=True)
@@ -377,7 +375,6 @@ class Statement(models.Model):
             return '/media/'+self.permanent_pdf_link
         return None
 
-
 class CboReport(models.Model):
     pub_date = models.CharField(max_length=50)
     title = models.CharField(max_length=1000)
@@ -391,8 +388,6 @@ class CboReport(models.Model):
 
     def __str__(self):
         return f'{self.bill_number} - {self.original_pdf_link}'
-
-
 class CommitteeDocument(models.Model):
     title = models.TextField()
     bill_number = models.CharField(max_length=127, null=True, blank=True)
@@ -410,46 +405,7 @@ class CommitteeDocument(models.Model):
     def __str__(self):
         return f"{self.original_pdf_link} {self.congress} {self.bill_number}"
 
-
-#class PressStatement(models.Model):
-#    url = models.CharField(max_length=1000)
-#    date = models.CharField(max_length=500)
-#    title = models.TextField()
-#    statement_type = models.CharField(max_length=500)
-#    member_id = models.CharField(max_length=500)
-#    congress = models.CharField(max_length=127)
-#    member_uri = models.CharField(max_length=1000)
-#    name = models.CharField(max_length=127, null=True, blank=True)
-#    chamber = models.CharField(max_length=127, null=True, blank=True)
-#    state = models.CharField(max_length=127, null=True, blank=True)
-#    party = models.CharField(max_length=127, null=True, blank=True)
-#    bill_number = models.CharField(max_length=127)
-
-
-
-
-    def __str__(self):
-        return f'{self.congress} {self.bill_number}, {self.url}'
-
 from celery import states
 
 ALL_STATES = sorted(states.ALL_STATES)
 TASK_STATE_CHOICES = sorted(zip(ALL_STATES, ALL_STATES))
-
-#class PressStatementTask(models.Model):
-#    congress = models.CharField(max_length = 127)
-#    bill_number = models.CharField(max_length=127)
-#    status = models.CharField(
-#        max_length=50, default=states.PENDING, db_index=True,
-#        choices=TASK_STATE_CHOICES,
-#        verbose_name=_('Task State'),
-#        help_text=_('Current state of the press statement task.')
-#    )
-#    task_id = models.CharField(max_length=100, unique=True, db_index=True, null=True, blank=True)
-#
-#    created_at = models.DateTimeField(auto_now=True)
-#    updated_at = models.DateTimeField(auto_now_add=True)
-    
-
-#    def __str__(self):
-#        return f"{self.congress} {self.bill_number} {self.status}"

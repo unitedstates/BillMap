@@ -4,34 +4,30 @@ from bills.models import Statement
 import os
 from django.core.files import File
 from django.conf import settings
+import yaml
 
-def load_statements():
-    os.chdir('../../scrapers/statementAdminPolicy')
-    os.system('scrapy crawl sap_download')
-    os.chdir(settings.BASE_DIR)
-    statements = Statement.objects.filter(administration='Biden').values('permanent_pdf_link',)
+def load_biden_statements():
+    current_biden_statements = Statement.objects.filter(administration='Biden')
+    url = 'https://raw.githubusercontent.com/unitedstates/statements-of-administration-policy/main/archive/46-Biden.yaml'
+    original_pdf_path = 'https://github.com/unitedstates/statements-of-administration-policy/tree/main/archive/'
+    response = requests.get(url)
+    response_data = yaml.safe_load(response.text)
+    if current_biden_statements.count() >= len(response_data):
+        print("There're no any new biden statement to process.")
+        return True
+    current_biden_statements.delete()
 
-    for statement in statements:
-        try:
-            os.remove(settings.MEDIA_ROOT / statement['permanent_pdf_link'])
-        except OSError:
-            pass
-    statements = Statement.objects.filter(administration='Biden').delete()
-
-    with open('biden_data.json', 'r') as f:
-        statements_data =json.loads(f.read())
-        for i, meta_statement in enumerate(statements_data):
-            statement = Statement()
-            statement.bill_id = str(meta_statement['congress']) + str(meta_statement['bill_number']).lower()
-            statement.bill_title = meta_statement['link_text']
-            statement.congress = meta_statement['congress']
-            statement.date_issued = meta_statement['date_issued']
-            statement.original_pdf_link = meta_statement['link']
-            statement.bill_number = meta_statement['bill_number']
-            statement.administration = 'Biden'
-            response = requests.get(meta_statement['link'], stream = True)
-            statement.permanent_pdf_link = File(response.raw, name=f"{statement.congress}/{statement.bill_number}/{meta_statement['link'].split('/')[-1]}")
-            statement.save()
-            print(i, statement)
-
-            
+    for i, meta_statement in enumerate(response_data):
+        statement = Statement()
+        statement.bill_id = str(meta_statement['congress']) + str(meta_statement['bills'][0]).lower()
+        statement.bill_title = meta_statement['document_title']
+        statement.congress = meta_statement['congress']
+        statement.date_issued = meta_statement['date_issued']
+        statement.original_pdf_link = meta_statement['fetched_from_url']
+        statement.bill_number = meta_statement['bills'][0]
+        statement.administration = 'Biden'
+        statement.permanent_pdf_link = original_pdf_path + meta_statement['file']
+        statement.save()
+        print(i, statement)
+        print(statement.permanent_pdf_link)
+        break

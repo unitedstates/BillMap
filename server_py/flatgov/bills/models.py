@@ -357,7 +357,7 @@ class Statement(models.Model):
     bill_title = models.TextField(null=True, blank=True)
     congress = models.CharField(max_length=10)
     date_issued = models.CharField(max_length=35)
-    permanent_pdf_link = models.FileField(upload_to='statements/', blank=True, null=True)
+    permanent_pdf_link = models.CharField(max_length=255, null=True, blank=True)
     original_pdf_link = models.CharField(max_length=255, null=True, blank=True)
     administration = models.CharField(max_length=100,default='common')
 
@@ -366,6 +366,15 @@ class Statement(models.Model):
 
     def __str__(self):
         return f'{self.bill_number} - {self.permanent_pdf_link}'
+
+    @property
+    def get_permanent_pdf_link(self):
+        if self.permanent_pdf_link:
+            if self.permanent_pdf_link.startswith('http'):
+                return self.permanent_pdf_link
+            return '/media/'+self.permanent_pdf_link
+        return None
+
 class CboReport(models.Model):
     pub_date = models.CharField(max_length=50)
     title = models.CharField(max_length=1000)

@@ -54,6 +54,10 @@ To load Relevant Committee Documents data use the following instructions:
 3. Copy scraped data from crec_scrapy/data/crec_data.json to django base directory. First delete old data under django base directory or replace it.
 4. Run django command “./manage.py load_crec” command to populate the data to the database.
 
+### CBO Scores
+
+The CBO task processes metadata from the bill status files that are downloaded by the `unitedstates/congress` scraper (above). It finds the field 'cboCostEstimates' and collects these for all bills. Then, it stores any new scores in the database.
+
 
 #### Install `unitedstates/congress` repository
 

@@ -81,6 +81,9 @@ def rec_cbo_item(cbo_items):
 
 
 def collect_cbo_data_into_json(rootDir = constants.PATH_TO_CONGRESSDATA_DIR, processFile = logName, dirMatch = getTopBillLevel, fileMatch = isDataXML):
+   # TODO: deduplicate logging; make sure this goes to the Celery logger for the task
+    logger.info('Starting to collect CBO data')
+    print('Starting to collect CBO data')
     for dirName, subdirList, fileList in os.walk(rootDir):
       if dirMatch(dirName):
         #logger.info('Entering directory: %s' % dirName)
@@ -155,7 +158,7 @@ def save_cbo_data_to_db(cbo_data):
       cboreport.bill_id = str(cbo['congress']) + str(cbo['bill_number']).lower()
       cboreport.bill_number = cbo['bill_number']
       cboreport.congress = cbo['congress']
-      print(str(congress) + ': ' + str(cbo['title']))
+      print('Saving CBO information for: ' + str(congress) + ': ' + str(cbo['title']))
       cboreport.save()
 
 

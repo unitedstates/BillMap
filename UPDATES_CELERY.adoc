@@ -149,6 +149,14 @@ Found in `server_py/flatgov/common/management`, the Statements of Administration
 
 TODO: describe the celery task for committee reports 
 
+### CBO Scores
+
+The CBO Scores task (in `common/tasks.py`, referring to `common/cbo.py`) processes metadata from bill status XML, to retrieve the 'cboCostEstimates' field. Once all of these are collected, it checks the database for each entry and stores any new entries.
+
+### CRS Reports
+
+The CRS Reports task runs the CRS scraper, described in xref:CRS_REPORTS.adoc[CRS_REPORTS].
+
 ## Celery installation and set-up 
 
 ### Celery Schedule

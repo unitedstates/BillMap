@@ -27,10 +27,19 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
     },
-    'update_cbo_scores': {
-        # this task depends on updates from the update_bills task 
-        'task': 'bills.tasks.cbo_task',
+    'committee_report_scraper_daily': {
+        # this task depends on updates from the update_bills task
+        # It takes less than 5 minutes
+        'task': 'bills.tasks.committee_report_scrapy_task',
         'schedule': crontab(minute=0, hour=3),
+        'options': {'queue': 'bill'}
+    },
+    'update_cbo_scores': {
+        # this task depends on updates from the update_bills task
+        # it runs on only the directory of the current congress
+        # and should take less than 20 minutes 
+        'task': 'bills.tasks.cbo_task',
+        'schedule': crontab(minute=30, hour=3),
         'options': {'queue': 'bill'}
     },
     'update_cosponsor': { 
@@ -43,11 +52,14 @@ app.conf.beat_schedule = {
         'options': {'queue': 'bill'}
     },
     'crs_scraper_daily': {
+        # this task depends on updates from the update_bills task 
+        # to link reports to bills
         'task': 'bills.tasks.crs_task',
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
     },
     # TODO: add biden statements scraper 
+    # TODO: add processing for bill metadata (titles) and similarity 
 }
 
 app.conf.timezone = 'UTC'

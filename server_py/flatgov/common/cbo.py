@@ -2,7 +2,7 @@
 #
 # Command line template from https://gist.githubusercontent.com/opie4624/3896526/raw/3aff2ad7030a74ce26f9fcf80791ae0396d84f18/commandline.py
 
-import sys, os, argparse, logging, re, json, gzip
+import sys, os, logging, re
 from typing import Dict
 from functools import reduce
 

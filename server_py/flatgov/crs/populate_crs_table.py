@@ -58,6 +58,13 @@ class CrsFromApi:
         for report in api.scrape():
             reports_count += 1
             print(report)
+            # ignore years before 2010
+            try:
+                reportyear = int(report.date[:4])
+            except ValueError:
+                continue
+            if reportyear < 2010:
+                continue
             report.save()
             bill_numbers = map(cleanBillNumber, BILL_NUMBER_RE.findall(report.title))
             if bill_numbers:

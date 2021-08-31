@@ -102,6 +102,7 @@ def update_sitemap(url, current_lastmod, how_we_got_here, options):
             lastmod_cache = rtyaml.load(f)
 
     try:
+        print(lastmod_cache_file)
         return update_sitemap2(url, current_lastmod, how_we_got_here, options, lastmod_cache, cache_file)
     finally:
         # Write the updated last modified dates to disk so we know the next time whether

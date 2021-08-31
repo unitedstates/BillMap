@@ -10,6 +10,8 @@ committeereport:: update committee reports associated with bills
 cbo:: update cbo reports associated with bills 
 crs:: update crs reports associated with bills 
 
+The main celery app is in `server_py/flatgov/flatgov/celery.py` and the schedule of tasks is defined in `app.conf.beat_schedule` there. Logs for celery tasks are stored in `/var/log/celery`, e.g.  /var/log/celery/link_celery.log`,  `/var/log/celery/link_celery-2.log`,  `/var/log/celery/link_celery-3.log` etc.
+
 ### US Congress Task
 
 Within the US Congress task, there are six celery tasks, that run sequentially:
@@ -146,6 +148,14 @@ Found in `server_py/flatgov/common/management`, the Statements of Administration
 ### Committee Reports 
 
 TODO: describe the celery task for committee reports 
+
+### CBO Scores
+
+The CBO Scores task (in `common/tasks.py`, referring to `common/cbo.py`) processes metadata from bill status XML, to retrieve the 'cboCostEstimates' field. Once all of these are collected, it checks the database for each entry and stores any new entries.
+
+### CRS Reports
+
+The CRS Reports task runs the CRS scraper, described in xref:CRS_REPORTS.adoc[CRS_REPORTS].
 
 ## Celery installation and set-up 
 
@@ -361,6 +371,8 @@ python manage.py shell
 from celery import current_app
 current_app.send_task("bills.tasks.committee_report_scrapy_task", queue="bill")
 ```
+
+See image::media/celery-task-manual.png[Manual Celery Task,300,200]
 
 Then you can keep track of the task status on the terminal that celery is running on or you can see the CommitteeDocument records in the django admin dashboard.
 The initial data loading will take a long time; there are about 17,000 records.

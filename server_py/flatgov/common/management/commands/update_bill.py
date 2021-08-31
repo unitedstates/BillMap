@@ -15,7 +15,7 @@ GOVINFO_OPTIONS = {
 CONGRESSES = [str(constants.CURRENT_CONGRESS)]
 
 BILLS_OPTIONS = {
-    'congress': constants.CURRENT_CONGRESS,
+    'congress': str(constants.CURRENT_CONGRESS),
 }
 
 

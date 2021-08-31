@@ -1,0 +1,4 @@
+# output directories
+output:
+  cache: [path/to]/server_py/flatgov
+  data: [path/to]/congress/data

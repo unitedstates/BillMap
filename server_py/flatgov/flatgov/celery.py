@@ -22,19 +22,22 @@ app.conf.beat_schedule = {
         'task': 'events.tasks.process_sources',
         'schedule': crontab(minute=5, hour=19)
     },
-    'update_cbo_scores': {
-        'task': 'bills.tasks.cbo_task',
+    'update_bills': {
+        'task': 'bills.tasks.update_bills',
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
     },
-    'sap_scraper_daily': {
-        'task': 'bills.tasks.sap_scrapy_task',
-        'schedule': crontab(minute=0, hour=2),
+    'update_cbo_scores': {
+        # this task depends on updates from the update_bills task 
+        'task': 'bills.tasks.cbo_task',
+        'schedule': crontab(minute=0, hour=3),
         'options': {'queue': 'bill'}
-    }, # Biden statements would go next, but there is currently a bug
+    },
     'update_cosponsor': { 
         # the update_cosponsor task deletes the cosponsor table and recreates it
         # it takes about 1 hour to run
+        # this is independent of other tasks, since it gets data directly 
+        # from the YAML file in the unitedstates Github repo
         'task': 'bills.tasks.update_cosponsor_comm_task',
         'schedule': crontab(minute=20, hour=2),
         'options': {'queue': 'bill'}
@@ -44,6 +47,7 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
     },
+    # TODO: add biden statements scraper 
 }
 
 app.conf.timezone = 'UTC'

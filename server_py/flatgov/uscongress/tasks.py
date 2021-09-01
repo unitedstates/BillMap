@@ -51,6 +51,8 @@ def update_bill_task(self):
         # Creates data.json from the downloaded files 
         # The bills.py file is copied from the uscongress repository
         processed = bills.run(BILLS_OPTIONS)
+        print('processed from bills.run:')
+        print(processed)
         history.data_status = UscongressUpdateJob.SUCCESS
         if processed:
             history.saved = processed.get('saved')

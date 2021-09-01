@@ -55,6 +55,7 @@ class UscongressUpdateJob(models.Model):
 
             current_time = now.strftime("%H:%M:%S")
             print(f'{current_time}:  {self.job_id}: bill_status = SUCCESS; starting bill_data_task')
+            # This runs the Go version if available, otherwise the Python version
             current_app.send_task('uscongress.tasks.bill_data_task',
                                   args=(self.pk, ),
                                   queue='bill')

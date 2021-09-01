@@ -1,4 +1,6 @@
 import os
+from typing import Optional
+from server_py.flatgov.common.billdata import updateBillModelFields
 from server_py.flatgov.common import constants
 import subprocess
 import shutil
@@ -21,12 +23,12 @@ from common.elastic_load import (
 )
 
 from django.conf import settings
-from common.constants import BILLMETA_GO_CMD, PATH_TO_BILLS_META_GO
+from common.constants import BILLMETA_GO_CMD, ESQUERY_GO_CMD, PATH_TO_BILLS_META_GO
 
 GOVINFO_OPTIONS = {
     "collections": "BILLS",
     "bulkdata": "BILLSTATUS",
-    "congress": "117",
+    "congress": str(constants.CURRENT_CONGRESS),
     "extract": "mods,xml,premis"
 }
 
@@ -66,6 +68,19 @@ def update_bills_meta_go():
     updateBillMetaToDbAll(rootDir)
     #saveBillsMetaToDb()
 
+def es_similarity_go(congress: Optional[str] = None):
+    if congress:
+        subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-congress', congress, '-save'])
+    else:
+        subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-save'])
+
+    if congress:
+        rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, congress)
+    else:
+        rootDir = constants.PATH_TO_CONGRESSDATA_DIR
+    # Processes saved files for each bill and saves to database
+    updateBillModelFields(rootDir)
+
 @shared_task(bind=True)
 def bill_data_task(self, pk):
     bills_meta = dict()
@@ -92,10 +107,9 @@ def process_bill_meta_task(self, pk):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
         # The Go version of update_bills_meta includes this task
-        if shutil.which(BILLMETA_GO_CMD) is not None:
-            pass
-        else:
+        if shutil.which(BILLMETA_GO_CMD) is None:
             makeAndSaveTitlesIndex()
+        #TODO: add a 'skipped' value for the UscongressUpdateJob model for the Go version
         history.meta_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['meta_status'])
     except Exception as e:
@@ -109,10 +123,8 @@ def related_bill_task(self, pk):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
         # The Go version of update_bills_meta includes this task
-        if not os.path.exists(PATH_TO_BILLS_META_GO):
+        if shutil.which(BILLMETA_GO_CMD) is None:
             makeAndSaveRelatedBills()
-        else:
-            pass
         history.related_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['related_status'])
     except Exception as e:
@@ -128,9 +140,11 @@ def elastic_load_task(self, pk):
         for bill_id in history.saved:
             res = es_index_bill(bill_id)
         refreshIndices()
-        res = runQuery()
-        billnumbers = getResultBillnumbers(res)
-        innerResults = getInnerResults(res)
+        # These functions get all bills indexed in Elasticsearch 
+        # TODO: save these (or the total number) as is done in update_bill_task
+        # res = runQuery()
+        # billnumbers = getResultBillnumbers(res)
+        # innerResults = getInnerResults(res)
         history.elastic_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['elastic_status'])
     except Exception as e:
@@ -142,8 +156,15 @@ def elastic_load_task(self, pk):
 def bill_similarity_task(self, pk):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
-        for bill_id in history.saved:
-            res = es_similarity_bill(bill_id)
+        if shutil.which(BILLMETA_GO_CMD) is None:
+            # ESQUERY_GO_CMD is available
+            # This processes all bills in Elasticsearch for the current Congress
+            # Saves the results to a number of files
+            # Then saves those files to the database
+            es_similarity_go(str(constants.CURRENT_CONGRESS))
+        else:
+            for bill_id in history.saved:
+                res = es_similarity_bill(bill_id)
         history.similarity_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['similarity_status'])
     except Exception as e:

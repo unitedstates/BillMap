@@ -30,11 +30,18 @@ app.conf.beat_schedule = {
         'schedule': crontab(minute=0, hour=1),
         'options': {'queue': 'bill'}
     },
+    'sap_biden_scraper_daily': {
+        # this task is independent of other tasks
+        # It takes less than 1 minute
+        'task': 'bills.tasks.sap_biden_task',
+        'schedule': crontab(minute=0, hour=3),
+        'options': {'queue': 'bill'}
+    },
     'committee_report_scraper_daily': {
         # this task depends on updates from the update_bills task
         # It takes less than 5 minutes
         'task': 'bills.tasks.committee_report_scrapy_task',
-        'schedule': crontab(minute=0, hour=3),
+        'schedule': crontab(minute=10, hour=3),
         'options': {'queue': 'bill'}
     },
     'update_cbo_scores_daily': {

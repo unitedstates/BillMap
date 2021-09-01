@@ -59,6 +59,7 @@ def update_bill_task(self):
             history.skips = processed.get('skips')
             history.save(update_fields=['data_status', 'saved', 'skips'])
     except Exception as e:
+        print('Problem processing or saving data.json: ' + str(e))
         history.data_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['data_status'])
     return history.id

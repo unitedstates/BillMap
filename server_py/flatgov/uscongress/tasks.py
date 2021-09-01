@@ -64,7 +64,11 @@ def update_bill_task(self):
 def update_bills_meta_go():
     subprocess.run([BILLMETA_GO_CMD, '-p', settings.BASE_DIR])
     # Update only the current Congress metadata
-    rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, str(constants.CURRENT_CONGRESS))
+    # rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, str(constants.CURRENT_CONGRESS))
+
+    # Update all metadata; when we store the titles index for previous congresses,
+    # we will only need to process the current congress, or the bills that have not yet been processed
+    rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR)
     updateBillMetaToDbAll(rootDir)
     #saveBillsMetaToDb()
 
@@ -109,6 +113,8 @@ def process_bill_meta_task(self, pk):
         # The Go version of update_bills_meta includes this task
         if shutil.which(BILLMETA_GO_CMD) is None:
             makeAndSaveTitlesIndex()
+        else:
+            print("Skipping this task; this was done by the update_bills_meta_go process")
         #TODO: add a 'skipped' value for the UscongressUpdateJob model for the Go version
         history.meta_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['meta_status'])
@@ -125,6 +131,8 @@ def related_bill_task(self, pk):
         # The Go version of update_bills_meta includes this task
         if shutil.which(BILLMETA_GO_CMD) is None:
             makeAndSaveRelatedBills()
+        else:
+            print("Skipping this task; this was done by the update_bills_meta_go process")
         history.related_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['related_status'])
     except Exception as e:
@@ -157,14 +165,14 @@ def bill_similarity_task(self, pk):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
         if shutil.which(BILLMETA_GO_CMD) is None:
+            for bill_id in history.saved:
+                res = es_similarity_bill(bill_id)
+        else:
             # ESQUERY_GO_CMD is available
             # This processes all bills in Elasticsearch for the current Congress
             # Saves the results to a number of files
             # Then saves those files to the database
             es_similarity_go(str(constants.CURRENT_CONGRESS))
-        else:
-            for bill_id in history.saved:
-                res = es_similarity_bill(bill_id)
         history.similarity_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['similarity_status'])
     except Exception as e:

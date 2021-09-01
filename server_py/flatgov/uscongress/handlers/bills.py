@@ -31,7 +31,7 @@ def run(options):
         if limit:
             to_fetch = to_fetch[:int(limit)]
 
-    utils.process_set(to_fetch, processor_func, options)
+    return utils.process_set(to_fetch, processor_func, options)
 
 
 def get_bills_to_process(options):

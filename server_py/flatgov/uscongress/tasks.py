@@ -148,10 +148,11 @@ def elastic_load_task(self, pk):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
         created = create_es_index()
+        # Indexes only newly scraped data
         for bill_id in history.saved:
             res = es_index_bill(bill_id)
         refreshIndices()
-        # These functions get all bills indexed in Elasticsearch 
+        # These functions get a list of new bills indexed in Elasticsearch 
         # TODO: save these (or the total number) as is done in update_bill_task
         # res = runQuery()
         # billnumbers = getResultBillnumbers(res)
@@ -167,7 +168,8 @@ def elastic_load_task(self, pk):
 def bill_similarity_task(self, pk):
     history = UscongressUpdateJob.objects.get(pk=pk)
     try:
-        if shutil.which(BILLMETA_GO_CMD) is None:
+        if shutil.which(ESQUERY_GO_CMD) is None:
+            # Processes only the new bills
             for bill_id in history.saved:
                 res = es_similarity_bill(bill_id)
         else:
@@ -175,6 +177,9 @@ def bill_similarity_task(self, pk):
             # This processes all bills in Elasticsearch for the current Congress
             # Saves the results to a number of files
             # Then saves those files to the database
+            # It takes about 2 hours for all bills in the Congress
+            # We could process only new bills, 
+            # but then would not have similarity measures for previous bills that include the new ones
             es_similarity_go(str(constants.CURRENT_CONGRESS))
         history.similarity_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['similarity_status'])

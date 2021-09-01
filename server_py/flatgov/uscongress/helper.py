@@ -83,11 +83,16 @@ def create_es_index(index: str='billsections', body: dict=constants.BILLSECTION_
 
 
 def es_index_bill(bill):
+    print("Indexing" + bill)
     bill_dir = get_bill_dir(bill)
+    print("Indexing " + bill + " in " + bill_dir)
     valid_bill_dir = validate_bill_dir(bill_dir, BILL_XML)
     if not valid_bill_dir:
+        print("Invalid bill directory")
         return False
     res = indexBill(os.path.join(valid_bill_dir, BILL_XML))
+    print("Indexed " + bill)
+    print(res)
     return res
 
 

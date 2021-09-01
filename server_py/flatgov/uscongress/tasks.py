@@ -23,7 +23,7 @@ from common.elastic_load import (
 )
 
 from django.conf import settings
-from common.constants import BILLMETA_GO_CMD, ESQUERY_GO_CMD, PATH_TO_BILLS_META_GO
+from common.constants import BILLMETA_GO_CMD, ESQUERY_GO_CMD
 
 GOVINFO_OPTIONS = {
     "collections": "BILLS",

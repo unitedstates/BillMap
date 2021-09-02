@@ -177,7 +177,7 @@ def bill_similarity_task(self, pk):
             # This processes all bills in Elasticsearch for the current Congress
             # Saves the results to a number of files
             # Then saves those files to the database
-            # It takes about 2 hours for all bills in the Congress
+            # It takes about 2.5 hours (150 minutes) for all bills in the Congress
             # We could process only new bills, 
             # but then would not have similarity measures for previous bills that include the new ones
             es_similarity_go(str(constants.CURRENT_CONGRESS))

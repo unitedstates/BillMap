@@ -449,6 +449,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_statements_of_administration_policy">Statements of Administration Policy</a></li>
 <li><a href="#_crs_reports">CRS Reports</a></li>
 <li><a href="#_relevant_committee_documents">Relevant Committee Documents</a></li>
+<li><a href="#_cbo_scores">CBO Scores</a></li>
 </ul>
 </li>
 </ul>
@@ -459,7 +460,7 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_overview">Overview</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>There are a number of scrapers that get data for this project. The initial scraping, in some cases is done manually, and the data is then loaded into the database. There are Celery tasks that maintain the data. These are described in <a href="UPDATES_CELERY.html">UPDATES_CELERY</a>.</p>
+<p>There are a number of scrapers that get data for this project. The initial scraping, in some cases was done manually, and the data was then loaded into the database. There are nightly Celery tasks that update and maintain the data. These are described in <a href="UPDATES_CELERY.html">UPDATES_CELERY</a>.</p>
 </div>
 <div class="paragraph">
 <p>The following scrapers are available:</p>
@@ -546,6 +547,12 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <p>Run django command “./manage.py load_crec” command to populate the data to the database.</p>
 </li>
 </ol>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cbo_scores">CBO Scores</h3>
+<div class="paragraph">
+<p>The CBO task processes metadata from the bill status files that are downloaded by the <code>unitedstates/congress</code> scraper (above). It finds the field 'cboCostEstimates' and collects these for all bills. Then, it stores any new scores in the database.</p>
 </div>
 <div class="sect3">
 <h4 id="_install_unitedstatescongress_repository">Install <code>unitedstates/congress</code> repository</h4>
@@ -634,7 +641,7 @@ pip install cryptography</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-08-31 08:19:55 -0700
+Last updated 2021-09-01 18:17:58 -0700
 </div>
 </div>
 </body>

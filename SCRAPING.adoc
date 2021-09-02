@@ -3,7 +3,7 @@
 
 ## Overview
 
-There are a number of scrapers that get data for this project. The initial scraping, in some cases is done manually, and the data is then loaded into the database. There are Celery tasks that maintain the data. These are described in <<UPDATES_CELERY.adoc#, UPDATES_CELERY>>. 
+There are a number of scrapers that get data for this project. The initial scraping, in some cases was done manually, and the data was then loaded into the database. There are nightly Celery tasks that update and maintain the data. These are described in <<UPDATES_CELERY.adoc#, UPDATES_CELERY>>. 
 
 The following scrapers are available:
 

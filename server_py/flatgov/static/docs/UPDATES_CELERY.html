@@ -447,6 +447,8 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <li><a href="#_us_congress_task">US Congress Task</a></li>
 <li><a href="#_statements_of_administration_policy">Statements of Administration Policy</a></li>
 <li><a href="#_committee_reports">Committee Reports</a></li>
+<li><a href="#_cbo_scores">CBO Scores</a></li>
+<li><a href="#_crs_reports">CRS Reports</a></li>
 </ul>
 </li>
 <li><a href="#_celery_installation_and_set_up">Celery installation and set-up</a>
@@ -464,7 +466,10 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h2 id="_billmap_celery_tasks_what_they_do">BillMap Celery Tasks: What they do.</h2>
 <div class="sectionbody">
 <div class="paragraph">
-<p>Celery runs scheduled tasks, primarily to scrape and process data. To run celery, install Redis (as a taskrunner and db for Celery). The other dependencies are installed with <code>pip</code> when initially installing the requirements for the app with <code>pip install -r requirements.txt</code>.</p>
+<p>Celery, a Python task runner, runs scheduled tasks to scrape and process data. To run Celery, install Redis (as a taskrunner and db for Celery). The other dependencies are installed with <code>pip</code> when initially installing the requirements for the app with <code>pip install -r requirements.txt</code>.</p>
+</div>
+<div class="paragraph">
+<p>The main celery app is in <code>server_py/flatgov/flatgov/celery.py</code> and the schedule of tasks is defined in <code>app.conf.beat_schedule</code> there. Logs for celery tasks are stored in <code>/var/log/celery</code>, e.g.  /var/log/celery/link_celery.log`,  <code>/var/log/celery/link_celery-2.log</code>,  <code>/var/log/celery/link_celery-3.log</code> etc. This repository includes four main tasks with some subtasks of the <code>uscongress</code> task:</p>
 </div>
 <div class="dlist">
 <dl>
@@ -490,36 +495,30 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </dd>
 </dl>
 </div>
-<div class="paragraph">
-<p>The main celery app is in <code>server_py/flatgov/flatgov/celery.py</code> and the schedule of tasks is defined in <code>app.conf.beat_schedule</code> there. Logs for celery tasks are stored in <code>/var/log/celery</code>, e.g.  /var/log/celery/link_celery.log`,  <code>/var/log/celery/link_celery-2.log</code>,  <code>/var/log/celery/link_celery-3.log</code> etc.</p>
-</div>
 <div class="sect2">
 <h3 id="_us_congress_task">US Congress Task</h3>
 <div class="paragraph">
 <p>Within the US Congress task, there are six celery tasks, that run sequentially:
 <code>update_bill_task</code>, <code>bill_data_task</code>, <code>process_bill_meta_task</code>, <code>related_bill_task</code>, <code>elastic_load_task</code>, <code>bill_similarity_task</code></p>
 </div>
+<div class="paragraph">
+<p>After each task is run, its status is saved in the database in the UscongressUpdateJob table (see below). The status of the tasks is displayed in the <code>/admin/</code> page.</p>
+</div>
 <div class="olist arabic">
 <ol class="arabic">
 <li>
-<p>Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.</p>
+<p>Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated. (<code>update_bill_task</code>)</p>
 </li>
 </ol>
 </div>
 <div class="paragraph">
-<p>With the open source scraper itself, we run <code>./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS</code></p>
+<p>With the open source scraper itself, we run <code>./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS</code>. The status of this process is stored as <code>fdyss_status</code>.</p>
 </div>
 <div class="paragraph">
 <p>Then <code>./run bills</code></p>
 </div>
 <div class="paragraph">
-<p>It will create <code>data.json</code> out of <code>data.xml</code> and text_versions.</p>
-</div>
-<div class="paragraph">
-<p>Instead of open source scraper command, we are using celery task named <code>update_bill_task</code> to download new bill metadata and text.</p>
-</div>
-<div class="paragraph">
-<p>The celery task is running daily at midnight in the server background.</p>
+<p>It will create <code>data.json</code> out of <code>data.xml</code> and text_versions. The status of this is stored as <code>data_status</code>.</p>
 </div>
 <div class="paragraph">
 <p>Whenever celery task started running, it creates <code>UscongressUpdateJob</code> table record in the database to track the task status.</p>
@@ -703,6 +702,18 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <h3 id="_committee_reports">Committee Reports</h3>
 <div class="paragraph">
 <p>TODO: describe the celery task for committee reports</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_cbo_scores">CBO Scores</h3>
+<div class="paragraph">
+<p>The CBO Scores task (in <code>common/tasks.py</code>, referring to <code>common/cbo.py</code>) processes metadata from bill status XML, to retrieve the 'cboCostEstimates' field. Once all of these are collected, it checks the database for each entry and stores any new entries.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_crs_reports">CRS Reports</h3>
+<div class="paragraph">
+<p>The CRS Reports task runs the CRS scraper, described in <a href="CRS_REPORTS.html">CRS_REPORTS</a>.</p>
 </div>
 </div>
 </div>
@@ -1049,7 +1060,7 @@ Fetched 634 kB in 0s (24.3 MB/s)...</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-08-31 08:19:55 -0700
+Last updated 2021-09-01 18:17:58 -0700
 </div>
 </div>
 </body>

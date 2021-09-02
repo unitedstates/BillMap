@@ -29,5 +29,3 @@ def load_biden_statements():
         statement.permanent_pdf_link = original_pdf_path + meta_statement['file']
         statement.save()
         print(i, statement)
-        print(statement.permanent_pdf_link)
-        break

@@ -18,10 +18,6 @@ app.conf.beat_schedule = {
         'task': 'events.tasks.download_sources',
         'schedule': crontab(minute=0, hour=19)
     },
-    'load_biden_statements': {
-        'task': 'bills.tasks.sap_biden_task',
-        'schedule': crontab(minute=0, hour=23)
-    },
     'process_sources': {
         'task': 'events.tasks.process_sources',
         'schedule': crontab(minute=5, hour=19)
@@ -62,17 +58,16 @@ app.conf.beat_schedule = {
         # this is independent of other tasks, since it gets data directly 
         # from the YAML file in the unitedstates Github repo
         'task': 'bills.tasks.update_cosponsor_comm_task',
-        'schedule': crontab(minute=20, hour=2),
+        'schedule': crontab(minute=20, hour=4),
         'options': {'queue': 'bill'}
     },
     'crs_scraper_daily': {
         # this task depends on updates from the update_bills task 
         # to link reports to bills
         'task': 'bills.tasks.crs_task',
-        'schedule': crontab(minute=0, hour=1),
+        'schedule': crontab(minute=0, hour=5),
         'options': {'queue': 'bill'}
     },
-    # TODO: add processing for bill metadata (titles) and similarity 
 }
 
 app.conf.timezone = 'UTC'

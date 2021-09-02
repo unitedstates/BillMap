@@ -1,4 +1,59 @@
 $(document).ready( function () {
+    var buttonCopy = {
+        exportOptions: {
+            trim: true,
+            stripHtml: true,
+            stripNewlines: 1,
+            decodeEntities: 1,
+            format: {
+                header: function ( a ) {
+                    a = a.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+                    // console.log(a);
+                    a = a.replace(/<[^>]*>/g, "");
+                    a = a.replace(/^\s+|\s+$/g, "");
+                    a = a.replace(/\s{2,}/g,'');
+                    a = a.replace(/,(?=[^\s])/g, ", ");
+                    return `"${a}",`
+                },
+                body: function ( a ) {
+                    a = a.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+                    // console.log(a);
+                    a = a.replace(/<[^>]*>/g, "");
+                    a = a.replace(/^\s+|\s+$/g, "");
+                    a = a.replace(/\s{2,}/g,'');
+                    a = a.replace(/,(?=[^\s])/g, ", ");
+                    return `"${a}",`
+                }
+            }
+        }
+    };
+
+    var buttonExportCSV = {
+        exportOptions: {
+            trim: true,
+            stripHtml: true,
+            format: {
+                header: function ( a ) {
+                    a = a.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+                    // console.log(a);
+                    a = a.replace(/<[^>]*>/g, "");
+                    a = a.replace(/^\s+|\s+$/g, "");
+                    a = a.replace(/\s{2,}/g,'');
+                    a = a.replace(/,(?=[^\s])/g, ", ");
+                    return `${a}`
+                },
+                body: function ( a ) {
+                    a = a.replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "");
+                    // console.log(a);
+                    a = a.replace(/<[^>]*>/g, "");
+                    a = a.replace(/^\s+|\s+$/g, "");
+                    a = a.replace(/\s{2,}/g,'');
+                    a = a.replace(/,(?=[^\s])/g, ", ");
+                    return `${a}`
+                }
+            }
+        }
+    };
 
     $('a[data-toggle="tab"]').on('shown.bs.tab', function(e){
         $($.fn.dataTable.tables(true)).DataTable()
@@ -8,14 +63,12 @@ $(document).ready( function () {
     $('#cosponsors-table-top').DataTable({
         dom: 'flrtBip',
         buttons: [
-            {
-                extend: 'copy',
-                text: 'Copy to clipboard'
-            },
-            {
-                extend: 'csv',
-                text: 'Export to CSV'
-            },
+            $.extend( true, {}, buttonCopy, {
+                extend: 'copyHtml5'
+            } ),
+            $.extend( true, {}, buttonExportCSV, {
+                extend: 'csv'
+            } ),
             'excelHtml5'
         ],
         bFilter: false,
@@ -152,15 +205,13 @@ $(document).ready( function () {
     var cosponsorTable = $('#this-congress-cosponsors-table').DataTable({
         dom: 'flrtBip',
         buttons: [
-            {
-                extend: 'copy',
-                text: 'Copy to clipboard',
-
-            },
-            {
-                extend: 'csv',
-                text: 'Export to CSV'
-            },
+            $.extend( true, {}, buttonCopy, {
+                extend: 'copyHtml5',
+                text: 'Copy to clipboard'
+            } ),
+            $.extend( true, {}, buttonExportCSV, {
+                extend: 'csv'
+            } ),
             'excelHtml5'
         ],
         bFilter: true,

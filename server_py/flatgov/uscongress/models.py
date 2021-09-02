@@ -1,5 +1,6 @@
 from celery import current_app
 from django.db import models
+from datetime import datetime
 
 
 class UscongressUpdateJob(models.Model):
@@ -50,25 +51,44 @@ class UscongressUpdateJob(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
+            now = datetime.now()
+
+            current_time = now.strftime("%H:%M:%S")
+            print(f'{current_time}:  {self.job_id}: bill_status = SUCCESS; starting bill_data_task')
+            # This runs the Go version if available, otherwise the Python version
             current_app.send_task('uscongress.tasks.bill_data_task',
                                   args=(self.pk, ),
                                   queue='bill')
         if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
+            now = datetime.now()
+
+            current_time = now.strftime("%H:%M:%S")
+            print(f'{current_time}:  {self.job_id}: bill_status = SUCCESS; starting bill_meta_task')
             current_app.send_task('uscongress.tasks.process_bill_meta_task',
                                   args=(self.pk, ),
                                   queue='bill')
 
         if self.pk and self.meta_status == self.SUCCESS and self.related_status == self.PENDING:
+            now = datetime.now()
+
+            current_time = now.strftime("%H:%M:%S")
+            print(f'{current_time}:  {self.job_id}: meta_status = SUCCESS; starting related_bill_task')
             current_app.send_task('uscongress.tasks.related_bill_task',
                                   args=(self.pk, ),
                                   queue='bill')
 
         if self.pk and self.related_status == self.SUCCESS and self.elastic_status == self.PENDING:
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+            print(f'{current_time}:  {self.job_id}: related_status = SUCCESS; starting elastic_load_task')
             current_app.send_task('uscongress.tasks.elastic_load_task',
                                   args=(self.pk, ),
                                   queue='bill')
 
         if self.pk and self.elastic_status == self.SUCCESS and self.similarity_status == self.PENDING:
+            now = datetime.now()
+            current_time = now.strftime("%H:%M:%S")
+            print(f'{current_time}:  {self.job_id}: elastic_status = SUCCESS; starting bill_similarity_task')
             current_app.send_task('uscongress.tasks.bill_similarity_task',
                                   args=(self.pk, ),
                                   queue='bill')

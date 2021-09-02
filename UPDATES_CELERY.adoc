@@ -2,7 +2,9 @@
 
 ## BillMap Celery Tasks: What they do.
 
-Celery runs scheduled tasks, primarily to scrape and process data. To run celery, install Redis (as a taskrunner and db for Celery). The other dependencies are installed with `pip` when initially installing the requirements for the app with `pip install -r requirements.txt`.
+Celery, a Python task runner, runs scheduled tasks to scrape and process data. To run Celery, install Redis (as a taskrunner and db for Celery). The other dependencies are installed with `pip` when initially installing the requirements for the app with `pip install -r requirements.txt`.
+
+The main celery app is in `server_py/flatgov/flatgov/celery.py` and the schedule of tasks is defined in `app.conf.beat_schedule` there. Logs for celery tasks are stored in `/var/log/celery`, e.g.  /var/log/celery/link_celery.log`,  `/var/log/celery/link_celery-2.log`,  `/var/log/celery/link_celery-3.log` etc. This repository includes four main tasks with some subtasks of the `uscongress` task:
 
 uscongress:: update uscongress bill and metadata
 statementAdminPolicy:: updates statements of administration policy from the current White House (OMB) website
@@ -10,24 +12,21 @@ committeereport:: update committee reports associated with bills
 cbo:: update cbo reports associated with bills 
 crs:: update crs reports associated with bills 
 
-The main celery app is in `server_py/flatgov/flatgov/celery.py` and the schedule of tasks is defined in `app.conf.beat_schedule` there. Logs for celery tasks are stored in `/var/log/celery`, e.g.  /var/log/celery/link_celery.log`,  `/var/log/celery/link_celery-2.log`,  `/var/log/celery/link_celery-3.log` etc.
 
 ### US Congress Task
 
 Within the US Congress task, there are six celery tasks, that run sequentially:
 `update_bill_task`, `bill_data_task`, `process_bill_meta_task`, `related_bill_task`, `elastic_load_task`, `bill_similarity_task`
 
-1. Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.
+After each task is run, its status is saved in the database in the UscongressUpdateJob table (see below). The status of the tasks is displayed in the `/admin/` page.
 
-With the open source scraper itself, we run `./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS`
+1. Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated. (`update_bill_task`)
+
+With the open source scraper itself, we run `./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS`. The status of this process is stored as `fdyss_status`.
 
 Then `./run bills`
 
-It will create `data.json` out of `data.xml` and text_versions.
-
-Instead of open source scraper command, we are using celery task named `update_bill_task` to download new bill metadata and text.
-
-The celery task is running daily at midnight in the server background.
+It will create `data.json` out of `data.xml` and text_versions. The status of this is stored as `data_status`.
 
 Whenever celery task started running, it creates `UscongressUpdateJob` table record in the database to track the task status.
 

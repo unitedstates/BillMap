@@ -236,15 +236,13 @@ $(document).ready( function () {
     var cosponsorTable = $('#all-congress-cosponsors-table').DataTable({
         dom: 'flrtBip',
         buttons: [
-            {
-                extend: 'copy',
-                text: 'Copy to clipboard',
-
-            },
-            {
-                extend: 'csv',
-                text: 'Export to CSV'
-            },
+            $.extend( true, {}, buttonCopy, {
+                extend: 'copyHtml5',
+                text: 'Copy to clipboard'
+            } ),
+            $.extend( true, {}, buttonExportCSV, {
+                extend: 'csv'
+            } ),
             'excelHtml5'
         ],
         bFilter: true,

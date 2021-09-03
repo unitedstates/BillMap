@@ -51,4 +51,6 @@ def get_detail_urls(last_congress):
                     crec_file.write(detail_url+'\n')
             print(congress_number)
     print(count)
-    return current_congress - 1
+    # Changed to return the current congress so the celery task stores the correct
+    # congress scraped
+    return current_congress

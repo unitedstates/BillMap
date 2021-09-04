@@ -4,6 +4,7 @@ from datetime import datetime
 
 
 class UscongressUpdateJob(models.Model):
+    fields = ('job_id', 'job_start', 'fdsys_status', 'data_status', 'bill_status', 'meta_status', 'related_status', 'elastic_status', 'similarity_status')
     PENDING = 'pending'
     SUCCESS = 'success'
     FAILED = 'failed'

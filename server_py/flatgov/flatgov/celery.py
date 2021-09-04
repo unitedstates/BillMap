@@ -27,7 +27,7 @@ app.conf.beat_schedule = {
         # When this completes and SUCCESS= True,
         # The rest of the bill similarity tasks are triggered in uscongress/models.py
         'task': 'bills.tasks.update_bills',
-        'schedule': crontab(minute=0, hour=1),
+        'schedule': crontab(minute=25, hour=16),
         'options': {'queue': 'bill'}
     },
     'sap_biden_scraper_daily': {

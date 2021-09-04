@@ -4,7 +4,6 @@ from datetime import datetime
 
 
 class UscongressUpdateJob(models.Model):
-    fields = ('job_id', 'job_start', 'fdsys_status', 'data_status', 'bill_status', 'meta_status', 'related_status', 'elastic_status', 'similarity_status')
     PENDING = 'pending'
     SUCCESS = 'success'
     FAILED = 'failed'
@@ -47,7 +46,7 @@ class UscongressUpdateJob(models.Model):
         ordering = ['-created']
 
     def __str__(self):
-        return self.job_id if self.job_id else str(self.pk)
+        return self.job_id + "; " + str(self.job_start) if self.job_id else str(self.pk) + "; " + str(self.job_start)
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)

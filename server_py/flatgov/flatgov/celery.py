@@ -28,21 +28,21 @@ app.conf.beat_schedule = {
         # The rest of the bill similarity tasks are triggered in uscongress/models.py
         'task': 'uscongress.tasks.update_bill_task',
         'schedule': crontab(minute=1, hour=1),
-        'options': {'queue': 'bill'}
+       # 'options': {'queue': 'bill'}
     },
     'sap_biden_scraper_daily': {
         # this task is independent of other tasks
         # It takes less than 1 minute
         'task': 'bills.tasks.sap_biden_task',
         'schedule': crontab(minute=0, hour=3),
-        'options': {'queue': 'bill'}
+       # 'options': {'queue': 'bill'}
     },
     'committee_report_scraper_daily': {
         # this task depends on updates from the update_bills task
         # It takes less than 5 minutes
         'task': 'bills.tasks.committee_report_scrapy_task',
         'schedule': crontab(minute=10, hour=3),
-        'options': {'queue': 'bill'}
+       # 'options': {'queue': 'bill'}
     },
     'update_cbo_scores_daily': {
         # this task depends on updates from the update_bills task
@@ -50,7 +50,7 @@ app.conf.beat_schedule = {
         # and should take less than 20 minutes 
         'task': 'bills.tasks.cbo_task',
         'schedule': crontab(minute=30, hour=3),
-        'options': {'queue': 'bill'}
+       # 'options': {'queue': 'bill'}
     },
     'update_cosponsor_daily': { 
         # the update_cosponsor task deletes the cosponsor table and recreates it
@@ -59,14 +59,15 @@ app.conf.beat_schedule = {
         # from the YAML file in the unitedstates Github repo
         'task': 'bills.tasks.update_cosponsor_comm_task',
         'schedule': crontab(minute=20, hour=4),
-        'options': {'queue': 'bill'}
+       # 'options': {'queue': 'bill'}
     },
     'crs_scraper_daily': {
         # this task depends on updates from the update_bills task 
         # to link reports to bills
         'task': 'bills.tasks.crs_task',
         'schedule': crontab(minute=0, hour=5),
-        'options': {'queue': 'bill'}
+        'schedule': crontab(minute=0, hour=5),
+       # 'options': {'queue': 'bill'}
     },
 }
 

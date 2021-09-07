@@ -1,7 +1,7 @@
 import os
 from typing import Optional
-from server_py.flatgov.common.billdata import updateBillModelFields
-from server_py.flatgov.common import constants
+from common.billdata import updateBillModelFields
+from common import constants
 import subprocess
 import shutil
 from celery import shared_task, current_app

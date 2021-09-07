@@ -3,6 +3,7 @@ from django.template.defaultfilters import stringfilter
 from common import constants
 from typing import Union
 import re
+from datetime import datetime
 
 
 # BILL_NUMBER_REGEX = r'(?P<congress>[1-9][0-9]*)(?P<stage>[a-z]+)(?P<number>[0-9]+)(?P<version>[a-z]+)?$'
@@ -146,3 +147,12 @@ def normalize_score(score: float, total: float) -> int:
         return 0
     else:
         return round(score/total * 100)
+
+
+@register.filter
+def custom_date(date):
+    try:
+        date = datetime.strptime(date, '%Y-%m-%d')
+    except:
+        pass
+    return date

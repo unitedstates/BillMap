@@ -681,7 +681,7 @@
                                 <td>{{ statement.bill_number }}</td>
                                 <td style="width: 300px;">{{ statement.bill_title|truncatechars:120 }}</td>
                                 <td>{{ statement.congress }}</td>
-                                <td>{{ statement.date_issued }}</td>
+                                <td>{{ statement.date_issued|custom_date|date:"M d, Y" }}</td>
                                 <td>
                                 {% if statement.get_permanent_pdf_link %}
                                     <a href='{{ statement.get_permanent_pdf_link }}' target="_blank" class='btn btn-primary'>
@@ -697,8 +697,7 @@
                 </div>
                 <div class="tab-pane fade" id="press-statements" role="tabpanel" aria-labelledby="press-statements-tab">
                     <div class="">
-                        <table v-if="pressStatements.length" class="table mt-3 h-50" id='press-statements-table' style="height: 50vh; overflow: scroll">
-                        
+                        <table  class="table mt-3 h-50" id='press-statements-table'>
                             <thead>
                                 <tr>
                                     <th scope="col">Title</th>
@@ -709,58 +708,8 @@
                                     <th scope="col">Link</th>
                                 </tr>
                             </thead>
-                            
-                            <tbody>
-                                
-                                <tr v-for='(pressStatement, index) in pressStatements' :key="index">
-                                    <td style="width: 550px;">$[ pressStatement.title ]</td>
-                                    <td style="width: 200px;">$[ pressStatement.name ]</td>
-                                    <td>$[ pressStatement.chamber ]</td>
-                                    <td>$[ pressStatement.party ]</td>
-                                    <td style="min-width:120px" >$[ pressStatement.date|formatDate ]</td>
-                                    <td style="min-width:300px"><a v-bind:href="pressStatement.url" target="_blank" class='btn btn-primary'>
-                                        View the press statement
-                                    </a></td>
-                                </tr>
-                            </tbody>
                         </table>
-                        <table v-else class="table mt-3" id="press-statements-table">
-                            <thead>
-                                <tr>
-                                    <th scope="col">Title</th>
-                                    <th scope="col">Issued By</th>
-                                    <th scope="col">Chamber</th>
-                                    <th scope="col">Party</th>
-                                    <th scope="col">Date</th>
-                                    <th scope="col">Link</th>
-                                </tr>
-                            </thead>
-                            <tbody class="" >
-                                
-                                <tr class="text-center" style="text-align: center">
-                                    <td style='text-align: center;' colspan="6">No relevant press statements are available</td>
-                                    
-                                </tr>
-                            </tbody>
-                        
-                        </table>
-                        <nav aria-label="..." class="d-flex justify-content-end dataTables_paginate">
-                            <ul class="pagination">
-                              <li @click="changePage(false)" class="page-item ">
-                                <button class="page-link "><</button>
-                              </li>
-                              <li v-for="(page, index) in getPages" 
-                              :key="index" 
-                              @click="getPressStatements(page)"
-                              v-bind:class="[(offset == page)? 'active page-item':'page-item']"><button class="page-link">$[ index+1 ]</button></li>
-                              <li @click="changePage(true)" class="page-item">
-                                <button class="page-link">></button>
-                              </li>
-                            </ul>
-                          </nav>
                     </div>
-                    
-                    
                 </div>
                 <div class="tab-pane fade" id="cbo-score" role="tabpanel" aria-labelledby="cbo-score-tab">
                     <h6 class="pt-3">
@@ -824,19 +773,9 @@
                             </tr>
         
                             {% endfor %}
-                          <!-- {% if not committees %}
-                            <tr>
-                              <td valign="top" colspan="5" class="empty_table">
-                                {{ no_data_message }} 
-                              </td>
-                            </tr>
-                           {% endif %}-->
                         </tbody>
                     </table>
                 </div>
-                <!--div class="tab-pane fade" id="floor-proceedings" role="tabpanel" aria-labelledby="floor-proceedings-tab">
-                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Laudantium magnam nisi reprehenderit animi iste rem ut corrupti, vel libero fuga dicta asperiores, consectetur error nam hic quasi vitae temporibus eaque?
-                </div-->
             </div>
         </div>
         <hr>
@@ -979,86 +918,6 @@
 
 {% block extra_js %}
 <script src="{% static 'js/bill.js' %}"></script>
-<script>
-    // var table = new Tabulator("#committee-jurisdiction-table", {
-    //     // rowFormatter:function(row){
-    // });
-</script>
-
-<!-- vue.js files -->
-<script src="https://cdn.jsdelivr.net/npm/vue@2.5.13/dist/vue.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vue-resource@1.3.5"></script>
-
-
-
-<script type="text/javascript">
-  Vue.http.headers.common['x-api-key'] = "{{propublica_api_key}}";
-  new Vue({
-    el: '#app',
-    components: {
-    },
-    delimiters: ['$[', ']'],
-    data: {
-      pressStatements: [],
-      errors: [],
-      offset: 0,
-      numResults: 0,
-      status: null,
-      height:0,
-      pages: [],
-
-      showModal: false,
-    },
-    created: function () {
-      this.getPressStatements(0)
-    },
-    computed: {
-        getPages() {
-            this.pages = []
-            var current_offset = 0
-            while (current_offset < this.numResults) {
-                this.pages.push(current_offset)
-                current_offset += 20
-            }
-            return this.pages;
-
-        }
-    },
-    methods: {
-      getPressStatements: async function (offset) {
-          this.offset = offset;
-        await this.$http.get(`https://api.propublica.org/congress/v1/{{bill.congress}}/bills/{{bill.type}}{{bill.number}}/statements.json?offset=${offset}`)
-          .then((response) => {
-            this.pressStatements = response.data.results;
-            this.numResults = response.data.num_results;
-            this.status = response.data.status;
-          })
-          .catch((err) => {
-              console.warn(err)
-          });
-      },
-      changePage(isIncrease) {
-          if (isIncrease) {
-              if (this.offset + 20 <= this.numResults) {
-                  this.getPressStatements(this.offset+20)
-              }
-          } else {
-              if (this.offset - 20 >= 0) {
-                  this.getPressStatements(this.offset-20)
-              }
-          }
-      }
-
-    }
-  });
-
-  Vue.filter('formatDate', function(value) {
-            if (value) {
-                return moment(String(value)).format('MMM DD, YYYY');
-            }
-    }
-    )
-</script>
 
 <script>
     const showMoreText = $('.bill-summary-text').text();
@@ -1121,6 +980,70 @@
         $(event.currentTarget).find('#tool').css('display', 'none')
     })
 </script>
+<script>
+    var press_statements = $('#press-statements-table').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "ajax": {
+            url: `/press-statements/{{bill.congress}}/{{bill.type}}/{{bill.number}}/`,
+
+        },
+        pageLength   : 20,
+        lengthChange : false,
+        info         : true,   
+        searching    : true,
+        bPaginate: true,
+        autoWidth    : true,
+        scrollY: '50vh',
+        scrollCollapse: true,
+
+        columns: [
+            {
+                "data" : "title",
+                "orderable": true,
+                render: function ( data, type, row, meta ) {
+                    title = `<div style="width: 550px;">${data}</div>`;
+                    return title
+                }
+            },
+            {
+                "data" : "name",
+                "orderable": true
+            },
+            {
+                "data"      : "chamber",
+                "orderable" : true,
+            },
+            {
+                "data" : "party",
+                "orderable": true
+            },
+            {
+                "data" : "date",
+                "orderable": true,
+                render: function (data) {
+                    return moment(String(data)).format('MMM DD, YYYY')
+                }
+            },
+            {
+                "data" : "url",
+                "orderable": false,
+                render: function ( data, type, row, meta ) {
+                    button = '<a role="button"  target="_blank" class="btn btn-primary" href="'+data+'">View the press statement</a>';
+                    return button
+                }
+            }
+        ],
+        language: {
+            emptyTable: "No press statements are available",
+            paginate: {
+                "previous": "<",
+                "next": ">",
+            },
+            info: "_START_ to _END_ of _TOTAL_ Press statements"
+        },
+    });
+</script>
 <style>
     div.dt-buttons {
         float: none;
@@ -1131,6 +1054,21 @@
     .unique-dt {
         background-color: red;
 
+    }
+
+    #press-statements-table_paginate {
+        margin-top: 30px;
+    }
+
+    #press-statements-table_processing {
+        color: #2D4059;
+    }
+
+    .dataTables_scrollBody {
+        position: relative;
+        overflow: auto;
+        max-height: 50vh;
+        width: 100%;
     }
     
     .show-more-summary {

@@ -39,7 +39,7 @@ def committee_report_scrapy_task(self):
     os.environ.setdefault('SCRAPY_SETTINGS_MODULE', 'committeeReport.settings')
     process = CrawlerProcess(get_project_settings())
     process.crawl(CommitteeReportSpider)
-    process.start(stop_after_crawl=False)
+    process.start(stop_after_crawl=True)
 
 @shared_task(bind=True)
 def cbo_task(self):

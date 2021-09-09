@@ -81,11 +81,11 @@ def indexBill(bill_path: str=PATH_BILL, index_types: list=['sections']):
     try:
       with open(metadata_path, 'rb') as f:
         metadata = json.load(f)
-        dcdate = metadata.get('issued_on', '')
+        dcdate = metadata.get('issued_on', None)
     except:
       pass
     if dcdate is None or len(dcdate) == 0:
-      dcdate = ''
+      dcdate = None 
 
   congress = billTree.xpath('//form/congress')
   congress_text = re.sub(r'[a-zA-Z ]+$', '', getText(congress))

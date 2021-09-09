@@ -157,9 +157,11 @@ def elastic_load_task(self, pk):
         # res = runQuery()
         # billnumbers = getResultBillnumbers(res)
         # innerResults = getInnerResults(res)
+        print("Setting elastic_status to SUCCESS")
         history.elastic_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['elastic_status'])
     except Exception as e:
+        print("Loading files to elasticsearch failed: " + str(e))
         history.elastic_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['elastic_status'])
 

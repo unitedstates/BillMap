@@ -24,6 +24,7 @@ from common.elastic_load import (
 
 from django.conf import settings
 from common.constants import BILLMETA_GO_CMD, ESQUERY_GO_CMD
+import traceback
 
 GOVINFO_OPTIONS = {
     "collections": "BILLS",
@@ -162,6 +163,7 @@ def elastic_load_task(self, pk):
         history.save(update_fields=['elastic_status'])
     except Exception as e:
         print("Loading files to elasticsearch failed: " + str(e))
+        traceback.print_exc()
         history.elastic_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['elastic_status'])
 

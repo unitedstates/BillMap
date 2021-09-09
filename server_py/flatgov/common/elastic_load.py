@@ -39,6 +39,17 @@ def createIndex(index: str='billsections', body: dict=constants.BILLSECTION_MAPP
   print(str(body))
   es.indices.create(index=index, ignore=400, body=body)
 
+def getEnum(section) -> str:
+  enumpath = section.xpath('enum')  
+  if len(enumpath) > 0:
+    return enumpath[0].text
+  return ''
+
+def getHeader(section) -> str:
+  headerpath = section.xpath('header')  
+  if len(headerpath) > 0:
+    return headerpath[0].text
+  return ''
 
 def indexBill(bill_path: str=PATH_BILL, index_types: list=['sections']):
   """
@@ -114,8 +125,8 @@ def indexBill(bill_path: str=PATH_BILL, index_types: list=['sections']):
         'billversion': billversion,
         'headers': list(OrderedDict.fromkeys(headers_text)),
         'sections': [{
-            'section_number': section.xpath('enum')[0].text,
-            'section_header':  section.xpath('header')[0].text,
+            'section_number': getEnum(section) ,
+            'section_header':  getHeader(section),
             'section_text': etree.tostring(section, method="text", encoding="unicode"),
             'section_xml': etree.tostring(section, method="xml", encoding="unicode")
         } if (section.xpath('header') and len(section.xpath('header')) > 0  and section.xpath('enum') and len(section.xpath('enum'))>0) else

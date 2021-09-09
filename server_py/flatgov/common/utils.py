@@ -17,10 +17,10 @@ logger.addHandler(logging.StreamHandler(sys.stdout))
 def getText(item) -> str:
   if item is None:
     return ''
-  if isinstance(item, list):
-    item = item[0]
 
   try:
+    if isinstance(item, list):
+        item = item[0]
     return item.text
   except:
     return ''

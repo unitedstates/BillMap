@@ -66,6 +66,8 @@ def update_bill_task(self):
     return history.id
 
 def update_bills_meta_go():
+
+    print('Starting update_bills_meta_go')
     subprocess.run([BILLMETA_GO_CMD, '-p', settings.BASE_DIR])
     # Update only the current Congress metadata
     # rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, str(constants.CURRENT_CONGRESS))
@@ -73,13 +75,16 @@ def update_bills_meta_go():
     # Update all metadata; when we store the titles index for previous congresses,
     # we will only need to process the current congress, or the bills that have not yet been processed
     rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR)
+    print('Starting updateBillMetaToDbAll')
     updateBillMetaToDbAll(rootDir)
     #saveBillsMetaToDb()
 
 def es_similarity_go(congress: Optional[str] = None):
     if congress:
+        print('Starting es_similarity_go for ' + str(congress))
         subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-congress', congress, '-save'])
     else:
+        print('Starting es_similarity_go for all congresses'))
         subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-save'])
 
     if congress:
@@ -87,6 +92,7 @@ def es_similarity_go(congress: Optional[str] = None):
     else:
         rootDir = constants.PATH_TO_CONGRESSDATA_DIR
     # Processes saved files for each bill and saves to database
+    print('Starting updateBillModelFields'))
     updateBillModelFields(rootDir)
 
 @shared_task(bind=True)

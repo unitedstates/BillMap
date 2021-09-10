@@ -981,12 +981,20 @@
     })
 </script>
 <script>
+    var apiCallCount = 0
     var press_statements = $('#press-statements-table').DataTable({
         "processing": true,
         "serverSide": true,
         "ajax": {
             url: `/press-statements/{{bill.congress}}/{{bill.type}}/{{bill.number}}/`,
-
+            error: function () {
+                if (apiCallCount <= 3) {
+                    setTimeout(() => {
+                        apiCallCount++
+                        press_statements.ajax.reload()
+                    }, 3000);
+                }
+            },
         },
         pageLength   : 20,
         lengthChange : false,
@@ -1043,6 +1051,7 @@
             info: "_START_ to _END_ of _TOTAL_ Press statements"
         },
     });
+    $.fn.dataTable.ext.errMode = 'throw';
 </script>
 <style>
     div.dt-buttons {

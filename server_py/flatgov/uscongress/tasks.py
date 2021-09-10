@@ -84,7 +84,7 @@ def es_similarity_go(congress: Optional[str] = None):
         print('Starting es_similarity_go for ' + str(congress))
         subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-congress', congress, '-save'])
     else:
-        print('Starting es_similarity_go for all congresses'))
+        print('Starting es_similarity_go for all congresses')
         subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-save'])
 
     if congress:

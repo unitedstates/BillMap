@@ -92,7 +92,7 @@ def es_similarity_go(congress: Optional[str] = None):
     else:
         rootDir = constants.PATH_TO_CONGRESSDATA_DIR
     # Processes saved files for each bill and saves to database
-    print('Starting updateBillModelFields'))
+    print('Starting updateBillModelFields')
     updateBillModelFields(rootDir)
 
 @shared_task(bind=True)

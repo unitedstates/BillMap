@@ -3,9 +3,11 @@
 # BillMap: A https://demandprogress.org[Demand Progress] Project 
 Utilities and applications for the BillMap project by Demand Progress
 
-A live demo of the application is https://BillMap.linkedlegislation.com[here]. These application documentation are also available there, at https://BillMap.linkedlegislation.com/static/docs/README.html When the documentation has been updated in the git repository, it can be converted to html and copied to the application directory with the script `scripts/docs_generator.sh` (requires installation of asciidoctor).
+A live demo of the application is https://BillMap.linkedlegislation.com[here]. 
 
 The application version is shown in the top right of the page; it is set by the project's latest git tag or, if that is not available, by the `__version__` string set in `_version.py`.
+
+This documentation are also available there, at https://BillMap.linkedlegislation.com/static/docs/README.html When the documentation has been updated in the git repository, it can be converted to html and copied to the application directory with the script `scripts/docs_generator.sh` (requires installation of asciidoctor).
 
 This repository contains:
 
@@ -13,6 +15,8 @@ This repository contains:
 * Utilities to scrape and process bill data (Python)
 
 Both components are described below.
+
+A separate repository (github.com/aih/bills) contains tools in Go to process bill data. This repository now uses some of those tools instead of the Python ones.
 
 ## Web Application Quickstart (development)
 
@@ -180,10 +184,11 @@ These are described in more detail in <<SCRAPING.adoc#, SCRAPING>>.
 
 ### Related bills
 
-Bills that are related to each other are identified in two ways:
+Bills that are related to each other are identified in three ways:
 
 1. Metadata (in `billstatus` XML) from the Congressional Research Service identifies bills as `identical` or related (e.g through a Committee process). We show these in the `Related Bills` table of the application.
-2. Same or similar titles. Two bills are considered related if they have exactly the same title, or differ only in the year (e.g. 'The Very Important Information Act of 2022' and 'The Very Important Information Act of 2023'). We process metadata to collect bill titles and show these bills in the `Related Bills` table.
+2. Same or similar titles. Two bills are considered related if they have exactly the same title, or differ only in the year (e.g. 'The Very Important Information Act of 2022' and 'The Very Important Information Act of 2023').
+3. Calculation of text similarity between bills. We calculate similarity between bills using the `bill_similarity` module (see below). 
 
 ### Bill similarity -- text similarity
 
@@ -191,7 +196,7 @@ Bills that are related to each other are identified in two ways:
 
 * Bill-to-bill comparison is impractical
 
-Calculating the `text` similarity between two bills may be relatively straightforward: we can find the percentage of overlapping text between the two bills. We may consider such a comparison for the `/compare` view of the application.
+Calculating the `text` similarity between two bills can be relatively straightforward: we can find the percentage of overlapping text between the two bills, or use an existing text similarity algorithm (e.g. Levenshtein distance).
 
 However, for a database of the size of this one, calculating the similarity of all bills is impractical, particularly if we want to update the data. The calculation requires approximately n^2^ comparisons, where n is the number of bills. For the ~80k bills in our corpus, this would be 6.4 billion comparisons.
 

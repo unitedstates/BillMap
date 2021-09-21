@@ -15,12 +15,12 @@ crs:: update crs reports associated with bills
 
 ### US Congress Task
 
-Within the US Congress task, there are six celery tasks, that run sequentially:
+Within the US Congress task, there are six celery tasks that run sequentially:
 `update_bill_task`, `bill_data_task`, `process_bill_meta_task`, `related_bill_task`, `elastic_load_task`, `bill_similarity_task`
 
-After each task is run, its status is saved in the database in the UscongressUpdateJob table (see below). The status of the tasks is displayed in the `/admin/` page.
+The tasks after `update_bill_task` are triggered upon `save` of the status of `update_bill_task`. After each task is run, its status is saved in the database in the UscongressUpdateJob table (see below). The status of the tasks is displayed in the `/admin/` page. The six tasks are:
 
-1. Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated. (`update_bill_task`)
+update_bill_task:: Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.
 
 With the open source scraper itself, we run `./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS`. The status of this process is stored as `fdyss_status`.
 
@@ -28,7 +28,50 @@ Then `./run bills`
 
 It will create `data.json` out of `data.xml` and text_versions. The status of this is stored as `data_status`.
 
-Whenever celery task started running, it creates `UscongressUpdateJob` table record in the database to track the task status.
+bill_data_task::
+
+This, and the following task are now run from a Go executable.
+
+Creates `billList.json` and `billsMeta.json`. Once the celery task `update_bill_task` is finished (complete the download bill text and metadata), the `bill_data_task` runs. This is triggered in the `save` function of the `uscongress.models.py`:
+
+```python
+ def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.bill_data_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.process_bill_meta_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+			...
+```
+
+The task `bill_data_task` creates billList.json and `billsMeta.json` file with the list in `saved` field and dump related bill json files.
+
+data.json files at the top level (not the data.json in the text versions) are used to create metadata.
+
+process_bill_meta_task::
+After completing `bill_data_task`, `process_bill_meta_task` runs. This processes and organizes the metadata for bills.
+
+related_bill_task::
+
+This task creates bill instances in the Bill table in the database.
+
+elastic_load_task::
+Parses xml into sections and loads the bill and sections into Elasticsearch.
+The xml for bill similarity is in the text_versions field.
+
+bill_similarity_task::
+Runs the similarity task on new bills, which are found in the new bill list of the `saved` field in the UscongressUpdateJob table record.
+
+#### UscongressUpdateJob table data (status) 
+When celery tasks run, a `UscongressUpdateJob` table record is created in the database to track the task status.
 
 The fields in the `UscongressUpdateJob`:
 
@@ -53,65 +96,6 @@ The fields in the `UscongressUpdateJob`:
 - similarity :  choice field (pending, success, failed) : After finishing `elastic_load_task`, we update `es_similarity` field of each bill in the database. This is the field of the task status.
 
 - created : the date time field represents the time when the record is created. 
-
-+
-2. Create `billList.json` and `billsMeta.json`
-
-Once the celery task `update_bill_task` is finished (complete the download bill text and metadata), the other celery task named `bill_data_task` runs. This is triggered in the `save` function of the `uscongress.models.py`:
-
-```python
- def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
-            current_app.send_task(
-                'uscongress.tasks.bill_data_task',
-                args=(self.pk, ),
-                queue='bill'
-            )
-        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
-            current_app.send_task(
-                'uscongress.tasks.process_bill_meta_task',
-                args=(self.pk, ),
-                queue='bill'
-            )
-			...
-```
-
-As mentioned above, whenever the `update_bill_task` runs, it creates `UscongressUpdateJob` table record in the database.
-
-In `saved` fields, there is the list of bill congress number that represents which bills are newly downloaded.
-
-The task `bill_data_task` creates billList.json and `billsMeta.json` file with the list in `saved` field and dump related bill json files.
-
-data.json files at the top level (not the data.json in the text versions) are used to create metadata.
-
-We will provide an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)
-
-3. Process bill meta data.
-
-After completing `bill_data_task`, `process_bill_meta_task` runs. This processes and organizes the metadata for bills.
-
-4. Create Related bills.
-
-Next, the `related_bill_task` runs.
-
-In the task it creates bill instances in the Bill table in the database.
-
-5. Update loading of the `new` bills into Elasticsearch
-
-The celery task `elastic_load_task` update loading of the `new` bills into Elasticsearch
-
-The xml for bill similarity is in text_versions that is the bill document itself.
-
-We use them.
-
-6. Update the bill similarity
-
-The celery task `bill_similarity_task` update the bill similarity.
-
-It only update the new bills since the new bill list is in the `saved` field in the UscongressUpdateJob table record.
-
-The xml for bill similarity is in text_versions that is the bill document itself, so we use them.
 
 #### Flat structure
 

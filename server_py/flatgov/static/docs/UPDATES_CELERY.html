@@ -498,18 +498,19 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="sect2">
 <h3 id="_us_congress_task">US Congress Task</h3>
 <div class="paragraph">
-<p>Within the US Congress task, there are six celery tasks, that run sequentially:
+<p>Within the US Congress task, there are six celery tasks that run sequentially:
 <code>update_bill_task</code>, <code>bill_data_task</code>, <code>process_bill_meta_task</code>, <code>related_bill_task</code>, <code>elastic_load_task</code>, <code>bill_similarity_task</code></p>
 </div>
 <div class="paragraph">
-<p>After each task is run, its status is saved in the database in the UscongressUpdateJob table (see below). The status of the tasks is displayed in the <code>/admin/</code> page.</p>
+<p>The tasks after <code>update_bill_task</code> are triggered upon <code>save</code> of the status of <code>update_bill_task</code>. After each task is run, its status is saved in the database in the UscongressUpdateJob table (see below). The status of the tasks is displayed in the <code>/admin/</code> page. The six tasks are:</p>
 </div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated. (<code>update_bill_task</code>)</p>
-</li>
-</ol>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">update_bill_task</dt>
+<dd>
+<p>Download uscongress bill and metadata using sitemaps to efficiently determine what needs to be updated.</p>
+</dd>
+</dl>
 </div>
 <div class="paragraph">
 <p>With the open source scraper itself, we run <code>./run govinfo --collections=BILLS --congress=117 --extract=mods,xml,premis --bulkdata=BILLSTATUS</code>. The status of this process is stored as <code>fdyss_status</code>.</p>
@@ -520,8 +521,67 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 <div class="paragraph">
 <p>It will create <code>data.json</code> out of <code>data.xml</code> and text_versions. The status of this is stored as <code>data_status</code>.</p>
 </div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">bill_data_task</dt>
+<dd>
+<p>This, and the following task are now run from a Go executable.</p>
+</dd>
+</dl>
+</div>
 <div class="paragraph">
-<p>Whenever celery task started running, it creates <code>UscongressUpdateJob</code> table record in the database to track the task status.</p>
+<p>Creates <code>billList.json</code> and <code>billsMeta.json</code>. Once the celery task <code>update_bill_task</code> is finished (complete the download bill text and metadata), the <code>bill_data_task</code> runs. This is triggered in the <code>save</code> function of the <code>uscongress.models.py</code>:</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-python" data-lang="python"> def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.bill_data_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
+            current_app.send_task(
+                'uscongress.tasks.process_bill_meta_task',
+                args=(self.pk, ),
+                queue='bill'
+            )
+			...</code></pre>
+</div>
+</div>
+<div class="paragraph">
+<p>The task <code>bill_data_task</code> creates billList.json and <code>billsMeta.json</code> file with the list in <code>saved</code> field and dump related bill json files.</p>
+</div>
+<div class="paragraph">
+<p>data.json files at the top level (not the data.json in the text versions) are used to create metadata.</p>
+</div>
+<div class="dlist">
+<dl>
+<dt class="hdlist1">process_bill_meta_task</dt>
+<dd>
+<p>After completing <code>bill_data_task</code>, <code>process_bill_meta_task</code> runs. This processes and organizes the metadata for bills.</p>
+</dd>
+<dt class="hdlist1">related_bill_task</dt>
+<dd>
+<p>This task creates bill instances in the Bill table in the database.</p>
+</dd>
+<dt class="hdlist1">elastic_load_task</dt>
+<dd>
+<p>Parses xml into sections and loads the bill and sections into Elasticsearch.
+The xml for bill similarity is in the text_versions field.</p>
+</dd>
+<dt class="hdlist1">bill_similarity_task</dt>
+<dd>
+<p>Runs the similarity task on new bills, which are found in the new bill list of the <code>saved</code> field in the UscongressUpdateJob table record.</p>
+</dd>
+</dl>
+</div>
+<div class="sect3">
+<h4 id="_uscongressupdatejob_table_data_status">UscongressUpdateJob table data (status)</h4>
+<div class="paragraph">
+<p>When celery tasks run, a <code>UscongressUpdateJob</code> table record is created in the database to track the task status.</p>
 </div>
 <div class="paragraph">
 <p>The fields in the <code>UscongressUpdateJob</code>:</p>
@@ -560,107 +620,9 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </li>
 <li>
 <p>created : the date time field represents the time when the record is created.</p>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Create <code>billList.json</code> and <code>billsMeta.json</code></p>
-</li>
-</ol>
-</div>
 </li>
 </ul>
 </div>
-<div class="paragraph">
-<p>Once the celery task <code>update_bill_task</code> is finished (complete the download bill text and metadata), the other celery task named <code>bill_data_task</code> runs. This is triggered in the <code>save</code> function of the <code>uscongress.models.py</code>:</p>
-</div>
-<div class="listingblock">
-<div class="content">
-<pre class="highlight"><code class="language-python" data-lang="python"> def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if self.pk and self.data_status == self.SUCCESS and self.bill_status == self.PENDING:
-            current_app.send_task(
-                'uscongress.tasks.bill_data_task',
-                args=(self.pk, ),
-                queue='bill'
-            )
-        if self.pk and self.bill_status == self.SUCCESS and self.meta_status == self.PENDING:
-            current_app.send_task(
-                'uscongress.tasks.process_bill_meta_task',
-                args=(self.pk, ),
-                queue='bill'
-            )
-			...</code></pre>
-</div>
-</div>
-<div class="paragraph">
-<p>As mentioned above, whenever the <code>update_bill_task</code> runs, it creates <code>UscongressUpdateJob</code> table record in the database.</p>
-</div>
-<div class="paragraph">
-<p>In <code>saved</code> fields, there is the list of bill congress number that represents which bills are newly downloaded.</p>
-</div>
-<div class="paragraph">
-<p>The task <code>bill_data_task</code> creates billList.json and <code>billsMeta.json</code> file with the list in <code>saved</code> field and dump related bill json files.</p>
-</div>
-<div class="paragraph">
-<p>data.json files at the top level (not the data.json in the text versions) are used to create metadata.</p>
-</div>
-<div class="paragraph">
-<p>We will provide an option, which will be the default, to get bill XML from the directory structure that is created by uscongress open source scraper. (In other case, flat structure could be used to get bill XML)</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Process bill meta data.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>After completing <code>bill_data_task</code>, <code>process_bill_meta_task</code> runs. This processes and organizes the metadata for bills.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Create Related bills.</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>Next, the <code>related_bill_task</code> runs.</p>
-</div>
-<div class="paragraph">
-<p>In the task it creates bill instances in the Bill table in the database.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Update loading of the <code>new</code> bills into Elasticsearch</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>The celery task <code>elastic_load_task</code> update loading of the <code>new</code> bills into Elasticsearch</p>
-</div>
-<div class="paragraph">
-<p>The xml for bill similarity is in text_versions that is the bill document itself.</p>
-</div>
-<div class="paragraph">
-<p>We use them.</p>
-</div>
-<div class="olist arabic">
-<ol class="arabic">
-<li>
-<p>Update the bill similarity</p>
-</li>
-</ol>
-</div>
-<div class="paragraph">
-<p>The celery task <code>bill_similarity_task</code> update the bill similarity.</p>
-</div>
-<div class="paragraph">
-<p>It only update the new bills since the new bill list is in the <code>saved</code> field in the UscongressUpdateJob table record.</p>
-</div>
-<div class="paragraph">
-<p>The xml for bill similarity is in text_versions that is the bill document itself, so we use them.</p>
 </div>
 <div class="sect3">
 <h4 id="_flat_structure">Flat structure</h4>
@@ -1060,7 +1022,7 @@ Fetched 634 kB in 0s (24.3 MB/s)...</code></pre>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2021-09-10 15:35:56 -0700
+Last updated 2021-09-21 11:05:53 -0700
 </div>
 </div>
 </body>

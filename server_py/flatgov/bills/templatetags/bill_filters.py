@@ -27,7 +27,9 @@ register = template.Library()
 def billtitle_display(title: Union[str, None]):
     if not title:
         return title
-    return re.sub(r'(:?.*\s([^ ]*):\s*)?(.*)$', r'\3 (\2)', title ).replace(' ()','')
+    # Uncomment this line to show the bill stage
+    #return re.sub(r'(:?.*\s([^ ]*):\s*)?(.*)$', r'\3 (\2)', title ).replace(' ()','')
+    return re.sub(r'(:?.*\s([^ ]*):\s*)?(.*)$', r'\3', title ).replace(' ()','')
 
 @register.filter
 @stringfilter

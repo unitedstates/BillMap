@@ -87,13 +87,7 @@ def es_similarity_go(congress: Optional[str] = None):
         print('Starting es_similarity_go for all congresses')
         subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-save'])
 
-    if congress:
-        rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, congress)
-    else:
-        rootDir = constants.PATH_TO_CONGRESSDATA_DIR
-    # Processes saved files for each bill and saves to database
-    print('Starting updateBillModelFields')
-    updateBillModelFields(rootDir)
+   
 
 @shared_task(bind=True)
 def bill_data_task(self, pk):
@@ -196,3 +190,7 @@ def bill_similarity_task(self, pk):
     except Exception as e:
         history.similarity_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['similarity_status'])
+    # Processes saved files for each bill and saves to database
+    print('Starting updateBillModelFields')
+    rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR, str(constants.CURRENT_CONGRESS))
+    updateBillModelFields(rootDir)

@@ -30,7 +30,7 @@ itemloaders==1.0.4
 iteration-utilities==0.11.0
 jmespath==0.10.0
 kombu==4.6.11
-lxml==4.6.3
+lxml==4.6.5
 mechanize==0.4.5
 mock==4.0.3
 parsel==1.6.0

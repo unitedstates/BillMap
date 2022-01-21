@@ -82,7 +82,7 @@ def update_bills_meta_go():
 def es_similarity_go(congress: Optional[str] = None):
     if congress:
         print('Starting es_similarity_go for ' + str(congress))
-        subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-congress', congress, '-save'])
+        subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-congress', congress, '-samplesize', 20,  '-save'])
     else:
         print('Starting es_similarity_go for all congresses')
         subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-save'])

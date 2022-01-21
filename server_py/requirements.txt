@@ -30,7 +30,7 @@ itemloaders==1.0.4
 iteration-utilities==0.11.0
 jmespath==0.10.0
 kombu==4.6.11
-lxml==4.6.3
+lxml==4.6.5
 mechanize==0.4.5
 mock==4.0.3
 parsel==1.6.0
@@ -50,7 +50,7 @@ redis==3.5.3
 requests==2.25.1
 rtyaml==1.0.0
 scrapelib==1.2.0
-Scrapy==2.4.1
+Scrapy==2.5.1
 service-identity==18.1.0
 six==1.15.0
 sorl-thumbnail==12.7.0

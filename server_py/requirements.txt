@@ -50,7 +50,7 @@ redis==3.5.3
 requests==2.25.1
 rtyaml==1.0.0
 scrapelib==1.2.0
-Scrapy==2.5.1
+Scrapy==2.6.0
 service-identity==18.1.0
 six==1.15.0
 sorl-thumbnail==12.7.0

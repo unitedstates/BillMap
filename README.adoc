@@ -1,3 +1,15 @@
+https://sonarcloud.io/summary/new_code?id=arachnidllc_BillMap[image:https://sonarcloud.io/images/project_badges/sonarcloud-black.svg[SonarCloud, 125]]
+https://sonarcloud.io/summary/new_code?id=arachnidllc_BillMap[image:https://sonarcloud.io/api/project_badges/measure?project=arachnidllc_BillMap&metric=bugs[Bugs]]
+https://sonarcloud.io/summary/new_code?id=arachnidllc_BillMap[image:https://sonarcloud.io/api/project_badges/measure?project=arachnidllc_BillMap&metric=code_smells[Code
+Smells]]
+https://sonarcloud.io/summary/new_code?id=arachnidllc_BillMap[image:https://sonarcloud.io/api/project_badges/measure?project=arachnidllc_BillMap&metric=sqale_rating[Maintainability
+Rating]]
+https://sonarcloud.io/summary/new_code?id=arachnidllc_BillMap[image:https://sonarcloud.io/api/project_badges/measure?project=arachnidllc_BillMap&metric=alert_status[Quality
+Gate Status]]
+https://sonarcloud.io/summary/new_code?id=arachnidllc_BillMap[image:https://sonarcloud.io/api/project_badges/measure?project=arachnidllc_BillMap&metric=sqale_index[Technical
+Debt]]
+https://sonarcloud.io/summary/new_code?id=arachnidllc_BillMap[image:https://sonarcloud.io/api/project_badges/measure?project=arachnidllc_BillMap&metric=vulnerabilities[Vulnerabilities]]
+
 :toc:
 
 # BillMap: A https://demandprogress.org[Demand Progress] Project 

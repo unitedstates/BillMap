@@ -11,14 +11,17 @@ from bills.models import Bill
 from crs.scrapers.everycrsreport_com import EveryCrsReport
 
 # Bill's types {'sres', 'hjres', 'hconres', 's', 'hres', 'sjres', 'hr', 'sconres'}
-BILL_NUMBER_RE = re.compile(r"\W((?:h\.\s?r\.|s\.|h\.conres\.|s\.conres\.|h\.\s?j\.\s?res\.|s\.\s?j\.\s?res\.|" 
+BILL_NUMBER_RE = re.compile(r"\W((?:h\.\s?r\.|s\.|h\.conres\.|s\.conres\.|h\.\s?j\.\s?res\.|s\.\s?j\.\s?res\.|"
 + r"h\.\s?res\.|s\.\s?res\.)\s?(?:[1-9]\d{0,3}))", re.I | re.M)
+
 
 def cleanBillNumber(billnumber):
     return billnumber.replace('.', '').replace(' ', '').lower()
 
+
 def get_congress_number_for_year(year: str) -> int:
     return math.ceil((int(year) - 1788) / 2)
+
 
 class CrsFromApi:
     matched_count = 0

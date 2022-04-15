@@ -1,30 +1,32 @@
-from . import utils
 import os.path
 import os
 import re
 import datetime
 import json
-import lxml.etree
 import uuid
 import logging
-import mechanize
 import zipfile
 import io
-import requests
-import subprocess
-
 from email.utils import parsedate
 from time import mktime
+import subprocess
+import requests
+import mechanize
+import lxml.etree
 
-# to get text files their is a new dependency; you need to have pdftotext. 
-# On Ubuntu, apt-get install poppler-utils. On OS X, install it via MacPorts 
+from uscongress.handlers import utils
+
+# to get text files their is a new dependency; you need to have pdftotext.
+# On Ubuntu, apt-get install poppler-utils. On OS X, install it via MacPorts
 # with port install poppler, or via Homebrew with brew install poppler.
 
 # options:
 #
 #    --chamber: "house" or "senate" to limit the parse to a single chamber
-#    --load_by: Takes a range of House Event IDs. Give it the beginning and end IDs with a dash between, otherwise, it goes by the committee feeds.
+#    --load_by: Takes a range of House Event IDs.
+#               Give it the beginning and end IDs with a dash between, otherwise, it goes by the committee feeds.
 #    --docs=False: Don't download (& convert to text) House committee documents
+
 
 def run(options):
     # can limit it to one chamber
@@ -54,7 +56,7 @@ def run(options):
         utils.write_json(meetings, output_for("senate"))
 
     if "house" in chambers:
-        if load_by == None:
+        if load_by is None:
             print("Fetching House meetings...")
             meetings = fetch_house_committee_meetings(committees, options)
         else:
@@ -120,7 +122,8 @@ def fetch_senate_committee_meetings(committees, options):
         # Assume meetings are the same if they are for the same committee/subcommittee and
         # at the same time.
         for mtg in existing_meetings:
-            if mtg["committee"] == committee_code and mtg.get("subcommittee", None) == subcommittee_code and mtg["occurs_at"] == occurs_at.isoformat():
+            if mtg["committee"] == committee_code and mtg.get("subcommittee", None) == subcommittee_code\
+                    and mtg["occurs_at"] == occurs_at.isoformat():
                 if options.get("debug", False):
                     print("[%s] Reusing gUID." % mtg["guid"])
                 guid = mtg["guid"]
@@ -139,7 +142,9 @@ def fetch_senate_committee_meetings(committees, options):
 
         # Create the meeting event.
         if options.get("debug", False):
-            print("[senate][%s][%s] Found meeting in room %s at %s." % (committee_code, subcommittee_code, room, occurs_at.isoformat()))
+            print("[senate][%s][%s] Found meeting in room %s at %s." % (
+                committee_code, subcommittee_code, room, occurs_at.isoformat()
+            ))
 
         meetings.append({
             "chamber": "senate",
@@ -158,6 +163,7 @@ def fetch_senate_committee_meetings(committees, options):
 
 # House
 
+
 # Scrape docs.house.gov for meetings.
 # To aid users of the data, assign GUIDs to meetings piggy-backing off of the provided EventID.
 def fetch_house_committee_meetings(committees, options):
@@ -175,7 +181,11 @@ def fetch_house_committee_meetings(committees, options):
     seen_meetings = set()
 
     # Scrape the committee listing page for a list of committees with scrapable events.
-    committee_html = utils.download("http://docs.house.gov/Committee/Committees.aspx", "committee_schedule/house_overview.html", opts)
+    committee_html = utils.download(
+        "http://docs.house.gov/Committee/Committees.aspx",
+        "committee_schedule/house_overview.html",
+        opts
+    )
     for cmte in re.findall(r'<option value="(....)">', committee_html.decode('utf-8')):
         if cmte not in committees:
             logging.error("Invalid committee code: " + cmte)
@@ -189,11 +199,12 @@ def fetch_house_committee_meetings(committees, options):
             opts)
 
         # It's not really valid?
-        html = html.replace(b"&nbsp;", b" ")  # who likes nbsp's? convert to spaces. but otherwise, entity is not recognized.
+        # who likes nbsp's? convert to spaces. but otherwise, entity is not recognized.
+        html = html.replace(b"&nbsp;", b" ")
         #print(html)
         # Parse and loop through the meetings listed in the committee feed.
         dom = lxml.etree.fromstring(html)
-        
+
         # original start to loop
         for mtg in dom.xpath("channel/item"):
 
@@ -215,13 +226,14 @@ def fetch_house_committee_meetings(committees, options):
             # this loads the xml from the page and sends the xml to parse_house_committee_meeting
             load_xml_from_page(eventurl, options, existing_meetings, committees, event_id, meetings)
             # if bad zipfile
-            if load_xml_from_page == False: continue
+            if load_xml_from_page is False:
+                continue
 
     print("[house] Found %i meetings." % len(meetings))
     return meetings
 
 
-## load House meeting sequentially from event_id
+# load House meeting sequentially from event_id
 def fetch_meeting_from_event_id(committees, options, load_id):
     existing_meetings = []
     output_file = output_for("house")
@@ -242,36 +254,46 @@ def fetch_meeting_from_event_id(committees, options, load_id):
         event_url = "http://docs.house.gov/Committee/Calendar/ByEvent.aspx?EventID=" + event_id
         load_xml_from_page(event_url, options, existing_meetings, committees, event_id, meetings)
         # bad zipfile
-        if load_xml_from_page == False: continue
+        if load_xml_from_page is False:
+            continue
         current_id += 1
-    
+
     print("[house] Found %i meetings." % len(meetings))
     return meetings
 
 
-def load_xml_from_page(eventurl, options, existing_meetings, committees, event_id, meetings):  
+def load_xml_from_page(eventurl, options, existing_meetings, committees, event_id, meetings):
     # Load the HTML page for the event and use the mechanize library to
     # submit the form that gets the meeting XML. TODO Simplify this when
     # the House makes the XML available at an actual URL.
 
     logging.info(eventurl)
     package_info = extract_meeting_package(eventurl, event_id, options)
-    if package_info == False: return False
+    if package_info is False:
+        return False
     witnesses = package_info["witnesses"]
     uploaded_documents = package_info["uploaded_documents"]
     dom = package_info["dom"]
 
     # Parse the XML.
     try:
-        meeting = parse_house_committee_meeting(event_id, dom, existing_meetings, committees, options, witnesses, uploaded_documents)
-        if meeting != None: # an active meeting record
+        meeting = parse_house_committee_meeting(
+            event_id,
+            dom,
+            existing_meetings,
+            committees,
+            options,
+            witnesses,
+            uploaded_documents
+        )
+        if meeting is not None:  # an active meeting record
             meetings.append(meeting)
-   
+
     except Exception as e:
         logging.error("Error parsing " + eventurl, exc_info=e)
 
 
-#look for witnesses and documents in the house meeting package    
+# look for witnesses and documents in the house meeting package
 def extract_meeting_package(eventurl, event_id, options):
     br = mechanize.Browser()
     # open committee event page
@@ -292,7 +314,7 @@ def extract_meeting_package(eventurl, event_id, options):
         # Otherwise, just download the metadata XML.
         br["__EVENTTARGET"] = "ctl00$MainContent$LinkButtonDownloadMtgXML"
     br["__EVENTARGUMENT"] = ""
-    
+
     # get the info
     request = br.submit()
 
@@ -305,7 +327,7 @@ def extract_meeting_package(eventurl, event_id, options):
             return False
         return {"witnesses": None, "uploaded_documents": [], "dom": dom}
 
-    ## read zipfile
+    # read zipfile
     try:
         request_bytes = io.BytesIO(request.read())
         package = zipfile.ZipFile(request_bytes)
@@ -337,10 +359,9 @@ def extract_meeting_package(eventurl, event_id, options):
 def parse_witness_list(witness_tree, uploaded_documents, event_id):
     hearing_id = witness_tree.xpath("//@meeting-id")[0]
     hearing_witness_info = []
-    #basic witness information
+    # basic witness information
     for witness in witness_tree.xpath("panel/witness"):
-        record = {"house_event_id": hearing_id}
-        record["first_name"] =  witness.xpath("string(firstname)")
+        record = {"house_event_id": hearing_id, "first_name": witness.xpath("string(firstname)")}
         if record["first_name"] == '':
             record["first_name"] = None
         record["middle_name"] = witness.xpath("string(middlename)")
@@ -374,23 +395,25 @@ def parse_witness_list(witness_tree, uploaded_documents, event_id):
             document["description"] = doc.xpath("string(description)")
             if document["description"] == '':
                 document["description"] = None
-            
+
             doc_type = doc.xpath("string(type)")
             if doc_type == '':
                 document["type"] = None
                 document["type_name"] = None
             else:
                 document["type"] = doc_type
-                types = {"CV": "Committee vote", "WS": "Witness statement", 
+                types = {
+                    "CV": "Committee vote", "WS": "Witness statement",
                     "WT": "Witness truth statement", "WB": "Witness biography",
                     "CR": "Committee report", "BR": "Bill", "FA": "Floor amendment",
-                    "CA": "Committee amendment", "HT": "Transcript", "WD": "Witness document"}
-                        # "SD": "" I don't know this one, the SD category covers a lot
+                    "CA": "Committee amendment", "HT": "Transcript", "WD": "Witness document"
+                }
+                    # "SD": "" I don't know this one, the SD category covers a lot
                 if doc_type in types:
-                  document["type_name"] = types[doc_type]
+                    document["type_name"] = types[doc_type]
                 else:
-                  document["type_name"] = None
-            
+                    document["type_name"] = None
+
             urls = []
             for files in doc.xpath("files/file"):
                 url = files.xpath("string(@doc-url)")
@@ -400,8 +423,8 @@ def parse_witness_list(witness_tree, uploaded_documents, event_id):
                     file_found = save_file(url, event_id)
                 else:
                     file_found = True
-                urls.append({"url":url, "file_found": file_found})
-            
+                urls.append({"url": url, "file_found": file_found})
+
             document["urls"] = urls
             record["documents"].append(document)
         hearing_witness_info.append(record)
@@ -412,7 +435,8 @@ def parse_witness_list(witness_tree, uploaded_documents, event_id):
 def parse_house_committee_meeting(event_id, dom, existing_meetings, committees, options, witnesses, uploaded_documents):
     try:
         congress = int(dom.xpath("//@congress-num")[0])
-        occurs_at = dom.xpath("string(meeting-details/meeting-date/calendar-date)") + " " + dom.xpath("string(meeting-details/meeting-date/start-time)")
+        occurs_at = dom.xpath("string(meeting-details/meeting-date/calendar-date)") + " " + dom.xpath(
+            "string(meeting-details/meeting-date/start-time)")
         occurs_at = datetime.datetime.strptime(occurs_at, "%Y-%m-%d %H:%M:%S")
     except:
         raise ValueError("Invalid meeting data (probably server error) in %s." % event_id)
@@ -428,11 +452,11 @@ def parse_house_committee_meeting(event_id, dom, existing_meetings, committees, 
     committee_names = []
     for com in dom.xpath("meeting-details/committees"):
         comte = com.xpath("string(committee-name)")
-        if comte != None:
+        if comte is not None:
             committee_names.append(com.xpath("string(committee-name)"))
     for scom in dom.xpath("meeting-details/subcommittees"):
         scomte = scom.xpath("string(committee-name)")
-        if scomte != None:
+        if scomte is not None:
             committee_names.append(scom.xpath("string(committee-name)"))
 
     room = None
@@ -443,7 +467,7 @@ def parse_house_committee_meeting(event_id, dom, existing_meetings, committees, 
     for bill_id in dom.xpath("meeting-documents/meeting-document[@type='BR']/legis-num"):
         # validating bill ids
         bill_id = house_bill_id_formatter(bill_id.text, congress)
-        if bill_id != None:
+        if bill_id is not None:
             bills.append(bill_id)
 
     meeting_type = dom.xpath("//@meeting-type")[0]
@@ -460,22 +484,24 @@ def parse_house_committee_meeting(event_id, dom, existing_meetings, committees, 
         document["description"] = doc.xpath("string(description)")
         if document["description"] == '':
             document["description"] = None
-        
+
         doc_type = doc.xpath("string(filename-metadata/doc-type)")
         if doc_type == '':
             document["type"] = None
             document["type_name"] = None
         else:
             document["type"] = doc_type
-            types = { "CV": "Committee vote", "WS": "Witness statement", 
-                    "WT": "Witness truth statement", "WB": "Witness biography",
-                    "CR": "Committee report", "BR": "Bill", "FA": "Floor amendment",
-                    "CA": "Committee amendment", "HT": "Transcript", "WD": "Witness document"}
-                    # "SD": "" I don't know this one, the SD category covers a lot
+            types = {
+                "CV": "Committee vote", "WS": "Witness statement",
+                "WT": "Witness truth statement", "WB": "Witness biography",
+                "CR": "Committee report", "BR": "Bill", "FA": "Floor amendment",
+                "CA": "Committee amendment", "HT": "Transcript", "WD": "Witness document"
+            }
+                # "SD": "" I don't know this one, the SD category covers a lot
             if doc_type in types:
-              document["type_name"] = types[doc_type]
+                document["type_name"] = types[doc_type]
             else:
-              document["type_name"] = None
+                document["type_name"] = None
 
         document["bioguide_id"] = doc.xpath("string(filename-metadata/bioguideID)")
         if document["bioguide_id"] == '':
@@ -489,7 +515,7 @@ def parse_house_committee_meeting(event_id, dom, existing_meetings, committees, 
         document["version_code"] = doc.xpath("string(filename-metadata/legis-stage)")
         if document["version_code"] == '':
             document["version_code"] = None
-        
+
         urls = []
         for u in doc.xpath("files/file"):
             url = u.xpath("string(@doc-url)")
@@ -527,7 +553,8 @@ def parse_house_committee_meeting(event_id, dom, existing_meetings, committees, 
         # See if this meeting already exists. If so, take its GUID.
         # Assume meetings are the same if they are for the same event ID and committee/subcommittee.
         for mtg in existing_meetings:
-            if mtg["house_event_id"] == int(event_id) and mtg.get("committee", None) == committee_code and mtg.get("subcommittee", None) == subcommittee_code:
+            if mtg["house_event_id"] == int(event_id) and mtg.get("committee", None) == committee_code \
+                    and mtg.get("subcommittee", None) == subcommittee_code:
                 guid = mtg["guid"]
                 break
         else:
@@ -539,7 +566,12 @@ def parse_house_committee_meeting(event_id, dom, existing_meetings, committees, 
 
         # return the parsed meeting
         if options.get("debug", False):
-            print("[house][%s][%s] Found meeting in room %s at %s" % (committee_code, subcommittee_code, room, occurs_at.isoformat()))
+            print("[house][%s][%s] Found meeting in room %s at %s" % (
+                committee_code,
+                subcommittee_code,
+                room,
+                occurs_at.isoformat()
+            ))
 
         results = {
             "chamber": "house",
@@ -558,7 +590,7 @@ def parse_house_committee_meeting(event_id, dom, existing_meetings, committees, 
         }
 
         # witness information and documents are only added if there was a result
-        if witnesses != None:
+        if witnesses is not None:
             results["witnesses"] = witnesses
         if len(meeting_documents) > 0:
             results["meeting_documents"] = meeting_documents 
@@ -592,51 +624,56 @@ def save_documents(package, event_id):
                 document_file.write(bytes)
             # try to make a text version
             text_doc = text_from_pdf(file_name)
-            if text_doc != None:
+            if text_doc is not None:
                 uploaded_documents.append(text_doc)
             uploaded_documents.append(name)
 
     return uploaded_documents
 
+
 # Code from IG scraper project
 # uses pdftotext to get text out of PDFs,
 # then writes it and returns the /data-relative path.
 def text_from_pdf(pdf_path):
-  try:
-    subprocess.Popen(["pdftotext", "-v"], shell=False, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
-  except:
-    logging.warn("Not processing PDF. Have you installed pdftotext?")
-    return None
+    try:
+        subprocess.Popen(["pdftotext", "-v"], shell=False, stdout=subprocess.PIPE,
+                         stderr=subprocess.STDOUT).communicate()
+    except:
+        logging.warn("Not processing PDF. Have you installed pdftotext?")
+        return None
 
-  real_pdf_path = pdf_path
-  real_text_path = pdf_path.replace(".pdf", ".txt")
+    real_pdf_path = pdf_path
+    real_text_path = pdf_path.replace(".pdf", ".txt")
 
-  try:
-    subprocess.check_call("pdftotext -layout \"%s\" \"%s\"" % (real_pdf_path, real_text_path), shell=True)
-  except subprocess.CalledProcessError as exc:
-    logging.warn("Error extracting text for %s\n" % (real_text_path))
-    return None
+    try:
+        subprocess.check_call("pdftotext -layout \"%s\" \"%s\"" % (real_pdf_path, real_text_path), shell=True)
+    except subprocess.CalledProcessError as exc:
+        logging.warn("Error extracting text for %s\n" % (real_text_path))
+        return None
 
-  if os.path.exists(real_text_path):
-    file_name = os.path.basename(real_text_path)
-    return file_name
-  else:
-    logging.warn("Text not extracted to %s" % real_text_path)
-    return None     
+    if os.path.exists(real_text_path):
+        file_name = os.path.basename(real_text_path)
+        return file_name
+    else:
+        logging.warn("Text not extracted to %s" % real_text_path)
+        return None
+
+    # this is for files mentioned in the xml that do not appear in the meeting packet
 
 
-# this is for files mentioned in the xml that do not appear in the meeting packet
 def save_file(url, event_id):
     # not saving xml but I cold be convinced otherwise
-    if ".xml" in url: return False
+    if ".xml" in url:
+        return False
 
     r = requests.get(url, stream=True)
 
-    if r.status_code == requests.codes.ok: 
+    if r.status_code == requests.codes.ok:
         # find or create directory
-        folder = str(int(event_id)/100)
+        folder = str(int(event_id) / 100)
         output_dir = utils.data_dir() + "/committee/meetings/house/%s/%s" % (folder, event_id)
-        if not os.path.exists(output_dir): os.makedirs(output_dir)
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
         # get file name
         splinter = url.split('/')
         name = splinter[-1]
@@ -656,11 +693,11 @@ def save_file(url, event_id):
     else:
         logging.info("failed to fetch: " + url)
         return False
-            
+
 
 def house_bill_id_formatter(bill_id, congress):
     # make sure there is a number
-    if bill_id == None or bill_id == '':
+    if bill_id is None or bill_id == '':
         return None
     else:
         bill_id = bill_id.strip()
@@ -671,20 +708,14 @@ def house_bill_id_formatter(bill_id, congress):
                 digit = True
             if char.isalpha():
                 alpha = True
-        
-        if digit == False:
+
+        if digit is False:
             return None
         # look for missing hr, though this risks mislabeling continuing and joint resolutions
-        if alpha == False:
+        if alpha is False:
             bill_id = "hr" + bill_id
         else:
             bill_id = bill_id.replace(".", "").replace(" ", "").lower()
-        
+
         bill_id = bill_id + "-" + str(congress)
         return bill_id
-
-
-
-
-
-

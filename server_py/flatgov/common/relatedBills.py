@@ -1,17 +1,15 @@
 import json
-from json import dump
 import sys
 import os
-import argparse
 import logging
 import re
 
-from common.constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
-from common.utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
-from common.billdata import deep_get, billIdToBillNumber, loadJSON, loadDataJSON, loadBillsMeta
-
 from bills.handler import BillDataHandler
 from bills.models import Bill, Cosponsor
+from common.constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
+from common.utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
+from common.billdata import deep_get, billIdToBillNumber, loadDataJSON, loadBillsMeta
+
 
 OF_YEAR_REGEX = re.compile(r'\sof\s[0-9]+$')
 
@@ -29,11 +27,13 @@ def addSimilarTitles(noYearTitlesIndex: dict, billsRelated = {}):
     titleNum = 0
     for title, bills in noYearTitlesIndex.items():
         try:
-            titleNum += 1 
+            titleNum += 1
             logger.info('Adding noYearTitle: ' + title)
             logger.info(str(titleNum) +' of ' + str(totalTitles))
-            relatedBills = { bill: loadRelatedBillJSON(bill) for bill in bills}
-            relatedTitles = { bill: list(filter(lambda titleItem: titleItem.startswith(title), deep_get(BILLS_META, bill, 'titles'))) for bill in bills}
+            relatedBills = {bill: loadRelatedBillJSON(bill) for bill in bills}
+            relatedTitles = {bill: list(filter(
+                lambda titleItem: titleItem.startswith(title), deep_get(BILLS_META, bill, 'titles'))
+            ) for bill in bills}
             for bill_outer in relatedBills:
                 for bill_inner in relatedBills:
                     similarTitle = relatedTitles.get(bill_inner)
@@ -43,11 +43,11 @@ def addSimilarTitles(noYearTitlesIndex: dict, billsRelated = {}):
                         continue
                     # Find a matching item, if any, in the list billsRelated[bill_outer]
                     if not deep_get(relatedBills, bill_outer, 'related', bill_inner):
-                            relatedBills[bill_outer]['related'][bill_inner] = {
-                                'titles_year': [similarTitle] 
-                            }
+                        relatedBills[bill_outer]['related'][bill_inner] = {
+                            'titles_year': [similarTitle]
+                        }
                     elif not deep_get(relatedBills, bill_outer, 'related', bill_inner, 'titles_year'):
-                            relatedBills[bill_outer]['related'][bill_inner]['titles_year'] = [similarTitle]
+                        relatedBills[bill_outer]['related'][bill_inner]['titles_year'] = [similarTitle]
                     else:
                         if similarTitle not in relatedBills[bill_outer]['related'][bill_inner]['titles_year']:
                             try:
@@ -58,9 +58,10 @@ def addSimilarTitles(noYearTitlesIndex: dict, billsRelated = {}):
                         if deep_get(relatedBills, bill_outer, 'related', bill_inner, 'titles_year'):
                             logger.debug(relatedBills[bill_outer]['related'][bill_inner])
                 dumpRelatedBillJSON(bill_outer, relatedBills.get(bill_outer))
-        except Exception as e:
+        except Exception:
             continue
     logger.info('*** Finished Adding NoYear Titles ***')
+
 
 def addSameTitles(titlesIndex: dict):
     for title, bills in titlesIndex.items():
@@ -82,6 +83,7 @@ def addSameTitles(titlesIndex: dict):
                 continue
     logger.info('*** Finished Adding Same Titles ***')
 
+
 def addGPORelatedBills():
     for bill_outer in ALL_BILLS:
         try:
@@ -102,18 +104,16 @@ def addGPORelatedBills():
                 else:
                     billRelated['related'][bill_inner].update(newDict)
             dumpRelatedBillJSON(bill_outer, billRelated)
-        except Exception as e:
+        except Exception:
             continue
 
 
 def addSponsors():
     for bill_outer in ALL_BILLS:
-
         billData = loadDataJSON(bill_outer)
         relatedBill = loadRelatedBillJSON(bill_outer)
-        if not billData or not  relatedBill or not deep_get(billData, 'sponsor'):
+        if not billData or not relatedBill or not deep_get(billData, 'sponsor'):
             continue
-
         sponsorItem = deep_get(billData, 'sponsor')
         cosponsorItems = deep_get(billData, 'cosponsors')
 
@@ -139,15 +139,18 @@ def addSponsors():
             relatedBill['short_title'] = short_title
 
             relatedSponsorItem = deep_get(billInnerData, 'sponsor')
-            if sponsorItem and relatedSponsorItem and sponsorItem.get('bioguide_id') == relatedSponsorItem.get('bioguide_id') and sponsorItem.get('name') == relatedSponsorItem.get('name'):
-                relatedBill['related'][bill_inner]['sponsor'] = relatedSponsorItem 
+            if sponsorItem and relatedSponsorItem and sponsorItem.get('bioguide_id') == relatedSponsorItem.get(
+                    'bioguide_id') and sponsorItem.get('name') == relatedSponsorItem.get('name'):
+                relatedBill['related'][bill_inner]['sponsor'] = relatedSponsorItem
 
             relatedCosponsorItems = deep_get(billInnerData, 'cosponsors')
             if cosponsorItems and relatedCosponsorItems:
                 # Get cosponsorItems where name and bioguide match
-                commonCosponsors = list(filter(lambda item: any(matchItem.get('bioguide_id') == item.get('bioguide_id') and matchItem.get('name') == item.get('name') for matchItem in cosponsorItems), relatedCosponsorItems))
+                commonCosponsors = list(filter(lambda item: any(
+                    matchItem.get('bioguide_id') == item.get('bioguide_id') and matchItem.get('name') == item.get(
+                        'name') for matchItem in cosponsorItems), relatedCosponsorItems))
                 if commonCosponsors:
-                    relatedBill['related'][bill_inner]['cosponsors'] = commonCosponsors 
+                    relatedBill['related'][bill_inner]['cosponsors'] = commonCosponsors
         dumpRelatedBillJSON(bill_outer, relatedBill)
 
         try:
@@ -174,7 +177,7 @@ def addSponsors():
             logger.info(f'Bill - {bill_outer} : {e}.')
 
 
-def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake = False):
+def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake=False):
     if not os.path.isdir(PATH_TO_RELATEDBILLS_DIR):
         os.mkdir(PATH_TO_RELATEDBILLS_DIR)
     logger.info('Adding same titles (in stored json)')

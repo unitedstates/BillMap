@@ -9,14 +9,14 @@ try:
     from flatgovtools.billdata import loadBillsMeta, saveBillsMeta
     from flatgovtools import constants
 except:
-    from .billdata import loadBillsMeta, saveBillsMeta
-    from . import constants
+    from common.billdata import loadBillsMeta, saveBillsMeta
+    from common import constants
 
 
-logging.basicConfig(filename='process_bill_meta.log',
-                    filemode='w', level='INFO')
+logging.basicConfig(filename='process_bill_meta.log', filemode='w', level='INFO')
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.StreamHandler(sys.stdout))
+
 
 def makeTitleIndex():
     billsMeta = loadBillsMeta()
@@ -29,6 +29,7 @@ def makeTitleIndex():
             else:
                 titlesIndex[title] = [key]
     return titlesIndex
+
 
 def makeNoYearTitleIndex():
     billsMeta = loadBillsMeta()
@@ -72,19 +73,21 @@ if __name__ == '__main__':
         "--argument",
         action='store',
         dest='argument',
-        help="sample argument")
+        help="sample argument"
+    )
     parser.add_argument(
         "-v",
         "--verbose",
         dest='verbose',
         help="increase output verbosity",
-        action="store_true")
+        action="store_true"
+    )
     args = parser.parse_args()
 
     # Setup logging
     if args.verbose:
-        loglevel = logging.DEBUG
+        LOGLEVEL = logging.DEBUG
     else:
-        loglevel = logging.INFO
+        LOGLEVEL = logging.INFO
 
-    main(args, loglevel)
+    main(args, LOGLEVEL)

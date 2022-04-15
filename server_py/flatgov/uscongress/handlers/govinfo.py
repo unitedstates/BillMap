@@ -38,17 +38,18 @@
 #   --cached|--force
 #   Always/never use the cache.
 
-from lxml import etree, html
-import glob
 import json
 import re
 import logging
 import os
 import os.path
 import zipfile
-from . import utils
 
+from lxml import etree, html
 import rtyaml
+
+from uscongress.handlers import utils
+
 
 logger = logging.getLogger("update_bill")
 
@@ -75,6 +76,7 @@ def run(options):
     for collection in sorted(options.get("bulkdata", "").split(",")):
         if collection != "":
             update_sitemap(BULKDATA_SITEMAPINDEX_PATTERN.format(collection=collection), None, [], options)
+
 
 def update_sitemap(url, current_lastmod, how_we_got_here, options):
     """Updates the local cache of a sitemap file."""
@@ -174,11 +176,22 @@ def update_sitemap2(url, current_lastmod, how_we_got_here, options, lastmod_cach
             if m:
                 collection = m.group(1)
                 package_name = m.group(2)
-                if options.get("filter") and not re.search(options["filter"], package_name): continue
+                if options.get("filter") and not re.search(options["filter"], package_name):
+                    continue
                 try:
-                    mirror_results = mirror_package(collection, package_name, lastmod, lastmod_cache.setdefault("packages", {}), options)
+                    mirror_results = mirror_package(
+                        collection,
+                        package_name,
+                        lastmod,
+                        lastmod_cache.setdefault("packages", {}),
+                        options
+                    )
                 except:
-                    logging.exception("Error fetching package {} in collection {} from {}.".format(package_name, collection, url))
+                    logging.exception("Error fetching package {} in collection {} from {}.".format(
+                        package_name,
+                        collection,
+                        url
+                    ))
                     mirror_results = []
                 results.extend(mirror_results)
 
@@ -189,11 +202,16 @@ def update_sitemap2(url, current_lastmod, how_we_got_here, options, lastmod_cach
                     raise Exception("Unmatched bulk data file URL (%s) at %s." % (url, "->".join(how_we_got_here)))
                 collection = m.group(1)
                 item_path = m.group(2)
-                if options.get("filter") and not re.search(options["filter"], item_path): continue
+                if options.get("filter") and not re.search(options["filter"], item_path):
+                    continue
                 try:
                     mirror_results = mirror_bulkdata_file(collection, url, item_path, lastmod, options)
                 except:
-                    logging.exception("Error fetching file {} in collection {} from {}.".format(item_path, collection, url))
+                    logging.exception("Error fetching file {} in collection {} from {}.".format(
+                        item_path,
+                        collection,
+                        url
+                    ))
                     mirror_results = None
                 if mirror_results is not None and len(mirror_results) > 0:
                     results = results + mirror_results
@@ -202,6 +220,7 @@ def update_sitemap2(url, current_lastmod, how_we_got_here, options, lastmod_cach
         raise Exception("Unknown sitemap type (%s) at the root sitemap of %s." % (sitemap.tag, url))
 
     return results
+
 
 def should_skip_sitemap(url, options):
     # Don't skip sitemap indexes.
@@ -236,6 +255,7 @@ def should_skip_sitemap(url, options):
 
     return False
 
+
 def get_sitemap_cache_file(url):
     # Where should we store the local cache of the sitemap XML and a file
     # that stores its <lastmod> date for when we last downloaded it? Returns
@@ -258,6 +278,7 @@ def get_sitemap_cache_file(url):
         return m.group(1) + "-bulkdata/" + m.group(2)
 
     raise ValueError(url)
+
 
 def should_download_sitemap(lastmod_cache, current_lastmod, options):
     # Download a sitemap or just read from our cache?
@@ -291,7 +312,7 @@ def mirror_package(collection, package_name, lastmod, lastmod_cache, options):
     # file system layout (for BILLS, we put bill text along where the
     # bills scraper puts bills).
     path = get_output_path(collection, package_name, options)
-    if not path: # should skip
+    if not path:  # should skip
         return []
 
     # Go to the part of the lastmod_cache for this package.
@@ -332,6 +353,7 @@ def mirror_package(collection, package_name, lastmod, lastmod_cache, options):
 
     return downloaded_files
 
+
 def mirror_package_zipfile(collection, package_name, file_path, lastmod, lastmod_cache, options):
     # Do we already have this file updated?
     if lastmod_cache.get("package") == lastmod:
@@ -356,6 +378,7 @@ def mirror_package_zipfile(collection, package_name, file_path, lastmod, lastmod
     lastmod_cache['package'] = lastmod
     return True
 
+
 def extract_package_files(collection, package_name, package_file, lastmod_cache, options):
     # Extract files from the package ZIP file depending on the --extract
     # command-line argument. When extracting a file, mark the extracted
@@ -367,17 +390,18 @@ def extract_package_files(collection, package_name, package_file, lastmod_cache,
     # Make a mapping from file formats to a tuple of the filename found in the package ZIP
     # file and the filename that we will use to store the extracted format locally.
     format_paths = {
-        'pdf': ("{collection}-{package_name}/pdf/{collection}-{package_name}.pdf",  "document.pdf"),
-       'text': ("{collection}-{package_name}/html/{collection}-{package_name}.htm", "document.html"), # text wrapped in HTML!
-        'xml': ("{collection}-{package_name}/xml/{collection}-{package_name}.xml",  "document.xml"),
-       'mods': ("{collection}-{package_name}/mods.xml",                             "mods.xml"),
-     'premis': ("{collection}-{package_name}/premis.xml",                           "premis.xml")
+        'pdf': ("{collection}-{package_name}/pdf/{collection}-{package_name}.pdf", "document.pdf"),
+        # text wrapped in HTML!
+        'text': ("{collection}-{package_name}/html/{collection}-{package_name}.htm", "document.html"),
+        'xml': ("{collection}-{package_name}/xml/{collection}-{package_name}.xml", "document.xml"),
+        'mods': ("{collection}-{package_name}/mods.xml", "mods.xml"),
+        'premis': ("{collection}-{package_name}/premis.xml", "premis.xml")
     }
 
     # Extract only files if the package lastmod is newer than the file's lastmod.
-    extract_formats = { format for format in extract_formats
-        if lastmod_cache.get(format) is None or lastmod_cache[format] < lastmod_cache['package'] }
-    
+    extract_formats = {format for format in extract_formats
+                       if lastmod_cache.get(format) is None or lastmod_cache[format] < lastmod_cache['package']}
+
     # Don't even bother opening the ZIP file if there are no new files to extract.
     if not extract_formats:
         return []
@@ -452,7 +476,11 @@ def get_output_path(collection, package_name, options):
     # The path will depend a bit on the collection.
     if collection == "BILLS":
         # Store with the other bill data ([congress]/bills/[billtype]/[billtype][billnumber]).
-        bill_and_ver = get_bill_id_for_package(package_name, with_version=False, restrict_to_congress=options.get("congress"))
+        bill_and_ver = get_bill_id_for_package(
+            package_name,
+            with_version=False,
+            restrict_to_congress=options.get("congress")
+        )
         if not bill_and_ver:
             return None  # congress number does not match options["congress"]
         from .bills import output_for_bill
@@ -467,8 +495,14 @@ def get_output_path(collection, package_name, options):
         congress, report_type, report_number = m.groups()
         if options.get("congress") and congress != options.get("congress"):
             return None  # congress number does not match options["congress"]
-        return "%s/%s/%s/%s/%s" % (utils.data_dir(), congress, collection.lower(), report_type, report_type + report_number)
-    
+        return "%s/%s/%s/%s/%s" % (
+            utils.data_dir(),
+            congress,
+            collection.lower(),
+            report_type,
+            report_type + report_number
+        )
+
     else:
         # Store in govinfo/COLLECTION/PKGNAME.
         path = "%s/govinfo/%s/%s" % (utils.data_dir(), collection, package_name)
@@ -494,7 +528,10 @@ def mirror_bulkdata_file(collection, url, item_path, lastmod, options):
     # status data.
     if collection == "BILLSTATUS":
         from .bills import output_for_bill
-        bill_id, version_code = get_bill_id_for_package(os.path.splitext(os.path.basename(item_path.replace("BILLSTATUS-", "")))[0], with_version=False)
+        bill_id, version_code = get_bill_id_for_package(
+            os.path.splitext(os.path.basename(item_path.replace("BILLSTATUS-", "")))[0],
+            with_version=False
+        )
         path = output_for_bill(bill_id, FDSYS_BILLSTATUS_FILENAME, is_data_dot=False)
 
     # Where should we store the lastmod found in the sitemap so that
@@ -514,7 +551,7 @@ def mirror_bulkdata_file(collection, url, item_path, lastmod, options):
     logging.warn("Downloading: " + path)
     data = utils.download(url, path, utils.merge(options, {
         'binary': True,
-        'force': True, # decision to cache was made above
+        'force': True,  # decision to cache was made above
         'to_cache': False,
     }))
     results.append(path)
@@ -564,6 +601,14 @@ def extract_bill_version_metadata(package_name, text_path):
         output_for_bill_version(bill_version_id)
     )
 
+
 def output_for_bill_version(bill_version_id):
     bill_type, number, congress, version_code = utils.split_bill_version_id(bill_version_id)
-    return "%s/%s/bills/%s/%s%s/text-versions/%s/data.json" % (utils.data_dir(), congress, bill_type, bill_type, number, version_code)
+    return "%s/%s/bills/%s/%s%s/text-versions/%s/data.json" % (
+        utils.data_dir(),
+        congress,
+        bill_type,
+        bill_type,
+        number,
+        version_code
+    )

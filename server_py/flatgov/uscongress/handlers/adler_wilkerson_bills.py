@@ -6,7 +6,7 @@ import csv
 import zipfile
 import datetime
 
-from . import utils
+from uscongress.handlers import utils
 
 
 def run(options):
@@ -75,9 +75,9 @@ def process_bill(record):
 
         'introduced_at': nullydate(record['IntrDate']),
         'sponsor': int(record['PooleID']) if record['PooleID'] != 'NULL' else None,
-        #'cosponsors': ,
+        # 'cosponsors': ,
 
-        #'actions': ,
+        # 'actions': ,
         'history': {
             'house_passage_result': "pass" if record['PassH'] == '1' else None,
             'senate_passage_result': "pass" if record['PassS'] == '1' else None,
@@ -92,18 +92,18 @@ def process_bill(record):
             'number': int(record['PLawNum']),
         } if record['PLaw'] == '1' else None,  # private laws?
 
-        #'titles': ,
+        # 'titles': ,
         'official_title': record['Title'],
-        #'short_title': ,
-        #'popular_title': ,
+        # 'short_title': ,
+        # 'popular_title': ,
 
-        #'summary': ,
+        # 'summary': ,
         'subjects_top_term': int(record['Major']),
         'subjects': [int(record['Minor'])],
 
-        #'related_bills': ,
-        #'committees': ,
-        #'amendments': ,
+        # 'related_bills': ,
+        # 'committees': ,
+        # 'amendments': ,
 
         # special fields
         'by_request': binary(record['ByReq']),

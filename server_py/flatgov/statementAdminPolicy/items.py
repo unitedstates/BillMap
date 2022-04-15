@@ -5,6 +5,7 @@
 
 import scrapy
 from scrapy_djangoitem import DjangoItem
+
 from bills.models import Statement
 
 

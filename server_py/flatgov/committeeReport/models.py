@@ -1,5 +1,6 @@
 from django.db import models
 
+
 class CommitteeReportScrapyTask(models.Model):
     congress = models.SmallIntegerField()
     created = models.DateTimeField(auto_now_add=True)

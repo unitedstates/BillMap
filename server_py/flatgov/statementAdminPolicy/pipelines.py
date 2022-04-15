@@ -6,7 +6,6 @@
 
 # useful for handling different item types with a single interface
 import requests
-from itemadapter import ItemAdapter
 from django.core.files import File
 from bills.models import Statement
 
@@ -21,7 +20,7 @@ class StatementadminpolicyPipeline:
         try:
             ignore = self.ignore_duplicates(item['link'])
             if not ignore:
-                response = requests.get(item['link'], stream = True)
+                response = requests.get(item['link'], stream=True)
                 statement = Statement(
                     bill_id=str(item['congress']) + str(item['bill_number']).lower(),
                     bill_title=item['link_text'],
@@ -34,9 +33,9 @@ class StatementadminpolicyPipeline:
                         response.raw, name=f"{item['congress']}/{item['bill_number']}/{item['link'].split('/')[-1]}"
                     ),
                 )
-            
+
                 statement.save()
-        except Exception as e:
+        except Exception:
             pass
 
         return item

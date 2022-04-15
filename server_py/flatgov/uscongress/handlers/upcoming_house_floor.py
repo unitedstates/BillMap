@@ -1,19 +1,19 @@
-from . import utils
 import logging
-import sys
 import os
-from datetime import date, datetime
-import time
-from dateutil.relativedelta import relativedelta
-from dateutil.relativedelta import MO
-import lxml
 import json
 import re
 import subprocess
+import time
 
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
+from dateutil.relativedelta import MO
+
+import lxml
 from bs4 import BeautifulSoup
 
-from .bills import output_for_bill
+from uscongress.handlers import utils
+from uscongress.handlers.bills import output_for_bill
 
 # Parsing data from the House' upcoming floor feed, at
 # https://docs.house.gov/floor/
@@ -45,6 +45,7 @@ def run(options):
     # fetch info
     for for_the_week in for_the_weeks:
         run_for_week(for_the_week, options)
+
 
 def run_for_week(for_the_week, options):
     logging.info('Scraping upcoming bills from docs.house.gov/floor for the week of %s...' % for_the_week)
@@ -126,16 +127,19 @@ def fetch_floor_week(for_the_week, options):
             bill['item_type'] = 'draft_bill'
             bill['draft_bill_id'] = draft_bill_id
         else:
-            m = re.match("(Concur(ring)? in )?(?P<type>((the )?(Senate|House) Amendments? (with an amendment )?to )+)(?P<bill>.*)", bill_number, re.I)
+            m = re.match(
+                "(Concur(ring)? in )?(?P<type>((the )?(Senate|House) Amendments? (with an amendment )?to )+)(?P<bill>.*)",
+                bill_number, re.I
+            )
             if m:
-              amendment_type = m.group("type").split("to")[0]
-              if "Senate" in amendment_type and "House" not in amendment_type:
-                  bill['item_type'] = 'senate_amendment'
-              elif "House" in amendment_type and "Senate" not in amendment_type:
-                bill['item_type'] = 'house_amendment'
-              else:
-                raise ValueError(bill_number)
-              bill_number = m.group("bill")
+                amendment_type = m.group("type").split("to")[0]
+                if "Senate" in amendment_type and "House" not in amendment_type:
+                    bill['item_type'] = 'senate_amendment'
+                elif "House" in amendment_type and "Senate" not in amendment_type:
+                    bill['item_type'] = 'house_amendment'
+                else:
+                    raise ValueError(bill_number)
+                bill_number = m.group("bill")
 
             elif re.match("Conference report to accompany ", bill_number, re.I):
                 bill['item_type'] = 'conference_report'
@@ -152,7 +156,6 @@ def fetch_floor_week(for_the_week, options):
             except ValueError:
                 logging.error("Could not parse bill from: %s" % bill_number)
                 continue
-                
 
         bill['files'] = []
         for file in node.xpath('files/file'):
@@ -172,7 +175,8 @@ def fetch_floor_week(for_the_week, options):
             bill['files'].append(file_field)
 
             # now try downloading the file to disk and linking it to the data
-            if not download: continue
+            if not download:
+                continue
             try:
                 file_path = 'upcoming_house_floor/%s/%s' % (for_the_week, filename)
                 try:
@@ -180,52 +184,66 @@ def fetch_floor_week(for_the_week, options):
                 except OSError:
                     pass # directory exists
                 options3 = dict(options)
-                options3["to_cache"] = False # put in the actual specified directory
-                options3["binary"] = True # force binary mode, no file escaping
+                options3["to_cache"] = False  # put in the actual specified directory
+                options3["binary"] = True  # force binary mode, no file escaping
                 utils.download(file_url, os.path.join(utils.data_dir(), file_path), options3)
                 file_field['path'] = file_path
             except IOError:
-                logging.error("Omitting 'path', couldn't download file %s from House floor for the week of %s" % (file_field['url'], for_the_week))
+                logging.error("Omitting 'path', couldn't download file %s from House floor for the week of %s" % (
+                    file_field['url'],
+                    for_the_week
+                ))
                 continue
 
             # if it's a PDF, convert to text and extract XML
             if file_format == "pdf" and file_path.endswith(".pdf"):
                 # extract text
                 text_path = file_path.replace(".pdf", ".txt")
-                if subprocess.call(["pdftotext", "-layout",
-                    os.path.join(utils.data_dir(), file_path),
-                    os.path.join(utils.data_dir(), text_path)],
-                    universal_newlines=True) != 0:
+                if subprocess.call(
+                        [
+                            "pdftotext",
+                            "-layout",
+                            os.path.join(utils.data_dir(), file_path),
+                            os.path.join(utils.data_dir(), text_path)
+                        ],
+                        universal_newlines=True) != 0:
                     raise Exception("pdftotext failed on %s" % file_path)
                 file_field['text_path'] = text_path
 
                 # extract embedded XML
-                for line in subprocess.check_output(["pdfdetach", "-list",
-                    os.path.join(utils.data_dir(), file_path)],
-                    universal_newlines=True).split("\n"):
+                for line in subprocess.check_output(
+                        [
+                            "pdfdetach",
+                            "-list",
+                            os.path.join(utils.data_dir(), file_path)
+                        ],
+                        universal_newlines=True).split("\n"):
                     m = re.match(r"(\d+):\s*(.*)", line)
                     if m:
                         attachment_n, attachment_fn = m.groups()
                         if attachment_fn.endswith(".xml"):
                             text_path = file_path.replace(".pdf", ".xml")
                             subprocess.check_call(["pdfdetach",
-                                os.path.join(utils.data_dir(), file_path),
-                                "-save", attachment_n, "-o",
-                                os.path.join(utils.data_dir(), text_path)],
-                                universal_newlines=True)
+                                                   os.path.join(utils.data_dir(), file_path),
+                                                   "-save", attachment_n, "-o",
+                                                   os.path.join(utils.data_dir(), text_path)],
+                                                  universal_newlines=True)
                             file_field['xml_path'] = text_path
 
         upcoming.append(bill)
 
         if "bill_id" in bill:
-	        # Save this bill data to the bill's bill text directory.
-	        text_data_path = output_for_bill(bill['bill_id'], os.path.join("text-versions", "dhg-" + bill["floor_item_id"] + ".json"), is_data_dot=False)
-	        try:
-	            os.makedirs(os.path.join(utils.data_dir(), os.path.dirname(text_data_path)))
-	        except OSError:
-	            pass # directory exists
-        	utils.write(json.dumps(bill, sort_keys=True, indent=2, default=utils.format_datetime), text_data_path)
-
+            # Save this bill data to the bill's bill text directory.
+            text_data_path = output_for_bill(
+                bill['bill_id'],
+                os.path.join("text-versions", "dhg-" + bill["floor_item_id"] + ".json"),
+                is_data_dot=False
+            )
+            try:
+                os.makedirs(os.path.join(utils.data_dir(), os.path.dirname(text_data_path)))
+            except OSError:
+                pass  # directory exists
+            utils.write(json.dumps(bill, sort_keys=True, indent=2, default=utils.format_datetime), text_data_path)
 
     # Create and return the house floor file data.
     house_floor = {
@@ -233,7 +251,6 @@ def fetch_floor_week(for_the_week, options):
         'week_of': legislative_day,
         'upcoming': upcoming
     }
-
 
     return house_floor
 
@@ -262,6 +279,7 @@ def get_latest_monday(options):
 
     return week
 
+
 def get_mondays_to_scan(options):
     # Get the week currently linked on docs.house.gov. If there isn't any (e.g. we are between
     # sessions), just return an empty list of weeks to scan.
@@ -276,7 +294,8 @@ def get_mondays_to_scan(options):
 
 def bill_id_for(bill_number, congress):
     number = bill_number.replace('.', '').replace(' ', '').lower()
-    if not re.match(r"^(hr|s|hres|sres|hjres|sjres|hconres|sconres)\d{1,4}$", number): raise ValueError(number)
+    if not re.match(r"^(hr|s|hres|sres|hjres|sjres|hconres|sconres)\d{1,4}$", number):
+        raise ValueError(number)
     return "%s-%i" % (number, congress)
 
 

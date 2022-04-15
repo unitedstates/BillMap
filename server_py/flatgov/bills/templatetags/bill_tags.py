@@ -9,6 +9,7 @@ def check_bill(bill_number: str, congress: int):
         return True
     return False
 
+
 @register.simple_tag
 def check_billnumbers_congress(bill_numbers: list, congress: int):
-    return any( check_bill(bill_number, congress) for bill_number in bill_numbers)
+    return any(check_bill(bill_number, congress) for bill_number in bill_numbers)

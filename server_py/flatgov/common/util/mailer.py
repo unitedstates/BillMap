@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.core.mail import EmailMessage, send_mail as email_send
+from django.core.mail import EmailMessage
 
 
 def send_mail(subject, to_email_list, body):

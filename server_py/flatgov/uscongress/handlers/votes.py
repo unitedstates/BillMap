@@ -1,17 +1,16 @@
-from . import utils
 import json
-from iso8601 import iso8601
-import datetime
 import os
 import os.path
 import re
 import urllib.parse
-import time
 import datetime
-from lxml import html, etree
 import logging
 
-from . import vote_info
+from iso8601 import iso8601
+from lxml import html, etree
+
+from uscongress.handlers import utils
+from uscongress.handlers import vote_info
 
 
 def run(options):
@@ -38,7 +37,11 @@ def run(options):
         elif chamber == "senate":
             to_fetch = vote_ids_for_senate(congress, session_year, options)
         else:
-            to_fetch = (vote_ids_for_house(congress, session_year, options) or []) + (vote_ids_for_senate(congress, session_year, options) or [])
+            to_fetch = (vote_ids_for_house(
+                congress, session_year, options
+            ) or []) + (vote_ids_for_senate(
+                congress, session_year, options
+            ) or [])
 
         if not to_fetch:
             if not options.get("fast", False):

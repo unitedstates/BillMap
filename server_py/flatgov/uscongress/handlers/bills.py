@@ -1,13 +1,13 @@
 import json
 import logging
 import os
-import re
 import xmltodict
 
-from . import bill_info
-from . import amendment_info
-from . import govinfo
-from . import utils
+from uscongress.handlers import amendment_info
+from uscongress.handlers import bill_info
+from uscongress.handlers import govinfo
+from uscongress.handlers import utils
+
 
 def run(options):
     bill_id = options.get('bill_id', None)
@@ -84,18 +84,21 @@ def get_bills_to_process(options):
             bills = [bill for bill in os.listdir(get_data_path(congress, bill_type)) if not bill.startswith(".")]
             for bill_type_and_number in sorted(
                 bills,
-                key = lambda x : int(x.replace(bill_type, ""))
-                ):
+                key=lambda x: int(x.replace(bill_type, ""))
+            ):
 
                 fn = get_data_path(congress, bill_type, bill_type_and_number, govinfo.FDSYS_BILLSTATUS_FILENAME)
                 if os.path.exists(fn):
                     # The GovInfo.gov bulk data file exists. Does our JSON data
                     # file need to be updated?
                     bulkfile_lastmod = utils.read(fn.replace(".xml", "-lastmod.txt"))
-                    parse_lastmod = utils.read(get_data_path(congress, bill_type, bill_type_and_number, "data-fromfdsys-lastmod.txt"))
+                    parse_lastmod = utils.read(
+                        get_data_path(congress, bill_type, bill_type_and_number, "data-fromfdsys-lastmod.txt")
+                    )
                     if bulkfile_lastmod != parse_lastmod or options.get("force"):
                         bill_id = bill_type_and_number + "-" + congress
                         yield bill_id
+
 
 def process_bill(bill_id, options):
     fdsys_xml_path = _path_to_billstatus_file(bill_id)
@@ -134,12 +137,15 @@ def process_bill(bill_id, options):
         "saved": True,
     }
 
+
 def _path_to_billstatus_file(bill_id):
     return output_for_bill(bill_id, govinfo.FDSYS_BILLSTATUS_FILENAME, is_data_dot=False)
+
 
 def read_fdsys_bulk_bill_status_file(fn, bill_id):
     fdsys_billstatus = utils.read(fn)
     return xmltodict.parse(fdsys_billstatus, force_list=('item', 'amendment', 'committeeReport', 'link'))
+
 
 def form_bill_json_dict(xml_as_dict):
     """
@@ -154,12 +160,21 @@ def form_bill_json_dict(xml_as_dict):
     bill_dict = xml_as_dict['billStatus']['bill']
     bill_id = build_bill_id(bill_dict['billType'].lower(), bill_dict['billNumber'], bill_dict['congress'])
     titles = bill_info.titles_for(bill_dict['titles']['item'])
-    actions = bill_info.actions_for(bill_dict['actions']['item'], bill_id, bill_info.current_title_for(titles, 'official'))
+    actions = bill_info.actions_for(
+        bill_dict['actions']['item'],
+        bill_id,
+        bill_info.current_title_for(titles, 'official')
+    )
     status, status_date = bill_info.latest_status(actions, bill_dict.get('introducedDate', ''))
 
     if bill_dict['sponsors'] is None and bill_dict['titles']['item'][0]['title'].startswith("Reserved "):
-        logging.info("[%s] Skipping reserved bill number with no sponsor (%s)" % (bill_id, bill_dict['titles']['item'][0]['title']))
-        return bill_dict['titles']['item'][0]['title'] # becomes the 'reason'
+        logging.info(
+            "[%s] Skipping reserved bill number with no sponsor (%s)" % (
+                bill_id,
+                bill_dict['titles']['item'][0]['title']
+            )
+        )
+        return bill_dict['titles']['item'][0]['title']  # becomes the 'reason'
 
     if bill_dict.get('sponsors') and bill_dict['sponsors'].get('item') and len(bill_dict['sponsors']['item']) > 0:
         sponsor = bill_info.sponsor_for(bill_dict['sponsors']['item'][0])
@@ -173,27 +188,21 @@ def form_bill_json_dict(xml_as_dict):
         'bill_type': bill_dict.get('billType').lower(),
         'number': bill_dict.get('billNumber'),
         'congress': bill_dict.get('congress'),
-
         'url': billstatus_url_for(bill_id),
-
         'introduced_at': bill_dict.get('introducedDate', ''),
         'by_request': byRequestTypeExists,
         'sponsor': sponsor, 
         'cosponsors': bill_info.cosponsors_for(bill_dict['cosponsors']),
-
         'actions': actions,
         'history': bill_info.history_from_actions(actions),
         'status': status,
         'status_at': status_date,
         'enacted_as': bill_info.slip_law_from(actions),
-
         'titles': titles,
         'official_title': bill_info.current_title_for(titles, 'official'),
         'short_title': bill_info.current_title_for(titles, 'short'),
         'popular_title': bill_info.current_title_for(titles, 'popular'),
-
         'summary': bill_info.summary_for(bill_dict['summaries']['billSummaries']),
-
         # The top term's case has changed with the new bulk data. It's now in
         # Title Case. For backwards compatibility, the top term is run through
         # '.capitalize()' so it matches the old string. TODO: Remove one day?
@@ -201,30 +210,37 @@ def form_bill_json_dict(xml_as_dict):
         'subjects':
             sorted(
                 ([_fixup_top_term_case(bill_dict['policyArea']['name'])] if bill_dict['policyArea'] else []) +
-                ([item['name'] for item in bill_dict['subjects']['billSubjects']['legislativeSubjects']['item']] if bill_dict['subjects']['billSubjects']['legislativeSubjects'] else [])
+                ([item['name'] for item in bill_dict['subjects']['billSubjects']['legislativeSubjects']['item']] if
+                 bill_dict['subjects']['billSubjects']['legislativeSubjects'] else [])
             ),
-
         'related_bills': bill_info.related_bills_for(bill_dict['relatedBills']),
         'committees': bill_info.committees_for(bill_dict['committees']['billCommittees']),
         'amendments': bill_info.amendments_for(bill_dict['amendments']),
         'committee_reports': bill_info.committee_reports_for(bill_dict['committeeReports']),
-
         'updated_at': bill_dict.get('updateDate', ''),
     }
 
     return bill_data
+
 
 def _fixup_top_term_case(term):
     if term in ("Native Americans",):
         return term
     return term.capitalize()
 
+
 def build_bill_id(bill_type, bill_number, congress):
     return "%s%s-%s" % (bill_type, bill_number, congress)
 
+
 def billstatus_url_for(bill_id):
     bill_type, bill_number, congress = utils.split_bill_id(bill_id)
-    return govinfo.BULKDATA_BASE_URL + 'BILLSTATUS/{0}/{1}/BILLSTATUS-{0}{1}{2}.xml'.format(congress, bill_type, bill_number)
+    return govinfo.BULKDATA_BASE_URL + 'BILLSTATUS/{0}/{1}/BILLSTATUS-{0}{1}{2}.xml'.format(
+        congress,
+        bill_type,
+        bill_number
+    )
+
 
 def output_for_bill(bill_id, format, is_data_dot=True):
     bill_type, number, congress = utils.split_bill_id(bill_id)
@@ -234,6 +250,7 @@ def output_for_bill(bill_id, format, is_data_dot=True):
         fn = format
     return "%s/%s/bills/%s/%s%s/%s" % (utils.data_dir(), congress, bill_type, bill_type, number, fn)
 
+
 def process_amendments(bill_id, bill_amendments, options):
     amdt_list = bill_amendments['billStatus']['bill']['amendments']
     if amdt_list is None:  # many bills don't have amendments
@@ -241,6 +258,7 @@ def process_amendments(bill_id, bill_amendments, options):
 
     for amdt in amdt_list['amendment']:
         amendment_info.process_amendment(amdt, bill_id, options)
+
 
 def reparse_actions(bill_id, options):
     # Load an existing bill status JSON file.
@@ -253,15 +271,29 @@ def reparse_actions(bill_id, options):
     title = bill_info.current_title_for(bill_data['titles'], 'official')
     old_status = None
     for action in bill_data['actions']:
-      new_action, new_status = parse_bill_action(action, old_status, bill_id, title)
-      if new_status:
-        old_status = new_status
-        action['status'] = new_status
-      # clear out deleted keys
-      for key in ('vote_type', 'how', 'where', 'result', 'roll', 'suspension', 'calendar', 'under', 'number', 'committee', 'pocket', 'law', 'congress'):
-        if key in action and key not in new_action:
-          del action['key']
-      action.update(new_action)
+        new_action, new_status = parse_bill_action(action, old_status, bill_id, title)
+        if new_status:
+            old_status = new_status
+            action['status'] = new_status
+        # clear out deleted keys
+        for key in (
+                'vote_type',
+                'how',
+                'where',
+                'result',
+                'roll',
+                'suspension',
+                'calendar',
+                'under',
+                'number',
+                'committee',
+                'pocket',
+                'law',
+                'congress'
+        ):
+            if key in action and key not in new_action:
+                del action['key']
+        action.update(new_action)
 
     status, status_date = bill_info.latest_status(bill_data['actions'], bill_data['introduced_at'])
     bill_data['status'] = status
@@ -269,12 +301,14 @@ def reparse_actions(bill_id, options):
 
     # Show user a diff on the console to accept changes.
     def show_diff_ask_ok(source, revised, fn):
-      if source == revised: return False # nothing to do
-      def split_lines(s): return [l+"\n" for l in s.split("\n")]
-      import sys
-      from difflib import unified_diff
-      sys.stdout.writelines(unified_diff(split_lines(source), split_lines(revised), fromfile=fn, tofile=fn))
-      return input("Apply change? (y/n) ").strip() == "y"
+        if source == revised: return False  # nothing to do
+
+        def split_lines(s): return [l + "\n" for l in s.split("\n")]
+
+        import sys
+        from difflib import unified_diff
+        sys.stdout.writelines(unified_diff(split_lines(source), split_lines(revised), fromfile=fn, tofile=fn))
+        return input("Apply change? (y/n) ").strip() == "y"
 
     wrote_any = False
 
@@ -291,9 +325,9 @@ def reparse_actions(bill_id, options):
         source = xml_file.read()
     revised = create_govtrack_xml(bill_data, options)
     if show_diff_ask_ok(source, revised.decode("utf8"), data_xml_fn):
-      with open(data_xml_fn, 'wb') as xml_file:
-        xml_file.write(revised)
-      wrote_any = True
+        with open(data_xml_fn, 'wb') as xml_file:
+            xml_file.write(revised)
+        wrote_any = True
 
     return {
         "ok": True,

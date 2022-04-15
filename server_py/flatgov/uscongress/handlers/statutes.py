@@ -57,16 +57,16 @@
 import logging
 import time
 import datetime
-from lxml import etree
 import glob
 import json
 import os.path
 import subprocess
+from lxml import etree
 
-from . import utils
-from . import bill_info
-from . import bill_versions
-from . import fdsys
+from uscongress.handlers import utils
+from uscongress.handlers import bill_info
+from uscongress.handlers import bill_versions
+from uscongress.handlers import fdsys
 
 
 def run(options):
@@ -110,7 +110,8 @@ def proc_statute_volume(path, options):
     for bill in mods.findall("/mods:relatedItem", mods_ns):
         # MODS files also contain information about:
         # ['BACKMATTER', 'FRONTMATTER', 'CONSTAMEND', 'PROCLAMATION', 'REORGPLAN']
-        if bill.find("mods:extension/mods:granuleClass", mods_ns).text not in ["PUBLICLAW", "PRIVATELAW", "HCONRES", "SCONRES"]:
+        if bill.find("mods:extension/mods:granuleClass", mods_ns).text not in \
+                ["PUBLICLAW", "PRIVATELAW", "HCONRES", "SCONRES"]:
             continue
 
         # Get the title and source URL (used in error messages).
@@ -135,13 +136,12 @@ def proc_statute_volume(path, options):
             bill_id = "%s%s-%s" % (bill_type, bill_number, bill_congress)
 
         # Title
-        titles = []
-        titles.append({
+        titles = [{
             "title": title_text,
             "as": "enacted",
             "type": "official",
             "is_for_portion": False,
-        })
+        }]
 
         # Subject
         descriptor = bill.find("mods:extension/mods:descriptor", mods_ns)
@@ -155,7 +155,8 @@ def proc_statute_volume(path, options):
         cong_committee = bill.find("mods:extension/mods:congCommittee", mods_ns)
         if cong_committee is not None:
             chambers = {"H": "House", "S": "Senate", "J": "Joint"}
-            committee = chambers[cong_committee.attrib["chamber"]] + " " + cong_committee.find("mods:name", mods_ns).text
+            committee = chambers[cong_committee.attrib["chamber"]] + " " + cong_committee.find("mods:name",
+                                                                                               mods_ns).text
             committee_info = {
                 "committee": committee,
                 "activity": [],  # XXX
@@ -201,7 +202,13 @@ def proc_statute_volume(path, options):
 
             # Check for typos in the metadata.
             if law_congress != bill_congress:
-                logging.error("Congress mismatch for %s%s: %s or %s? (%s)" % (bill_type, bill_number, bill_congress, law_congress, source_url))
+                logging.error("Congress mismatch for %s%s: %s or %s? (%s)" % (
+                    bill_type,
+                    bill_number,
+                    bill_congress,
+                    law_congress,
+                    source_url
+                ))
                 continue
 
             actions = [{
@@ -222,29 +229,23 @@ def proc_statute_volume(path, options):
             'bill_type': bill_type,
             'number': bill_number,
             'congress': bill_congress,
-
             'introduced_at': None,  # XXX
             'sponsor': None,  # XXX
             'cosponsors': [],  # XXX
-
             'actions': actions,  # XXX
             'history': bill_info.history_from_actions(actions),
             'status': status,
             'status_at': status_date,
             'enacted_as': bill_info.slip_law_from(actions),
-
             'titles': titles,
             'official_title': bill_info.current_title_for(titles, "official"),
             'short_title': bill_info.current_title_for(titles, "short"),  # XXX
             'popular_title': bill_info.current_title_for(titles, "popular"),  # XXX
-
             'subjects_top_term': subject,
             'subjects': [],
-
             'related_bills': [],  # XXX: <associatedBills> usually only lists the current bill.
             'committees': committees,
             'amendments': [],  # XXX
-
             'sources': sources,
             'updated_at': datetime.datetime.fromtimestamp(time.time()),
         }

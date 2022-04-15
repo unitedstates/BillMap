@@ -1,9 +1,9 @@
-from events.models import Event, SourceArchive
-from dateutil.rrule import *
-from common.utils import set_eastern_timezone
-
-import icalendar
 import datetime
+import icalendar
+
+from common.utils import set_eastern_timezone
+from events.models import Event
+
 
 def process_ical(source):
     print("Processing ical: " + source.name)
@@ -15,7 +15,7 @@ def process_ical(source):
     cal = icalendar.Calendar.from_ical(source.content)
 
     for vevent in cal.walk('vevent'):
-        summary = (vevent.get('summary'),"")[not vevent.get('summary')]
+        summary = (vevent.get('summary'), "")[not vevent.get('summary')]
         description = (vevent.get('description'), "")[not vevent.get('description')]
         location = (vevent.get('location'), "")[not vevent.get('location')]
 
@@ -41,16 +41,16 @@ def process_ical(source):
                 existingEvent = False
 
             if existingEvent:
-                #print("Updating event: " + eventId)
-                existingEvent.sourceId=source.id
-                existingEvent.title=summary
-                existingEvent.description=description
-                existingEvent.notes=location
-                existingEvent.allDay=allDay
-                existingEvent.className=className
-                existingEvent.start=startdate
-                existingEvent.end=enddate
-                existingEvent.chamber=chamber
+                # print("Updating event: " + eventId)
+                existingEvent.sourceId = source.id
+                existingEvent.title = summary
+                existingEvent.description = description
+                existingEvent.notes = location
+                existingEvent.allDay = allDay
+                existingEvent.className = className
+                existingEvent.start = startdate
+                existingEvent.end = enddate
+                existingEvent.chamber = chamber
 
                 existingEvent.save(update_fields=['sourceId',
                                                   'title',
@@ -62,7 +62,7 @@ def process_ical(source):
                                                   'end',
                                                   'chamber'])
             else:
-                #print("Creating event: " + eventId)
+                # print("Creating event: " + eventId)
                 Event.objects.create(
                     sourceName=source.name,
                     sourceId=source.id,

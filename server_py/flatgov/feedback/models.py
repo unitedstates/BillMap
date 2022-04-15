@@ -1,5 +1,4 @@
 from django.db import models
-#from django.urls import reverse, reverse_lazy
 from rest_framework.reverse import reverse
 
 
@@ -13,5 +12,4 @@ class Feedback(models.Model):
         return f'{self.is_helpful} {self.created_at}'
 
     def get_admin_url(self):
-        return reverse('admin:%s_%s_change' % (self._meta.app_label, self._meta.model_name),
-                    args=[self.id])
+        return reverse('admin:%s_%s_change' % (self._meta.app_label, self._meta.model_name), args=[self.id])

@@ -1,18 +1,18 @@
-from events.models import Event, SourceArchive
-from dateutil.rrule import *
-from urllib.request import Request
-from email.utils import parsedate
-from time import mktime
-from common.utils import set_eastern_timezone
-
-import urllib.request
-import re
-import lxml.etree
 import datetime
+import re
+import urllib.request
+from urllib.request import Request
+
+from email.utils import parsedate
+import lxml.etree
+from time import mktime
+
+from common.utils import set_eastern_timezone
+from events.models import Event
+
 
 def process_html_house_committee(source):
     print("Processing html house committee schedule data: " + source.name)
-
     # go through each committee option
     for cmteCode in re.findall(r'<option value="(....)">', source.content):
 
@@ -57,6 +57,7 @@ def process_html_house_committee(source):
     print("End processing html house committee schedule data: " + source.name)
     return
 
+
 def process_xml_house_committee_event(source, xmlUrl, event_id):
     try:
         with urllib.request.urlopen(Request(xmlUrl,
@@ -67,7 +68,8 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
 
         try:
             congress = int(dom.xpath("//@congress-num")[0])
-            occurs_at = dom.xpath("string(meeting-details/meeting-date/calendar-date)") + " " + dom.xpath("string(meeting-details/meeting-date/start-time)")
+            occurs_at = dom.xpath("string(meeting-details/meeting-date/calendar-date)") + " " + dom.xpath(
+                "string(meeting-details/meeting-date/start-time)")
             start = set_eastern_timezone(datetime.datetime.strptime(occurs_at, "%Y-%m-%d %H:%M:%S"))
 
             end = start + datetime.timedelta(hours=1)
@@ -140,19 +142,21 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
 
                 if existingEvent:
                     #print("Updating event: " + event_id)
-                    existingEvent.sourceId=source.id
-                    existingEvent.title=topic
-                    existingEvent.description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills),
-                    existingEvent.notes=notes
-                    existingEvent.allDay=False
-                    existingEvent.className="event-house-committee"
-                    existingEvent.start=start
-                    existingEvent.end=end
-                    existingEvent.type=type,
-                    existingEvent.chamber="house",
-                    existingEvent.referenceUrl = xmlUrl,
-                    existingEvent.committee=c.text,
-                    existingEvent.committeeCode=c.get("id")
+                    existingEvent.sourceId = source.id
+                    existingEvent.title = topic
+                    existingEvent.description = "{} Congress meeting in {} to discuss {} {}".format(
+                        congress, room, topic, bills
+                    )
+                    existingEvent.notes = notes
+                    existingEvent.allDay = False
+                    existingEvent.className = "event-house-committee"
+                    existingEvent.start = start
+                    existingEvent.end = end
+                    existingEvent.type = type
+                    existingEvent.chamber = "house"
+                    existingEvent.referenceUrl = xmlUrl
+                    existingEvent.committee = c.text
+                    existingEvent.committeeCode = c.get("id")
 
                     existingEvent.save(update_fields=['sourceId',
                                                       'title',
@@ -168,7 +172,7 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
                                                       'committee',
                                                       'committeeCode'])
                 else:
-                    #print("Creating event: " + event_id)
+                    # print("Creating event: " + event_id)
                     Event.objects.create(
                         sourceName=source.name,
                         sourceId=source.id,
@@ -183,31 +187,37 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
                         subcommittee=sc.text,
                         start=start,
                         end=end,
-                        type = type,
-                        referenceUrl = xmlUrl,
+                        type=type,
+                        referenceUrl=xmlUrl,
                         allDay=False)
 
             if not sc_exists:
                 existingEvent = False
                 try:
-                    existingEvent = Event.objects.get(sourceName=source.name, eventId=event_id, committeeCode=c.get("id"))
+                    existingEvent = Event.objects.get(
+                        sourceName=source.name,
+                        eventId=event_id,
+                        committeeCode=c.get("id")
+                    )
                 except:
                     existingEvent = False
 
                 if existingEvent:
-                    #print("Updating event: " + event_id)
-                    existingEvent.sourceId=source.id
-                    existingEvent.title=topic
-                    existingEvent.description="{} Congress meeting in {} to discuss {} {}".format(congress, room, topic, bills)
-                    existingEvent.notes=notes
-                    existingEvent.allDay=False
-                    existingEvent.className="event-house-committee"
-                    existingEvent.start=start
-                    existingEvent.end=end
-                    existingEvent.type=type
-                    existingEvent.chamber="house"
+                    # print("Updating event: " + event_id)
+                    existingEvent.sourceId = source.id
+                    existingEvent.title = topic
+                    existingEvent.description = "{} Congress meeting in {} to discuss {} {}".format(
+                        congress, room, topic, bills
+                    )
+                    existingEvent.notes = notes
+                    existingEvent.allDay = False
+                    existingEvent.className = "event-house-committee"
+                    existingEvent.start = start
+                    existingEvent.end = end
+                    existingEvent.type = type
+                    existingEvent.chamber = "house"
                     existingEvent.referenceUrl = xmlUrl
-                    existingEvent.committee=c.text
+                    existingEvent.committee = c.text
 
                     existingEvent.save(update_fields=['sourceId',
                                                       'title',
@@ -222,7 +232,7 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
                                                       'referenceUrl',
                                                       'committee'])
                 else:
-                    #print("Creating event: " + event_id)
+                    # print("Creating event: " + event_id)
                     Event.objects.create(
                         sourceName=source.name,
                         sourceId=source.id,
@@ -236,17 +246,18 @@ def process_xml_house_committee_event(source, xmlUrl, event_id):
                         committeeCode=c.get("id"),
                         start=start,
                         end=end,
-                        type = type,
-                        referenceUrl = xmlUrl,
+                        type=type,
+                        referenceUrl=xmlUrl,
                         allDay=False)
 
     except Exception as e:
         print("Error parsing " + xmlUrl + " " + str(e))
     return
 
+
 def house_bill_id_formatter(bill_id, congress):
     # make sure there is a number
-    if bill_id == None or bill_id == '':
+    if bill_id is None or bill_id == '':
         return None
     else:
         bill_id = bill_id.strip()
@@ -258,10 +269,10 @@ def house_bill_id_formatter(bill_id, congress):
             if char.isalpha():
                 alpha = True
 
-        if digit == False:
+        if digit is False:
             return None
         # look for missing hr, though this risks mislabeling continuing and joint resolutions
-        if alpha == False:
+        if alpha is False:
             bill_id = "hr" + bill_id
         else:
             bill_id = bill_id.replace(".", "").replace(" ", "").lower()

@@ -1,10 +1,17 @@
 import os
-from typing import Optional
-from common.billdata import updateBillModelFields
-from common import constants
 import subprocess
 import shutil
-from celery import shared_task, current_app
+import traceback
+
+from typing import Optional
+from celery import shared_task
+from django.conf import settings
+
+from common import constants
+from common.constants import BILLMETA_GO_CMD, ESQUERY_GO_CMD
+from common.billdata import saveBillsMeta, updateBillMetaToDbAll, updateBillModelFields
+from common.process_bill_meta import makeAndSaveTitlesIndex
+from common.elastic_load import refreshIndices
 from uscongress.models import UscongressUpdateJob
 from uscongress.handlers import govinfo, bills
 from uscongress.helper import (
@@ -13,18 +20,7 @@ from uscongress.helper import (
     update_bills_meta,
     es_similarity_bill,
 )
-from common.billdata import saveBillsMeta, updateBillMetaToDbAll, saveBillsMetaToDb
-from common.process_bill_meta import makeAndSaveTitlesIndex
-from common.elastic_load import ( 
-    refreshIndices,
-    runQuery,
-    getResultBillnumbers,
-    getInnerResults,
-)
 
-from django.conf import settings
-from common.constants import BILLMETA_GO_CMD, ESQUERY_GO_CMD
-import traceback
 
 GOVINFO_OPTIONS = {
     "collections": "BILLS",
@@ -45,11 +41,11 @@ def update_bill_task(self):
         govinfo.run(GOVINFO_OPTIONS)
         history.fdsys_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['fdsys_status'])
-    except Exception as e:
+    except Exception:
         history.fdsys_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['fdsys_status'])
     try:
-        # Creates data.json from the downloaded files 
+        # Creates data.json from the downloaded files
         # The bills.py file is copied from the uscongress repository
         processed = bills.run(BILLS_OPTIONS)
         print('processed from bills.run:')
@@ -65,8 +61,8 @@ def update_bill_task(self):
         history.save(update_fields=['data_status'])
     return history.id
 
-def update_bills_meta_go():
 
+def update_bills_meta_go():
     print('Starting update_bills_meta_go')
     subprocess.run([BILLMETA_GO_CMD, '-p', settings.BASE_DIR])
     # Update only the current Congress metadata
@@ -77,7 +73,8 @@ def update_bills_meta_go():
     rootDir = os.path.join(constants.PATH_TO_CONGRESSDATA_DIR)
     print('Starting updateBillMetaToDbAll')
     updateBillMetaToDbAll(rootDir)
-    #saveBillsMetaToDb()
+    # saveBillsMetaToDb()
+
 
 def es_similarity_go(congress: Optional[str] = None):
     if congress:
@@ -87,7 +84,6 @@ def es_similarity_go(congress: Optional[str] = None):
         print('Starting es_similarity_go for all congresses')
         subprocess.run([ESQUERY_GO_CMD, '-p', settings.BASE_DIR, '-save'])
 
-   
 
 @shared_task(bind=True)
 def bill_data_task(self, pk):
@@ -139,7 +135,7 @@ def related_bill_task(self, pk):
             print("Skipping this task; this was done by the update_bills_meta_go process")
         history.related_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['related_status'])
-    except Exception as e:
+    except Exception:
         history.related_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['related_status'])
 
@@ -153,7 +149,7 @@ def elastic_load_task(self, pk):
         for bill_id in history.saved:
             res = es_index_bill(bill_id)
         refreshIndices()
-        # These functions get a list of new bills indexed in Elasticsearch 
+        # These functions get a list of new bills indexed in Elasticsearch
         # TODO: save these (or the total number) as is done in update_bill_task
         # res = runQuery()
         # billnumbers = getResultBillnumbers(res)
@@ -182,12 +178,12 @@ def bill_similarity_task(self, pk):
             # Saves the results to a number of files
             # Then saves those files to the database
             # It takes about 2.5 hours (150 minutes) for all bills in the Congress
-            # We could process only new bills, 
+            # We could process only new bills,
             # but then would not have similarity measures for previous bills that include the new ones
             es_similarity_go(str(constants.CURRENT_CONGRESS))
         history.similarity_status = UscongressUpdateJob.SUCCESS
         history.save(update_fields=['similarity_status'])
-    except Exception as e:
+    except Exception:
         history.similarity_status = UscongressUpdateJob.FAILED
         history.save(update_fields=['similarity_status'])
     # Processes saved files for each bill and saves to database

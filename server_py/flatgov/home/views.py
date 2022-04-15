@@ -1,37 +1,35 @@
-import os
-from django.db.models.expressions import Value
-
-from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
-from django.db.models.functions import Concat
+from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import TemplateView
 
-from common.constants import START_CONGRESS, CURRENT_CONGRESS
-
-from home.forms import QueryForm
 from bills.models import Bill
-from .models import AboutPage
+from common.constants import START_CONGRESS, CURRENT_CONGRESS
+from home.forms import QueryForm
+from home.models import AboutPage
+
 
 def index(request):
     return HttpResponse("Hello, world. You're at the home index.")
+
 
 def home_view(request):
     if request.method == "POST":
         form = QueryForm(request.POST)
         if form.is_valid():
             cd = form.cleaned_data
-            #now in the object cd, you have the form as a dictionary.
+            # now in the object cd, you have the form as a dictionary.
             queryText = cd.get('queryText')
         else:
             queryText = ''
-        request.session['queryText'] = queryText 
+        request.session['queryText'] = queryText
         return redirect('/bills/similar')
     else:
         form = QueryForm()
-    
-    context = {'form': form, 'congressrange': list(reversed(list(range(START_CONGRESS, CURRENT_CONGRESS +1))))}
+
+    context = {'form': form, 'congressrange': list(reversed(list(range(START_CONGRESS, CURRENT_CONGRESS + 1))))}
     return render(request, 'home/home.html', context)
+
 
 class AboutView(TemplateView):
     template_name = 'home/about.html'
@@ -43,14 +41,14 @@ class AboutView(TemplateView):
 
 
 class BillListAPIView(View):
-    
+
     def get(self, request):
-        bills = Bill.objects.values_list('bill_congress_type_number', flat=True) \
-            .order_by('bill_congress_type_number')
+        bills = Bill.objects.values_list('bill_congress_type_number', flat=True).order_by('bill_congress_type_number')
         return JsonResponse({"bill_list": list(reversed(bills))})
 
+
 class BillListTitleAPIView(View):
-    
+
     def get(self, request, congressnumber):
         bills_titles=Bill.objects.filter(congress=congressnumber).values_list(
                              'bill_congress_type_number', 'short_title').order_by(
@@ -64,4 +62,8 @@ class GetBillTitleAPIView(View):
         bill = Bill.objects.filter(bill_congress_type_number=bill).first()
         if not bill:
             return JsonResponse({"status": 404})
-        return JsonResponse({'short_title': bill.short_title, 'first_title': bill.titles[0] if len(bill.titles) !=0 else 'No short title available', "status": 200})
+        return JsonResponse({
+            'short_title': bill.short_title,
+            'first_title': bill.titles[0] if len(bill.titles) != 0 else 'No short title available',
+            "status": 200
+        })

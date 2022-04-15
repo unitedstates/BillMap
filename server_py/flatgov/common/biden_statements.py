@@ -1,10 +1,8 @@
-import json
 import requests
-from bills.models import Statement
-import os
-from django.core.files import File
-from django.conf import settings
 import yaml
+
+from bills.models import Statement
+
 
 def load_biden_statements():
     current_biden_statements = Statement.objects.filter(administration='Biden')

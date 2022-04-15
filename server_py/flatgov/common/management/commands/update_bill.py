@@ -1,9 +1,7 @@
-import os
-import logging
-
 from django.core.management.base import BaseCommand
-from uscongress.handlers import govinfo, bills
+
 from common import constants
+from uscongress.handlers import govinfo, bills
 
 
 GOVINFO_OPTIONS = {

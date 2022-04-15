@@ -7,7 +7,6 @@ from scrapy import signals
 from scrapy.exceptions import IgnoreRequest
 
 # useful for handling different item types with a single interface
-from itemadapter import is_item, ItemAdapter
 from bills.models import Statement
 
 
@@ -105,7 +104,7 @@ class StatementadminpolicyDownloaderMiddleware:
         spider.logger.info('Spider opened: %s' % spider.name)
 
 
-class IgnoreDuplicates():
+class IgnoreDuplicates:
 
     def __init__(self):
         self.crawled_urls = Statement.objects.values_list('request_url', flat=True).distinct()

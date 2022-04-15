@@ -1,6 +1,3 @@
-# from bills.models import Bill, Sponsor, Cosponsor
-
-
 class BillDataHandler(object):
     def __init__(self, *args, **kwargs):
         self.data = kwargs.get('data')
@@ -13,18 +10,18 @@ class BillDataHandler(object):
         target = related.get(self.congress)
 
         if not target:
-            sponsor = dict()
-            cosponsors_dict = dict()
+            sponsor = {}
+            cosponsors_dict = {}
         else:
             sponsor = target.get('sponsor')
             cosponsors_dict = target.get('cosponsors')
 
             if not sponsor:
-                sponsor = dict()
+                sponsor = {}
 
             if not cosponsors_dict:
-                cosponsors_dict = dict()
-        
+                cosponsors_dict = {}
+
         bill_data = {
             'titles': self.data.get('titles'),
             'titles_whole_bill': self.data.get('titles_whole_bill'),

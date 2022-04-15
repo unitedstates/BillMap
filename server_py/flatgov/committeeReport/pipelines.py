@@ -6,7 +6,7 @@
 
 # useful for handling different item types with a single interface
 import re
-from itemadapter import ItemAdapter
+
 from bills.models import CommitteeDocument
 
 
@@ -20,7 +20,8 @@ class CommitteereportPipeline:
                 report_number=''.join(item.get('report_number').split('&nbsp;')),
                 associated_legislation=''.join(item.get('associated_legislation').split('&nbsp;')),
                 original_pdf_link=item.get('pdf_link'),
-                bill_number=re.sub('\ |\?|\.|\!|\/|\;|\:|\-|\(|\)', '', ''.join(item.get('associated_legislation').split('&nbsp;'))).lower(),
+                bill_number=re.sub('\ |\?|\.|\!|\/|\;|\:|\-|\(|\)', '', ''.join(item.get(
+                    'associated_legislation').split('&nbsp;'))).lower(),
                 chamber=item.get('report_type').split()[0],
                 report_type=item.get('report_type'),
                 date=item.get('date'),
@@ -34,8 +35,6 @@ class CommitteereportPipeline:
 
     def get_congress_number(self, date):
         year = date.split()[-1]
-
-        congress = 0
         const_year = 2022
         const_congress = 117
         dif = const_year - int(year)

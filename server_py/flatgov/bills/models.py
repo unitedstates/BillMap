@@ -1,21 +1,20 @@
-from collections import Counter
-from datetime import datetime
-from operator import itemgetter
 import re
 from typing import List
+from celery import states
 
 from django.db import models
 from django.conf import settings
-from iteration_utilities import flatten
-from django.utils.translation import gettext_lazy as _
 
 from bills.templatetags.bill_filters import stagesFormat
 
 MAX_RELATED_BILLS = 30
 MAX_SORT_SCORE = 100000
 
+ALL_STATES = sorted(states.ALL_STATES)
+TASK_STATE_CHOICES = sorted(zip(ALL_STATES, ALL_STATES))
+
+
 def sortRelatedBills(bill: dict) -> int:
-    sortScore = 0
     if 'identical' in bill.get('reason', ''):
         sortScore = MAX_SORT_SCORE
     elif 'title match' in bill.get('reason', ''):
@@ -24,13 +23,13 @@ def sortRelatedBills(bill: dict) -> int:
         sortScore = bill.get('score', 0)
     return sortScore
 
-def cleanReason(reason: str) ->  str:
+
+def cleanReason(reason: str) -> str:
     """
-    Converts data form of similarity reason (e.g. `bills-nearly_identical`) to a more readable form (e.g. `nearly identical`)
-
+    Converts data form of similarity reason (e.g. `bills-nearly_identical`) to a more readable form
+    (e.g. `nearly identical`)
     Args:
-        reason (str): The similarity reason in its data form 
-
+        reason (str): The similarity reason in its data form
     Returns:
         (str): The similarity reason in its readable form
     """
@@ -38,14 +37,15 @@ def cleanReason(reason: str) ->  str:
     r2 = re.sub(r'_([a-z]*)_([a-z]*)_',r'\1 \2', r1)
     return r2.replace('_', ' ').replace('match main', 'match (main)')
 
+
 def cleanReasons(reasons: List[str]) -> List[str]:
     """
-    Converts a List of strings of similarity reasons (e.g. [`bills-nearly_identical`...]) to a more readable form (e.g. [`nearly identical`...])
+    Converts a List of strings of similarity reasons (e.g. [`bills-nearly_identical`...]) to a more readable form
+    (e.g. [`nearly identical`...])
     If both 'identical' and 'nearly identical' are listed, removes 'nearly identical'. Also removes 'some similarity'.
 
     Args:
-        reasons (List[str]): list of reasons in data form 
-
+        reasons (List[str]): list of reasons in data form
     Returns:
         (List[str]): list of reasons in readable form
     """
@@ -53,9 +53,10 @@ def cleanReasons(reasons: List[str]) -> List[str]:
     if 'identical' in reasons and 'nearly identical' in reasons:
         reasons.remove('nearly identical')
     if reasons and len(reasons) > 0:
-       return reasons
+        return reasons
     else:
         return []
+
 
 def getReasonString(reasons: List[str]) -> str:
     """
@@ -69,6 +70,8 @@ def getReasonString(reasons: List[str]) -> str:
     """
     # TODO: consider sorting the reasons in a particular order
     return ', '.join(sorted(list(dict.fromkeys(cleanReasons(reasons)))))
+
+
 class Bill(models.Model):
     bill_congress_type_number = models.CharField(max_length=100, unique=True, db_index=True)
     type = models.CharField(max_length=40, null=True, blank=True)
@@ -105,7 +108,6 @@ class Bill(models.Model):
                 return self.titles_whole_bill[0] 
         return ''
 
-
     @property
     def type_abbrev(self) -> str:
         if self.type:
@@ -120,7 +122,6 @@ class Bill(models.Model):
         for related_bill in self.get_related_bill_numbers():
             try:
                 bill = Bill.objects.get(bill_congress_type_number=related_bill)
-
                 if bill.became_law:
                     return {"bill_number": related_bill, "message":'This bill became law through a related bill, '}
             except:
@@ -138,15 +139,12 @@ class Bill(models.Model):
                 continue
             if congress == self.bill_congress_type_number:
                 continue
-            congress_list = [item.get('name') \
-                for item in value.get('cosponsors') if item.get('name')]
+            congress_list = [item.get('name') for item in value.get('cosponsors') if item.get('name')]
             if name in congress_list:
                 result.append(congress)
             else:
                 continue
         return result
-
-
 
     @property
     def get_similar_bills(self):
@@ -177,14 +175,13 @@ class Bill(models.Model):
                 "titles"  # (bill_dict)
                 "titles_whole_bill"  # (bill_dict)
                 "title_whole_bill"  # (bill_dict)
-                // BillMap reasons include 'identical', 'nearly identical', 'section similarity', 'title match', 'title match (main)'
-                // CRS reasons include 'related' and 'procedurally related' 
+                // BillMap reasons include 'identical', 'nearly identical', 'section similarity', 'title match',
+                //'title match (main)'
+                // CRS reasons include 'related' and 'procedurally related'
                 }
         """
 
-
         billnumbers_all = list()
-
         related_bills = dict()
         for bill_congress_type_number, bill in self.related_dict.items():
             bill_dict = bill
@@ -193,17 +190,21 @@ class Bill(models.Model):
             bill_dict = {
                 "bill_id": "hr529-116", 
                 "bill_congress_type_number": "116hr529"
-                "type": "", 
-                "identified_by": "BillMap", 
-                "reason": "bills-title_match_main, bills-title_match", 
-                # "score" set to 99 to put these at the top (similar_bill_dict) 
+                "type": "",
+                "identified_by": "BillMap",
+                "reason": "bills-title_match_main, bills-title_match",
+                # "score" set to 99 to put these at the top (similar_bill_dict)
                 # number_of_sections (similar_bill_dict)
                 # "max_item" (similar_bill_dict)
                 # "title_max" (similar_bill_dict)
                 # "in_db" (similar_bill_dict)
                 # "title" (similar_bill_dict)
                 "titles"
-                "titles_whole_bill": ["To direct the Secretary of Transportation to establish a national intersection and interchange safety construction program, and for other purposes.", "National Intersection and Interchange Safety Construction Program Act"], 
+                "titles_whole_bill": [
+                    "To direct the Secretary of Transportation to establish a national intersection and interchange 
+                    safety construction program, and for other purposes.", 
+                    "National Intersection and Interchange Safety Construction Program Act"
+                    ], 
                 "title_whole_bill": ", ".join(bill.get('titles_whole_bill')) 
             }
             In addition, we add a score (int or float) and string fields "title" and "title_whole_bill"
@@ -223,8 +224,8 @@ class Bill(models.Model):
             if bill_congress_type_number == self.bill_congress_type_number:
                 reasons = bill.get('reason', '').split(', ')
                 reasonString = getReasonString(['identical', *reasons])
-                bill['reason'] = reasonString 
-                bill_dict['reason'] = reasonString 
+                bill['reason'] = reasonString
+                bill_dict['reason'] = reasonString
             else:
                 bill_dict['reason'] = getReasonString(bill.get('reason').split(', '))
             qs_bill = Bill.objects.filter(
@@ -241,17 +242,20 @@ class Bill(models.Model):
         #        "bill_congress_type_number": billnumber,
         #        # "type"  (bill_dict)
         #        "identified_by": "BillMap"
-        #        "reason": "nearly identical, title match, title match (main)" 
+        #        "reason": "nearly identical, title match, title match (main)"
         #        "score": sum([item.get("score", 0) for item in similarBillItem]),
         #        "number_of_sections": len(similarBillItem),
         #        "max_item": maxItem,
-        #        "title_max": maxItem.get("title", ""), # This is of the form "116 HR 529 IH: National Intersection and Interchange Safety Construction Program Act of 2019" and is taken from the bill metadata
+        #        // This is of the form "116 HR 529 IH: National Intersection and Interchange Safety Construction
+        #        // Program Act of 2019" and is taken from the bill metadata
+        #        "title_max": maxItem.get("title", ""),
         #        "in_db": qs_bill.exists(),
         #        # "titles"  (bill_dict)
         #        # "titles_whole_bill"  (bill_dict)
         #        # "title_whole_bill"  (bill_dict)
-        #        // BillMap reasons include 'identical', 'nearly identical', 'some similarity', 'section similarity', 'unrelated' 'title match', 'title match (main)'
-        #        // CRS reasons include 'related' and 'procedurally related' 
+        #        // BillMap reasons include 'identical', 'nearly identical', 'some similarity', 'section similarity',
+        #        //'unrelated' 'title match', 'title match (main)'
+        #        // CRS reasons include 'related' and 'procedurally related'
         #        }
         similar_bills = dict()
         for billnumber, similarBillItem in self.es_similar_bills_dict.items():
@@ -272,7 +276,7 @@ class Bill(models.Model):
             else:
                 reason = 'section similarity'
 
-            similar_bills[billnumber]={
+            similar_bills[billnumber] = {
                 'score': sum([item.get('score', 0) for item in similarBillItem]),
                 'number_of_sections': len(similarBillItem),
                 'in_db': qs_bill.exists(),
@@ -296,29 +300,42 @@ class Bill(models.Model):
             
             if related_bills.get(billnumber) and similar_bills.get(billnumber):
                 # merge common fields reason and identified_by
-                combined_related_bills[billnumber]["score"] = max(related_bills[billnumber].get("score", 0), similar_bills[billnumber].get("score", 0))
-                combined_related_bills[billnumber]["number_of_sections"] = similar_bills[billnumber].get("number_of_sections", 0)
-                combined_related_bills[billnumber]["reason"] = getReasonString(related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(billnumber, {}).get("reason", "").split(", "))
-                combined_related_bills[billnumber]["identified_by"] = ", ".join(list(set(related_bills.get("identified_by", "").split(", ") + related_bills.get("identified_by", "").split(", "))))
+                combined_related_bills[billnumber]["score"] = max(
+                    related_bills[billnumber].get("score", 0),
+                    similar_bills[billnumber].get("score", 0)
+                )
+                combined_related_bills[billnumber]["number_of_sections"] = similar_bills[billnumber].get(
+                    "number_of_sections", 0
+                )
+                combined_related_bills[billnumber]["reason"] = getReasonString(
+                    related_bills.get(billnumber, {}).get("reason", "").split(", ") + similar_bills.get(
+                        billnumber, {}).get("reason", "").split(", ")
+                )
+                combined_related_bills[billnumber]["identified_by"] = ", ".join(list(set(
+                    related_bills.get("identified_by", "").split(", ") + related_bills.get(
+                        "identified_by", "").split(", ")))
+                )
 
         combined_related_bills_list = [bill for bill in combined_related_bills.values()]
 
         # Sort by score; insert the current bill at the front
         combined_related_bills_list = sorted(combined_related_bills_list, key=lambda k: k.get("score", 0), reverse=True)
-        self_index = next((index for (index, d) in enumerate(combined_related_bills_list) \
-            if d["bill_congress_type_number"] == self.bill_congress_type_number), None)
+        self_index = next((index for (index, d) in enumerate(combined_related_bills_list) if
+                           d["bill_congress_type_number"] == self.bill_congress_type_number), None)
         if self_index:
             combined_related_bills_list.insert(0, combined_related_bills_list.pop(self_index))
 
-        return  combined_related_bills_list[:MAX_RELATED_BILLS]
+        return combined_related_bills_list[:MAX_RELATED_BILLS]
 
     @property
     def bill_summary(self):
         if not self.summary:
             return settings.BILL_SUMMARY_DEFAULT_TEXT
         return self.summary
+
+
 class Cosponsor(models.Model):
-    name = models.CharField(max_length=250) # Last, First 
+    name = models.CharField(max_length=250)  # Last, First
     name_first = models.CharField(max_length=250, blank=True, null=True)
     name_last = models.CharField(max_length=250, blank=True, null=True)
     name_full_official = models.CharField(max_length=250, blank=True, null=True)
@@ -327,10 +344,11 @@ class Cosponsor(models.Model):
     party = models.CharField(max_length=100, blank=True, null=True)
     state = models.CharField(max_length=2, blank=True, null=True)
     type = models.CharField(max_length=3, blank=True, null=True)
-    leadership = models.JSONField(default=list, blank=True, null=True) #list of terms in Leadership, with position; not everyone will have this item
+    # list of terms in Leadership, with position; not everyone will have this item
+    leadership = models.JSONField(default=list, blank=True, null=True)
     terms = models.JSONField(default=list)
-    committees = models.JSONField(default=list, blank=True, null=True) #list of objects of the form {'thomas_id':x, 'rank':x, 'party': x}
-
+    # list of objects of the form {'thomas_id':x, 'rank':x, 'party': x}
+    committees = models.JSONField(default=list, blank=True, null=True)
 
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
@@ -340,6 +358,8 @@ class Cosponsor(models.Model):
 
     class Meta:
         unique_together = ('name', 'bioguide_id')
+
+
 class Committee(models.Model):
     thomas_id = models.CharField(max_length=10, unique=True, db_index=True)
     type = models.CharField(max_length=10)
@@ -348,8 +368,8 @@ class Committee(models.Model):
     minority_url = models.URLField(blank=True, null=True)
     house_committee_id = models.CharField(max_length=10, blank=True, null=True)
     jurisdiction = models.CharField(max_length=250, blank=True, null=True)
-    cosponsors = models.ManyToManyField(
-        'bills.Cosponsor', blank=True)
+    cosponsors = models.ManyToManyField('bills.Cosponsor', blank=True)
+
 
 class Statement(models.Model):
     bill_number = models.CharField(max_length=127)
@@ -363,7 +383,6 @@ class Statement(models.Model):
 
     date_fetched = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self):
         return f'{self.bill_number} - {self.permanent_pdf_link}'
 
@@ -372,8 +391,9 @@ class Statement(models.Model):
         if self.permanent_pdf_link:
             if self.permanent_pdf_link.startswith('http'):
                 return self.permanent_pdf_link
-            return '/media/'+self.permanent_pdf_link
+            return '/media/' + self.permanent_pdf_link
         return None
+
 
 class CboReport(models.Model):
     pub_date = models.CharField(max_length=50)
@@ -385,9 +405,10 @@ class CboReport(models.Model):
 
     date_fetched = models.DateTimeField(auto_now_add=True)
 
-
     def __str__(self):
         return f'{self.bill_number} - {self.original_pdf_link}'
+
+
 class CommitteeDocument(models.Model):
     title = models.TextField()
     bill_number = models.CharField(max_length=127, null=True, blank=True)
@@ -404,8 +425,3 @@ class CommitteeDocument(models.Model):
 
     def __str__(self):
         return f"{self.original_pdf_link} {self.congress} {self.bill_number}"
-
-from celery import states
-
-ALL_STATES = sorted(states.ALL_STATES)
-TASK_STATE_CHOICES = sorted(zip(ALL_STATES, ALL_STATES))

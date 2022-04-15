@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from common.billdata import updateBillsList, updateBillsMeta
+from common.billdata import updateBillsMeta
 
 
 class Command(BaseCommand):

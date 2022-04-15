@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
-from common.crec_data import crec_loader
-from bills.models import CommitteeDocument
 
+from bills.models import CommitteeDocument
+from common.crec_data import crec_loader
 
 
 class Command(BaseCommand):
@@ -9,5 +9,4 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         CommitteeDocument.objects.all().delete()
-
         crec_loader()

@@ -14,4 +14,6 @@ def getBillShortTitles(congressnum: str='117') -> List[str]:
         List[str]: [description]
     """
 
-    return [item.bill_congress_type_number + '#' + item.short_title for item in Bill.objects.filter(congress=congressnum)];
+    return [
+        item.bill_congress_type_number + '#' + item.short_title for item in Bill.objects.filter(congress=congressnum)
+    ]

@@ -66,7 +66,6 @@ app.conf.beat_schedule = {
         # to link reports to bills
         'task': 'bills.tasks.crs_task',
         'schedule': crontab(minute=0, hour=5),
-        'schedule': crontab(minute=0, hour=5),
        # 'options': {'queue': 'bill'}
     },
 }

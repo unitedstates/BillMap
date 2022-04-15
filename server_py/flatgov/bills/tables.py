@@ -1,6 +1,5 @@
 import itertools
 from django.conf import settings
-from django.utils.encoding import force_text
 
 import django_tables2 as tables
 from bills.models import Bill
@@ -9,7 +8,8 @@ from bills.models import Bill
 class RelatedBillTable(tables.Table):
     row_number = tables.Column(empty_values=(), verbose_name='#', orderable=False)
     bill = tables.TemplateColumn(
-        '<a href="{% url "bill-detail" record.bill_congress_type_number %}">{{record.bill_congress_type_number}}</a>', order_by=("bill_congress_type_number")
+        '<a href="{% url "bill-detail" record.bill_congress_type_number %}">{{record.bill_congress_type_number}}</a>',
+        order_by="bill_congress_type_number"
     )
     reason = tables.Column(empty_values=(), orderable=True)
 
@@ -31,12 +31,11 @@ class RelatedBillTable(tables.Table):
         return '%d' % (next(self.counter) + 1)
 
     def render_reason(self, record):
-        for key, value in self.object.related_dict.items():            
+        for key, value in self.object.related_dict.items():
             if key == record.bill_congress_type_number:
-                return 'identical'            
+                return 'identical'
             return value.get('reason')
-    
+
     def order_reason(self, queryset, is_descending):
         queryset = queryset.order_by(("-" if is_descending else "") + "pk")
         return (queryset, True)
-

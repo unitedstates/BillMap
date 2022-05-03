@@ -1,9 +1,5 @@
-from collections import Counter
-from datetime import datetime
-from operator import itemgetter
-
 from django.db import models
-from iteration_utilities import flatten, unique_everseen, duplicates
+
 
 class Event(models.Model):
     sourceName = models.CharField(max_length=100, null=True, blank=True)

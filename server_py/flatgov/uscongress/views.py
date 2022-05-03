@@ -1,5 +1,6 @@
-from uscongress.tasks import update_bill_task
 from django.views.generic import TemplateView
+from uscongress.tasks import update_bill_task
+
 
 class UscongressDebugView(TemplateView):
     template_name = 'uscongress/debug.html'

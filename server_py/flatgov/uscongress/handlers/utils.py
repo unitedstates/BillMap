@@ -4,24 +4,20 @@ import errno
 import sys
 import traceback
 import zipfile
-import platform
 import re
 import html.entities
 import json
-from pytz import timezone
-import datetime
-import time
-from lxml import etree
-import scrapelib
-import pprint
-import logging
-import subprocess
-import signal
-
 import smtplib
+import signal
+import logging
+import datetime
+
 import email.utils
 from email.mime.text import MIMEText
-import getpass
+
+from pytz import timezone
+from lxml import etree
+import scrapelib
 
 
 # read in an opt-in config file for changing directories and supplying email settings
@@ -80,7 +76,7 @@ def current_legislative_year(date=None):
 
 
 def get_congress_first_year(congress):
-    return (((int(congress) + 894) * 2) - 1)
+    return ((int(congress) + 894) * 2) - 1
 
 # get the three calendar years that the Congress extends through (Jan 3 to Jan 3).
 
@@ -159,7 +155,7 @@ def split_vote_id(vote_id):
 def split_nomination_id(nomination_id):
     try:
         return re.match("^([A-z]{2})([\d-]+)-(\d+)$", nomination_id).groups()
-    except Exception as e:
+    except Exception:
         logging.error("Unabled to parse %s" % nomination_id)
         return (None, None, None)
 
@@ -382,9 +378,11 @@ def write(content, destination, options={}):
         f.write(content)
     f.close()
 
+
 def write_json(data, destination):
     return write(
-        json.dumps(data,
+        json.dumps(
+            data,
             sort_keys=True,
             indent=2,
             default=format_datetime
@@ -412,9 +410,6 @@ def uniq(seq):
     seen = set()
     seen_add = seen.add
     return [x for x in seq if x not in seen and not seen_add(x)]
-
-import os
-import errno
 
 # mkdir -p in python, from:
 # http://stackoverflow.com/questions/600268/mkdir-p-functionality-in-python
@@ -585,8 +580,6 @@ def make_node(parent, tag, text, **attrs):
 
 
 # Return a subset of a mapping type
-
-
 def slice_map(m, *args):
     n = {}
     for arg in args:
@@ -594,9 +587,8 @@ def slice_map(m, *args):
             n[arg] = m[arg]
     return n
 
+
 # Load a YAML file directly.
-
-
 def direct_yaml_load(filename):
     import yaml
     try:
@@ -605,49 +597,42 @@ def direct_yaml_load(filename):
         from yaml import Loader, Dumper
     return yaml.load(open(filename), Loader=Loader)
 
+
 # Load a pickle file.
-
-
 def pickle_load(filename):
     import pickle
     return pickle.load(open(filename, 'rb'))
 
+
 # Write to a pickle file.
-
-
 def pickle_write(data, filename):
     import pickle
     mkdir_p(os.path.dirname(filename))
     return pickle.dump(data, open(filename, 'wb'))
 
+
 # Get the hash used to verify the contents of a file.
-
-
 def get_file_hash(filename):
     import hashlib
     return hashlib.sha1(open(filename, 'rb').read()).hexdigest()
 
+
 # Get the location of the cached version of a file.
-
-
 def get_cache_filename(filename):
     return os.path.join(cache_dir(), filename + '.pickle')
 
+
 # Check if the cached file is newer.
-
-
 def check_cached_file(filename, cache_filename):
     return (os.path.exists(cache_filename) and os.stat(cache_filename).st_mtime > os.stat(filename).st_mtime)
 
+
 # Problem with finding a cache entry.
-
-
 class CacheError(LookupError):
     pass
 
+
 # Load a cached file.
-
-
 def cache_load(cache_filename, file_hash):
     try:
         cache_data = pickle_load(cache_filename)
@@ -664,16 +649,14 @@ def cache_load(cache_filename, file_hash):
 
     return cache_data["data"]
 
+
 # Cache a file.
-
-
 def cache_write(file_data, filename, file_hash):
     cache_data = {"hash": file_hash, "data": file_data}
     return pickle_write(cache_data, filename)
 
+
 # Attempt to load a cached version of a YAML file before loading the YAML file directly.
-
-
 def yaml_load(filename):
     file_hash = get_file_hash(filename)
     cache_filename = get_cache_filename(filename)
@@ -700,6 +683,7 @@ def yaml_load(filename):
 # Make sure we have the congress-legislators repository available.
 has_congress_legislators_repo = False
 
+
 def require_congress_legislators_repo():
     global has_congress_legislators_repo
 
@@ -721,6 +705,7 @@ def require_congress_legislators_repo():
     # We now have the congress-legislators repo.
     has_congress_legislators_repo = True
 
+
 lookup_legislator_cache = []
 
 
@@ -738,7 +723,7 @@ def lookup_legislator(congress, role_type, name, state, party, when, id_requeste
             for moc in yaml_load("congress-legislators/%s.yaml" % (filename)):
                 for term in moc["terms"]:
                     for c in range(congress_from_legislative_year(int(term['start'][0:4])) - 1,
-                                    congress_from_legislative_year(int(term['end'][0:4])) + 1 + 1):
+                                   congress_from_legislative_year(int(term['end'][0:4])) + 1 + 1):
                         lookup_legislator_cache.setdefault(c, []).append((moc, term))
 
     def to_ascii(name):
@@ -766,7 +751,18 @@ def lookup_legislator(congress, role_type, name, state, party, when, id_requeste
             continue
         if term['state'] != state:
             continue
-        if term['party'][0] != party and name not in ("Laughlin", "Crenshaw", "Goode", "Martinez", "Parker", "Emerson", "Tauzin", "Hayes", "Deal", "Forbes"):
+        if term['party'][0] != party and name not in (
+                "Laughlin",
+                "Crenshaw",
+                "Goode",
+                "Martinez",
+                "Parker",
+                "Emerson",
+                "Tauzin",
+                "Hayes",
+                "Deal",
+                "Forbes"
+        ):
             continue
 
         # When doing process-of-elimination matching, don't match on people we've already seen.
@@ -789,17 +785,21 @@ def lookup_legislator(congress, role_type, name, state, party, when, id_requeste
             # check last name
             if name_parts[0] != to_ascii(name_info['last']) \
                     and name_parts[0] not in to_ascii(name_info['last']).split(" "):
-                  continue  # no match
+                continue  # no match
 
             # Compare the first name. Allow it to match either the first or middle name,
             # and an initialized version of the first name (i.e. "E." matches "Eddie").
             # Test the whole string (so that "Jo Ann" is compared to "Jo Ann") but also
             # the first part of a string split (so "E. B." is compared as "E." to "Eddie").
-            first_names = (to_ascii(name_info['first']), to_ascii(name_info.get('nickname', "")), to_ascii(name_info['first'])[0] + ".")
+            first_names = (
+                to_ascii(name_info['first']),
+                to_ascii(name_info.get('nickname', "")),
+                to_ascii(name_info['first'])[0] + "."
+            )
             if len(name_parts) >= 2 and \
                     name_parts[1] not in first_names and \
                     name_parts[1].split(" ")[0] not in first_names:
-                  continue
+                continue
 
             break  # match
         else:
@@ -815,10 +815,16 @@ def lookup_legislator(congress, role_type, name, state, party, when, id_requeste
         logging.warn("Could not match name %s (%s-%s; %s) to any legislator." % (name, state, party, when))
         return None
     if len(matches) > 1:
-        logging.warn("Multiple matches of name %s (%s-%s; %s) to legislators (%s; excludes %s)." % (name, state, party, when, str(matches), str(exclude)))
+        logging.warn("Multiple matches of name %s (%s-%s; %s) to legislators (%s; excludes %s)." % (
+            name,
+            state,
+            party,
+            when,
+            str(matches),
+            str(exclude)
+        ))
         return None
     return list(matches)[0]
-
 
 
 class UnmatchedIdentifer(Exception):
@@ -826,7 +832,9 @@ class UnmatchedIdentifer(Exception):
     def __init__(self, id_type, id_value, desired_id_type):
         super(UnmatchedIdentifer, self).__init__("%s=%s => %s" % (id_type, str(id_value), desired_id_type))
 
+
 _translate_legislator_id_cache = None
+
 
 def translate_legislator_id(source_id_type, source_id, dest_id_type):
     global _translate_legislator_id_cache
@@ -850,6 +858,7 @@ def translate_legislator_id(source_id_type, source_id, dest_id_type):
     except KeyError:
         raise UnmatchedIdentifer(source_id_type, source_id, dest_id_type)
 
+
 # adapted from https://gist.github.com/tcwalther/ae058c64d5d9078a9f333913718bba95,
 # which was based on http://stackoverflow.com/a/21919644/487556.
 # This provides a with-block object that prevents Ctrl+C (SIGINT)
@@ -858,8 +867,10 @@ def translate_legislator_id(source_id_type, source_id, dest_id_type):
 # operations aren't killed mid-write resulting in a corrupt file.
 class NoInterrupt(object):
     def __init__(self, *signals):
-        if not signals: signals = [signal.SIGTERM, signal.SIGINT]
-        self.sigs = signals        
+        if not signals:
+            signals = [signal.SIGTERM, signal.SIGINT]
+        self.sigs = signals
+
     def __enter__(self):
         self.signal_received = {}
         self.old_handlers = {}
@@ -869,6 +880,7 @@ class NoInterrupt(object):
                 # Note: in Python 3.5, you can use signal.Signals(sig).name
                 logging.info('Signal %s received. Delaying KeyboardInterrupt.' % sig)
             self.old_handlers[sig] = signal.signal(sig, handler)
+
     def __exit__(self, type, value, traceback):
         # Restore signal handlers that were in place before entering the with-block.
         for sig in self.sigs:

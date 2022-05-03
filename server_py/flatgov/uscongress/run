@@ -2,13 +2,14 @@
 
 import sys
 import os
-import traceback
-import pprint as pp
 import logging
 import importlib
 
 # set global HTTP timeouts to 10 seconds
 import socket
+import utils  # TODO investigate
+
+
 socket.setdefaulttimeout(10)
 
 CONGRESS_ROOT = os.path.dirname(os.path.abspath(__file__))
@@ -51,7 +52,6 @@ else:
 
 
 sys.path.append(os.path.join(CONGRESS_ROOT))
-import utils
 
 try:
     task_mod = __import__(task_name)
@@ -60,7 +60,11 @@ try:
         patch_mod = importlib.import_module(options['patch'])
         patch_func = getattr(patch_mod, 'patch', None)
         if patch_func is None:
-            logging.error("You specified a --patch argument but the {} module does not contain a 'patch' function.".format(options['patch']))
+            logging.error(
+                "You specified a --patch argument but the {} module does not contain a 'patch' function.".format(
+                    options['patch']
+                )
+            )
             sys.exit(1)
         elif not callable(patch_func):
             logging.error("You specified a --patch argument but {}.patch is not callable".format(options['patch']))

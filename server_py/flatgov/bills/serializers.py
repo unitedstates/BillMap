@@ -1,4 +1,5 @@
 from rest_framework import serializers
+
 from bills.models import Bill, Cosponsor
 
 
@@ -36,8 +37,7 @@ class RelatedBillSerializer(serializers.ModelSerializer):
     def get_cosponsor(self, obj):
         item = self.bill.related_dict.get(obj.bill_congress_type_number, {})
         if item.get('cosponsors'):
-            names = [self.make_name_clean(i.get('name')) \
-                for i in item.get('cosponsors')]
+            names = [self.make_name_clean(i.get('name')) for i in item.get('cosponsors')]
             return ", ".join(names)
         return ""
 

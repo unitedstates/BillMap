@@ -9,6 +9,7 @@
 
 import os
 import sys
+import django
 
 BOT_NAME = 'committeeReport'
 
@@ -19,7 +20,6 @@ NEWSPIDER_MODULE = 'committeeReport.spiders'
 sys.path.append(os.path.dirname(os.path.abspath('.')))
 os.environ['DJANGO_SETTINGS_MODULE'] = 'flatgov.dev'
 
-import django
 django.setup()
 
 

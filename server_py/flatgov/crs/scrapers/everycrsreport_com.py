@@ -4,8 +4,8 @@ import json
 import requests
 from urllib.parse import urljoin
 
-from crs.models import CrsReport
 from django.conf import settings
+from crs.models import CrsReport
 
 
 class EveryCrsReport:

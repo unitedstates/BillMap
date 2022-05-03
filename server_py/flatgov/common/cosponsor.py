@@ -1,9 +1,9 @@
 import requests
-from requests.api import get
 import yaml
 
 from bills.models import Committee, Cosponsor, Bill
-from bills.views import deep_get 
+from bills.views import deep_get
+
 try:
     from yaml import CLoader as Loader, CDumper as Dumper
 except ImportError:
@@ -15,9 +15,11 @@ LEGISLATORS_HIST_URL = 'https://raw.githubusercontent.com/unitedstates/congress-
 COMMITTEE_MEMBERSHIP_URL = 'https://raw.githubusercontent.com/unitedstates/congress-legislators/master/committee-membership-current.yaml'
 COMMITTEES_URL = 'https://raw.githubusercontent.com/unitedstates/congress-legislators/master/committees-current.yaml'
 
+
 def getAndParseYAML(url):
     response = requests.get(url, allow_redirects=True)
     return yaml.load(response.content, Loader=Loader)
+
 
 def updateLegislators():
     """
@@ -122,32 +124,34 @@ def updateLegislators():
             party = ""
             state = ""
         leadership = legislator.get('leadership_roles', [])
-        updateData = {'name_first': name_first, 
-                      'name_last': name_last,
-                      'bioguide_id': legislatorid.get("bioguide", ""),
-                      'thomas': legislatorid.get("thomas", ""),
-                      'party': party, 
-                      'state': state,
-                      'type': type, 
-                      'terms': terms,
-                                    }
+        updateData = {
+            'name_first': name_first,
+            'name_last': name_last,
+            'bioguide_id': legislatorid.get("bioguide", ""),
+            'thomas': legislatorid.get("thomas", ""),
+            'party': party,
+            'state': state,
+            'type': type,
+            'terms': terms,
+        }
         if leadership:
-            #print('{0}\n'.format(full_official))
-            #print(leadership)
+            # print('{0}\n'.format(full_official))
+            # print(leadership)
             # Reorder so that most current is first
             leadership.reverse()
             updateData['leadership'] = leadership
-        #else:
+        # else:
         #    print('No leadership roles for: {0}\n'.format(full_official))
-        
 
         if not full_official:
-          continue
+            continue
         print('Updating legislator: {0}'.format(full_official))
-        Cosponsor.objects.update_or_create(name=name, 
-                                    name_full_official=full_official,
-                                    defaults=updateData
-                            )
+        Cosponsor.objects.update_or_create(
+            name=name,
+            name_full_official=full_official,
+            defaults=updateData
+        )
+
 
 def updateCommittees():
     """
@@ -198,17 +202,18 @@ def updateCommittees():
         if not thomas_id:
             continue
         Committee.objects.update_or_create(
-        thomas_id = committee.get('thomas_id'), defaults={
-            'type': committee.get('type', ''),
-            'name': committee.get('name', ''),
-            'url': committee.get('url', ''),
-            'minority_url': committee.get('minority_url', ''),
-            'house_committee_id': committee.get('house_committee_id', ''),
-            'jurisdiction': jurisdiction 
-        }
+            thomas_id=committee.get('thomas_id'), defaults={
+                'type': committee.get('type', ''),
+                'name': committee.get('name', ''),
+                'url': committee.get('url', ''),
+                'minority_url': committee.get('minority_url', ''),
+                'house_committee_id': committee.get('house_committee_id', ''),
+                'jurisdiction': jurisdiction
+            }
         )
 
-#TODO define relationship of historical legislators
+
+# TODO define relationship of historical legislators
 # in database
 def updateLegislatorsHist():
     """
@@ -229,6 +234,7 @@ def updateLegislatorsHist():
        'party': 'Anti-Administration'}]}
     """
     legislators_hist = getAndParseYAML(LEGISLATORS_HIST_URL)
+
 
 def updateCommitteeMembers():
     """
@@ -271,34 +277,35 @@ def updateCommitteeMembers():
                         committee_item.cosponsors.add(cosponsor)
                         cosponsor_item['committee'] = committee_thomas_id
                         if not cosponsor.committees:
-                            cosponsor.committees = [cosponsor_item] 
+                            cosponsor.committees = [cosponsor_item]
                         else:
-                            cosponsor.committees.append(cosponsor_item) 
+                            cosponsor.committees.append(cosponsor_item)
                         cosponsor.save()
 
 
 # Add cosponsors from cosponsors dict to join table for each bill 
 def updateBillCosponsorJoinTable():
-  bills_query_set = Bill.objects.all().only('bill_congress_type_number', 'cosponsors_dict')
-  for bill in bills_query_set:
-    bCTN =  bill.bill_congress_type_number
-    if not bCTN:
-      continue
-    print('Adding cosponsors for ', bCTN)
-    cosponsors_dict = bill.cosponsors_dict
-    sponsor = bill.sponsor
-    if not sponsor and not cosponsors_dict:
-      continue
-    if sponsor:
-      cosponsors_dict.append(sponsor)
-    for cosponsor_item in cosponsors_dict:
-      bioguide_id = cosponsor_item.get('bioguide_id', '')
-      if bioguide_id != '':
-        cosponsor = Cosponsor.objects.filter(bioguide_id=bioguide_id).first()
-        if cosponsor:
-          bill.cosponsors.add(cosponsor)
-        else:
-          pass
+    bills_query_set = Bill.objects.all().only('bill_congress_type_number', 'cosponsors_dict')
+    for bill in bills_query_set:
+        bCTN = bill.bill_congress_type_number
+        if not bCTN:
+            continue
+        print('Adding cosponsors for ', bCTN)
+        cosponsors_dict = bill.cosponsors_dict
+        sponsor = bill.sponsor
+        if not sponsor and not cosponsors_dict:
+            continue
+        if sponsor:
+            cosponsors_dict.append(sponsor)
+        for cosponsor_item in cosponsors_dict:
+            bioguide_id = cosponsor_item.get('bioguide_id', '')
+            if bioguide_id != '':
+                cosponsor = Cosponsor.objects.filter(bioguide_id=bioguide_id).first()
+                if cosponsor:
+                    bill.cosponsors.add(cosponsor)
+                else:
+                    pass
+
 
 def updateCosponsorAndCommittees():
     Committee.objects.all().delete()

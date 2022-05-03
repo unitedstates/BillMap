@@ -1,11 +1,14 @@
-import scrapy
 import json
 import os
 from pathlib import Path
+
+import scrapy
+
 from bills.models import CommitteeDocument
 
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
 FILE_PATH = os.path.join(BASE_DIR, 'commitee_report_detail_urls.json')
+
 
 class CommitteeReportSpider(scrapy.Spider):
     name = 'committeereport'
@@ -29,7 +32,7 @@ class CommitteeReportSpider(scrapy.Spider):
         committee_report_data['title'] = data['title']
         committee_report_data['pdf_link'] = data['download']['pdflink']
         for col in data['metadata']['columnnamevalueset']:
-            #print(col)
+            # print(col)
             if col['colname'] == 'Category':
                 committee_report_data['category'] = col['colvalue']
             elif col['colname'] == 'Report Type':
@@ -43,4 +46,4 @@ class CommitteeReportSpider(scrapy.Spider):
             elif col['colname'] == 'Associated Legislation':
                 committee_report_data['associated_legislation'] = col['colvalue']
         committee_report_data['request_url'] = response.request.url
-        return committee_report_data 
+        return committee_report_data

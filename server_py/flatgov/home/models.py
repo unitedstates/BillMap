@@ -1,5 +1,6 @@
-from django.db import models
 from ckeditor.fields import RichTextField
+from django.db import models
+
 
 class AboutPage(models.Model):
     title = models.CharField(max_length=127, null=True, blank=True, default='About page content')

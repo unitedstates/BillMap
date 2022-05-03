@@ -1,4 +1,3 @@
-from json import dump
 import sys
 import os
 import argparse
@@ -9,9 +8,9 @@ try:
     from flatgovtools.utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
     from flatgovtools.billdata import deep_get, billIdToBillNumber, loadDataJSON, loadBillsMeta
 except:
-    from .constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
-    from .utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
-    from .billdata import deep_get, billIdToBillNumber, loadDataJSON, loadBillsMeta
+    from common.constants import PATH_TO_RELATEDBILLS_DIR, PATH_TO_NOYEAR_TITLES_INDEX
+    from common.utils import loadTitlesIndex, loadRelatedBillJSON, dumpRelatedBillJSON
+    from common.billdata import deep_get, billIdToBillNumber, loadDataJSON, loadBillsMeta
 
 OF_YEAR_REGEX = re.compile(r'\sof\s[0-9]+$')
 
@@ -59,6 +58,7 @@ def addSimilarTitles(noYearTitlesIndex: dict, billsRelated = {}):
             dumpRelatedBillJSON(bill_outer, relatedBills.get(bill_outer))
     logger.info('*** Finished Adding NoYear Titles ***')
 
+
 def addSameTitles(titlesIndex: dict):
     for title, bills in titlesIndex.items():
         for bill_outer in bills:
@@ -75,6 +75,7 @@ def addSameTitles(titlesIndex: dict):
             logger.debug('Saving with related titles: ' + bill_outer)
             dumpRelatedBillJSON(bill_outer, billRelated)
     logger.info('*** Finished Adding Same Titles ***')
+
 
 def addGPORelatedBills():
     for bill_outer in ALL_BILLS:
@@ -125,6 +126,7 @@ def addSponsors():
                     relatedBill['related'][bill_inner]['cosponsors'] = commonCosponsors 
         dumpRelatedBillJSON(bill_outer, relatedBill)
 
+
 def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake = False):
     if not os.path.isdir(PATH_TO_RELATEDBILLS_DIR):
         os.mkdir(PATH_TO_RELATEDBILLS_DIR)
@@ -136,6 +138,7 @@ def makeAndSaveRelatedBills(titlesIndex = loadTitlesIndex(), remake = False):
     addGPORelatedBills()
     logger.info('Adding sponsor info')
     addSponsors()
+
 
 def main(args, loglevel):
     makeAndSaveRelatedBills()

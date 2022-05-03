@@ -1,4 +1,3 @@
-
 def sort_bills_for_congress(our_list):
     # We go through the list as many times as there are elements
     for i in range(len(our_list)):

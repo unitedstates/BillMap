@@ -6,6 +6,7 @@ from django.core.files.base import ContentFile
 
 from crs.models import CSVReport, CrsReport
 
+
 @shared_task(bind=True)
 def generate_csv_task(self, pk):
     csv_report = CSVReport.objects.get(pk=pk)
@@ -18,7 +19,7 @@ def generate_csv_task(self, pk):
         csv_buffer = StringIO()
         csv_writer = csv.writer(csv_buffer)
         csv_writer.writerow(header_row)
-                
+
         for report in CrsReport.objects.all().iterator():
             for bill in report.bills.all().iterator():
                 csv_writer.writerow([

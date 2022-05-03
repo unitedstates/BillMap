@@ -1,8 +1,7 @@
+from django.apps import apps
 from django.contrib.admin.utils import NestedObjects
 from django.core import serializers
-from django.core.management.base import CommandError
-from django.core.management.base import LabelCommand
-from django.apps import apps
+from django.core.management.base import CommandError, LabelCommand
 
 """
  Updated to Django > 1.9
@@ -12,9 +11,11 @@ from django.apps import apps
  v0.1 -- current version
  Known issues:
  No support for generic relations
-    
 
-   "Make fixture" command. Highly useful for making test fixtures. Use it to pick only few items from your data to serialize, restricted by primary keys. By default command also serializes foreign keys and m2m relations. You can turn off related items serialization with --skip-related option.
+
+"Make fixture" command. Highly useful for making test fixtures. Use it to pick only few items from your data to 
+serialize, restricted by primary keys. By default command also serializes foreign keys and m2m relations. You can turn 
+off related items serialization with --skip-related option.
 
 How to use:
 
@@ -35,7 +36,7 @@ will serialize YourModel with key 3 and keys 6 to 9 inclusively.
 
 Of course, you can serialize whole tables, and also different tables at once, and use options of dumpdata:
 
-python manage.py makefixture --format=xml --indent=4 YourModel[3] AnotherModel auth.User[:5] auth.Group 
+python manage.py makefixture --format=xml --indent=4 YourModel[3] AnotherModel auth.User[:5] auth.Group
 """
 
 
@@ -49,20 +50,36 @@ def model_name(m):
 
 class Command(LabelCommand):
     help = 'Output the contents of the database as a fixture of the given format.'
+
     def add_arguments(self, parser):
-        parser.add_argument('args', type=str, nargs='*', help='modelname[pk] or modelname[id1:id2] repeated one or more times')
-        parser.add_argument('--show-models', default=True, action='store_false', dest='propagate',
-                    help='List the models in the app')
-        parser.add_argument('--skip-related', default=True, action='store_false', dest='propagate',
-                    help='Specifies if we shall not add related objects.')
-        parser.add_argument('--format', default='json', dest='format',
-                    help='Specifies the output serialization format for fixtures.')
-        parser.add_argument('--indent', default=None, dest='indent', type=int,
-                    help='Specifies the indent level to use when pretty-printing output')
-        parser.add_argument('--natural-foreign', default=False, action='store_true', dest='use_natural_foreign_keys',
-                    help='')
-        parser.add_argument('--natural-primary', default=False, action='store_true', dest='use_natural_primary_keys',
-                    help='')
+        parser.add_argument(
+            'args', type=str, nargs='*',
+            help='modelname[pk] or modelname[id1:id2] repeated one or more times'
+        )
+        parser.add_argument(
+            '--show-models', default=True, action='store_false', dest='propagate',
+            help='List the models in the app'
+        )
+        parser.add_argument(
+            '--skip-related', default=True, action='store_false', dest='propagate',
+            help='Specifies if we shall not add related objects.'
+        )
+        parser.add_argument(
+            '--format', default='json', dest='format',
+            help='Specifies the output serialization format for fixtures.'
+        )
+        parser.add_argument(
+            '--indent', default=None, dest='indent', type=int,
+            help='Specifies the indent level to use when pretty-printing output'
+        )
+        parser.add_argument(
+            '--natural-foreign', default=False, action='store_true', dest='use_natural_foreign_keys',
+            help=''
+        )
+        parser.add_argument(
+            '--natural-primary', default=False, action='store_true', dest='use_natural_primary_keys',
+            help=''
+        )
     
     @staticmethod
     def handle_models(models, **options):

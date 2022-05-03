@@ -1,21 +1,21 @@
-from django.shortcuts import render
-from django.http import HttpResponse, JsonResponse
-from django.core import serializers
-from .models import Event
-from .serializers import EventSerializer
-from django.db.models import Q
-
 import datetime
+
+from django.db.models import Q
+from django.http import JsonResponse
+
+from events.models import Event
+from events.serializers import EventSerializer
+
 
 def get_events(request):
     startDate = request.GET.get('start')
     endDate = request.GET.get('end')
-    start=datetime.date.today()
-    end=datetime.date.today()
+    start = datetime.date.today()
+    end = datetime.date.today()
 
-    chamber =  request.GET.get('chamber')
-    committee =  request.GET.get('committee')
-    type =  request.GET.get('type')
+    chamber = request.GET.get('chamber')
+    committee = request.GET.get('committee')
+    type = request.GET.get('type')
 
     if startDate is not None:
         start = datetime.datetime.strptime(startDate, '%Y-%m-%dT%H:%M:%S%z')
@@ -43,7 +43,8 @@ def get_events(request):
     serializer = EventSerializer(events, many=True)
     return JsonResponse(serializer.data, safe = False)
 
+
 def get_committees(request):
     committees = Event.objects.order_by('committee').values_list('committee', flat=True).distinct()
 
-    return JsonResponse(list(committees), safe = False)
+    return JsonResponse(list(committees), safe=False)

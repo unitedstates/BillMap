@@ -1,7 +1,7 @@
 import os
 from typing import Tuple
 from django.conf import settings
-from elasticsearch import exceptions, Elasticsearch
+from elasticsearch import Elasticsearch
 from common import constants
 from common.utils import dumpRelatedBillJSON
 from common.billdata import (
@@ -14,11 +14,11 @@ from common.billdata import (
 from common.elastic_load import indexBill
 from common.bill_similarity import processBill
 
-
 es = Elasticsearch()
 DIR = settings.PATH_TO_CONGRESSDATA_DIR
 BILL_JSON = 'data.json'
 BILL_XML = 'document.xml'
+
 
 def get_bill_dir(bill):
     """
@@ -56,11 +56,11 @@ def add_bill_meta(dirName: str, fileName: str):
     # TODO convert bill_id to billnumber
     related_dict['related_bills'] = billDict.get('related_bills')
     for item in related_dict['related_bills']:
-      bill_id = item.get('bill_id') 
-      if bill_id:
-        item['billCongressTypeNumber'] = billIdToBillNumber(bill_id)
-      else:
-        item['billCongressTypeNumber'] = None
+        bill_id = item.get('bill_id')
+        if bill_id:
+            item['billCongressTypeNumber'] = billIdToBillNumber(bill_id)
+        else:
+            item['billCongressTypeNumber'] = None
 
     dumpRelatedBillJSON(bill_congress_type_number, related_dict)
     return bill_congress_type_number, related_dict
@@ -69,12 +69,12 @@ def add_bill_meta(dirName: str, fileName: str):
 def update_bills_meta(bill: str) -> Tuple[str, dict, bool]:
     bill_dir = get_bill_dir(bill)
     if not validate_bill_dir(bill_dir, BILL_JSON):
-        return '', {}, True 
+        return '', {}, True
     bill_congress_type_number, related_dict = add_bill_meta(bill_dir, BILL_JSON)
-    return bill_congress_type_number, related_dict, False 
+    return bill_congress_type_number, related_dict, False
 
 
-def create_es_index(index: str='billsections', body: dict=constants.BILLSECTION_MAPPING):
+def create_es_index(index: str = 'billsections', body: dict = constants.BILLSECTION_MAPPING):
     indices = es.indices.get_alias().keys()
     if index in indices:
         return False

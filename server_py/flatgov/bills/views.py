@@ -1,44 +1,41 @@
-import os
 import json
-import requests
-import re
+
 from functools import reduce
 from typing import Dict
 from operator import itemgetter
-from django.urls import reverse_lazy
-from common.tasks import send_email
+
 from django.conf import settings
 from django.db.models import Q
-from django.http import HttpResponse
-from django.shortcuts import get_object_or_404
 from django.shortcuts import render
+from django.urls import reverse_lazy
 from django.views.generic import TemplateView, DetailView
 from django.views.generic.edit import FormMixin
 
-from django_tables2 import MultiTableMixin
-from celery import states
-
-from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers, getInnerResults
-
-from bills.models import (cleanReasons, Bill, Cosponsor, Statement, CboReport,
-                          CommitteeDocument)
-
-from bills.serializers import RelatedBillSerializer, CosponsorSerializer
-
+from bills.models import (
+    Bill,
+    CboReport,
+    cleanReasons,
+    CommitteeDocument,
+    Cosponsor,
+    Statement,
+)
+from bills.serializers import RelatedBillSerializer
+from bills.utils import sort_bills_for_congress
+from common.elastic_load import getSimilarSections, moreLikeThis, getResultBillnumbers
+from common.tasks import send_email
 from crs.models import CrsReport
 from feedback.forms import FeedbackModelForm
-from .utils import sort_bills_for_congress
+
 
 def deep_get(dictionary: Dict, *keys):
     """
-  A Dict utility to get a field; returns None if the field does not exist
+    A Dict utility to get a field; returns None if the field does not exist
+    Args:
+      dictionary (Dict): an arbitrary dictionary
 
-  Args:
-      dictionary (Dict): an arbitrary dictionary 
-
-  Returns:
+    Returns:
       any: value of the specified key, or None if the field does not exist
-  """
+    """
 
     return reduce(
         lambda d, key: d.get(key, None)
@@ -59,12 +56,10 @@ BILL_REGEX = r'([1-9][0-9]{2})([a-z]+)(\d+)'
 def billIdToBillNumber(bill_id: str) -> str:
     """
     Converts a bill_id of the form `hr299-116` into `116hr299`
-
     Args:
         bill_id (str): hyphenated bill_id from bill status JSON
-
     Returns:
-        str: billCongressTypeNumber (e.g. 116hr299) 
+        str: billCongressTypeNumber (e.g. 116hr299)
     """
     # TODO test if it has the right form, otherwise throw an exception
     return ''.join(reversed(bill_id.split('-')))
@@ -87,8 +82,8 @@ class BillListView(TemplateView):
     template_name = 'bills/list.html'
 
     def get_context_data(self, **kwargs):
-        #from uscongress.tasks import bill_similarity_task
-        #bill_similarity_task(26)
+        # from uscongress.tasks import bill_similarity_task
+        # bill_similarity_task(26)
         context = super().get_context_data(**kwargs)
         return context
 
@@ -121,6 +116,7 @@ def similar_bills_view(request):
     }
     return render(request, 'bills/bill-similar.html', context)
 
+
 class BillDetailView(FormMixin, DetailView):
     model = Bill
     template_name = 'bills/detail.html'
@@ -145,7 +141,7 @@ class BillDetailView(FormMixin, DetailView):
         email_subject = 'Received a feedback'
         email_list = [settings.EMAIL_HOST_USER]
 
-        url = self.request.scheme+"://"+self.request.META.get('HTTP_HOST') + form.instance.get_admin_url()
+        url = self.request.scheme + "://" + self.request.META.get('HTTP_HOST') + form.instance.get_admin_url()
         email_content = f'<a href="{url}">Click here to see feedback</a>'
         send_email.delay(email_subject, email_list, email_content)
         return super().form_valid(form)
@@ -222,7 +218,15 @@ class BillDetailView(FormMixin, DetailView):
             crs_bill_numbers = report.bills.all().values_list('bill_congress_type_number', flat=True)
             identical_bill_number = list(set(bill_numbers).intersection(crs_bill_numbers))
 
-            context_item = {"title": report.title, "identical_bill_number": identical_bill_number, "identical_bill_numbers": crs_bill_numbers, "date": report.date, "main_everycrs": main_everycrs, "html_everycrs": html_everycrs, "pdf_everycrs": pdf_everycrs }
+            context_item = {
+                "title": report.title,
+                "identical_bill_number": identical_bill_number,
+                "identical_bill_numbers": crs_bill_numbers,
+                "date": report.date,
+                "main_everycrs": main_everycrs,
+                "html_everycrs": html_everycrs,
+                "pdf_everycrs": pdf_everycrs
+            }
             metadata = json.loads(report.metadata)
             versions = metadata.get('versions', [])
             if versions and len(versions) > 0:
@@ -254,7 +258,6 @@ class BillDetailView(FormMixin, DetailView):
         deduped = []
         # list of committees
         seen = []
-        k = ''
         for committeeItem in committees_dict:
             k = committeeItem.get('committee', '')
             if not k or k in seen:
@@ -262,7 +265,6 @@ class BillDetailView(FormMixin, DetailView):
 
             seen.append(k)
             deduped.append(committeeItem)
-            #print(deduped)
         return deduped
 
     def get_committees_map(self, **kwargs):
@@ -273,104 +275,101 @@ class BillDetailView(FormMixin, DetailView):
         }
 
     def get_cosponsors_dict(self):
-       cosponsors =  self.object.cosponsors_dict
-       cosponsors = sorted(cosponsors, key = lambda i: i.get('name'))
+        cosponsors = self.object.cosponsors_dict
+        cosponsors = sorted(cosponsors, key=lambda i: i.get('name'))
 
-       sponsor = self.object.sponsor
-       sponsor['sponsor'] = True
-       sponsor_name = sponsor.get('name', '')
-       if sponsor_name:
-           sponsors = [] 
-           try:
-               sponsors = list(filter(lambda cosponsor: cosponsor.get('name', '') == sponsor_name, cosponsors))
-           except Exception as err:
-               pass
-           if sponsors:
-               #print(sponsors[0])
-               cosponsors.remove(sponsors[0])
-               cosponsors.insert(0, sponsors[0])
-           else:
-               cosponsors.insert(0, sponsor)
-       # Add party from Cosponsors table
-       unoriginal_cosponsors = []
-       sorted_unoriginal_ranked_cosponsors = []
-       unoriginal_unranked_cosponsors = []
-       original_cosponsors = []
-       sorted_original_ranked_cosponsors = []#
-       original_unranked_cosponsors = []#
-       for i, cosponsor in enumerate(cosponsors):
-           bioguide_id = cosponsor.get("bioguide_id", "")
-           committee_id = cosponsor.get('committee_id')
-           if bioguide_id:
-               try:
-                   cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id) 
-                   if cosponsor_item:
-                    cosponsor["current"] = True
-                   else:
-                    cosponsor["current"] = False 
+        sponsor = self.object.sponsor
+        sponsor['sponsor'] = True
+        sponsor_name = sponsor.get('name', '')
+        if sponsor_name:
+            sponsors = []
+            try:
+                sponsors = list(filter(lambda cosponsor: cosponsor.get('name', '') == sponsor_name, cosponsors))
+            except Exception:
+                pass
+            if sponsors:
+                cosponsors.remove(sponsors[0])
+                cosponsors.insert(0, sponsors[0])
+            else:
+                cosponsors.insert(0, sponsor)
+        # Add party from Cosponsors table
+        unoriginal_cosponsors = []
+        sorted_unoriginal_ranked_cosponsors = []
+        unoriginal_unranked_cosponsors = []
+        original_cosponsors = []
+        sorted_original_ranked_cosponsors = []  #
+        original_unranked_cosponsors = []  #
+        for i, cosponsor in enumerate(cosponsors):
+            bioguide_id = cosponsor.get("bioguide_id", "")
+            committee_id = cosponsor.get('committee_id')
+            if bioguide_id:
+                try:
+                    cosponsor_item = Cosponsor.objects.get(bioguide_id=bioguide_id)
+                    if cosponsor_item:
+                        cosponsor["current"] = True
+                    else:
+                        cosponsor["current"] = False
 
-               except Exception as err:
-                   cosponsor["current"] = False
-                   continue
-               cosponsor['party'] = cosponsor_item.party
-               cosponsor['name_full_official'] = cosponsor_item.name_full_official
-               for committee in cosponsor_item.committees:
-                   
-                   if bioguide_id == committee.get('bioguide'):
-                       committee_id = committee.get('committee')
-                       for committee_dict in self.object.committees_dict:
-                           if committee_id == committee_dict.get('committee_id'):
-                               cosponsor['committee_id'] = committee_id
-                               cosponsor['rank'] = committee.get('rank')
-                               cosponsor['committee_name'] = committee_dict.get('committee')
+                except Exception:
+                    cosponsor["current"] = False
+                    continue
+                cosponsor['party'] = cosponsor_item.party
+                cosponsor['name_full_official'] = cosponsor_item.name_full_official
+                for committee in cosponsor_item.committees:
 
-       for cosponsor in cosponsors[1:]:
-           if cosponsor.get('original_cosponsor'):
-               original_cosponsors.append(cosponsor)
-           else:
-               unoriginal_cosponsors.append(cosponsor)
+                    if bioguide_id == committee.get('bioguide'):
+                        committee_id = committee.get('committee')
+                        for committee_dict in self.object.committees_dict:
+                            if committee_id == committee_dict.get('committee_id'):
+                                cosponsor['committee_id'] = committee_id
+                                cosponsor['rank'] = committee.get('rank')
+                                cosponsor['committee_name'] = committee_dict.get('committee')
 
-       for original_cosponsor in original_cosponsors:
-           if type(original_cosponsor.get('rank')) == int:
-               sorted_original_ranked_cosponsors.append(original_cosponsor)
-           else:
-               original_unranked_cosponsors.append(original_cosponsor)
+        for cosponsor in cosponsors[1:]:
+            if cosponsor.get('original_cosponsor'):
+                original_cosponsors.append(cosponsor)
+            else:
+                unoriginal_cosponsors.append(cosponsor)
 
-       for unoriginal_cosponsor in unoriginal_cosponsors:
-           if type(unoriginal_cosponsor.get('rank')) == int:
-               sorted_unoriginal_ranked_cosponsors.append(unoriginal_cosponsor)
-           else:
-               unoriginal_unranked_cosponsors.append(unoriginal_cosponsor)
-           
+        for original_cosponsor in original_cosponsors:
+            if type(original_cosponsor.get('rank')) == int:
+                sorted_original_ranked_cosponsors.append(original_cosponsor)
+            else:
+                original_unranked_cosponsors.append(original_cosponsor)
 
-       sorted_original_ranked_cosponsors = sorted(sorted_original_ranked_cosponsors, key = lambda i: i.get('rank'))
-       sorted_unoriginal_ranked_cosponsors = sorted(sorted_unoriginal_ranked_cosponsors, key = lambda i: i.get('rank'))
+        for unoriginal_cosponsor in unoriginal_cosponsors:
+            if type(unoriginal_cosponsor.get('rank')) == int:
+                sorted_unoriginal_ranked_cosponsors.append(unoriginal_cosponsor)
+            else:
+                unoriginal_unranked_cosponsors.append(unoriginal_cosponsor)
 
-       return cosponsors[:1]+sorted_original_ranked_cosponsors+original_unranked_cosponsors+sorted_unoriginal_ranked_cosponsors+unoriginal_unranked_cosponsors
-    
+        sorted_original_ranked_cosponsors = sorted(sorted_original_ranked_cosponsors, key=lambda i: i.get('rank'))
+        sorted_unoriginal_ranked_cosponsors = sorted(sorted_unoriginal_ranked_cosponsors, key=lambda i: i.get('rank'))
+
+        return cosponsors[
+               :1] + sorted_original_ranked_cosponsors + original_unranked_cosponsors + sorted_unoriginal_ranked_cosponsors + unoriginal_unranked_cosponsors
+
     def get_billnumbers_similar(self):
-          #print('get_billnumbers_similar')
-          return [ bill.get('bill_congress_type_number', '')
-            for bill in self.object.get_similar_bills]
+        return [bill.get('bill_congress_type_number', '')
+                for bill in self.object.get_similar_bills]
 
     def get_current_bill_score(self):
-        #print('get_current_bill_score')
         if self.object.bill_congress_type_number in self.get_billnumbers_similar():
             current_bill = next(
                 filter(
                     lambda bill: bill.get('bill_congress_type_number') == self.
-                    object.bill_congress_type_number,
+                        object.bill_congress_type_number,
                     self.object.get_similar_bills))
             current_bill_score = current_bill.get('score')
         else:
-            current_bill_score = 0           
+            current_bill_score = 0
         return current_bill_score
 
     #  Get identical or nearly identical bills with the following, or equivalent
     def get_identical_bill_numbers(self):
         current_bill_score = self.get_current_bill_score()
 
-        identical_bill_numbers =  [billnumber for billnumber in [bill.get('bill_congress_type_number', '')
+        identical_bill_numbers = [billnumber for billnumber in [bill.get('bill_congress_type_number', '')
             for bill in self.object.get_similar_bills
             if (any(x in cleanReasons(bill.get('reason').split(", ")) for x in IDENTICAL_REASONS)
             or (current_bill_score > 0 and (abs(bill.get('score') - current_bill_score) / current_bill_score < SIMILARITY_THRESHOLD)))]
@@ -386,7 +385,7 @@ class BillDetailView(FormMixin, DetailView):
         if self.object.bill_congress_type_number not in billnumbers:
             billnumbers = [self.object.bill_congress_type_number, *billnumbers]
         billids = [Bill.objects.get(
-            bill_congress_type_number=billnumber).id  for billnumber in billnumbers]
+            bill_congress_type_number=billnumber).id for billnumber in billnumbers]
         bill_dict = {billid: billnumbers[i] for i, billid in enumerate(billids)}
         cosponsors_for_bills = Cosponsor.objects.filter(
             bill__in=billids).values("bioguide_id", "name_full_official",

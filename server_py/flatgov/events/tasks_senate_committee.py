@@ -1,10 +1,10 @@
-from events.models import Event, SourceArchive
-from dateutil.rrule import *
-from common.utils import set_eastern_timezone
-
-import xmltodict
-import re
 import datetime
+import re
+import xmltodict
+
+from common.utils import set_eastern_timezone
+from events.models import Event
+
 
 def parse_date_from_string(str_date):
     for fmt in ("%d-%b-%Y %I:%M %p", '%d-%b-%Y'):
@@ -13,6 +13,7 @@ def parse_date_from_string(str_date):
         except ValueError:
             pass
     raise ValueError('no valid date format found for ' + str_date)
+
 
 def process_xml_senate_committee(source):
     print("Processing xml senate committee schedule data: " + source.name)
@@ -37,7 +38,8 @@ def process_xml_senate_committee(source):
 
         if "sub_cmte" in meeting and meeting["sub_cmte"] is not None:
             hasSubCommittee = True
-            subCommittee = meeting["sub_cmte"] # optional, Labor, Health and Human Services, and Education, and Related Agencies
+            # optional, Labor, Health and Human Services, and Education, and Related Agencies
+            subCommittee = meeting["sub_cmte"]
 
             if isinstance(subCommittee, list):
                 hasMultipleSubCommittees = True
@@ -62,19 +64,19 @@ def process_xml_senate_committee(source):
                 title = "{} - {}".format(committee, sc)
 
                 if existingEvent:
-                    #print("Updating event: " + eventId)
-                    existingEvent.sourceId=source.id
-                    existingEvent.title=title
-                    existingEvent.description=description
-                    existingEvent.notes=room
-                    existingEvent.allDay=False
-                    existingEvent.className="event-senate-committee" if isHearing else "event-senate-committee"
-                    existingEvent.start=start
-                    existingEvent.end=end
-                    existingEvent.type="hearing" if isHearing else "markup"
-                    existingEvent.chamber="senate"
-                    existingEvent.committee=committee
-                    existingEvent.committeeCode=committeeCode
+                    # print("Updating event: " + eventId)
+                    existingEvent.sourceId = source.id
+                    existingEvent.title = title
+                    existingEvent.description = description
+                    existingEvent.notes = room
+                    existingEvent.allDay = False
+                    existingEvent.className = "event-senate-committee" if isHearing else "event-senate-committee"
+                    existingEvent.start = start
+                    existingEvent.end = end
+                    existingEvent.type = "hearing" if isHearing else "markup"
+                    existingEvent.chamber = "senate"
+                    existingEvent.committee = committee
+                    existingEvent.committeeCode = committeeCode
 
                     existingEvent.save(update_fields=['sourceId',
                                                       'title',
@@ -89,11 +91,11 @@ def process_xml_senate_committee(source):
                                                       'committee',
                                                       'committeeCode'])
                 else:
-                    #print("Creating event: " + eventId)
+                    # print("Creating event: " + eventId)
                     Event.objects.create(
                         sourceName=source.name,
-                        sourceId = source.id,
-                        eventId = eventId,
+                        sourceId=source.id,
+                        eventId=eventId,
                         title=title,
                         description=description,
                         notes=room,
@@ -113,20 +115,20 @@ def process_xml_senate_committee(source):
                 existingEvent = False
 
             if existingEvent:
-                #print("Updating event: " + eventId)
-                existingEvent.sourceId=source.id
-                existingEvent.title=title
-                existingEvent.description=description
-                existingEvent.notes=room
-                existingEvent.allDay=False
-                existingEvent.className="event-senate-committee" if isHearing else "event-senate-committee"
-                existingEvent.start=start
-                existingEvent.end=end
-                existingEvent.type="hearing" if isHearing else "markup"
-                existingEvent.chamber="senate"
-                existingEvent.committee=committee
-                existingEvent.committeeCode=committeeCode
-                existingEvent.subcommittee=subCommittee if hasSubCommittee else ""
+                # print("Updating event: " + eventId)
+                existingEvent.sourceId = source.id
+                existingEvent.title = title
+                existingEvent.description = description
+                existingEvent.notes = room
+                existingEvent.allDay = False
+                existingEvent.className = "event-senate-committee" if isHearing else "event-senate-committee"
+                existingEvent.start = start
+                existingEvent.end = end
+                existingEvent.type = "hearing" if isHearing else "markup"
+                existingEvent.chamber = "senate"
+                existingEvent.committee = committee
+                existingEvent.committeeCode = committeeCode
+                existingEvent.subcommittee = subCommittee if hasSubCommittee else ""
 
                 existingEvent.save(update_fields=['sourceId',
                                                   'title',
@@ -142,11 +144,11 @@ def process_xml_senate_committee(source):
                                                   'committeeCode',
                                                   'subcommittee'])
             else:
-                #print("Creating event: " + eventId)
+                # print("Creating event: " + eventId)
                 Event.objects.create(
                     sourceName=source.name,
-                    sourceId = source.id,
-                    eventId = eventId,
+                    sourceId=source.id,
+                    eventId=eventId,
                     title=title,
                     description=description,
                     notes=room,
@@ -155,10 +157,11 @@ def process_xml_senate_committee(source):
                     end=end,
                     chamber="senate",
                     committee=committee,
-                    committeeCode =committeeCode,
+                    committeeCode=committeeCode,
                     subcommittee=subCommittee if hasSubCommittee else "",
                     type="hearing" if isHearing else "markup",
-                    allDay=False)
+                    allDay=False
+                )
 
     print("End processing xml senate committee schedule data: " + source.name)
     return

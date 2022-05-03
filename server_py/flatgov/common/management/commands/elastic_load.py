@@ -1,13 +1,12 @@
 from django.core.management.base import BaseCommand
-from common.constants import BILL_FULL_MAPPING 
+
+from common.constants import BILL_FULL_MAPPING
 from common.elastic_load import (
-    createIndex, 
+    createIndex,
     indexBills,
     refreshIndices,
-    runQuery,
-    getResultBillnumbers,
-    getInnerResults
 )
+
 
 class Command(BaseCommand):
     help = 'create bill data via billdata.py'

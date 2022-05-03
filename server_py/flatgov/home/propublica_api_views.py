@@ -1,8 +1,9 @@
+import json
+import requests
+
+from django.conf import settings
 from django.http import JsonResponse
 from django.views import View
-import json
-from django.conf import settings
-import requests
 
 
 class GetPressStatementsAPIView(View):

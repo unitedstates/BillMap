@@ -660,7 +660,7 @@ def processBill(bill_path: str = PATH_BILL):
 
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in
-                         range(constants.CURRENT_CONGRESS, (constants.CURRENT_CONGRESS - 2), -1)]
+                         range(constants.CURRENT_CONGRESS, (constants.CURRENT_CONGRESS - 4), -1)]
 
 
 def processBills(congresses: list = CONGRESS_LIST_DEFAULT, docType: str = 'dtd', uscongress: bool = False):

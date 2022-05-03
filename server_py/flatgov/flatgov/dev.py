@@ -52,4 +52,6 @@ PATH_TO_TITLES_INDEX = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'titlesIndex.json'
 PATH_TO_NOYEAR_TITLES_INDEX = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'noYearTitlesIndex.json')
 PATH_TO_RELATEDBILLS_DIR = os.path.join(PATH_TO_CONGRESSDATA_DIR, 'relatedbills')
 
-USCONGRESS_XML_FILE = 'document.xml'
+USCONGRESS_XML_FILE = 'data.xml'
+
+ALLOWED_HOSTS = ['127.0.0.1']

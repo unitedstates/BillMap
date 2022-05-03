@@ -193,7 +193,7 @@ def get_bill_xml(congressDir: str, uscongress: bool = True) -> list:
 
 
 CONGRESS_LIST_DEFAULT = [str(congressNum) for congressNum in
-                         range(constants.CURRENT_CONGRESS, (constants.CURRENT_CONGRESS - 2), -1)]
+                         range(constants.CURRENT_CONGRESS, (constants.CURRENT_CONGRESS - 4), -1)]
 
 
 def indexBills(congresses: list = CONGRESS_LIST_DEFAULT, docType: str = 'dtd', uscongress: bool = False,
